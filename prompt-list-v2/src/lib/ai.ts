@@ -76,3 +76,25 @@ export async function generateLiveEmbedding(text: string): Promise<number[]> {
   const { generateMockEmbedding } = await import('./vector');
   return generateMockEmbedding(text);
 }
+
+/**
+ * Analyzes image content via Gemini Vision to generate searchable visual keywords (e.g. forest, fire, woods)
+ */
+export async function analyzeArtworkWithGemini(imageUrlOrBase64: string): Promise<string[]> {
+  try {
+    const isBase64 = imageUrlOrBase64.startsWith('data:');
+    const res = await fetch('/api/analyze-image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(isBase64 ? { base64: imageUrlOrBase64 } : { imageUrl: imageUrlOrBase64 }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data.tags)) return data.tags;
+    }
+  } catch (e) {
+    console.error("Failed to extract Gemini vision tags:", e);
+  }
+  return [];
+}
+

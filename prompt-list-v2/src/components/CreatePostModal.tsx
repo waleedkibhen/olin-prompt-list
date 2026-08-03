@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import styles from './CreatePostModal.module.css';
 import { useAuth } from '@/context/AuthContext';
-import { moderateText, moderateSingleImage, generateLiveEmbedding } from '@/lib/ai';
+import { moderateText, moderateSingleImage, generateLiveEmbedding, analyzeArtworkWithGemini } from '@/lib/ai';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
@@ -232,8 +232,16 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
         }
       }
 
+      setStatusText('Analyzing visual scene with Gemini...');
+      const visualTags: string[] = [];
+      for (const imgUrl of uploadedImageUrls) {
+        const tags = await analyzeArtworkWithGemini(imgUrl);
+        visualTags.push(...tags);
+      }
+      const uniqueVisualTags = Array.from(new Set(visualTags));
+
       setStatusText('Finalizing...');
-      const fullTextToEmbed = `${title} ${description} ${promptText} ${styleTag} ${model}`;
+      const fullTextToEmbed = `${title} ${description} ${promptText} ${styleTag} ${model} ${uniqueVisualTags.join(" ")}`;
       const embedding = await generateLiveEmbedding(fullTextToEmbed);
 
       setStatusText('Publishing...');
@@ -253,7 +261,7 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
         imageUrls: uploadedImageUrls,
         model,
         styleTag,
-        categories: [styleTag, "Verified Upload"],
+        categories: Array.from(new Set([styleTag, "Verified Upload", ...uniqueVisualTags])),
         likesCount: 0,
         savesCount: 0,
         viewsCount: 1,
