@@ -5,7 +5,6 @@ import { moderateText, moderateSingleImage, generateLiveEmbedding, analyzeArtwor
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
-import { STYLE_CATEGORIES } from '@/lib/mockData';
 import { CheckCircle2, Loader2, Trash2, AlertTriangle, UploadCloud } from 'lucide-react';
 
 interface CreatePostModalProps {
@@ -27,7 +26,6 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
   const [promptText, setPromptText] = useState('');
   const [negativePrompt, setNegativePrompt] = useState('');
   const [model, setModel] = useState<'Midjourney V6' | 'Flux.1' | 'DALL-E 3' | 'Stable Diffusion XL'>('Midjourney V6');
-  const [styleTag, setStyleTag] = useState('Cyberpunk');
   
   const [selectedFiles, setSelectedFiles] = useState<SelectedFile[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -241,7 +239,7 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
       const uniqueVisualTags = Array.from(new Set(visualTags));
 
       setStatusText('Finalizing...');
-      const fullTextToEmbed = `${title} ${description} ${promptText} ${styleTag} ${model} ${uniqueVisualTags.join(" ")}`;
+      const fullTextToEmbed = `${title} ${description} ${promptText} ${model} ${uniqueVisualTags.join(" ")}`;
       const embedding = await generateLiveEmbedding(fullTextToEmbed);
 
       setStatusText('Publishing...');
@@ -260,8 +258,8 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
         negativePrompt: negativePrompt.trim() || null,
         imageUrls: uploadedImageUrls,
         model,
-        styleTag,
-        categories: Array.from(new Set([styleTag, "Verified Upload", ...uniqueVisualTags])),
+        styleTag: uniqueVisualTags[0] || 'General',
+        categories: Array.from(new Set(["Verified Upload", ...uniqueVisualTags])),
         likesCount: 0,
         savesCount: 0,
         viewsCount: 1,
@@ -400,15 +398,6 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
                   <option value="Flux.1">Flux.1</option>
                   <option value="DALL-E 3">DALL-E 3</option>
                   <option value="Stable Diffusion XL">SDXL</option>
-                </select>
-              </div>
-
-              <div className={styles.fieldGroup}>
-                <label>Style</label>
-                <select value={styleTag} onChange={e => setStyleTag(e.target.value)}>
-                  {STYLE_CATEGORIES.filter(c => c !== "All Styles").map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
                 </select>
               </div>
             </div>

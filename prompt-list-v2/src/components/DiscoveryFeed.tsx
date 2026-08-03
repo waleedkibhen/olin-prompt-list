@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from './DiscoveryFeed.module.css';
-import { STYLE_CATEGORIES, PromptPost } from '@/lib/mockData';
+import { PromptPost } from '@/lib/mockData';
+import { getPersonalizedCategories, recordSearchTerm } from '@/lib/personalization';
 import PromptCard from './PromptCard';
 import { Compass, Flame, Clock, Layers, Loader2, Search, AlertTriangle, X } from 'lucide-react';
 import { calculateCosineSimilarity } from '@/lib/vector';
@@ -12,7 +13,7 @@ import { useSearchParams } from 'react-router-dom';
 export default function DiscoveryFeed() {
   const [searchParams, setSearchParams] = useSearchParams();
   
-  const [selectedCategory, setSelectedCategory] = useState('All Styles');
+  const [selectedCategory, setSelectedCategory] = useState('All');
   const [activeTab, setActiveTab] = useState<'for_you' | 'trending' | 'newest'>('for_you');
   
   const [dbPosts, setDbPosts] = useState<PromptPost[]>([]);
@@ -32,6 +33,9 @@ export default function DiscoveryFeed() {
     const modelParam = searchParams.get('model') || 'All Models';
     setSearchFilter(queryParam);
     setModelFilter(modelParam);
+    if (queryParam.trim().length >= 2) {
+      recordSearchTerm(queryParam);
+    }
     if (dbPosts.length > 0) {
       applyFiltersAndSearch(dbPosts, selectedCategory, activeTab, queryParam, modelParam);
     }
@@ -97,8 +101,13 @@ export default function DiscoveryFeed() {
   ) => {
     let current = [...items];
 
-    if (category !== 'All Styles') {
-      current = current.filter(p => p.styleTag.toLowerCase() === category.toLowerCase() || p.categories.some(c => c.toLowerCase() === category.toLowerCase()));
+    if (category !== 'All' && category !== 'All Styles') {
+      const catLower = category.toLowerCase();
+      const catTokens = catLower.split(/\s+/).filter(Boolean);
+      current = current.filter(p => {
+        const postContent = `${p.styleTag || ""} ${p.title} ${p.description} ${p.categories.join(" ")}`.toLowerCase();
+        return catTokens.some(token => postContent.includes(token));
+      });
     }
 
     if (model && model !== 'All Models') {
@@ -192,6 +201,8 @@ export default function DiscoveryFeed() {
     applyFiltersAndSearch(dbPosts, selectedCategory, activeTab, '', modelFilter);
   };
 
+  const dynamicCategories = getPersonalizedCategories(dbPosts, 6);
+
   return (
     <div className={styles.feedWrapper}>
       {permissionError && (
@@ -215,7 +226,7 @@ export default function DiscoveryFeed() {
 
       <nav className={styles.categoryNav}>
         <div className={styles.categoryRoller}>
-          {STYLE_CATEGORIES.map((category) => {
+          {dynamicCategories.map((category) => {
             const isActive = selectedCategory === category;
             return (
               <button
@@ -223,7 +234,7 @@ export default function DiscoveryFeed() {
                 className={`${styles.categoryTab} ${isActive ? styles.categoryTabActive : ''}`}
                 onClick={() => handleCategoryClick(category)}
               >
-                {category === "All Styles" ? "All" : category}
+                {category}
               </button>
             );
           })}
@@ -271,7 +282,7 @@ export default function DiscoveryFeed() {
             {searchFilter ? 'Try searching another keyword or clearing filters.' : 'Be the first creator to upload visual AI artwork using the Share button.'}
           </p>
           {searchFilter && (
-            <button className="btn-outline" onClick={() => { setSelectedCategory('All Styles'); clearSearch(); }} style={{ marginTop: '0.5rem' }}>
+            <button className="btn-outline" onClick={() => { setSelectedCategory('All'); clearSearch(); }} style={{ marginTop: '0.5rem' }}>
               Reset Filters
             </button>
           )}
