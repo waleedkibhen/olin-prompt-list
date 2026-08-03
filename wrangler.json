@@ -6,8 +6,23 @@
   "compatibility_flags": [
     "nodejs_compat"
   ],
+  "keep_vars": true,
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
+  },
+  "vars": {
+    "GEMINI_PROJECT_ID": "projects/796835951339",
+    "GEMINI_PROJECT_NUMBER": "796835951339",
+    "NEXT_PUBLIC_FIREBASE_API_KEY": "AIzaSyDft0f0YPzPhS3PP4ASiVcAakzZK4nY590",
+    "NEXT_PUBLIC_FIREBASE_APP_ID": "1:232888822071:web:7e4394b7ae0d9913f052b2",
+    "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN": "promptlist-15659.firebaseapp.com",
+    "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "796835951339",
+    "NEXT_PUBLIC_FIREBASE_PROJECT_ID": "promptlist-15659",
+    "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET": "promptlist-15659.firebasestorage.app",
+    "NEXT_PUBLIC_GOOGLE_CLIENT_ID": "232888822071-dqr6ff4qkqoaqg9jfa2rb9a6kj9nh5bo.apps.googleusercontent.com"
+  },
+  "observability": {
+    "enabled": true
   }
 }
