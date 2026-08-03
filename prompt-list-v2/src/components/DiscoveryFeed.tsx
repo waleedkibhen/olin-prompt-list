@@ -129,7 +129,7 @@ export default function DiscoveryFeed() {
           })
         );
 
-        const STRICT_SEMANTIC_THRESHOLD = 0.42;
+        const STRICT_SEMANTIC_THRESHOLD = 0.25;
         const strictMatches = evaluated.filter(item => item.hasKeywordMatch || item.similarity >= STRICT_SEMANTIC_THRESHOLD);
 
         strictMatches.sort((a, b) => {
