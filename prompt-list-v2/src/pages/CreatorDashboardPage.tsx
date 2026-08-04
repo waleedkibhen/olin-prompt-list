@@ -4,14 +4,15 @@ import { useAuth } from '@/context/AuthContext';
 import { collection, onSnapshot, query, where, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { PromptPost } from '@/lib/mockData';
-import { BarChart2, Eye, Heart, Bookmark, Copy, Trash2, ExternalLink, PlusCircle, Loader2, AlertTriangle, Sparkles } from 'lucide-react';
+import { BarChart2, Eye, Heart, Bookmark, Copy, Trash2, ExternalLink, PlusCircle, Loader2, AlertTriangle, Sparkles, CheckCircle, Award } from 'lucide-react';
 import CreatePostModal from '@/components/CreatePostModal';
 import { Link } from 'react-router-dom';
 
 export default function CreatorDashboardPage() {
-  const { user, loading: authLoading, signInWithGoogle } = useAuth();
+  const { user, profile, updateProfileState, loading: authLoading, signInWithGoogle } = useAuth();
   
   const [creatorPosts, setCreatorPosts] = useState<PromptPost[]>([]);
+  const [recentCopies, setRecentCopies] = useState(0);
   const [loadingDb, setLoadingDb] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -35,6 +36,8 @@ export default function CreatorDashboardPage() {
       let likesSum = 0;
       let savesSum = 0;
       let copiesSum = 0;
+      let recentCopiesSum = 0;
+      const ninetyDaysAgo = Date.now() - (90 * 24 * 60 * 60 * 1000);
 
       snapshot.forEach(docSnap => {
         const d = docSnap.data();
@@ -42,6 +45,11 @@ export default function CreatorDashboardPage() {
         const likes = d.likesCount || 0;
         const saves = d.savesCount || 0;
         const copies = d.copiesCount || 0;
+        const createdAtMs = d.createdAt?.toMillis ? d.createdAt.toMillis() : Date.now();
+
+        if (createdAtMs >= ninetyDaysAgo) {
+          recentCopiesSum += copies;
+        }
 
         viewsSum += views;
         likesSum += likes;
@@ -81,6 +89,7 @@ export default function CreatorDashboardPage() {
       setTotalLikes(likesSum);
       setTotalSaves(savesSum);
       setTotalCopies(copiesSum);
+      setRecentCopies(recentCopiesSum);
       setLoadingDb(false);
     }, (err) => {
       console.error("Dashboard synchronization error:", err);
@@ -139,6 +148,84 @@ export default function CreatorDashboardPage() {
         </div>
       ) : (
         <>
+          <section style={{ 
+            backgroundColor: 'var(--bg-secondary)', 
+            border: '1px solid var(--border-color)', 
+            borderRadius: '16px', 
+            padding: '1.5rem', 
+            marginBottom: '2rem',
+            boxShadow: '0 8px 30px rgba(0,0,0,0.12)' 
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <Award size={32} style={{ color: '#f59e0b' }} />
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>Creator WHOP Monetization Funnel</h3>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                    Achieve 50+ generative prompt copies in the last 90 days to unlock Premium WHOP subscriptions.
+                  </span>
+                </div>
+              </div>
+              <div>
+                {profile?.monetizationStatus === 'approved' && (
+                  <span style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', color: '#10b981', padding: '0.5rem 1rem', borderRadius: '9999px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.4rem', border: '1px solid #10b981' }}>
+                    <CheckCircle size={16} /> Approved Verified Creator
+                  </span>
+                )}
+                {profile?.monetizationStatus === 'pending_review' && (
+                  <span style={{ backgroundColor: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', padding: '0.5rem 1rem', borderRadius: '9999px', fontWeight: 700, border: '1px solid #f59e0b' }}>
+                    ⏳ Under Admin Review
+                  </span>
+                )}
+                {profile?.monetizationStatus === 'rejected' && (
+                  <span style={{ backgroundColor: 'rgba(244, 63, 94, 0.15)', color: '#f43f5e', padding: '0.5rem 1rem', borderRadius: '9999px', fontWeight: 700, border: '1px solid #f43f5e' }}>
+                    ❌ Application Rejected — Reach out via Support
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {(!profile?.monetizationStatus || profile.monetizationStatus === 'ineligible') && (
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontWeight: 700, fontSize: '0.9rem' }}>
+                  <span>Milestone Progress (Last 90 Days)</span>
+                  <span style={{ color: '#10b981' }}>{Math.min(recentCopies, 50)} / 50 Copies to Unlock Monetization</span>
+                </div>
+                <div style={{ width: '100%', height: '12px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '9999px', overflow: 'hidden', marginBottom: '1rem' }}>
+                  <div style={{ 
+                    width: `${Math.min((recentCopies / 50) * 100, 100)}%`, 
+                    height: '100%', 
+                    background: 'linear-gradient(90deg, #10b981 0%, #34d399 100%)', 
+                    borderRadius: '9999px',
+                    transition: 'width 0.5s ease' 
+                  }} />
+                </div>
+
+                {recentCopies >= 50 ? (
+                  <button
+                    type="button"
+                    className="btn-solid"
+                    style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', fontWeight: 800, padding: '0.65rem 1.5rem', borderRadius: '9999px' }}
+                    onClick={async () => {
+                      try {
+                        await updateProfileState({ monetizationStatus: 'pending_review' });
+                        alert("Application submitted! Our Admin team will review your account analytics and copy verification.");
+                      } catch (e: any) {
+                        alert(`Application error: ${e.message}`);
+                      }
+                    }}
+                  >
+                    🚀 Apply for Monetization
+                  </button>
+                ) : (
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                    Share high-quality visual prompts in community feeds to generate more copy events!
+                  </span>
+                )}
+              </div>
+            )}
+          </section>
+
           <section className={styles.kpiGrid}>
             <div className={styles.kpiCard}>
               <div className={styles.kpiTop}>

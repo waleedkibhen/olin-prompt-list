@@ -13,6 +13,10 @@ export interface CreatorProfile {
   followingCount: number;
   totalViews: number;
   createdAt?: any;
+  isProfileComplete?: boolean;
+  monetizationStatus?: 'ineligible' | 'pending_review' | 'approved' | 'rejected';
+  rejectionReason?: string;
+  isBanned?: boolean;
 }
 
 interface AuthContextType {
@@ -21,6 +25,7 @@ interface AuthContextType {
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
+  updateProfileState: (data: Partial<CreatorProfile>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -29,6 +34,7 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   signInWithGoogle: async () => {},
   signOut: async () => {},
+  updateProfileState: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -47,22 +53,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const userSnapshot = await getDoc(userDocRef);
           
           if (userSnapshot.exists()) {
-            setProfile(userSnapshot.data() as CreatorProfile);
+            const data = userSnapshot.data() as CreatorProfile;
+            if (data.isBanned) {
+              alert("Your account has been suspended by an administrator due to policy violations.");
+              await fbSignOut(auth);
+              setUser(null);
+              setProfile(null);
+              setLoading(false);
+              return;
+            }
+            setProfile(data);
           } else {
             const baseUsername = currentUser.email 
-              ? currentUser.email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '')
+              ? currentUser.email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '') + Math.floor(Math.random() * 100)
               : `creator_${currentUser.uid.substring(0, 6)}`;
             
             const newProfile: CreatorProfile = {
               uid: currentUser.uid,
               email: currentUser.email || undefined,
-              displayName: currentUser.displayName || 'Unnamed Creator',
+              displayName: currentUser.displayName || '',
               username: baseUsername,
               avatarUrl: currentUser.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
               followerCount: 0,
               followingCount: 0,
               totalViews: 0,
               createdAt: serverTimestamp(),
+              isProfileComplete: false,
+              monetizationStatus: 'ineligible',
+              isBanned: false,
             };
             
             await setDoc(userDocRef, newProfile);
@@ -72,6 +90,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.error("Error syncing Firestore user profile:", error);
           setProfile({
             uid: currentUser.uid,
+            email: currentUser.email || undefined,
             displayName: currentUser.displayName || 'AI Creator',
             username: currentUser.email ? currentUser.email.split('@')[0] : 'creator',
             avatarUrl: currentUser.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
@@ -79,6 +98,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             followingCount: 0,
             totalViews: 0,
             createdAt: new Date(),
+            isProfileComplete: true,
           });
         }
       } else {
@@ -112,9 +132,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const updateProfileState = async (newData: Partial<CreatorProfile>) => {
+    if (!user) return;
+    const nextProfile = { ...(profile || {}), ...newData } as CreatorProfile;
+    setProfile(nextProfile);
+    try {
+      await setDoc(doc(db, 'users', user.uid), newData, { merge: true });
+    } catch (e) {
+      console.error("Failed to merge profile updates:", e);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, profile, loading, signInWithGoogle, signOut, updateProfileState }}>
       {children}
     </AuthContext.Provider>
   );
 };
+

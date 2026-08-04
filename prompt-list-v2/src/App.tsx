@@ -6,12 +6,15 @@ import SavedPromptsPage from '@/pages/SavedPromptsPage';
 import FollowingHubPage from '@/pages/FollowingHubPage';
 import CreatorDashboardPage from '@/pages/CreatorDashboardPage';
 import PostDetailPage from '@/pages/PostDetailPage';
+import AdminDashboardPage from '@/pages/AdminDashboardPage';
+import OnboardingModal from '@/components/OnboardingModal';
 import './index.css';
 
 export default function App() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
+      <OnboardingModal />
       <div style={{ flex: 1 }}>
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -19,8 +22,10 @@ export default function App() {
           <Route path="/following" element={<FollowingHubPage />} />
           <Route path="/dashboard" element={<CreatorDashboardPage />} />
           <Route path="/post/:id" element={<PostDetailPage />} />
+          <Route path="/admin" element={<AdminDashboardPage />} />
         </Routes>
       </div>
     </div>
   );
 }
+

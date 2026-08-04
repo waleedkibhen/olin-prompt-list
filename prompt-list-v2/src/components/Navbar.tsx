@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './Navbar.module.css';
-import { Search, Sparkles, Sun, Moon, Bookmark, Plus, LogOut, Users, BarChart2, X } from 'lucide-react';
+import { Search, Sparkles, Sun, Moon, Bookmark, Plus, LogOut, Users, BarChart2, X, ShieldAlert, MessageSquarePlus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import CreatePostModal from './CreatePostModal';
+import NotificationBell from './NotificationBell';
+import FeedbackModal from './FeedbackModal';
 import { Link, useNavigate } from 'react-router-dom';
 
 export default function Navbar() {
@@ -15,6 +17,7 @@ export default function Navbar() {
   const [selectedModel, setSelectedModel] = useState('All Models');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -49,6 +52,8 @@ export default function Navbar() {
     if (!searchQuery.trim()) return;
     navigate(`/?search=${encodeURIComponent(searchQuery)}&model=${encodeURIComponent(selectedModel)}`);
   };
+
+  const isAdmin = user?.email === 'wisecrafts81@gmail.com';
 
   return (
     <>
@@ -126,6 +131,26 @@ export default function Navbar() {
               {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
             </button>
 
+            {user && <NotificationBell />}
+
+            <button
+              type="button"
+              className={styles.navLinkBtn}
+              onClick={() => setIsFeedbackOpen(true)}
+              title="Submit Feedback or Report a Bug"
+              style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}
+            >
+              <MessageSquarePlus size={16} />
+              <span className={styles.btnText}>Support</span>
+            </button>
+
+            {isAdmin && (
+              <Link to="/admin" className={styles.navLinkBtn} title="Secure Admin Dashboard" style={{ color: '#f59e0b', fontWeight: 700 }}>
+                <ShieldAlert size={16} style={{ color: '#f59e0b' }} />
+                <span className={styles.btnText}>Admin</span>
+              </Link>
+            )}
+
             <Link to="/saved" className={styles.navLinkBtn} title="Saved library">
               <Bookmark size={16} />
               <span className={styles.btnText}>Saved</span>
@@ -172,6 +197,12 @@ export default function Navbar() {
                           <strong>{profile?.displayName || user.displayName}</strong>
                           <span>@{profile?.username || 'creator'}</span>
                         </div>
+                        {isAdmin && (
+                          <Link to="/admin" className={styles.menuItem} onClick={() => setIsMenuOpen(false)} style={{ color: '#f59e0b', fontWeight: 700 }}>
+                            <ShieldAlert size={16} />
+                            <span>Admin Dashboard</span>
+                          </Link>
+                        )}
                         <Link to="/dashboard" className={styles.menuItem} onClick={() => setIsMenuOpen(false)}>
                           <BarChart2 size={16} />
                           <span>Dashboard</span>
@@ -184,6 +215,10 @@ export default function Navbar() {
                           <Users size={16} />
                           <span>Following</span>
                         </Link>
+                        <button type="button" className={styles.menuItem} onClick={() => { setIsFeedbackOpen(true); setIsMenuOpen(false); }}>
+                          <MessageSquarePlus size={16} />
+                          <span>Submit Bug / Support</span>
+                        </button>
                         <button className={styles.menuItem} onClick={() => { signOut(); setIsMenuOpen(false); }}>
                           <LogOut size={15} /> 
                           <span>Sign Out</span>
@@ -206,6 +241,11 @@ export default function Navbar() {
           }}
         />
       )}
+
+      {isFeedbackOpen && (
+        <FeedbackModal onClose={() => setIsFeedbackOpen(false)} />
+      )}
     </>
   );
 }
+

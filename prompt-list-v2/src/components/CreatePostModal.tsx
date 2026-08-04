@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import styles from './CreatePostModal.module.css';
 import { useAuth } from '@/context/AuthContext';
 import { moderateText, moderateSingleImage, generateLiveEmbedding, analyzeArtworkWithGemini } from '@/lib/ai';
+import { sendNotification } from '@/lib/notifications';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
@@ -26,7 +27,7 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
   const [promptText, setPromptText] = useState('');
   const [model, setModel] = useState<'Midjourney V6' | 'Flux.1' | 'DALL-E 3' | 'Stable Diffusion XL'>('Midjourney V6');
   const [isPaid, setIsPaid] = useState(false);
-  const [price, setPrice] = useState<string>('');
+  const [wasFlagged, setWasFlagged] = useState(false);
   
   const [selectedFiles, setSelectedFiles] = useState<SelectedFile[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -187,24 +188,16 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
       return;
     }
 
-    if (isPaid && (!price || Number(price) <= 0)) {
-      setModerationError("Please enter a valid price greater than $0 for paid artwork.");
-      return;
-    }
-
-    if (isPaid && Number(price) > 1000000000) {
-      setModerationError("Price cannot exceed the maximum cap of $1,000,000,000 (one billion dollars).");
-      return;
-    }
-
     setIsScanning(true);
     try {
-      setStatusText('Validating text...');
+      let isFlagged = false;
+      let flaggedReason = "";
+
+      setStatusText('Validating safety guidelines...');
       const textMod = await moderateText(promptText);
       if (!textMod.approved) {
-        setIsScanning(false);
-        setModerationError("Submission could not be published due to content guidelines.");
-        return;
+        isFlagged = true;
+        flaggedReason = "Automated AI text safety flag triggered";
       }
 
       for (let i = 0; i < selectedFiles.length; i++) {
@@ -212,9 +205,8 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
         const compressedBase64 = selectedFiles[i].base64 || '';
         const imgMod = await moderateSingleImage(compressedBase64, i + 1);
         if (!imgMod.approved) {
-          setIsScanning(false);
-          setModerationError(`Image ${i + 1} could not be approved.`);
-          return;
+          isFlagged = true;
+          flaggedReason = `Automated visual safety flag on image ${i + 1}`;
         }
       }
 
@@ -268,7 +260,9 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
         promptText: promptText.trim(),
         negativePrompt: null,
         isPaid: Boolean(isPaid),
-        price: isPaid ? Number(price) : 0,
+        price: isPaid ? 12 : 0,
+        isFlagged,
+        flaggedReason,
         imageUrls: uploadedImageUrls,
         model,
         styleTag: uniqueVisualTags[0] || 'General',
@@ -283,12 +277,22 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
 
       await setDoc(postDocRef, postPayload);
       setIsScanning(false);
+      setWasFlagged(isFlagged);
       setSuccessMsg(true);
+
+      if (isFlagged) {
+        await sendNotification(
+          user.uid,
+          "🛡️ Post Queued for Review",
+          `Your upload "${title.trim()}" triggered an automated safety check (${flaggedReason}) and has been moved to our Admin review queue before going live.`,
+          "moderation"
+        );
+      }
 
       setTimeout(() => {
         if (onSuccess) onSuccess();
         onClose();
-      }, 1500);
+      }, 2000);
 
     } catch (err: any) {
       setIsScanning(false);
@@ -335,9 +339,13 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
             )}
 
             {successMsg && (
-              <div className={styles.successAlert}>
+              <div className={styles.successAlert} style={wasFlagged ? { backgroundColor: 'rgba(245, 158, 11, 0.15)', borderColor: '#f59e0b', color: '#f59e0b' } : {}}>
                 <CheckCircle2 size={18} />
-                <span>Your creation has been verified and published!</span>
+                <span>
+                  {wasFlagged
+                    ? "Artwork received and queued for Admin review due to safety checks (see Notification Bell)."
+                    : "Your creation has been verified and published!"}
+                </span>
               </div>
             )}
 
@@ -432,53 +440,36 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
                 <button
                   type="button"
                   className={`${styles.pricingOptionBtn} ${!isPaid ? styles.pricingActive : ''}`}
-                  onClick={() => { setIsPaid(false); setPrice(''); }}
+                  onClick={() => setIsPaid(false)}
                 >
-                  <span className={styles.optionTitle}>🟢 Free Creation</span>
+                  <span className={styles.optionTitle}>🟢 Free (Ad-Supported)</span>
                   <span className={styles.optionSub}>Available to all community members</span>
                 </button>
                 <button
                   type="button"
+                  disabled={profile?.monetizationStatus !== 'approved'}
                   className={`${styles.pricingOptionBtn} ${isPaid ? styles.pricingActive : ''}`}
-                  onClick={() => setIsPaid(true)}
+                  onClick={() => {
+                    if (profile?.monetizationStatus === 'approved') {
+                      setIsPaid(true);
+                    } else {
+                      alert("You must reach 50 prompt copies in your Creator Dashboard to apply for Premium monetization!");
+                    }
+                  }}
+                  style={profile?.monetizationStatus !== 'approved' ? { opacity: 0.55, cursor: 'not-allowed', border: '1px dashed #f59e0b' } : {}}
                 >
-                  <span className={styles.optionTitle}>💎 Paid Premium Artwork</span>
-                  <span className={styles.optionSub}>Monetized prompt vault via WHOP</span>
+                  <span className={styles.optionTitle}>💎 Premium (Subscription Vault)</span>
+                  <span className={styles.optionSub}>
+                    {profile?.monetizationStatus === 'approved' ? 'Monetized prompt vault via WHOP' : '🔒 Requires Approved Monetization (50+ Copies)'}
+                  </span>
                 </button>
               </div>
-            </div>
-
-            {isPaid && (
-              <div className={styles.fieldGroup}>
-                <label>Set Prompt Price in USD (Max $1,000,000,000)</label>
-                <div className={styles.priceInputWrapper}>
-                  <span className={styles.currencyPrefix}>$</span>
-                  <input
-                    type="number"
-                    min="0.01"
-                    max="1000000000"
-                    step="any"
-                    placeholder="e.g. 25.00"
-                    value={price}
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value);
-                      if (val > 1000000000) {
-                        e.target.value = '1000000000';
-                        setPrice('1000000000');
-                        setModerationError("Price cannot exceed the maximum cap of $1,000,000,000 (one billion dollars).");
-                      } else {
-                        setPrice(e.target.value);
-                        setModerationError(null);
-                      }
-                    }}
-                    required={isPaid}
-                  />
-                </div>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
-                  {price ? `Listed Price: $${Number(price).toLocaleString('en-US')}` : 'Enter exact amount up to $1,000,000,000'}
+              {profile?.monetizationStatus !== 'approved' && (
+                <span style={{ fontSize: '0.78rem', color: '#f59e0b', marginTop: '0.2rem' }}>
+                  💡 Check your Creator Dashboard to track your progress toward 50 copies and apply for monetization!
                 </span>
-              </div>
-            )}
+              )}
+            </div>
 
             <div className={styles.fieldGroup}>
               <label>Description (optional)</label>

@@ -49,6 +49,7 @@ export default function DiscoveryFeed() {
       const liveItems: PromptPost[] = [];
       snapshot.forEach((docSnap) => {
         const data = docSnap.data();
+        if (data.isFlagged === true) return;
         liveItems.push({
           id: docSnap.id,
           title: data.title || 'Untitled Creation',
@@ -72,6 +73,8 @@ export default function DiscoveryFeed() {
           copiesCount: data.copiesCount || 0,
           isPaid: data.isPaid || false,
           price: data.price || 0,
+          isFlagged: data.isFlagged || false,
+          flaggedReason: data.flaggedReason || '',
           createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString() : 'Just now',
           embedding: data.embedding
         });
