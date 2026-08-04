@@ -86,7 +86,7 @@ export default function DiscoveryFeed() {
       
       const queryParam = searchParams.get('search') || '';
       const modelParam = searchParams.get('model') || 'All Models';
-      applyFiltersAndSearch(liveItems, selectedCategory, activeTab, queryParam, modelParam);
+      applyFiltersAndSearch(liveItems, selectedCategory, activeTab, queryParam, modelParam, true);
     }, (error: any) => {
       console.error("Firestore error:", error);
       setIsLoadingDb(false);
@@ -103,7 +103,8 @@ export default function DiscoveryFeed() {
     category: string,
     tab: 'for_you' | 'trending' | 'newest',
     search: string,
-    model: string
+    model: string,
+    isBackgroundUpdate = false
   ) => {
     let current = [...items];
 
@@ -116,7 +117,9 @@ export default function DiscoveryFeed() {
     const combinedQuery = [activeCategoryQuery, activeSearchQuery].filter(Boolean).join(' ');
 
     if (combinedQuery) {
-      setIsSearching(true);
+      if (!isBackgroundUpdate) {
+        setIsSearching(true);
+      }
       const cleanSearch = combinedQuery.toLowerCase();
       const queryTokens = cleanSearch.split(/\s+/).filter(Boolean);
 
@@ -139,7 +142,7 @@ export default function DiscoveryFeed() {
           })
         );
 
-        const STRICT_SEMANTIC_THRESHOLD = 0.55;
+        const STRICT_SEMANTIC_THRESHOLD = 0.22;
         const strictMatches = evaluated.filter(item => item.hasKeywordMatch || item.similarity >= STRICT_SEMANTIC_THRESHOLD);
 
         strictMatches.sort((a, b) => {
@@ -155,7 +158,9 @@ export default function DiscoveryFeed() {
           return queryTokens.some(token => text.includes(token));
         });
       } finally {
-        setIsSearching(false);
+        if (!isBackgroundUpdate) {
+          setIsSearching(false);
+        }
       }
     }
 
