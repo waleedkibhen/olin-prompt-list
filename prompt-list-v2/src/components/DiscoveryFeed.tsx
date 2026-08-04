@@ -73,6 +73,7 @@ export default function DiscoveryFeed() {
           copiesCount: data.copiesCount || 0,
           isPaid: data.isPaid || false,
           price: data.price || 0,
+          monetizationType: data.monetizationType || (data.isPaid ? 'subscribers_only' : 'free'),
           isFlagged: data.isFlagged || false,
           flaggedReason: data.flaggedReason || '',
           createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString() : 'Just now',
@@ -106,22 +107,17 @@ export default function DiscoveryFeed() {
   ) => {
     let current = [...items];
 
-    if (category !== 'All' && category !== 'All Styles') {
-      const catLower = category.toLowerCase();
-      const catTokens = catLower.split(/\s+/).filter(Boolean);
-      current = current.filter(p => {
-        const postContent = `${p.styleTag || ""} ${p.title} ${p.description} ${p.categories.join(" ")}`.toLowerCase();
-        return catTokens.some(token => postContent.includes(token));
-      });
-    }
-
     if (model && model !== 'All Models') {
       current = current.filter(p => p.model === model);
     }
 
-    if (search.trim()) {
+    const activeCategoryQuery = (category !== 'All' && category !== 'All Styles') ? category.trim() : '';
+    const activeSearchQuery = search.trim();
+    const combinedQuery = [activeCategoryQuery, activeSearchQuery].filter(Boolean).join(' ');
+
+    if (combinedQuery) {
       setIsSearching(true);
-      const cleanSearch = search.trim().toLowerCase();
+      const cleanSearch = combinedQuery.toLowerCase();
       const queryTokens = cleanSearch.split(/\s+/).filter(Boolean);
 
       try {
@@ -143,7 +139,7 @@ export default function DiscoveryFeed() {
           })
         );
 
-        const STRICT_SEMANTIC_THRESHOLD = 0.25;
+        const STRICT_SEMANTIC_THRESHOLD = 0.22;
         const strictMatches = evaluated.filter(item => item.hasKeywordMatch || item.similarity >= STRICT_SEMANTIC_THRESHOLD);
 
         strictMatches.sort((a, b) => {
@@ -155,7 +151,7 @@ export default function DiscoveryFeed() {
         current = strictMatches.map(item => item.post);
       } catch (err) {
         current = current.filter(post => {
-          const text = `${post.title} ${post.description} ${post.promptText} ${post.styleTag}`.toLowerCase();
+          const text = `${post.title} ${post.description} ${post.promptText} ${post.styleTag} ${post.categories.join(" ")}`.toLowerCase();
           return queryTokens.some(token => text.includes(token));
         });
       } finally {

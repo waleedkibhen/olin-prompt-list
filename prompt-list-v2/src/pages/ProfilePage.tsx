@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import styles from './ProfilePage.module.css';
 import { useAuth } from '@/context/AuthContext';
-import { db, storage } from '@/lib/firebase';
-import { doc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { db, storage, auth } from '@/lib/firebase';
+import { doc, updateDoc, collection, query, where, getDocs, writeBatch } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { updateProfile } from 'firebase/auth';
 import { User, ShieldAlert, Sparkles, Upload, Loader2, MessageSquarePlus, CheckCircle2, AlertTriangle } from 'lucide-react';
 import FeedbackModal from '@/components/FeedbackModal';
 import { Link } from 'react-router-dom';
@@ -131,6 +132,40 @@ export default function ProfilePage() {
         username: cleanedUsername,
         avatarUrl: newAvatarUrl
       });
+
+      // Sync directly with Firebase Auth currentUser
+      if (auth.currentUser) {
+        try {
+          await updateProfile(auth.currentUser, {
+            displayName: displayName.trim(),
+            photoURL: newAvatarUrl
+          });
+        } catch (authErr) {
+          console.error("Error syncing Firebase Auth profile:", authErr);
+        }
+      }
+
+      // Propagate profile identity across all existing posts authored by this creator
+      try {
+        const postsRef = collection(db, 'posts');
+        const userPostsQuery = query(postsRef, where('creatorId', '==', user.uid));
+        const userPostsSnap = await getDocs(userPostsQuery);
+
+        if (!userPostsSnap.empty) {
+          const batch = writeBatch(db);
+          userPostsSnap.forEach((postDoc) => {
+            batch.update(postDoc.ref, {
+              creatorDisplayName: displayName.trim(),
+              creatorUsername: cleanedUsername,
+              creatorAvatarUrl: newAvatarUrl
+            });
+          });
+          await batch.commit();
+          console.log(`Propagated identity update to ${userPostsSnap.size} historical posts.`);
+        }
+      } catch (propErr) {
+        console.error("Error propagating identity to historical posts:", propErr);
+      }
 
       setAvatarUrl(newAvatarUrl);
       setSelectedFile(null);

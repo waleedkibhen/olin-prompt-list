@@ -26,6 +26,7 @@ export interface PromptPost {
   embedding?: number[];
   isPaid?: boolean;
   price?: number;
+  monetizationType?: 'free' | 'ad_supported' | 'subscribers_only';
   isFlagged?: boolean;
   flaggedReason?: string;
 }

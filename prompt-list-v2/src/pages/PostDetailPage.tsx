@@ -73,6 +73,7 @@ export default function PostDetailPage() {
           copiesCount: d.copiesCount || 0,
           isPaid: d.isPaid || false,
           price: d.price || 0,
+          monetizationType: d.monetizationType || (d.isPaid ? 'subscribers_only' : 'free'),
           createdAt: d.createdAt?.toDate ? d.createdAt.toDate().toLocaleDateString() : 'Just now'
         });
       }
@@ -105,19 +106,22 @@ export default function PostDetailPage() {
     };
   }, [id]);
 
+  const effectiveMonetization = post?.monetizationType || (post?.isPaid ? 'subscribers_only' : 'free');
+
   useEffect(() => {
     if (id) {
       const storageKey = user ? `unlocked_${user.uid}` : 'unlocked_guest';
       const unlockedArr = JSON.parse(localStorage.getItem(storageKey) || '[]');
       const isOwner = Boolean(user && user.uid === post?.creator?.uid);
+      const isFree = effectiveMonetization === 'free';
 
       let subUnlocked = false;
-      if (user && post?.isPaid) {
+      if (user && effectiveMonetization === 'subscribers_only') {
         const subStatus = localStorage.getItem(`olin_subscription_${user.uid}`);
         if (subStatus === 'active') subUnlocked = true;
       }
 
-      setIsUnlocked(isOwner || subUnlocked || unlockedArr.includes(id));
+      setIsUnlocked(isFree || isOwner || subUnlocked || unlockedArr.includes(id));
     }
     if (id && user) {
       const savedArr = JSON.parse(localStorage.getItem(`saves_${user.uid}`) || '[]');
@@ -284,7 +288,7 @@ export default function PostDetailPage() {
   }
 
   const isCreator = Boolean(user && user.uid === post.creator.uid);
-  const isProtected = Boolean(!isUnlocked || (isCreator && previewPaywall));
+  const isProtected = Boolean(effectiveMonetization !== 'free' && (!isUnlocked || (isCreator && previewPaywall)));
 
   return (
     <div className={styles.pageContainer}>
@@ -346,13 +350,17 @@ export default function PostDetailPage() {
               <div className={styles.badgeGroup}>
                 <span className={styles.modelBadge}>{post.model}</span>
                 <span className={styles.styleBadge}>{post.styleTag}</span>
-                {post.isPaid ? (
+                {effectiveMonetization === 'subscribers_only' ? (
                   <span className={styles.premiumBadge}>
                     💎 Subscriber Only
                   </span>
-                ) : (
+                ) : effectiveMonetization === 'ad_supported' ? (
                   <span style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1px solid #10b981', fontSize: '0.78rem', fontWeight: 800, padding: '0.25rem 0.75rem', borderRadius: '9999px' }}>
-                    🟢 Free (Ad Unlock)
+                    ▶️ Ad-Supported
+                  </span>
+                ) : (
+                  <span style={{ backgroundColor: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', border: '1px solid #3b82f6', fontSize: '0.78rem', fontWeight: 800, padding: '0.25rem 0.75rem', borderRadius: '9999px' }}>
+                    🟢 Free (Open)
                   </span>
                 )}
                 {post.categories.map(cat => (
@@ -364,11 +372,11 @@ export default function PostDetailPage() {
             </div>
 
             <div className={styles.promptVault}>
-              {isCreator && (
+              {isCreator && effectiveMonetization !== 'free' && (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.35)', borderRadius: 'var(--radius-md)', padding: '0.65rem 1rem', marginBottom: '0.5rem', fontSize: '0.85rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#10b981', fontWeight: 700 }}>
                     <span>👑 Creator Access Enabled</span>
-                    <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>— Users see the {post.isPaid ? 'Subscriber' : 'Ad Watch'} paywall</span>
+                    <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>— Users see the {effectiveMonetization === 'subscribers_only' ? 'Subscriber' : 'Ad Watch'} paywall</span>
                   </div>
                   <button
                     type="button"
@@ -409,14 +417,14 @@ export default function PostDetailPage() {
                     </code>
                   </div>
                   <div className={styles.vaultOverlayContent}>
-                    <div className={styles.lockBadgePill} style={!post.isPaid ? { backgroundColor: 'rgba(16, 185, 129, 0.2)', borderColor: '#10b981', color: '#10b981' } : {}}>
-                      {post.isPaid ? '🔒 Subscriber Only Vault' : '🟢 Free Ad-Supported Vault'}
+                    <div className={styles.lockBadgePill} style={effectiveMonetization === 'ad_supported' ? { backgroundColor: 'rgba(16, 185, 129, 0.2)', borderColor: '#10b981', color: '#10b981' } : {}}>
+                      {effectiveMonetization === 'subscribers_only' ? '🔒 Subscriber Only Vault' : '▶️ Free Ad-Supported Vault'}
                     </div>
                     <h4 className={styles.lockTitle}>Protected AI Creation by @{post.creator.username}</h4>
                     <p className={styles.lockDesc}>
                       Full generative parameters, styling seeds, and camera weights are securely blurred and protected from inspection until unlocked.
                     </p>
-                    {post.isPaid ? (
+                    {effectiveMonetization === 'subscribers_only' ? (
                       <button
                         className={styles.whopUnlockBtn}
                         onClick={handleSubscribeToUnlock}

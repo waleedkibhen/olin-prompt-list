@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged, User } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 
 export interface CreatorProfile {
@@ -45,25 +45,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    let profileUnsubscribe: (() => void) | undefined;
+
+    const authUnsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      if (profileUnsubscribe) {
+        profileUnsubscribe();
+        profileUnsubscribe = undefined;
+      }
+
       if (currentUser) {
+        const userDocRef = doc(db, 'users', currentUser.uid);
+
         try {
-          const userDocRef = doc(db, 'users', currentUser.uid);
-          const userSnapshot = await getDoc(userDocRef);
-          
-          if (userSnapshot.exists()) {
-            const data = userSnapshot.data() as CreatorProfile;
-            if (data.isBanned) {
-              alert("Your account has been suspended by an administrator due to policy violations.");
-              await fbSignOut(auth);
-              setUser(null);
-              setProfile(null);
-              setLoading(false);
-              return;
-            }
-            setProfile(data);
-          } else {
+          const checkSnap = await getDoc(userDocRef);
+          if (!checkSnap.exists()) {
             const baseUsername = currentUser.email 
               ? currentUser.email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '') + Math.floor(Math.random() * 100)
               : `creator_${currentUser.uid.substring(0, 6)}`;
@@ -84,30 +80,52 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             };
             
             await setDoc(userDocRef, newProfile);
-            setProfile(newProfile);
           }
         } catch (error) {
-          console.error("Error syncing Firestore user profile:", error);
-          setProfile({
-            uid: currentUser.uid,
-            email: currentUser.email || undefined,
-            displayName: currentUser.displayName || 'AI Creator',
-            username: currentUser.email ? currentUser.email.split('@')[0] : 'creator',
-            avatarUrl: currentUser.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-            followerCount: 0,
-            followingCount: 0,
-            totalViews: 0,
-            createdAt: new Date(),
-            isProfileComplete: true,
-          });
+          console.error("Error initializing user profile:", error);
         }
+
+        profileUnsubscribe = onSnapshot(userDocRef, (docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data() as CreatorProfile;
+            if (data.isBanned) {
+              alert("Your account has been suspended by an administrator due to policy violations.");
+              fbSignOut(auth);
+              setUser(null);
+              setProfile(null);
+              setLoading(false);
+              return;
+            }
+            setProfile(data);
+          } else {
+            setProfile({
+              uid: currentUser.uid,
+              email: currentUser.email || undefined,
+              displayName: currentUser.displayName || 'AI Creator',
+              username: currentUser.email ? currentUser.email.split('@')[0] : 'creator',
+              avatarUrl: currentUser.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+              followerCount: 0,
+              followingCount: 0,
+              totalViews: 0,
+              createdAt: new Date(),
+              isProfileComplete: true,
+            });
+          }
+          setLoading(false);
+        }, (err) => {
+          console.error("Error listening to profile snapshot:", err);
+          setLoading(false);
+        });
       } else {
         setProfile(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      authUnsubscribe();
+      if (profileUnsubscribe) profileUnsubscribe();
+    };
   }, []);
 
   const signInWithGoogle = async () => {

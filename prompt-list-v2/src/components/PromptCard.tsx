@@ -46,18 +46,21 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [commentError, setCommentError] = useState<string | null>(null);
 
+  const effectiveMonetization = post.monetizationType || (post.isPaid ? 'subscribers_only' : 'free');
+
   useEffect(() => {
     const storageKey = user ? `unlocked_${user.uid}` : 'unlocked_guest';
     const unlockedArr = JSON.parse(localStorage.getItem(storageKey) || '[]');
     const isOwner = Boolean(user && user.uid === post.creator?.uid);
+    const isFree = effectiveMonetization === 'free';
     
     let subUnlocked = false;
-    if (user && post.isPaid) {
+    if (user && effectiveMonetization === 'subscribers_only') {
       const subStatus = localStorage.getItem(`olin_subscription_${user.uid}`);
       if (subStatus === 'active') subUnlocked = true;
     }
 
-    setIsUnlocked(isOwner || subUnlocked || unlockedArr.includes(post.id));
+    setIsUnlocked(isFree || isOwner || subUnlocked || unlockedArr.includes(post.id));
 
     if (user) {
       const savedArr = JSON.parse(localStorage.getItem(`saves_${user.uid}`) || '[]');
@@ -70,7 +73,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
         setIsFollowing(followedArr.includes(post.creator.uid));
       }
     }
-  }, [user, post.id, post.creator?.uid, post.isPaid]);
+  }, [user, post.id, post.creator?.uid, post.isPaid, post.monetizationType, effectiveMonetization]);
 
   useEffect(() => {
     if (!isModalOpen) return;
@@ -237,7 +240,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
   };
 
   const isCreator = Boolean(user && user.uid === post.creator.uid);
-  const isProtected = Boolean(!isUnlocked || (isCreator && previewPaywall));
+  const isProtected = Boolean(effectiveMonetization !== 'free' && (!isUnlocked || (isCreator && previewPaywall)));
 
   return (
     <>
@@ -256,13 +259,17 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                 <span className={styles.modelBadge}>
                   {post.model}
                 </span>
-                {post.isPaid ? (
+                {effectiveMonetization === 'subscribers_only' ? (
                   <span className={styles.premiumBadge}>
                     💎 Subscriber Only
                   </span>
-                ) : (
+                ) : effectiveMonetization === 'ad_supported' ? (
                   <span style={{ backgroundColor: 'rgba(16, 185, 129, 0.85)', color: '#fff', fontSize: '0.7rem', fontWeight: 800, padding: '0.2rem 0.5rem', borderRadius: '9999px' }}>
-                    🟢 Free (Ad Unlock)
+                    ▶️ Ad-Supported
+                  </span>
+                ) : (
+                  <span style={{ backgroundColor: 'rgba(59, 130, 246, 0.85)', color: '#fff', fontSize: '0.7rem', fontWeight: 800, padding: '0.2rem 0.5rem', borderRadius: '9999px' }}>
+                    🟢 Free
                   </span>
                 )}
               </div>
@@ -288,7 +295,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
             <div className={styles.bottomOverlay}>
               <div />
               {isProtected ? (
-                post.isPaid ? (
+                effectiveMonetization === 'subscribers_only' ? (
                   <button 
                     className={styles.lockedCopyBtn}
                     onClick={(e) => {
@@ -398,13 +405,17 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                 <div className={styles.tagGroup}>
                   <span className={styles.modelBadgeModal}>{post.model}</span>
                   <span className={styles.styleBadgeModal}>{post.styleTag}</span>
-                  {post.isPaid ? (
+                  {effectiveMonetization === 'subscribers_only' ? (
                     <span className={styles.modalPriceBadge}>
                       💎 Premium (Subscribers Only)
                     </span>
-                  ) : (
+                  ) : effectiveMonetization === 'ad_supported' ? (
                     <span style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1px solid #10b981', fontSize: '0.75rem', fontWeight: 800, padding: '0.2rem 0.6rem', borderRadius: '9999px' }}>
-                      🟢 Free (Ad-Supported)
+                      ▶️ Ad-Supported
+                    </span>
+                  ) : (
+                    <span style={{ backgroundColor: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', border: '1px solid #3b82f6', fontSize: '0.75rem', fontWeight: 800, padding: '0.2rem 0.6rem', borderRadius: '9999px' }}>
+                      🟢 Free (Open)
                     </span>
                   )}
                   {post.categories.map(cat => (
@@ -415,11 +426,11 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
               </div>
 
               <div className={styles.promptVaultBox}>
-                {isCreator && (
+                {isCreator && effectiveMonetization !== 'free' && (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.35)', borderRadius: 'var(--radius-md)', padding: '0.6rem 0.85rem', fontSize: '0.8rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#10b981', fontWeight: 700 }}>
                       <span>👑 Creator Access Enabled</span>
-                      <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>— Users see the {post.isPaid ? 'Subscriber' : 'Ad Watch'} paywall</span>
+                      <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>— Users see the {effectiveMonetization === 'subscribers_only' ? 'Subscriber' : 'Ad Watch'} paywall</span>
                     </div>
                     <button
                       type="button"
@@ -463,14 +474,14 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                       </code>
                     </div>
                     <div className={styles.vaultOverlayContent}>
-                      <div className={styles.lockBadgePill} style={!post.isPaid ? { backgroundColor: 'rgba(16, 185, 129, 0.2)', borderColor: '#10b981', color: '#10b981' } : {}}>
-                        {post.isPaid ? '🔒 Subscriber Only Vault' : '🟢 Free Ad-Supported Vault'}
+                      <div className={styles.lockBadgePill} style={effectiveMonetization === 'ad_supported' ? { backgroundColor: 'rgba(16, 185, 129, 0.2)', borderColor: '#10b981', color: '#10b981' } : {}}>
+                        {effectiveMonetization === 'subscribers_only' ? '🔒 Subscriber Only Vault' : '▶️ Free Ad-Supported Vault'}
                       </div>
                       <h5 className={styles.lockTitle}>Protected AI Creation by @{post.creator.username}</h5>
                       <p className={styles.lockDesc}>
                         Full generative parameters, styling seeds, and camera weights are securely blurred and protected from inspection until unlocked.
                       </p>
-                      {post.isPaid ? (
+                      {effectiveMonetization === 'subscribers_only' ? (
                         <button
                           className={styles.whopUnlockBtn}
                           onClick={handleSubscribeToUnlock}
