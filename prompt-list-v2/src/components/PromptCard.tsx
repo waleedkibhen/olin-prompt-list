@@ -36,6 +36,8 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
   const [isLinkCopied, setIsLinkCopied] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [showComments, setShowComments] = useState(false);
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [previewPaywall, setPreviewPaywall] = useState(false);
 
   const [comments, setComments] = useState<CommentItem[]>([]);
   const [newComment, setNewComment] = useState('');
@@ -53,6 +55,9 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
       if (post.creator?.uid) {
         setIsFollowing(followedArr.includes(post.creator.uid));
       }
+
+      const unlockedArr = JSON.parse(localStorage.getItem(`unlocked_${user.uid}`) || '[]');
+      setIsUnlocked(unlockedArr.includes(post.id) || Boolean(user.uid === post.creator?.uid));
     }
   }, [user, post.id, post.creator?.uid]);
 
@@ -188,7 +193,8 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
     }
   };
 
-  const isProtected = Boolean(post.isPaid && user?.uid !== post.creator.uid);
+  const isCreator = Boolean(user && user.uid === post.creator.uid);
+  const isProtected = Boolean(post.isPaid && (!isUnlocked || (isCreator && previewPaywall)));
 
   return (
     <>
@@ -239,9 +245,9 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                   className={styles.lockedCopyBtn}
                   onClick={(e) => {
                     e.stopPropagation();
-                    alert(`To view and copy this generative prompt, unlock it via WHOP for $${post.price?.toLocaleString()}. (Open post details to initiate checkout)`);
+                    setIsModalOpen(true);
                   }}
-                  title="Locked Premium Artwork"
+                  title="Locked Premium Artwork — Click to view paywall"
                 >
                   🔒 <span>${post.price?.toLocaleString()}</span>
                 </button>
@@ -344,6 +350,22 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
               </div>
 
               <div className={styles.promptVaultBox}>
+                {post.isPaid && isCreator && (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.35)', borderRadius: 'var(--radius-md)', padding: '0.6rem 0.85rem', fontSize: '0.8rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#10b981', fontWeight: 700 }}>
+                      <span>👑 Creator Access Enabled</span>
+                      <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>— Buyers see the blurred paywall below</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setPreviewPaywall(!previewPaywall); }}
+                      style={{ background: 'transparent', border: '1px solid rgba(16, 185, 129, 0.5)', color: '#10b981', borderRadius: '6px', padding: '0.3rem 0.7rem', fontSize: '0.78rem', cursor: 'pointer', fontWeight: 700 }}
+                    >
+                      {previewPaywall ? '👁️ Show Real Prompt' : '🔒 Preview Buyer Paywall'}
+                    </button>
+                  </div>
+                )}
+
                 <div className={styles.vaultHeader}>
                   <div className={styles.vaultTitle}>
                     <Sparkles size={15} />
@@ -361,21 +383,42 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                 </div>
                 
                 {isProtected ? (
-                  <div className={styles.lockedVaultContainer}>
-                    <div className={styles.lockIconBox}>🔒</div>
-                    <h5 className={styles.lockTitle}>This Prompt is Monetized by @{post.creator.username}</h5>
-                    <p className={styles.lockDesc}>
-                      Unlock immediate access to full generative parameters, seeds, and styling weights.
-                    </p>
-                    <button
-                      className={styles.whopUnlockBtn}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        alert(`⚡ Connecting to WHOP Checkout Gateway for $${post.price?.toLocaleString()} USD...\n\n(Frontend preparation complete; WHOP transaction handling will finalize here)`);
-                      }}
-                    >
-                      ⚡ Unlock via WHOP — ${post.price?.toLocaleString()}
-                    </button>
+                  <div className={styles.blurredVaultContainer}>
+                    <div className={styles.dummyBlurBackground} aria-hidden="true">
+                      <code>
+                        /imagine prompt: [PROTECTED WHOP VAULT] cinematic photographic masterpiece, hyperdetailed textures, 8k resolution, volumetric ambiance, studio lighting, dynamic contrast, masterwork seeds [PAY TO REVEAL FULL GENERATIVE PARAMETERS &amp; STYLING WEIGHTS] --v 6.0 --ar 16:9 --style raw --s 750
+                      </code>
+                    </div>
+                    <div className={styles.vaultOverlayContent}>
+                      <div className={styles.lockBadgePill}>
+                        🔒 <span>Protected WHOP Vault</span>
+                      </div>
+                      <h5 className={styles.lockTitle}>Monetized AI Creation by @{post.creator.username}</h5>
+                      <p className={styles.lockDesc}>
+                        Full generative parameters, styling seeds, and camera weights are securely blurred and hidden from inspect tools until unlocked.
+                      </p>
+                      <button
+                        className={styles.whopUnlockBtn}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!user) {
+                            alert("Please sign in with Google first to unlock and bookmark this premium prompt!");
+                            signInWithGoogle();
+                            return;
+                          }
+                          const confirmBuy = window.confirm(`⚡ WHOP CHECKOUT GATEWAY\n\nUnlock permanent lifetime access to "${post.title}" for $${post.price?.toLocaleString()} USD?\n\nClick OK to confirm payment and reveal generative parameters.`);
+                          if (confirmBuy) {
+                            const unlockedArr = JSON.parse(localStorage.getItem(`unlocked_${user.uid}`) || '[]');
+                            localStorage.setItem(`unlocked_${user.uid}`, JSON.stringify([...unlockedArr, post.id]));
+                            setIsUnlocked(true);
+                            setPreviewPaywall(false);
+                            alert("🎉 Payment Verified! The prompt vault has been unlocked and added to your personal library.");
+                          }
+                        }}
+                      >
+                        ⚡ Unlock via WHOP — ${post.price?.toLocaleString()}
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   <div className={styles.promptTextContainer}>

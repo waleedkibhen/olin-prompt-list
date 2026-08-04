@@ -507,12 +507,72 @@
   gap: 0.75rem;
 }
 
+.blurredVaultContainer {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-primary);
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.25);
+}
+
+.dummyBlurBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1rem;
+  filter: blur(6px);
+  opacity: 0.35;
+  user-select: none;
+  pointer-events: none;
+  overflow: hidden;
+  font-family: monospace;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  background: radial-gradient(circle at center, rgba(16, 185, 129, 0.08), transparent 70%);
+}
+
+.vaultOverlayContent {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1.5rem 1.25rem;
+  gap: 0.65rem;
+  max-width: 92%;
+}
+
+.lockBadgePill {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #10b981;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.15rem;
+}
+
 .lockIconBox {
   font-size: 1.8rem;
 }
 
 .lockTitle {
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--text-primary);
 }
@@ -520,8 +580,8 @@
 .lockDesc {
   font-size: 0.825rem;
   color: var(--text-secondary);
-  max-width: 380px;
-  line-height: 1.4;
+  max-width: 400px;
+  line-height: 1.45;
 }
 
 .whopUnlockBtn {
@@ -529,18 +589,18 @@
   color: #ffffff;
   border: none;
   border-radius: var(--radius-full);
-  padding: 0.65rem 1.5rem;
-  font-size: 0.88rem;
+  padding: 0.75rem 1.75rem;
+  font-size: 0.92rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-  margin-top: 0.5rem;
+  margin-top: 0.4rem;
 }
 
 .whopUnlockBtn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.45);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.55);
 }
 
 @media (max-width: 850px) {
