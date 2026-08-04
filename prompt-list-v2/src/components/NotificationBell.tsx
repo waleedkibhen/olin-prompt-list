@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './NotificationBell.module.css';
 import { useAuth } from '@/context/AuthContext';
-import { collection, onSnapshot, query, doc, updateDoc, writeBatch } from 'firebase/firestore';
+import { collection, onSnapshot, query, doc, updateDoc, writeBatch, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { UserNotification } from '@/lib/notifications';
 import { Bell, BellOff, CheckCheck } from 'lucide-react';
@@ -21,16 +21,30 @@ export default function NotificationBell() {
     const q = query(collection(db, `users/${user.uid}/notifications`));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const items: UserNotification[] = [];
+      const now = Date.now();
+      const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
       snapshot.forEach((docSnap) => {
         const d = docSnap.data();
-        items.push({
-          id: docSnap.id,
-          title: d.title || 'Notification',
-          message: d.message || '',
-          read: d.read || false,
-          type: d.type || 'system',
-          createdAt: d.createdAt?.toDate ? d.createdAt.toDate().toLocaleDateString() : 'New'
-        });
+        let isExpired = false;
+        if (d.createdAt && typeof d.createdAt.toDate === 'function') {
+          const createdTime = d.createdAt.toDate().getTime();
+          if (now - createdTime > ONE_DAY_MS) {
+            isExpired = true;
+            deleteDoc(docSnap.ref).catch(e => console.error("Error deleting expired notification:", e));
+          }
+        }
+
+        if (!isExpired) {
+          items.push({
+            id: docSnap.id,
+            title: d.title || 'Notification',
+            message: d.message || '',
+            read: d.read || false,
+            type: d.type || 'system',
+            createdAt: d.createdAt?.toDate ? d.createdAt.toDate().toLocaleDateString() : 'New'
+          });
+        }
       });
       items.sort((a, b) => (a.read === b.read ? 0 : a.read ? 1 : -1));
       setNotifications(items);
