@@ -24,6 +24,8 @@ export interface PromptPost {
   createdAt: string;
   aspectRatio?: string;
   embedding?: number[];
+  isPaid?: boolean;
+  price?: number; // USD amount up to $1,000,000,000
 }
 
 export const MOCK_POSTS: PromptPost[] = [];

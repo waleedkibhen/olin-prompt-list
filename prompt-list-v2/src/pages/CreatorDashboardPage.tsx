@@ -69,6 +69,8 @@ export default function CreatorDashboardPage() {
           savesCount: saves,
           viewsCount: views,
           copiesCount: copies,
+          isPaid: d.isPaid || false,
+          price: d.price || 0,
           createdAt: d.createdAt?.toDate ? d.createdAt.toDate().toLocaleDateString() : 'Recently'
         });
       });
@@ -196,6 +198,7 @@ export default function CreatorDashboardPage() {
                   <tr>
                     <th>Artwork &amp; Title</th>
                     <th>Model &amp; Style</th>
+                    <th>Pricing</th>
                     <th>Views</th>
                     <th style={{ color: '#10b981' }}>Copies</th>
                     <th>Saves</th>
@@ -219,6 +222,15 @@ export default function CreatorDashboardPage() {
                       <td>
                         <span className="badge-pill">{post.model}</span>
                         <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.3rem' }}>{post.styleTag}</div>
+                      </td>
+                      <td>
+                        {post.isPaid ? (
+                          <span style={{ color: '#10b981', fontWeight: 700, backgroundColor: 'rgba(16, 185, 129, 0.15)', padding: '0.25rem 0.65rem', borderRadius: '9999px', fontSize: '0.8rem', border: '1px solid rgba(16, 185, 129, 0.35)', display: 'inline-block' }}>
+                            💎 ${post.price?.toLocaleString()}
+                          </span>
+                        ) : (
+                          <span style={{ color: 'var(--text-muted)', fontSize: '0.825rem', padding: '0.2rem 0.5rem', backgroundColor: 'var(--bg-primary)', borderRadius: '6px', border: '1px solid var(--border-color)' }}>Free</span>
+                        )}
                       </td>
                       <td className={styles.metricCell}>{post.viewsCount.toLocaleString()}</td>
                       <td className={styles.metricCell} style={{ color: '#10b981', fontWeight: 900 }}>

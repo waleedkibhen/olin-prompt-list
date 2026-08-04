@@ -188,6 +188,8 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
     }
   };
 
+  const isProtected = Boolean(post.isPaid && user?.uid !== post.creator.uid);
+
   return (
     <>
       <article className={styles.cardContainer} onClick={() => setIsModalOpen(true)}>
@@ -201,9 +203,16 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
           
           <div className={styles.overlay}>
             <div className={styles.topActions}>
-              <span className={styles.modelBadge}>
-                {post.model}
-              </span>
+              <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                <span className={styles.modelBadge}>
+                  {post.model}
+                </span>
+                {post.isPaid && (
+                  <span className={styles.premiumBadge}>
+                    💎 ${post.price?.toLocaleString()}
+                  </span>
+                )}
+              </div>
               <div className={styles.actionBtns}>
                 <button 
                   className={`${styles.actionIconBtn} ${isLiked ? styles.likedBtn : ''}`}
@@ -225,14 +234,27 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
 
             <div className={styles.bottomOverlay}>
               <div />
-              <button 
-                className={styles.quickCopyBtn}
-                onClick={handleCopyPrompt}
-                title="Copy generative parameters"
-              >
-                {isCopied ? <Check size={13} className={styles.checkIcon} /> : <Copy size={13} />}
-                <span>{isCopied ? 'Copied' : 'Copy Prompt'}</span>
-              </button>
+              {isProtected ? (
+                <button 
+                  className={styles.lockedCopyBtn}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    alert(`To view and copy this generative prompt, unlock it via WHOP for $${post.price?.toLocaleString()}. (Open post details to initiate checkout)`);
+                  }}
+                  title="Locked Premium Artwork"
+                >
+                  🔒 <span>${post.price?.toLocaleString()}</span>
+                </button>
+              ) : (
+                <button 
+                  className={styles.quickCopyBtn}
+                  onClick={handleCopyPrompt}
+                  title="Copy generative parameters"
+                >
+                  {isCopied ? <Check size={13} className={styles.checkIcon} /> : <Copy size={13} />}
+                  <span>{isCopied ? 'Copied' : 'Copy Prompt'}</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -282,13 +304,15 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                 </div>
                 
                 <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                  <button 
-                    className={isFollowing ? "btn-solid" : "btn-outline"} 
-                    onClick={toggleFollow}
-                    style={{ padding: '0.4rem 0.85rem', fontSize: '0.78rem', borderRadius: '9999px' }}
-                  >
-                    {isFollowing ? 'Following' : '+ Follow'}
-                  </button>
+                  {user?.uid !== post.creator.uid && (
+                    <button 
+                      className={isFollowing ? "btn-solid" : "btn-outline"} 
+                      onClick={toggleFollow}
+                      style={{ padding: '0.4rem 0.85rem', fontSize: '0.78rem', borderRadius: '9999px' }}
+                    >
+                      {isFollowing ? 'Following' : '+ Follow'}
+                    </button>
+                  )}
                   <Link 
                     to={`/post/${post.id}`} 
                     className="btn-outline" 
@@ -307,6 +331,11 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                 <div className={styles.tagGroup}>
                   <span className={styles.modelBadgeModal}>{post.model}</span>
                   <span className={styles.styleBadgeModal}>{post.styleTag}</span>
+                  {post.isPaid && (
+                    <span className={styles.modalPriceBadge}>
+                      💎 Premium (${post.price?.toLocaleString()})
+                    </span>
+                  )}
                   {post.categories.map(cat => (
                     <span key={cat} className={styles.catPill}>#{cat}</span>
                   ))}
@@ -318,25 +347,39 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                 <div className={styles.vaultHeader}>
                   <div className={styles.vaultTitle}>
                     <Sparkles size={15} />
-                    <strong>AI Prompt Parameters</strong>
+                    <strong>{isProtected ? "Protected AI Prompt Parameters" : "AI Prompt Parameters"}</strong>
                   </div>
-                  <button 
-                    className={`btn-solid ${styles.copyVaultBtn}`} 
-                    onClick={handleCopyPrompt}
-                  >
-                    {isCopied ? <Check size={14} /> : <Copy size={14} />}
-                    <span>{isCopied ? 'Copied' : 'Copy'}</span>
-                  </button>
+                  {!isProtected && (
+                    <button 
+                      className={`btn-solid ${styles.copyVaultBtn}`} 
+                      onClick={handleCopyPrompt}
+                    >
+                      {isCopied ? <Check size={14} /> : <Copy size={14} />}
+                      <span>{isCopied ? 'Copied' : 'Copy'}</span>
+                    </button>
+                  )}
                 </div>
                 
-                <div className={styles.promptTextContainer}>
-                  <code className={styles.promptCode}>{post.promptText}</code>
-                </div>
-
-                {post.negativePrompt && (
-                  <div className={styles.negativePromptArea}>
-                    <span className={styles.negativeLabel}>Negative Prompt</span>
-                    <code className={styles.negativeCode}>{post.negativePrompt}</code>
+                {isProtected ? (
+                  <div className={styles.lockedVaultContainer}>
+                    <div className={styles.lockIconBox}>🔒</div>
+                    <h5 className={styles.lockTitle}>This Prompt is Monetized by @{post.creator.username}</h5>
+                    <p className={styles.lockDesc}>
+                      Unlock immediate access to full generative parameters, seeds, and styling weights.
+                    </p>
+                    <button
+                      className={styles.whopUnlockBtn}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        alert(`⚡ Connecting to WHOP Checkout Gateway for $${post.price?.toLocaleString()} USD...\n\n(Frontend preparation complete; WHOP transaction handling will finalize here)`);
+                      }}
+                    >
+                      ⚡ Unlock via WHOP — ${post.price?.toLocaleString()}
+                    </button>
+                  </div>
+                ) : (
+                  <div className={styles.promptTextContainer}>
+                    <code className={styles.promptCode}>{post.promptText}</code>
                   </div>
                 )}
               </div>

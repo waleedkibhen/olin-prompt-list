@@ -70,6 +70,8 @@ export default function DiscoveryFeed() {
           savesCount: data.savesCount || 0,
           viewsCount: data.viewsCount || 1,
           copiesCount: data.copiesCount || 0,
+          isPaid: data.isPaid || false,
+          price: data.price || 0,
           createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString() : 'Just now',
           embedding: data.embedding
         });

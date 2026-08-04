@@ -24,8 +24,9 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [promptText, setPromptText] = useState('');
-  const [negativePrompt, setNegativePrompt] = useState('');
   const [model, setModel] = useState<'Midjourney V6' | 'Flux.1' | 'DALL-E 3' | 'Stable Diffusion XL'>('Midjourney V6');
+  const [isPaid, setIsPaid] = useState(false);
+  const [price, setPrice] = useState<string>('');
   
   const [selectedFiles, setSelectedFiles] = useState<SelectedFile[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -186,6 +187,16 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
       return;
     }
 
+    if (isPaid && (!price || Number(price) <= 0)) {
+      setModerationError("Please enter a valid price greater than $0 for paid artwork.");
+      return;
+    }
+
+    if (isPaid && Number(price) > 1000000000) {
+      setModerationError("Price cannot exceed the maximum cap of $1,000,000,000 (one billion dollars).");
+      return;
+    }
+
     setIsScanning(true);
     try {
       setStatusText('Validating text...');
@@ -255,7 +266,9 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
         title: title.trim(),
         description: description.trim(),
         promptText: promptText.trim(),
-        negativePrompt: negativePrompt.trim() || null,
+        negativePrompt: null,
+        isPaid: Boolean(isPaid),
+        price: isPaid ? Number(price) : 0,
         imageUrls: uploadedImageUrls,
         model,
         styleTag: uniqueVisualTags[0] || 'General',
@@ -413,17 +426,59 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
               />
             </div>
 
-            <div className={styles.fieldRow}>
-              <div className={styles.fieldGroup}>
-                <label>Negative prompt (optional)</label>
-                <input 
-                  type="text" 
-                  placeholder="e.g. blurry, watermark, low definition"
-                  value={negativePrompt}
-                  onChange={e => setNegativePrompt(e.target.value)}
-                />
+            <div className={styles.fieldGroup}>
+              <label>Pricing & Monetization</label>
+              <div className={styles.pricingToggleRow}>
+                <button
+                  type="button"
+                  className={`${styles.pricingOptionBtn} ${!isPaid ? styles.pricingActive : ''}`}
+                  onClick={() => { setIsPaid(false); setPrice(''); }}
+                >
+                  <span className={styles.optionTitle}>🟢 Free Creation</span>
+                  <span className={styles.optionSub}>Available to all community members</span>
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.pricingOptionBtn} ${isPaid ? styles.pricingActive : ''}`}
+                  onClick={() => setIsPaid(true)}
+                >
+                  <span className={styles.optionTitle}>💎 Paid Premium Artwork</span>
+                  <span className={styles.optionSub}>Monetized prompt vault via WHOP</span>
+                </button>
               </div>
             </div>
+
+            {isPaid && (
+              <div className={styles.fieldGroup}>
+                <label>Set Prompt Price in USD (Max $1,000,000,000)</label>
+                <div className={styles.priceInputWrapper}>
+                  <span className={styles.currencyPrefix}>$</span>
+                  <input
+                    type="number"
+                    min="0.01"
+                    max="1000000000"
+                    step="any"
+                    placeholder="e.g. 25.00"
+                    value={price}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value);
+                      if (val > 1000000000) {
+                        e.target.value = '1000000000';
+                        setPrice('1000000000');
+                        setModerationError("Price cannot exceed the maximum cap of $1,000,000,000 (one billion dollars).");
+                      } else {
+                        setPrice(e.target.value);
+                        setModerationError(null);
+                      }
+                    }}
+                    required={isPaid}
+                  />
+                </div>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
+                  {price ? `Listed Price: $${Number(price).toLocaleString('en-US')}` : 'Enter exact amount up to $1,000,000,000'}
+                </span>
+              </div>
+            )}
 
             <div className={styles.fieldGroup}>
               <label>Description (optional)</label>

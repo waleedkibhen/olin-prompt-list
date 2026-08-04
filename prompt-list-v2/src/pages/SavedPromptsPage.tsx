@@ -60,6 +60,8 @@ export default function SavedPromptsPage() {
             savesCount: d.savesCount || 0,
             viewsCount: d.viewsCount || 1,
             copiesCount: d.copiesCount || 0,
+            isPaid: d.isPaid || false,
+            price: d.price || 0,
             createdAt: d.createdAt?.toDate ? d.createdAt.toDate().toLocaleDateString() : 'Just now'
           });
         }

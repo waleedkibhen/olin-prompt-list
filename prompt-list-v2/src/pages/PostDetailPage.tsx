@@ -67,6 +67,8 @@ export default function PostDetailPage() {
           savesCount: d.savesCount || 0,
           viewsCount: d.viewsCount || 1,
           copiesCount: d.copiesCount || 0,
+          isPaid: d.isPaid || false,
+          price: d.price || 0,
           createdAt: d.createdAt?.toDate ? d.createdAt.toDate().toLocaleDateString() : 'Just now'
         });
       }
@@ -234,6 +236,8 @@ export default function PostDetailPage() {
     );
   }
 
+  const isProtected = Boolean(post.isPaid && user?.uid !== post.creator.uid);
+
   return (
     <div className={styles.pageContainer}>
         <div className={styles.navHeader}>
@@ -278,13 +282,15 @@ export default function PostDetailPage() {
                     <span className={styles.creatorHandle}>@{post.creator.username}</span>
                   </div>
                 </div>
-                <button 
-                  className={isFollowing ? "btn-solid" : "btn-outline"} 
-                  onClick={handleToggleFollow}
-                  style={{ padding: '0.4rem 0.85rem', fontSize: '0.8rem' }}
-                >
-                  {isFollowing ? '✓ Following' : '+ Follow Creator'}
-                </button>
+                {user?.uid !== post.creator.uid && (
+                  <button 
+                    className={isFollowing ? "btn-solid" : "btn-outline"} 
+                    onClick={handleToggleFollow}
+                    style={{ padding: '0.4rem 0.85rem', fontSize: '0.8rem' }}
+                  >
+                    {isFollowing ? '✓ Following' : '+ Follow Creator'}
+                  </button>
+                )}
               </div>
 
               <h1 className={styles.postTitle}>{post.title}</h1>
@@ -292,6 +298,11 @@ export default function PostDetailPage() {
               <div className={styles.badgeGroup}>
                 <span className={styles.modelBadge}>{post.model}</span>
                 <span className={styles.styleBadge}>{post.styleTag}</span>
+                {post.isPaid && (
+                  <span className={styles.premiumBadge}>
+                    💎 Premium (${post.price?.toLocaleString()})
+                  </span>
+                )}
                 {post.categories.map(cat => (
                   <span key={cat} className="badge-pill">#{cat}</span>
                 ))}
@@ -304,21 +315,34 @@ export default function PostDetailPage() {
               <div className={styles.vaultHeader}>
                 <div className={styles.vaultTitle}>
                   <Sparkles size={16} />
-                  <strong>Generative AI Prompt Text (V1 Unlocked)</strong>
+                  <strong>{isProtected ? "Protected AI Prompt Parameters" : "Generative AI Prompt Text (V1 Unlocked)"}</strong>
                 </div>
-                <button className={`btn-solid ${styles.copyBtn}`} onClick={handleCopyPrompt}>
-                  {isCopied ? <Check size={16} /> : <Copy size={16} />}
-                  <span>{isCopied ? 'Copied & Recorded!' : 'Copy Prompt'}</span>
-                </button>
+                {!isProtected && (
+                  <button className={`btn-solid ${styles.copyBtn}`} onClick={handleCopyPrompt}>
+                    {isCopied ? <Check size={16} /> : <Copy size={16} />}
+                    <span>{isCopied ? 'Copied & Recorded!' : 'Copy Prompt'}</span>
+                  </button>
+                )}
               </div>
 
-              <code className={styles.promptText}>{post.promptText}</code>
-
-              {post.negativePrompt && (
-                <div className={styles.negativeSection}>
-                  <span className={styles.negLabel}>Negative Prompt &amp; Excluded Parameters:</span>
-                  <code className={styles.negText}>{post.negativePrompt}</code>
+              {isProtected ? (
+                <div className={styles.lockedVaultContainer}>
+                  <div className={styles.lockIconBox}>🔒</div>
+                  <h4 className={styles.lockTitle}>Monetized AI Creation by @{post.creator.username}</h4>
+                  <p className={styles.lockDesc}>
+                    Unlock full access to verified prompt parameters, camera weights, and styling seeds.
+                  </p>
+                  <button
+                    className={styles.whopUnlockBtn}
+                    onClick={() => {
+                      alert(`⚡ Connecting to WHOP Checkout Gateway for $${post.price?.toLocaleString()} USD...\n\n(Frontend preparation complete; WHOP transaction handling will finalize here)`);
+                    }}
+                  >
+                    ⚡ Unlock via WHOP — ${post.price?.toLocaleString()}
+                  </button>
                 </div>
+              ) : (
+                <code className={styles.promptText}>{post.promptText}</code>
               )}
             </div>
 
