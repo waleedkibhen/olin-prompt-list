@@ -8,6 +8,7 @@ import CreatorDashboardPage from '@/pages/CreatorDashboardPage';
 import PostDetailPage from '@/pages/PostDetailPage';
 import AdminDashboardPage from '@/pages/AdminDashboardPage';
 import ProfilePage from '@/pages/ProfilePage';
+import PricingPage from '@/pages/PricingPage';
 import OnboardingModal from '@/components/OnboardingModal';
 import './index.css';
 
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="/post/:id" element={<PostDetailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/admin" element={<AdminDashboardPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
         </Routes>
       </div>
     </div>

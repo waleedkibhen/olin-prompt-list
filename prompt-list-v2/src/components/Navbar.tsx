@@ -132,6 +132,11 @@ export default function Navbar() {
               </Link>
             )}
 
+            <Link to="/pricing" className={styles.navLinkBtn} title="Subscription Plans & Pricing">
+              <Sparkles size={16} style={{ color: '#fbbf24' }} />
+              <span className={styles.btnText}>Pricing</span>
+            </Link>
+
             <Link to="/following" className={styles.navLinkBtn} title="Followed creators hub">
               <Users size={16} />
               <span className={styles.btnText}>Following</span>
@@ -177,6 +182,11 @@ export default function Navbar() {
                         <Link to="/profile" className={styles.menuItem} onClick={() => setIsMenuOpen(false)}>
                           <User size={16} />
                           <span>Profile &amp; Settings</span>
+                        </Link>
+
+                        <Link to="/pricing" className={styles.menuItem} onClick={() => setIsMenuOpen(false)}>
+                          <Sparkles size={16} style={{ color: '#fbbf24' }} />
+                          <span>Subscription Plans</span>
                         </Link>
                         
                         <Link to="/dashboard" className={styles.menuItem} onClick={() => setIsMenuOpen(false)}>

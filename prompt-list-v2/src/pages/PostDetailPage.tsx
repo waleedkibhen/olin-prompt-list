@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import styles from './post.module.css';
 import { useAuth } from '@/context/AuthContext';
 import { doc, updateDoc, increment, collection, onSnapshot, addDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
@@ -21,6 +21,7 @@ export default function PostDetailPage() {
   const params = useParams();
   const id = params?.id as string;
   const { user, profile, signInWithGoogle } = useAuth();
+  const navigate = useNavigate();
 
   const [post, setPost] = useState<PromptPost | null>(null);
   const [loading, setLoading] = useState(true);
@@ -172,20 +173,7 @@ export default function PostDetailPage() {
   };
 
   const handleSubscribeToUnlock = () => {
-    if (!user) {
-      alert("Please sign in with Google to subscribe and unlock premium prompts!");
-      signInWithGoogle();
-      return;
-    }
-    const confirmSub = window.confirm(`💎 OLIN PREMIUM SUBSCRIPTION\n\nUpgrade your account to Olin Premium Subscriber to instantly unlock all protected creator vaults across the marketplace!\n\nClick OK to upgrade your membership now.`);
-    if (confirmSub) {
-      localStorage.setItem(`olin_subscription_${user.uid}`, 'active');
-      const unlockedArr = JSON.parse(localStorage.getItem(`unlocked_${user.uid}`) || '[]');
-      localStorage.setItem(`unlocked_${user.uid}`, JSON.stringify([...unlockedArr, id]));
-      setIsUnlocked(true);
-      setPreviewPaywall(false);
-      alert("🎉 Welcome to Olin Premium! All subscriber-only creator vaults are now officially unlocked.");
-    }
+    navigate('/pricing');
   };
 
   const handleShareLink = () => {

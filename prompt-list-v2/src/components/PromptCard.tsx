@@ -6,7 +6,7 @@ import { doc, updateDoc, increment, collection, onSnapshot, addDoc, serverTimest
 import { db } from '@/lib/firebase';
 import { Heart, Bookmark, Copy, Check, Sparkles, Share2, MessageSquare, ExternalLink, Send, Loader2, PlayCircle, ShieldCheck } from 'lucide-react';
 import { moderateText } from '@/lib/ai';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 interface PromptCardProps {
   post: PromptPost;
@@ -24,6 +24,7 @@ interface CommentItem {
 
 export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
   const { user, profile, signInWithGoogle } = useAuth();
+  const navigate = useNavigate();
 
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -180,22 +181,9 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
     }, 2800);
   };
 
-  const handleSubscribeToUnlock = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!user) {
-      alert("Please sign in with Google to subscribe and unlock premium prompts!");
-      signInWithGoogle();
-      return;
-    }
-    const confirmSub = window.confirm(`💎 OLIN PREMIUM SUBSCRIPTION\n\nUpgrade your creator account to Olin Premium Subscriber to instantly unlock all protected subscriber vaults across the marketplace!\n\nClick OK to upgrade your membership now.`);
-    if (confirmSub) {
-      localStorage.setItem(`olin_subscription_${user.uid}`, 'active');
-      const unlockedArr = JSON.parse(localStorage.getItem(`unlocked_${user.uid}`) || '[]');
-      localStorage.setItem(`unlocked_${user.uid}`, JSON.stringify([...unlockedArr, post.id]));
-      setIsUnlocked(true);
-      setPreviewPaywall(false);
-      alert("🎉 Welcome to Olin Premium! All subscriber-only creator vaults are now officially unlocked.");
-    }
+  const handleSubscribeToUnlock = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    navigate('/pricing');
   };
 
   const handleShareLink = (e: React.MouseEvent) => {
@@ -298,11 +286,8 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                 effectiveMonetization === 'subscribers_only' ? (
                   <button 
                     className={styles.lockedCopyBtn}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsModalOpen(true);
-                    }}
-                    title="Subscriber Only — Click to view unlock options"
+                    onClick={handleSubscribeToUnlock}
+                    title="Subscriber Only — Click to upgrade and unlock"
                   >
                     🔒 <span>Subscribe to Unlock</span>
                   </button>

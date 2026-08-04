@@ -17,6 +17,7 @@ export interface CreatorProfile {
   monetizationStatus?: 'ineligible' | 'pending_review' | 'approved' | 'rejected';
   rejectionReason?: string;
   isBanned?: boolean;
+  subscriptionStatus?: 'active' | 'canceled' | 'expired' | string;
 }
 
 interface AuthContextType {
