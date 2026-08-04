@@ -160,9 +160,9 @@ export default function CreatorDashboardPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <Award size={32} style={{ color: '#f59e0b' }} />
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>Creator WHOP Monetization Funnel</h3>
+                  <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>Creator Subscription &amp; Ad Monetization Funnel</h3>
                   <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                    Achieve 50+ generative prompt copies in the last 90 days to unlock Premium WHOP subscriptions.
+                    Achieve 50+ generative prompt copies in the last 90 days to unlock Premium subscriber-only prompt vaults.
                   </span>
                 </div>
               </div>

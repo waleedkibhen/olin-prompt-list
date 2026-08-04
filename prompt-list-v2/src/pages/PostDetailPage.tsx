@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { doc, updateDoc, increment, collection, onSnapshot, addDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { PromptPost } from '@/lib/mockData';
-import { Sparkles, Heart, Bookmark, Copy, Check, Share2, MessageSquare, ArrowLeft, Loader2, Send, AlertCircle } from 'lucide-react';
+import { Sparkles, Heart, Bookmark, Copy, Check, Share2, MessageSquare, ArrowLeft, Loader2, Send, AlertCircle, PlayCircle } from 'lucide-react';
 import { moderateText } from '@/lib/ai';
 
 interface CommentItem {
@@ -31,8 +31,10 @@ export default function PostDetailPage() {
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
+  
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [previewPaywall, setPreviewPaywall] = useState(false);
+  const [isWatchingAd, setIsWatchingAd] = useState(false);
 
   const [comments, setComments] = useState<CommentItem[]>([]);
   const [newComment, setNewComment] = useState('');
@@ -104,6 +106,19 @@ export default function PostDetailPage() {
   }, [id]);
 
   useEffect(() => {
+    if (id) {
+      const storageKey = user ? `unlocked_${user.uid}` : 'unlocked_guest';
+      const unlockedArr = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      const isOwner = Boolean(user && user.uid === post?.creator?.uid);
+
+      let subUnlocked = false;
+      if (user && post?.isPaid) {
+        const subStatus = localStorage.getItem(`olin_subscription_${user.uid}`);
+        if (subStatus === 'active') subUnlocked = true;
+      }
+
+      setIsUnlocked(isOwner || subUnlocked || unlockedArr.includes(id));
+    }
     if (id && user) {
       const savedArr = JSON.parse(localStorage.getItem(`saves_${user.uid}`) || '[]');
       const likedArr = JSON.parse(localStorage.getItem(`likes_${user.uid}`) || '[]');
@@ -114,9 +129,6 @@ export default function PostDetailPage() {
       if (post?.creator?.uid) {
         setIsFollowing(followedArr.includes(post.creator.uid));
       }
-
-      const unlockedArr = JSON.parse(localStorage.getItem(`unlocked_${user.uid}`) || '[]');
-      setIsUnlocked(unlockedArr.includes(id) || Boolean(user.uid === post?.creator?.uid));
     }
   }, [id, user, post]);
 
@@ -139,6 +151,36 @@ export default function PostDetailPage() {
       await updateDoc(doc(db, 'posts', post.id), { copiesCount: increment(1) });
     } catch (e) {
       console.error("Failed to increment copy analytics:", e);
+    }
+  };
+
+  const handleWatchAdToUnlock = () => {
+    setIsWatchingAd(true);
+    setTimeout(() => {
+      setIsWatchingAd(false);
+      const storageKey = user ? `unlocked_${user.uid}` : 'unlocked_guest';
+      const unlockedArr = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      localStorage.setItem(storageKey, JSON.stringify([...unlockedArr, id]));
+      setIsUnlocked(true);
+      setPreviewPaywall(false);
+      handleCopyPrompt();
+    }, 2800);
+  };
+
+  const handleSubscribeToUnlock = () => {
+    if (!user) {
+      alert("Please sign in with Google to subscribe and unlock premium prompts!");
+      signInWithGoogle();
+      return;
+    }
+    const confirmSub = window.confirm(`💎 OLIN PREMIUM SUBSCRIPTION\n\nUpgrade your account to Olin Premium Subscriber to instantly unlock all protected creator vaults across the marketplace!\n\nClick OK to upgrade your membership now.`);
+    if (confirmSub) {
+      localStorage.setItem(`olin_subscription_${user.uid}`, 'active');
+      const unlockedArr = JSON.parse(localStorage.getItem(`unlocked_${user.uid}`) || '[]');
+      localStorage.setItem(`unlocked_${user.uid}`, JSON.stringify([...unlockedArr, id]));
+      setIsUnlocked(true);
+      setPreviewPaywall(false);
+      alert("🎉 Welcome to Olin Premium! All subscriber-only creator vaults are now officially unlocked.");
     }
   };
 
@@ -242,7 +284,7 @@ export default function PostDetailPage() {
   }
 
   const isCreator = Boolean(user && user.uid === post.creator.uid);
-  const isProtected = Boolean(post.isPaid && (!isUnlocked || (isCreator && previewPaywall)));
+  const isProtected = Boolean(!isUnlocked || (isCreator && previewPaywall));
 
   return (
     <div className={styles.pageContainer}>
@@ -304,9 +346,13 @@ export default function PostDetailPage() {
               <div className={styles.badgeGroup}>
                 <span className={styles.modelBadge}>{post.model}</span>
                 <span className={styles.styleBadge}>{post.styleTag}</span>
-                {post.isPaid && (
+                {post.isPaid ? (
                   <span className={styles.premiumBadge}>
-                    💎 Premium (${post.price?.toLocaleString()})
+                    💎 Subscriber Only
+                  </span>
+                ) : (
+                  <span style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1px solid #10b981', fontSize: '0.78rem', fontWeight: 800, padding: '0.25rem 0.75rem', borderRadius: '9999px' }}>
+                    🟢 Free (Ad Unlock)
                   </span>
                 )}
                 {post.categories.map(cat => (
@@ -318,18 +364,18 @@ export default function PostDetailPage() {
             </div>
 
             <div className={styles.promptVault}>
-              {post.isPaid && isCreator && (
+              {isCreator && (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.35)', borderRadius: 'var(--radius-md)', padding: '0.65rem 1rem', marginBottom: '0.5rem', fontSize: '0.85rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#10b981', fontWeight: 700 }}>
                     <span>👑 Creator Access Enabled</span>
-                    <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>— Buyers see the blurred paywall below</span>
+                    <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>— Users see the {post.isPaid ? 'Subscriber' : 'Ad Watch'} paywall</span>
                   </div>
                   <button
                     type="button"
                     onClick={() => setPreviewPaywall(!previewPaywall)}
                     style={{ background: 'transparent', border: '1px solid rgba(16, 185, 129, 0.5)', color: '#10b981', borderRadius: '6px', padding: '0.35rem 0.8rem', fontSize: '0.8rem', cursor: 'pointer', fontWeight: 700 }}
                   >
-                    {previewPaywall ? '👁️ Show Real Prompt' : '🔒 Preview Buyer Paywall'}
+                    {previewPaywall ? '👁️ Show Real Prompt' : '🔒 Preview Public Paywall'}
                   </button>
                 </div>
               )}
@@ -347,41 +393,47 @@ export default function PostDetailPage() {
                 )}
               </div>
 
-              {isProtected ? (
+              {isWatchingAd ? (
+                <div style={{ padding: '3rem 2rem', textAlign: 'center', backgroundColor: 'var(--bg-secondary)', border: '2px dashed #10b981', borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', color: 'var(--text-primary)' }}>
+                  <Loader2 size={44} style={{ animation: 'spin 1s linear infinite', color: '#10b981' }} />
+                  <strong style={{ fontSize: '1.25rem', color: '#10b981' }}>🍿 Playing Community Sponsor Message...</strong>
+                  <span style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', maxWidth: '420px' }}>
+                    Thank you for supporting generative creators on Olin Prompt List! Prompt parameters unlocking in moments...
+                  </span>
+                </div>
+              ) : isProtected ? (
                 <div className={styles.blurredVaultContainer}>
                   <div className={styles.dummyBlurBackground} aria-hidden="true">
                     <code>
-                      /imagine prompt: [PROTECTED WHOP VAULT] cinematic photographic masterpiece, hyperdetailed textures, 8k resolution, volumetric ambiance, studio lighting, dynamic contrast, masterwork seeds [PAY TO REVEAL FULL GENERATIVE PARAMETERS &amp; STYLING WEIGHTS] --v 6.0 --ar 16:9 --style raw --s 750
+                      /imagine prompt: [PROTECTED OLIN VAULT] cinematic photographic masterpiece, hyperdetailed textures, 8k resolution, volumetric ambiance, studio lighting, dynamic contrast, masterwork seeds [UNLOCK TO REVEAL FULL GENERATIVE PARAMETERS &amp; STYLING WEIGHTS] --v 6.0 --ar 16:9 --style raw --s 750
                     </code>
                   </div>
                   <div className={styles.vaultOverlayContent}>
-                    <div className={styles.lockBadgePill}>
-                      🔒 <span>Protected WHOP Vault</span>
+                    <div className={styles.lockBadgePill} style={!post.isPaid ? { backgroundColor: 'rgba(16, 185, 129, 0.2)', borderColor: '#10b981', color: '#10b981' } : {}}>
+                      {post.isPaid ? '🔒 Subscriber Only Vault' : '🟢 Free Ad-Supported Vault'}
                     </div>
-                    <h4 className={styles.lockTitle}>Monetized AI Creation by @{post.creator.username}</h4>
+                    <h4 className={styles.lockTitle}>Protected AI Creation by @{post.creator.username}</h4>
                     <p className={styles.lockDesc}>
-                      Full generative parameters, styling seeds, and camera weights are securely blurred and hidden from inspect tools until unlocked.
+                      Full generative parameters, styling seeds, and camera weights are securely blurred and protected from inspection until unlocked.
                     </p>
-                    <button
-                      className={styles.whopUnlockBtn}
-                      onClick={() => {
-                        if (!user) {
-                          alert("Please sign in with Google first to unlock and bookmark this premium prompt!");
-                          signInWithGoogle();
-                          return;
-                        }
-                        const confirmBuy = window.confirm(`⚡ WHOP CHECKOUT GATEWAY\n\nUnlock permanent lifetime access to "${post.title}" for $${post.price?.toLocaleString()} USD?\n\nClick OK to confirm payment and reveal generative parameters.`);
-                        if (confirmBuy) {
-                          const unlockedArr = JSON.parse(localStorage.getItem(`unlocked_${user.uid}`) || '[]');
-                          localStorage.setItem(`unlocked_${user.uid}`, JSON.stringify([...unlockedArr, post.id]));
-                          setIsUnlocked(true);
-                          setPreviewPaywall(false);
-                          alert("🎉 Payment Verified! The prompt vault has been unlocked and added to your personal library.");
-                        }
-                      }}
-                    >
-                      ⚡ Unlock via WHOP — ${post.price?.toLocaleString()}
-                    </button>
+                    {post.isPaid ? (
+                      <button
+                        className={styles.whopUnlockBtn}
+                        onClick={handleSubscribeToUnlock}
+                        style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#000' }}
+                      >
+                        🔒 Subscribe to Unlock
+                      </button>
+                    ) : (
+                      <button
+                        className={styles.whopUnlockBtn}
+                        onClick={handleWatchAdToUnlock}
+                        style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                      >
+                        <PlayCircle size={18} />
+                        <span>Watch an Ad to Unlock Prompt</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               ) : (

@@ -7,6 +7,7 @@ import FollowingHubPage from '@/pages/FollowingHubPage';
 import CreatorDashboardPage from '@/pages/CreatorDashboardPage';
 import PostDetailPage from '@/pages/PostDetailPage';
 import AdminDashboardPage from '@/pages/AdminDashboardPage';
+import ProfilePage from '@/pages/ProfilePage';
 import OnboardingModal from '@/components/OnboardingModal';
 import './index.css';
 
@@ -22,6 +23,7 @@ export default function App() {
           <Route path="/following" element={<FollowingHubPage />} />
           <Route path="/dashboard" element={<CreatorDashboardPage />} />
           <Route path="/post/:id" element={<PostDetailPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/admin" element={<AdminDashboardPage />} />
         </Routes>
       </div>

@@ -260,7 +260,7 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
         promptText: promptText.trim(),
         negativePrompt: null,
         isPaid: Boolean(isPaid),
-        price: isPaid ? 12 : 0,
+        price: 0,
         isFlagged,
         flaggedReason,
         imageUrls: uploadedImageUrls,
@@ -435,7 +435,7 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
             </div>
 
             <div className={styles.fieldGroup}>
-              <label>Pricing & Monetization</label>
+              <label>Prompt Gating &amp; Monetization</label>
               <div className={styles.pricingToggleRow}>
                 <button
                   type="button"
@@ -443,7 +443,7 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
                   onClick={() => setIsPaid(false)}
                 >
                   <span className={styles.optionTitle}>🟢 Free (Ad-Supported)</span>
-                  <span className={styles.optionSub}>Available to all community members</span>
+                  <span className={styles.optionSub}>Users watch a brief sponsor ad to unlock prompt text</span>
                 </button>
                 <button
                   type="button"
@@ -453,14 +453,14 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
                     if (profile?.monetizationStatus === 'approved') {
                       setIsPaid(true);
                     } else {
-                      alert("You must reach 50 prompt copies in your Creator Dashboard to apply for Premium monetization!");
+                      alert("You must achieve 50 prompt copies in your Creator Dashboard to apply for Premium subscription monetization!");
                     }
                   }}
                   style={profile?.monetizationStatus !== 'approved' ? { opacity: 0.55, cursor: 'not-allowed', border: '1px dashed #f59e0b' } : {}}
                 >
-                  <span className={styles.optionTitle}>💎 Premium (Subscription Vault)</span>
+                  <span className={styles.optionTitle}>💎 Premium (Subscribers Only)</span>
                   <span className={styles.optionSub}>
-                    {profile?.monetizationStatus === 'approved' ? 'Monetized prompt vault via WHOP' : '🔒 Requires Approved Monetization (50+ Copies)'}
+                    {profile?.monetizationStatus === 'approved' ? 'Exclusively accessible to Olin Premium Subscribers' : '🔒 Requires Approved Monetization (50+ Copies)'}
                   </span>
                 </button>
               </div>

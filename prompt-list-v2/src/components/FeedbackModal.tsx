@@ -79,7 +79,7 @@ export default function FeedbackModal({ onClose }: FeedbackModalProps) {
               <select value={subject} onChange={e => setSubject(e.target.value)}>
                 <option value="Bug Report">🐛 Bug Report</option>
                 <option value="Feature Suggestion">💡 Feature Suggestion</option>
-                <option value="Monetization Question">💰 Monetization / WHOP Question</option>
+                <option value="Monetization Question">💰 Monetization &amp; Subscriptions Question</option>
                 <option value="Flagged Appeal">🛡️ Appeal Flagged Artwork</option>
                 <option value="Other Support">📌 Other Support</option>
               </select>

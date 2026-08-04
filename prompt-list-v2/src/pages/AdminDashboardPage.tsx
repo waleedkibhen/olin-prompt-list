@@ -146,7 +146,7 @@ export default function AdminDashboardPage() {
       await updateDoc(doc(db, 'users', targetUser.uid), { monetizationStatus: 'approved' });
       await sendNotification(
         targetUser.uid,
-        "🎉 WHOP Monetization Approved!",
+        "🎉 Premium Creator Monetization Approved!",
         "Congratulations! Your application has been verified by Admin. You can now publish Premium subscription vaults and earn income on Olin Prompt List!",
         "system"
       );

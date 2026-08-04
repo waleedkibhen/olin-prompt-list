@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './Navbar.module.css';
-import { Search, Sparkles, Sun, Moon, Bookmark, Plus, LogOut, Users, BarChart2, X, ShieldAlert, MessageSquarePlus } from 'lucide-react';
+import { Search, Sparkles, Sun, Moon, Bookmark, Plus, LogOut, Users, BarChart2, X, ShieldAlert, MessageSquarePlus, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import CreatePostModal from './CreatePostModal';
 import NotificationBell from './NotificationBell';
@@ -123,26 +123,7 @@ export default function Navbar() {
           </div>
           
           <div className={styles.actionControls}>
-            <button 
-              className="btn-icon" 
-              onClick={toggleTheme} 
-              title={`Current mode: ${theme}. Click to switch Light/Dark mode persistently.`}
-            >
-              {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
-            </button>
-
             {user && <NotificationBell />}
-
-            <button
-              type="button"
-              className={styles.navLinkBtn}
-              onClick={() => setIsFeedbackOpen(true)}
-              title="Submit Feedback or Report a Bug"
-              style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}
-            >
-              <MessageSquarePlus size={16} />
-              <span className={styles.btnText}>Support</span>
-            </button>
 
             {isAdmin && (
               <Link to="/admin" className={styles.navLinkBtn} title="Secure Admin Dashboard" style={{ color: '#f59e0b', fontWeight: 700 }}>
@@ -150,11 +131,6 @@ export default function Navbar() {
                 <span className={styles.btnText}>Admin</span>
               </Link>
             )}
-
-            <Link to="/saved" className={styles.navLinkBtn} title="Saved library">
-              <Bookmark size={16} />
-              <span className={styles.btnText}>Saved</span>
-            </Link>
 
             <Link to="/following" className={styles.navLinkBtn} title="Followed creators hub">
               <Users size={16} />
@@ -197,29 +173,53 @@ export default function Navbar() {
                           <strong>{profile?.displayName || user.displayName}</strong>
                           <span>@{profile?.username || 'creator'}</span>
                         </div>
-                        {isAdmin && (
-                          <Link to="/admin" className={styles.menuItem} onClick={() => setIsMenuOpen(false)} style={{ color: '#f59e0b', fontWeight: 700 }}>
-                            <ShieldAlert size={16} />
-                            <span>Admin Dashboard</span>
-                          </Link>
-                        )}
+                        
+                        <Link to="/profile" className={styles.menuItem} onClick={() => setIsMenuOpen(false)}>
+                          <User size={16} />
+                          <span>Profile &amp; Settings</span>
+                        </Link>
+                        
                         <Link to="/dashboard" className={styles.menuItem} onClick={() => setIsMenuOpen(false)}>
                           <BarChart2 size={16} />
-                          <span>Dashboard</span>
+                          <span>Creator Dashboard</span>
                         </Link>
+                        
                         <Link to="/saved" className={styles.menuItem} onClick={() => setIsMenuOpen(false)}>
                           <Bookmark size={16} />
                           <span>Saved Bookmarks</span>
                         </Link>
+                        
                         <Link to="/following" className={styles.menuItem} onClick={() => setIsMenuOpen(false)}>
                           <Users size={16} />
-                          <span>Following</span>
+                          <span>Following Hub</span>
                         </Link>
-                        <button type="button" className={styles.menuItem} onClick={() => { setIsFeedbackOpen(true); setIsMenuOpen(false); }}>
-                          <MessageSquarePlus size={16} />
-                          <span>Submit Bug / Support</span>
+
+                        <button 
+                          type="button" 
+                          className={styles.menuItem} 
+                          onClick={() => { toggleTheme(); setIsMenuOpen(false); }}
+                        >
+                          {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+                          <span>{theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}</span>
                         </button>
-                        <button className={styles.menuItem} onClick={() => { signOut(); setIsMenuOpen(false); }}>
+
+                        <button 
+                          type="button" 
+                          className={styles.menuItem} 
+                          onClick={() => { setIsFeedbackOpen(true); setIsMenuOpen(false); }}
+                        >
+                          <MessageSquarePlus size={16} />
+                          <span>Support &amp; Feedback</span>
+                        </button>
+
+                        {isAdmin && (
+                          <Link to="/admin" className={styles.menuItem} onClick={() => setIsMenuOpen(false)} style={{ color: '#f59e0b', fontWeight: 700 }}>
+                            <ShieldAlert size={16} />
+                            <span>Superadmin Console</span>
+                          </Link>
+                        )}
+
+                        <button className={styles.menuItem} onClick={() => { signOut(); setIsMenuOpen(false); }} style={{ borderTop: '1px solid var(--border-color)', marginTop: '0.25rem', paddingTop: '0.6rem' }}>
                           <LogOut size={15} /> 
                           <span>Sign Out</span>
                         </button>
@@ -232,7 +232,7 @@ export default function Navbar() {
           </div>
         </div>
       </header>
-
+      
       {isCreateModalOpen && (
         <CreatePostModal 
           onClose={() => setIsCreateModalOpen(false)} 
@@ -248,4 +248,3 @@ export default function Navbar() {
     </>
   );
 }
-
