@@ -7,6 +7,7 @@ import { db } from '@/lib/firebase';
 import { Heart, Bookmark, Copy, Check, Sparkles, Share2, MessageSquare, ExternalLink, Send, Loader2, PlayCircle, ShieldCheck } from 'lucide-react';
 import { moderateText } from '@/lib/ai';
 import { Link, useNavigate } from 'react-router-dom';
+import { ENABLE_MONETIZATION } from '@/lib/config';
 
 interface PromptCardProps {
   post: PromptPost;
@@ -47,7 +48,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [commentError, setCommentError] = useState<string | null>(null);
 
-  const effectiveMonetization = post.monetizationType || (post.isPaid ? 'subscribers_only' : 'free');
+  const effectiveMonetization = !ENABLE_MONETIZATION ? 'free' : (post.monetizationType || (post.isPaid ? 'subscribers_only' : 'free'));
 
   useEffect(() => {
     const storageKey = user ? `unlocked_${user.uid}` : 'unlocked_guest';

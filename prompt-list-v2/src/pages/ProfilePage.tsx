@@ -8,6 +8,7 @@ import { updateProfile } from 'firebase/auth';
 import { User, ShieldAlert, Sparkles, Upload, Loader2, MessageSquarePlus, CheckCircle2, AlertTriangle } from 'lucide-react';
 import FeedbackModal from '@/components/FeedbackModal';
 import { Link, useNavigate } from 'react-router-dom';
+import { ENABLE_MONETIZATION } from '@/lib/config';
 
 export default function ProfilePage() {
   const { user, profile, loading } = useAuth();
@@ -315,37 +316,39 @@ export default function ProfilePage() {
             </div>
           )}
 
-          <div className={styles.card}>
-            <h2 className={styles.cardTitle}>
-              <Sparkles size={18} />
-              <span>Subscription &amp; Plans</span>
-            </h2>
+          {ENABLE_MONETIZATION && (
+            <div className={styles.card}>
+              <h2 className={styles.cardTitle}>
+                <Sparkles size={18} />
+                <span>Subscription &amp; Plans</span>
+              </h2>
 
-            <div>
-              <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.4rem' }}>Current Membership Status</span>
-              <div className={`${styles.planBadge} ${isSubscriber ? styles.planActive : styles.planFree}`}>
-                <span>{isSubscriber ? '💎 Olin Premium Subscriber (No Ads)' : '🟢 Free Community Plan (Ad-Supported)'}</span>
+              <div>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.4rem' }}>Current Membership Status</span>
+                <div className={`${styles.planBadge} ${isSubscriber ? styles.planActive : styles.planFree}`}>
+                  <span>{isSubscriber ? '💎 Olin Premium Subscriber (No Ads)' : '🟢 Free Community Plan (Ad-Supported)'}</span>
+                </div>
+              </div>
+
+              <div className={styles.planBox}>
+                <strong style={{ fontSize: '0.95rem', color: 'var(--text-primary)' }}>
+                  {isSubscriber ? 'Premium Subscriber Tier' : 'Ad-Supported Tier'}
+                </strong>
+                <p>
+                  {isSubscriber 
+                    ? 'You currently enjoy subscriber-only unlock privileges on premium creator prompts without commercial sponsor interruptions.'
+                    : 'You are on the standard Free plan. Prompts can be immediately unlocked anytime by watching brief community sponsor advertisements.'}
+                </p>
+                <button 
+                  type="button"
+                  className={isSubscriber ? styles.btnCancelPlan : styles.btnUpgradePlan}
+                  onClick={handleToggleSubscription}
+                >
+                  {isSubscriber ? 'Manage / Cancel Plan on Whop ↗' : 'Upgrade to Subscriber Plan →'}
+                </button>
               </div>
             </div>
-
-            <div className={styles.planBox}>
-              <strong style={{ fontSize: '0.95rem', color: 'var(--text-primary)' }}>
-                {isSubscriber ? 'Premium Subscriber Tier' : 'Ad-Supported Tier'}
-              </strong>
-              <p>
-                {isSubscriber 
-                  ? 'You currently enjoy subscriber-only unlock privileges on premium creator prompts without commercial sponsor interruptions.'
-                  : 'You are on the standard Free plan. Prompts can be immediately unlocked anytime by watching brief community sponsor advertisements.'}
-              </p>
-              <button 
-                type="button"
-                className={isSubscriber ? styles.btnCancelPlan : styles.btnUpgradePlan}
-                onClick={handleToggleSubscription}
-              >
-                {isSubscriber ? 'Manage / Cancel Plan on Whop ↗' : 'Upgrade to Subscriber Plan →'}
-              </button>
-            </div>
-          </div>
+          )}
 
           <div className={styles.supportCard}>
             <div>

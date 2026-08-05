@@ -7,6 +7,7 @@ import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
 import { CheckCircle2, Loader2, Trash2, AlertTriangle, UploadCloud } from 'lucide-react';
+import { ENABLE_MONETIZATION } from '@/lib/config';
 
 interface CreatePostModalProps {
   onClose: () => void;
@@ -259,8 +260,8 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
         description: description.trim(),
         promptText: promptText.trim(),
         negativePrompt: null,
-        isPaid: monetizationType === 'subscribers_only',
-        monetizationType: monetizationType,
+        isPaid: ENABLE_MONETIZATION ? monetizationType === 'subscribers_only' : false,
+        monetizationType: ENABLE_MONETIZATION ? monetizationType : 'free',
         price: 0,
         isFlagged,
         flaggedReason,
@@ -435,60 +436,62 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
               />
             </div>
 
-            <div className={styles.fieldGroup}>
-              <label>Prompt Gating &amp; Monetization</label>
-              <div className={styles.pricingToggleRow}>
-                <button
-                  type="button"
-                  className={`${styles.pricingOptionBtn} ${monetizationType === 'free' ? styles.pricingActive : ''}`}
-                  onClick={() => setMonetizationType('free')}
-                >
-                  <span className={styles.optionTitle}>🟢 Free (Open to All)</span>
-                  <span className={styles.optionSub}>Prompt text is open &amp; immediately visible without ads or paywalls</span>
-                </button>
-                <button
-                  type="button"
-                  disabled={profile?.monetizationStatus !== 'approved'}
-                  className={`${styles.pricingOptionBtn} ${monetizationType === 'ad_supported' ? styles.pricingActive : ''}`}
-                  onClick={() => {
-                    if (profile?.monetizationStatus === 'approved') {
-                      setMonetizationType('ad_supported');
-                    } else {
-                      alert("You must achieve 50 prompt copies in your Creator Dashboard to unlock Ad-Supported monetization!");
-                    }
-                  }}
-                  style={profile?.monetizationStatus !== 'approved' ? { opacity: 0.55, cursor: 'not-allowed', border: '1px dashed #f59e0b' } : {}}
-                >
-                  <span className={styles.optionTitle}>▶️ Ad-Supported</span>
-                  <span className={styles.optionSub}>
-                    {profile?.monetizationStatus === 'approved' ? 'Users watch a brief sponsor ad to unlock prompt text' : '🔒 Requires Approved Monetization (50+ Copies)'}
+            {ENABLE_MONETIZATION && (
+              <div className={styles.fieldGroup}>
+                <label>Prompt Gating &amp; Monetization</label>
+                <div className={styles.pricingToggleRow}>
+                  <button
+                    type="button"
+                    className={`${styles.pricingOptionBtn} ${monetizationType === 'free' ? styles.pricingActive : ''}`}
+                    onClick={() => setMonetizationType('free')}
+                  >
+                    <span className={styles.optionTitle}>🟢 Free (Open to All)</span>
+                    <span className={styles.optionSub}>Prompt text is open &amp; immediately visible without ads or paywalls</span>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={profile?.monetizationStatus !== 'approved'}
+                    className={`${styles.pricingOptionBtn} ${monetizationType === 'ad_supported' ? styles.pricingActive : ''}`}
+                    onClick={() => {
+                      if (profile?.monetizationStatus === 'approved') {
+                        setMonetizationType('ad_supported');
+                      } else {
+                        alert("You must achieve 50 prompt copies in your Creator Dashboard to unlock Ad-Supported monetization!");
+                      }
+                    }}
+                    style={profile?.monetizationStatus !== 'approved' ? { opacity: 0.55, cursor: 'not-allowed', border: '1px dashed #f59e0b' } : {}}
+                  >
+                    <span className={styles.optionTitle}>▶️ Ad-Supported</span>
+                    <span className={styles.optionSub}>
+                      {profile?.monetizationStatus === 'approved' ? 'Users watch a brief sponsor ad to unlock prompt text' : '🔒 Requires Approved Monetization (50+ Copies)'}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={profile?.monetizationStatus !== 'approved'}
+                    className={`${styles.pricingOptionBtn} ${monetizationType === 'subscribers_only' ? styles.pricingActive : ''}`}
+                    onClick={() => {
+                      if (profile?.monetizationStatus === 'approved') {
+                        setMonetizationType('subscribers_only');
+                      } else {
+                        alert("You must achieve 50 prompt copies in your Creator Dashboard to unlock Subscriber monetization!");
+                      }
+                    }}
+                    style={profile?.monetizationStatus !== 'approved' ? { opacity: 0.55, cursor: 'not-allowed', border: '1px dashed #f59e0b' } : {}}
+                  >
+                    <span className={styles.optionTitle}>💎 Subscribers Only</span>
+                    <span className={styles.optionSub}>
+                      {profile?.monetizationStatus === 'approved' ? 'Exclusively accessible to Olin Premium Subscribers' : '🔒 Requires Approved Monetization (50+ Copies)'}
+                    </span>
+                  </button>
+                </div>
+                {profile?.monetizationStatus !== 'approved' && (
+                  <span style={{ fontSize: '0.78rem', color: '#f59e0b', marginTop: '0.2rem' }}>
+                    💡 Check your Creator Dashboard to track your progress toward 50 copies and apply for monetization!
                   </span>
-                </button>
-                <button
-                  type="button"
-                  disabled={profile?.monetizationStatus !== 'approved'}
-                  className={`${styles.pricingOptionBtn} ${monetizationType === 'subscribers_only' ? styles.pricingActive : ''}`}
-                  onClick={() => {
-                    if (profile?.monetizationStatus === 'approved') {
-                      setMonetizationType('subscribers_only');
-                    } else {
-                      alert("You must achieve 50 prompt copies in your Creator Dashboard to unlock Subscriber monetization!");
-                    }
-                  }}
-                  style={profile?.monetizationStatus !== 'approved' ? { opacity: 0.55, cursor: 'not-allowed', border: '1px dashed #f59e0b' } : {}}
-                >
-                  <span className={styles.optionTitle}>💎 Subscribers Only</span>
-                  <span className={styles.optionSub}>
-                    {profile?.monetizationStatus === 'approved' ? 'Exclusively accessible to Olin Premium Subscribers' : '🔒 Requires Approved Monetization (50+ Copies)'}
-                  </span>
-                </button>
+                )}
               </div>
-              {profile?.monetizationStatus !== 'approved' && (
-                <span style={{ fontSize: '0.78rem', color: '#f59e0b', marginTop: '0.2rem' }}>
-                  💡 Check your Creator Dashboard to track your progress toward 50 copies and apply for monetization!
-                </span>
-              )}
-            </div>
+            )}
 
             <div className={styles.fieldGroup}>
               <label>Description (optional)</label>

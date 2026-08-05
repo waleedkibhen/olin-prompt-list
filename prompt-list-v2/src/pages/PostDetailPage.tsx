@@ -7,6 +7,7 @@ import { db } from '@/lib/firebase';
 import { PromptPost } from '@/lib/mockData';
 import { Sparkles, Heart, Bookmark, Copy, Check, Share2, MessageSquare, ArrowLeft, Loader2, Send, AlertCircle, PlayCircle } from 'lucide-react';
 import { moderateText } from '@/lib/ai';
+import { ENABLE_MONETIZATION } from '@/lib/config';
 
 interface CommentItem {
   id: string;
@@ -107,7 +108,7 @@ export default function PostDetailPage() {
     };
   }, [id]);
 
-  const effectiveMonetization = post?.monetizationType || (post?.isPaid ? 'subscribers_only' : 'free');
+  const effectiveMonetization = !ENABLE_MONETIZATION ? 'free' : (post?.monetizationType || (post?.isPaid ? 'subscribers_only' : 'free'));
 
   useEffect(() => {
     if (id) {

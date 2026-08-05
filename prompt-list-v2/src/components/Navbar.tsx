@@ -6,12 +6,13 @@ import CreatePostModal from './CreatePostModal';
 import NotificationBell from './NotificationBell';
 import FeedbackModal from './FeedbackModal';
 import { Link, useNavigate } from 'react-router-dom';
+import { ENABLE_MONETIZATION } from '@/lib/config';
 
 export default function Navbar() {
   const { user, profile, loading, signInWithGoogle, signOut } = useAuth();
   const navigate = useNavigate();
   
-  const isPro = Boolean(
+  const isPro = ENABLE_MONETIZATION && Boolean(
     profile?.isPremium === true || 
     profile?.subscriptionStatus === 'active' || 
     (user && localStorage.getItem(`olin_subscription_${user.uid}`) === 'active') ||
@@ -139,10 +140,12 @@ export default function Navbar() {
               </Link>
             )}
 
-            <Link to="/pricing" className={styles.navLinkBtn} title="Subscription Plans & Pricing">
-              <Sparkles size={16} style={{ color: '#fbbf24' }} />
-              <span className={styles.btnText}>Pricing</span>
-            </Link>
+            {ENABLE_MONETIZATION && (
+              <Link to="/pricing" className={styles.navLinkBtn} title="Subscription Plans & Pricing">
+                <Sparkles size={16} style={{ color: '#fbbf24' }} />
+                <span className={styles.btnText}>Pricing</span>
+              </Link>
+            )}
 
             <Link to="/following" className={styles.navLinkBtn} title="Followed creators hub">
               <Users size={16} />
@@ -256,10 +259,12 @@ export default function Navbar() {
                           <span>Profile &amp; Settings</span>
                         </Link>
 
-                        <Link to="/pricing" className={styles.menuItem} onClick={() => setIsMenuOpen(false)}>
-                          <Sparkles size={16} style={{ color: '#fbbf24' }} />
-                          <span>Subscription Plans</span>
-                        </Link>
+                        {ENABLE_MONETIZATION && (
+                          <Link to="/pricing" className={styles.menuItem} onClick={() => setIsMenuOpen(false)}>
+                            <Sparkles size={16} style={{ color: '#fbbf24' }} />
+                            <span>Subscription Plans</span>
+                          </Link>
+                        )}
                         
                         <Link to="/dashboard" className={styles.menuItem} onClick={() => setIsMenuOpen(false)}>
                           <BarChart2 size={16} />

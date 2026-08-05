@@ -12,6 +12,7 @@ import { generateLiveEmbedding } from '@/lib/ai';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useSearchParams } from 'react-router-dom';
+import { ENABLE_MONETIZATION } from '@/lib/config';
 
 const COLOR_OPTIONS = [
   { name: 'Yellow & Gold', hex: '#facc15', keywords: ['yellow', 'gold', 'amber', 'lemon', 'blonde', 'sun', 'golden', 'warm', 'brass', 'honey'] },
@@ -476,7 +477,7 @@ export default function DiscoveryFeed() {
           <div className={styles.filterRow} style={{ borderTop: '1px dashed var(--border-color)', paddingTop: '0.85rem', marginTop: '0.25rem' }}>
             <span className={styles.filterLabel}>
               <Calendar size={15} style={{ color: '#f97316' }} />
-              Time &amp; Vault
+              {ENABLE_MONETIZATION ? 'Time & Vault' : 'Timeframe'}
             </span>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
               {TIME_OPTIONS.map(time => (
@@ -489,18 +490,22 @@ export default function DiscoveryFeed() {
                 </button>
               ))}
               
-              <span style={{ color: 'var(--text-muted)', margin: '0 0.4rem' }}>|</span>
+              {ENABLE_MONETIZATION && (
+                <>
+                  <span style={{ color: 'var(--text-muted)', margin: '0 0.4rem' }}>|</span>
 
-              {VAULT_OPTIONS.map(vault => (
-                <button
-                  key={vault.value}
-                  className={`${styles.filterPill} ${vaultFilter === vault.value ? styles.filterPillActive : ''}`}
-                  onClick={() => setVaultFilter(prev => prev === vault.value ? 'All Artwork' : vault.value)}
-                  style={vault.value === 'subscribers_only' ? { borderColor: '#f59e0b' } : {}}
-                >
-                  <span>{vault.label}</span>
-                </button>
-              ))}
+                  {VAULT_OPTIONS.map(vault => (
+                    <button
+                      key={vault.value}
+                      className={`${styles.filterPill} ${vaultFilter === vault.value ? styles.filterPillActive : ''}`}
+                      onClick={() => setVaultFilter(prev => prev === vault.value ? 'All Artwork' : vault.value)}
+                      style={vault.value === 'subscribers_only' ? { borderColor: '#f59e0b' } : {}}
+                    >
+                      <span>{vault.label}</span>
+                    </button>
+                  ))}
+                </>
+              )}
             </div>
           </div>
         </section>

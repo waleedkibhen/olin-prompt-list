@@ -3,6 +3,7 @@ import styles from './pricing.module.css';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Check, Zap, Sparkles, ShieldCheck, ExternalLink, X, AlertCircle } from 'lucide-react';
+import { ENABLE_MONETIZATION } from '@/lib/config';
 
 // Live Whop Checkout URLs & Plan IDs
 // Plan ID Monthly: plan_GQc9sa68Db1k5
@@ -115,6 +116,35 @@ export default function PricingPage() {
       navigate('/');
     }
   };
+
+  if (!ENABLE_MONETIZATION) {
+    return (
+      <div className={styles.pricingWrapper} style={{ minHeight: '75vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ background: 'var(--bg-secondary)', border: '2px solid #10b981', borderRadius: '1rem', padding: '3.5rem 2.5rem', maxWidth: '680px', textAlign: 'center', boxShadow: '0 15px 40px rgba(0,0,0,0.35)' }}>
+          <div style={{ background: 'rgba(16, 185, 129, 0.15)', width: '84px', height: '84px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
+            <Sparkles size={46} style={{ color: '#10b981' }} />
+          </div>
+          <div style={{ background: '#10b981', color: '#000', fontSize: '0.825rem', fontWeight: 900, textTransform: 'uppercase', padding: '5px 16px', borderRadius: '9999px', display: 'inline-block', marginBottom: '1.25rem', letterSpacing: '0.05em' }}>
+            🎉 100% Free Community Period
+          </div>
+          <h1 style={{ fontSize: '2.2rem', color: 'var(--text-primary)', marginBottom: '1.25rem', lineHeight: 1.25, fontWeight: 800 }}>
+            No Paywalls. No Subscriptions.<br/>Everything is Free.
+          </h1>
+          <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: '2.25rem' }}>
+            We have made a strict community pledge: <strong>we will not enable paid subscriptions or accept payments until our creator platform reaches at least 100 Monthly Active Users (MAU)</strong>. For the time being, enjoy unlimited, unrestricted access to every AI prompt parameter, creator vault, and discovery filter completely free of charge!
+          </p>
+          <button 
+            type="button" 
+            className="btn-solid" 
+            onClick={() => navigate('/')}
+            style={{ width: '100%', maxWidth: '340px', padding: '0.95rem 1.5rem', fontSize: '1.05rem', borderRadius: '9999px', background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff', fontWeight: 700, margin: '0 auto' }}
+          >
+            🚀 Explore All Prompts for Free
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.pricingWrapper}>
