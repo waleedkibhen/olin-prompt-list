@@ -21,6 +21,7 @@ export default function PricingPage() {
   // Check if the currently logged-in user is already an approved Premium Subscriber
   const isPremiumSubscriber = 
     profile?.subscriptionStatus === 'active' || 
+    profile?.isPremium === true ||
     (user && localStorage.getItem(`olin_subscription_${user.uid}`) === 'active');
 
   const handleSubscribe = (planType: 'monthly' | 'yearly') => {

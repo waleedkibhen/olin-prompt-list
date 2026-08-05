@@ -18,6 +18,7 @@ export interface CreatorProfile {
   rejectionReason?: string;
   isBanned?: boolean;
   subscriptionStatus?: 'active' | 'canceled' | 'expired' | string;
+  isPremium?: boolean;
 }
 
 interface AuthContextType {
