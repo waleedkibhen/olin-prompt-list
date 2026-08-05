@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { doc, updateDoc, increment, collection, onSnapshot, addDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { PromptPost } from '@/lib/mockData';
-import { Sparkles, Heart, Bookmark, Copy, Check, Share2, MessageSquare, ArrowLeft, Loader2, Send, AlertCircle, PlayCircle } from 'lucide-react';
+import { Sparkles, Heart, Bookmark, Copy, Check, Share2, MessageSquare, ArrowLeft, Loader2, Send, AlertCircle, PlayCircle, Flag } from 'lucide-react';
 import { moderateText } from '@/lib/ai';
 import { ENABLE_MONETIZATION } from '@/lib/config';
 
@@ -227,6 +227,27 @@ export default function PostDetailPage() {
     const followedArr = JSON.parse(localStorage.getItem(`following_${user.uid}`) || '[]');
     const nextArr = nextVal ? [...followedArr, creatorUid] : followedArr.filter((item: string) => item !== creatorUid);
     localStorage.setItem(`following_${user.uid}`, JSON.stringify(nextArr));
+  };
+
+  const handleReportPost = async () => {
+    if (!requireAuth("Report guideline violation on")) return;
+    if (!post || !user) return;
+    const reason = window.prompt("Please state why you are flagging this prompt (e.g., Inappropriate content, copyright infringement, spam, or guideline violation):");
+    if (reason !== null) {
+      try {
+        const finalReason = reason.trim() ? reason.trim() : "Flagged by community member";
+        const postRef = doc(db, 'posts', post.id);
+        await updateDoc(postRef, {
+          isFlagged: true,
+          flaggedReason: `Reported by @${profile?.username || user.displayName || 'community-member'}: ${finalReason}`
+        });
+        alert("🚨 Thank you for keeping Olin safe! This prompt has been immediately flagged and removed from community feeds for urgent inspection by our Admin team.");
+        navigate('/');
+      } catch (err: any) {
+        console.error("Failed to submit report:", err);
+        alert("Unable to transmit report at this moment. Please try again later or reach out via support feedback.");
+      }
+    }
   };
 
   const handleSubmitComment = async (e: React.FormEvent) => {
@@ -472,6 +493,10 @@ export default function PostDetailPage() {
               <button className={styles.actionBtn} onClick={handleShareLink} style={isLinkCopied ? { color: '#10b981', borderColor: '#10b981' } : {}}>
                 <Share2 size={18} />
                 <span>{isLinkCopied ? 'Link Copied!' : 'Share URL'}</span>
+              </button>
+              <button className={styles.actionBtn} onClick={handleReportPost} style={{ color: '#f43f5e', borderColor: 'rgba(244,63,94,0.3)' }} title="Flag artwork for moderation review">
+                <Flag size={18} />
+                <span>Report</span>
               </button>
             </div>
 

@@ -4,7 +4,7 @@ import { PromptPost } from '@/lib/mockData';
 import { useAuth } from '@/context/AuthContext';
 import { doc, updateDoc, increment, collection, onSnapshot, addDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Heart, Bookmark, Copy, Check, Sparkles, Share2, MessageSquare, ExternalLink, Send, Loader2, PlayCircle, ShieldCheck } from 'lucide-react';
+import { Heart, Bookmark, Copy, Check, Sparkles, Share2, MessageSquare, ExternalLink, Send, Loader2, PlayCircle, ShieldCheck, Flag } from 'lucide-react';
 import { moderateText } from '@/lib/ai';
 import { Link, useNavigate } from 'react-router-dom';
 import { ENABLE_MONETIZATION } from '@/lib/config';
@@ -235,6 +235,30 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
     }
   };
 
+  const handleReportPost = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user) {
+      alert("Please sign in with your Google account to submit community guideline reports.");
+      return;
+    }
+    const reason = window.prompt("Please state why you are flagging this prompt (e.g., Inappropriate content, copyright infringement, spam, or guideline violation):");
+    if (reason !== null) {
+      try {
+        const finalReason = reason.trim() ? reason.trim() : "Flagged by community member";
+        const postRef = doc(db, 'posts', post.id);
+        await updateDoc(postRef, {
+          isFlagged: true,
+          flaggedReason: `Reported by @${profile?.username || user.displayName || 'community-member'}: ${finalReason}`
+        });
+        alert("🚨 Thank you for keeping Olin safe! This prompt has been immediately flagged and removed from community feeds for urgent inspection by our Admin team.");
+        if (isModalOpen) setIsModalOpen(false);
+      } catch (err: any) {
+        console.error("Failed to submit report:", err);
+        alert("Unable to transmit report at this moment. Please try again later or reach out via support feedback.");
+      }
+    }
+  };
+
   const isCreator = Boolean(user && user.uid === post.creator.uid);
   const isProtected = Boolean(effectiveMonetization !== 'free' && (!isUnlocked || (isCreator && previewPaywall)));
 
@@ -284,6 +308,14 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                   title="Save bookmark"
                 >
                   <Bookmark size={15} fill={isSaved ? "currentColor" : "none"} />
+                </button>
+                <button 
+                  className={styles.actionIconBtn}
+                  onClick={handleReportPost}
+                  title="Report or flag this artwork"
+                  style={{ color: '#f43f5e' }}
+                >
+                  <Flag size={14} />
                 </button>
               </div>
             </div>
@@ -517,6 +549,10 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                 <button className={styles.barBtn} onClick={handleShareLink} style={isLinkCopied ? { color: '#10b981', borderColor: '#10b981' } : {}}>
                   <Share2 size={17} />
                   <span>{isLinkCopied ? 'Copied' : 'Share'}</span>
+                </button>
+                <button className={styles.barBtn} onClick={handleReportPost} style={{ color: '#f43f5e', borderColor: 'rgba(244,63,94,0.3)' }} title="Report guidelines violation">
+                  <Flag size={17} />
+                  <span>Report</span>
                 </button>
               </div>
 
