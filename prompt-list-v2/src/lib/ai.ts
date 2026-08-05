@@ -1,3 +1,5 @@
+import type { ColorProfile } from './colorAnalyzer';
+
 export interface ModerationResult {
   approved: boolean;
   reason?: string;
@@ -81,6 +83,19 @@ export async function generateLiveEmbedding(text: string): Promise<number[]> {
  * Analyzes image content via Gemini Vision to generate searchable visual keywords (e.g. forest, fire, woods)
  */
 export async function analyzeArtworkWithGemini(imageUrlOrBase64: string): Promise<string[]> {
+  const result = await analyzeArtworkMultimodalWithGemini(imageUrlOrBase64);
+  return result.tags;
+}
+
+export interface MultimodalVisionResult {
+  tags: string[];
+  colorProfile: ColorProfile | null;
+}
+
+/**
+ * Analyzes artwork using Gemini Multimodal Vision to produce both comprehensive visual search tags (objects, atmosphere, clothing) and human-perceptive color profiles.
+ */
+export async function analyzeArtworkMultimodalWithGemini(imageUrlOrBase64: string): Promise<MultimodalVisionResult> {
   try {
     const isBase64 = imageUrlOrBase64.startsWith('data:');
     const res = await fetch('/api/analyze-image', {
@@ -90,11 +105,14 @@ export async function analyzeArtworkWithGemini(imageUrlOrBase64: string): Promis
     });
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data.tags)) return data.tags;
+      return {
+        tags: Array.isArray(data.tags) ? data.tags : [],
+        colorProfile: data.colorProfile || null
+      };
     }
   } catch (e) {
-    console.error("Failed to extract Gemini vision tags:", e);
+    console.error("Failed to extract Gemini multimodal vision & color data:", e);
   }
-  return [];
+  return { tags: [], colorProfile: null };
 }
 

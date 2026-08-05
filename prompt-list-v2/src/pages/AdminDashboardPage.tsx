@@ -8,6 +8,7 @@ import { ShieldAlert, Check, X, AlertTriangle, Users, MessageSquare, Flame, Ban,
 import { Link } from 'react-router-dom';
 import RichTextRenderer from '@/components/RichTextRenderer';
 import { extractImagePalette } from '@/lib/colorAnalyzer';
+import { analyzeArtworkMultimodalWithGemini } from '@/lib/ai';
 import { ENABLE_MONETIZATION } from '@/lib/config';
 
 interface AdminPost {
@@ -221,7 +222,7 @@ export default function AdminDashboardPage() {
   const [scanStatus, setScanStatus] = useState<string | null>(null);
 
   const handleRescanAllColors = async () => {
-    if (!window.confirm("Start automated Full-Spectrum HSL color scan on ALL existing catalog posts? This calculates exact primary/secondary/tertiary colors at $0.00 cost.")) return;
+    if (!window.confirm("Start Gemini Multimodal AI scan on ALL existing catalog posts? This deeply indexes objects (grass, tower, humans, lighting) and assigns human perceptual colors.")) return;
     setIsScanningColors(true);
     try {
       setScanStatus("Fetching catalog from Firestore...");
@@ -233,20 +234,31 @@ export default function AdminDashboardPage() {
         const pData = d.data();
         const imgUrl = pData.imageUrls && pData.imageUrls.length > 0 ? pData.imageUrls[0] : null;
         if (imgUrl) {
-          setScanStatus(`Analyzing image color spectrum (${successCount + blockedCount + 1}/${total}): "${pData.title || 'Untitled'}"...`);
-          const colorProfile = await extractImagePalette(imgUrl);
-          if (colorProfile) {
+          setScanStatus(`Analyzing via Gemini Multimodal AI (${successCount + blockedCount + 1}/${total}): "${pData.title || 'Untitled'}"...`);
+          const visionRes = await analyzeArtworkMultimodalWithGemini(imgUrl);
+          let colorProfile = visionRes.colorProfile;
+          if (!colorProfile) {
+            colorProfile = await extractImagePalette(imgUrl);
+          }
+
+          const existingCategories = Array.isArray(pData.categories) ? pData.categories : [];
+          const newCategories = Array.from(new Set([...existingCategories, ...(visionRes.tags || []), ...(colorProfile?.colorNames || [])]));
+
+          if (colorProfile || (visionRes.tags && visionRes.tags.length > 0)) {
             successCount++;
-            await updateDoc(doc(db, 'posts', d.id), { colorProfile });
+            await updateDoc(doc(db, 'posts', d.id), {
+              colorProfile: colorProfile || pData.colorProfile || null,
+              categories: newCategories
+            });
           } else {
             blockedCount++;
           }
         }
       }
       if (blockedCount > 0) {
-        setScanStatus(`✨ Tagged ${successCount} items! (Note: ${blockedCount} items blocked by Google Storage CORS. New uploads bypass CORS automatically via local blob reading!)`);
+        setScanStatus(`✨ indexed & tagged ${successCount} items via Multimodal AI! (Note: ${blockedCount} items used offline fallback.)`);
       } else {
-        setScanStatus(`✨ Successfully analyzed & tagged all ${successCount} catalog items with precise HSL color spectrum! ($0.00 cost)`);
+        setScanStatus(`✨ Successfully indexed all ${successCount} catalog items with deep visual tags & perceptual human colors!`);
       }
       setTimeout(() => setScanStatus(null), 12000);
     } catch (err: any) {
@@ -294,7 +306,7 @@ export default function AdminDashboardPage() {
             }}
           >
             {isScanningColors ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-            <span>{isScanningColors ? 'Scanning Colors...' : '⚡ Auto-Scan & Tag All Catalog Colors ($0.00)'}</span>
+            <span>{isScanningColors ? 'Running Gemini AI Indexer...' : '⚡ Gemini Multimodal Deep Rescan & Color Index'}</span>
           </button>
         </div>
       </header>

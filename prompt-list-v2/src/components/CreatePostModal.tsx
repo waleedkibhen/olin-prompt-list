@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import styles from './CreatePostModal.module.css';
 import { useAuth } from '@/context/AuthContext';
-import { moderateText, moderateSingleImage, generateLiveEmbedding, analyzeArtworkWithGemini } from '@/lib/ai';
+import { moderateText, moderateSingleImage, generateLiveEmbedding, analyzeArtworkWithGemini, analyzeArtworkMultimodalWithGemini } from '@/lib/ai';
 import { sendNotification } from '@/lib/notifications';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -236,13 +236,25 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
         }
       }
 
-      setStatusText('Analyzing visual scene & color spectrum...');
+      setStatusText('Analyzing visual scene & human color spectrum via Multimodal AI...');
       const visualTags: string[] = [];
-      for (const imgUrl of uploadedImageUrls) {
-        const tags = await analyzeArtworkWithGemini(imgUrl);
-        visualTags.push(...tags);
+      let colorProfile = null;
+
+      for (let i = 0; i < uploadedImageUrls.length; i++) {
+        const targetUrl = selectedFiles[i]?.previewUrl || uploadedImageUrls[i] || '';
+        const res = await analyzeArtworkMultimodalWithGemini(targetUrl);
+        if (res.tags && res.tags.length > 0) {
+          visualTags.push(...res.tags);
+        }
+        if (i === 0 && res.colorProfile) {
+          colorProfile = res.colorProfile;
+        }
       }
-      const colorProfile = await extractImagePalette(selectedFiles[0]?.previewUrl || uploadedImageUrls[0] || '');
+
+      if (!colorProfile) {
+        colorProfile = await extractImagePalette(selectedFiles[0]?.previewUrl || uploadedImageUrls[0] || '');
+      }
+
       const uniqueVisualTags = Array.from(new Set([...visualTags, ...(colorProfile?.colorNames || [])]));
 
       setStatusText('Finalizing...');
