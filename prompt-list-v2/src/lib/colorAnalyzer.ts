@@ -237,49 +237,88 @@ export function matchesColorFilter(filterValue: string, profile?: ColorProfile, 
     return false;
   }
 
-  // 2. Custom Hex / Spectrum Picker Matching (e.g., #EEFF00 or #0062FF)
+  // 2. Custom Hex / Spectrum Picker Matching (e.g., #FF0000 or #0062FF)
   const targetRgb = hexToRgb(filterValue);
   if (!targetRgb) return false;
   const targetHsl = rgbToHsl(targetRgb.r, targetRgb.g, targetRgb.b);
+  const targetCategory = classifyHslToName(targetHsl.h, targetHsl.s, targetHsl.l);
 
-  // If no profile exists yet for this post, do NOT return true for everything!
-  if (!profile || !profile.paletteHexes || profile.paletteHexes.length === 0) {
+  // If post has an analyzed color profile, check both spectrum category ("if it comes in that spectrum, it counts") and swatch proximity!
+  if (profile && (profile.colorNames?.length > 0 || profile.paletteHexes?.length > 0)) {
+    // 1. Spectrum Category Match: If the chosen hex falls into a color band (e.g. Red & Crimson) present in the artwork!
+    if (targetCategory && profile.colorNames && profile.colorNames.includes(targetCategory)) {
+      return true;
+    }
+
+    const isTargetNeutral = targetHsl.s < 12 || targetHsl.l <= 15 || targetHsl.l >= 88;
+
+    // 2. Swatch Distance Match: Check each dominant swatch extracted from the image
+    for (const hex of (profile.paletteHexes || [])) {
+      const pRgb = hexToRgb(hex);
+      if (!pRgb) continue;
+      const pHsl = rgbToHsl(pRgb.r, pRgb.g, pRgb.b);
+      const isSwatchNeutral = pHsl.s < 12 || pHsl.l <= 15 || pHsl.l >= 88;
+
+      if (isTargetNeutral) {
+        if (isSwatchNeutral && Math.abs(targetHsl.l - pHsl.l) <= 25) return true;
+        continue;
+      }
+
+      if (isSwatchNeutral) continue;
+
+      let hueDelta = Math.abs(targetHsl.h - pHsl.h);
+      if (hueDelta > 180) hueDelta = 360 - hueDelta;
+
+      // Allow 38 degrees hue tolerance around the circle so closest variations within the color family show up!
+      if (hueDelta <= 38 && Math.abs(targetHsl.l - pHsl.l) <= 65) {
+        return true;
+      }
+    }
     return false;
   }
 
-  const isTargetNeutral = targetHsl.s < 12 || targetHsl.l <= 15 || targetHsl.l >= 88;
-
-  // Check each dominant swatch extracted from the image
-  for (const hex of profile.paletteHexes) {
-    const pRgb = hexToRgb(hex);
-    if (!pRgb) continue;
-    const pHsl = rgbToHsl(pRgb.r, pRgb.g, pRgb.b);
-
-    const isSwatchNeutral = pHsl.s < 12 || pHsl.l <= 15 || pHsl.l >= 88;
-
-    // Case A: User searched for a neutral shade (Black, White, Gray)
-    if (isTargetNeutral) {
-      if (isSwatchNeutral && Math.abs(targetHsl.l - pHsl.l) <= 22) {
-        return true;
-      }
-      continue;
-    }
-
-    // Case B: User searched for a chromatic color (Yellow, Blue, Green, Pink, etc.)
-    // Ignore neutral background swatches (like pure white or pitch black) when matching saturated spectrum colors!
-    if (isSwatchNeutral) {
-      continue;
-    }
-
-    // Calculate Hue distance around the 360-degree color circle
-    let hueDelta = Math.abs(targetHsl.h - pHsl.h);
-    if (hueDelta > 180) hueDelta = 360 - hueDelta;
-
-    // REQUIRE STRICT HSL SIMILARITY: Hue within 22 degrees and reasonable lightness similarity
-    if (hueDelta <= 22 && Math.abs(targetHsl.l - pHsl.l) <= 45) {
-      return true;
-    }
+  // Fallback: If post hasn't been scanned yet, match target category words in fallback text
+  if (fallbackText && targetCategory) {
+    const mainWord = targetCategory.split('&')[0].trim().toLowerCase();
+    if (fallbackText.toLowerCase().includes(mainWord)) return true;
   }
 
   return false;
+}
+
+// Calculate visual similarity score between a target hex and an image's color profile (higher score = closer visual match)
+export function calculateColorSimilarityScore(targetHex: string, profile?: ColorProfile): number {
+  const targetRgb = hexToRgb(targetHex);
+  if (!targetRgb || !profile || !profile.paletteHexes || profile.paletteHexes.length === 0) return 0;
+
+  const targetHsl = rgbToHsl(targetRgb.r, targetRgb.g, targetRgb.b);
+  const targetCategory = classifyHslToName(targetHsl.h, targetHsl.s, targetHsl.l);
+
+  let maxScore = 0;
+
+  // Check distances across all extracted palette swatches and dominant hex
+  const allHexes = Array.from(new Set([profile.dominantHex, ...profile.paletteHexes].filter(Boolean)));
+
+  for (const hex of allHexes) {
+    const pRgb = hexToRgb(hex);
+    if (!pRgb) continue;
+
+    // Euclidean RGB color difference (0 to ~442)
+    const diff = Math.sqrt(
+      Math.pow(targetRgb.r - pRgb.r, 2) +
+      Math.pow(targetRgb.g - pRgb.g, 2) +
+      Math.pow(targetRgb.b - pRgb.b, 2)
+    );
+    const score = Math.max(0, Math.round((1 - diff / 442) * 1000));
+    if (score > maxScore) maxScore = score;
+  }
+
+  // Add +200 similarity bonus if the image's #1 most dominant color category identically matches the target hex's spectrum
+  if (targetCategory && profile.colorNames && profile.colorNames[0] === targetCategory) {
+    maxScore += 200;
+  } else if (targetCategory && profile.colorNames && profile.colorNames.includes(targetCategory)) {
+    maxScore += 100;
+  }
+
+  return maxScore;
 }

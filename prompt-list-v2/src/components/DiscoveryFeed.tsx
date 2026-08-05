@@ -13,7 +13,7 @@ import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useSearchParams } from 'react-router-dom';
 import { ENABLE_MONETIZATION } from '@/lib/config';
-import { matchesColorFilter } from '@/lib/colorAnalyzer';
+import { matchesColorFilter, calculateColorSimilarityScore } from '@/lib/colorAnalyzer';
 
 const COLOR_OPTIONS = [
   { name: 'Yellow & Gold', hex: '#facc15', keywords: ['yellow', 'gold', 'amber', 'lemon', 'blonde', 'sun', 'golden', 'warm', 'brass', 'honey'] },
@@ -191,6 +191,13 @@ export default function DiscoveryFeed() {
         const contentStr = `${post.title} ${post.description} ${post.promptText} ${post.styleTag} ${post.categories.join(" ")}`;
         return matchesColorFilter(color, post.colorProfile, contentStr, keywords);
       });
+
+      // If a custom hex from Spectrum Picker is selected, rank results from closest visual color match to furthest!
+      if (color.startsWith('#')) {
+        current.sort((a, b) => 
+          calculateColorSimilarityScore(color, b.colorProfile) - calculateColorSimilarityScore(color, a.colorProfile)
+        );
+      }
     }
 
     // 3. Art Type & Medium Filter
