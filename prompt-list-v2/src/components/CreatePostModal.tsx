@@ -264,6 +264,7 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
         monetizationType: ENABLE_MONETIZATION ? monetizationType : 'free',
         price: 0,
         isFlagged,
+        flagSource: isFlagged ? 'ai' : null,
         flaggedReason,
         imageUrls: uploadedImageUrls,
         model,

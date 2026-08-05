@@ -8,6 +8,7 @@ import { Heart, Bookmark, Copy, Check, Sparkles, Share2, MessageSquare, External
 import { moderateText } from '@/lib/ai';
 import { Link, useNavigate } from 'react-router-dom';
 import { ENABLE_MONETIZATION } from '@/lib/config';
+import ReportModal from '@/components/ReportModal';
 
 interface PromptCardProps {
   post: PromptPost;
@@ -34,6 +35,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
   const [savesCount, setSavesCount] = useState(post.savesCount);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [isLinkCopied, setIsLinkCopied] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -235,28 +237,13 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
     }
   };
 
-  const handleReportPost = async (e: React.MouseEvent) => {
+  const handleReportPost = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!user) {
-      alert("Please sign in with your Google account to submit community guideline reports.");
+      alert("Please sign in with your Google account to report community guideline violations.");
       return;
     }
-    const reason = window.prompt("Please state why you are flagging this prompt (e.g., Inappropriate content, copyright infringement, spam, or guideline violation):");
-    if (reason !== null) {
-      try {
-        const finalReason = reason.trim() ? reason.trim() : "Flagged by community member";
-        const postRef = doc(db, 'posts', post.id);
-        await updateDoc(postRef, {
-          isFlagged: true,
-          flaggedReason: `Reported by @${profile?.username || user.displayName || 'community-member'}: ${finalReason}`
-        });
-        alert("🚨 Thank you for keeping Olin safe! This prompt has been immediately flagged and removed from community feeds for urgent inspection by our Admin team.");
-        if (isModalOpen) setIsModalOpen(false);
-      } catch (err: any) {
-        console.error("Failed to submit report:", err);
-        alert("Unable to transmit report at this moment. Please try again later or reach out via support feedback.");
-      }
-    }
+    setIsReportModalOpen(true);
   };
 
   const isCreator = Boolean(user && user.uid === post.creator.uid);
@@ -610,6 +597,8 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
           </div>
         </div>
       )}
+
+      {isReportModalOpen && <ReportModal post={post} onClose={() => setIsReportModalOpen(false)} />}
     </>
   );
 }

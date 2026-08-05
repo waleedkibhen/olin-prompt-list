@@ -8,6 +8,7 @@ import { PromptPost } from '@/lib/mockData';
 import { Sparkles, Heart, Bookmark, Copy, Check, Share2, MessageSquare, ArrowLeft, Loader2, Send, AlertCircle, PlayCircle, Flag } from 'lucide-react';
 import { moderateText } from '@/lib/ai';
 import { ENABLE_MONETIZATION } from '@/lib/config';
+import ReportModal from '@/components/ReportModal';
 
 interface CommentItem {
   id: string;
@@ -27,6 +28,7 @@ export default function PostDetailPage() {
   const [post, setPost] = useState<PromptPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImgIndex, setActiveImgIndex] = useState(0);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   
   const [isCopied, setIsCopied] = useState(false);
   const [isLinkCopied, setIsLinkCopied] = useState(false);
@@ -229,25 +231,10 @@ export default function PostDetailPage() {
     localStorage.setItem(`following_${user.uid}`, JSON.stringify(nextArr));
   };
 
-  const handleReportPost = async () => {
+  const handleReportPost = () => {
     if (!requireAuth("Report guideline violation on")) return;
     if (!post || !user) return;
-    const reason = window.prompt("Please state why you are flagging this prompt (e.g., Inappropriate content, copyright infringement, spam, or guideline violation):");
-    if (reason !== null) {
-      try {
-        const finalReason = reason.trim() ? reason.trim() : "Flagged by community member";
-        const postRef = doc(db, 'posts', post.id);
-        await updateDoc(postRef, {
-          isFlagged: true,
-          flaggedReason: `Reported by @${profile?.username || user.displayName || 'community-member'}: ${finalReason}`
-        });
-        alert("🚨 Thank you for keeping Olin safe! This prompt has been immediately flagged and removed from community feeds for urgent inspection by our Admin team.");
-        navigate('/');
-      } catch (err: any) {
-        console.error("Failed to submit report:", err);
-        alert("Unable to transmit report at this moment. Please try again later or reach out via support feedback.");
-      }
-    }
+    setIsReportModalOpen(true);
   };
 
   const handleSubmitComment = async (e: React.FormEvent) => {
@@ -549,6 +536,7 @@ export default function PostDetailPage() {
             </div>
           </section>
         </main>
+      {post && isReportModalOpen && <ReportModal post={post} onClose={() => setIsReportModalOpen(false)} />}
     </div>
   );
 }

@@ -111,7 +111,8 @@ export default function DiscoveryFeed() {
       const liveItems: PromptPost[] = [];
       snapshot.forEach((docSnap) => {
         const data = docSnap.data();
-        if (data.isFlagged === true) return;
+        // AI moderation flags remove the post instantly; User reports keep the post public while queuing for Admin review
+        if (data.isFlagged === true && data.flagSource !== 'user' && !String(data.flaggedReason || '').startsWith('Reported by')) return;
         liveItems.push({
           id: docSnap.id,
           title: data.title || 'Untitled Creation',

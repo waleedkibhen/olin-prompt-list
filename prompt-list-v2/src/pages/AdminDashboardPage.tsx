@@ -17,6 +17,7 @@ interface AdminPost {
   creatorUsername: string;
   imageUrls: string[];
   isFlagged?: boolean;
+  flagSource?: string;
   flaggedReason?: string;
   createdAt?: any;
 }
@@ -280,13 +281,19 @@ export default function AdminDashboardPage() {
                 <div>
                   <div className={styles.cardHeader}>
                     <h3 className={styles.cardTitle}>{post.title}</h3>
-                    <span style={{ color: '#f59e0b', fontSize: '0.75rem', fontWeight: 800, padding: '0.2rem 0.5rem', border: '1px solid #f59e0b', borderRadius: '9999px' }}>
-                      ⚠️ Flagged
-                    </span>
+                    {post.flagSource === 'user' || String(post.flaggedReason || '').startsWith('Reported by') ? (
+                      <span style={{ color: '#38bdf8', fontSize: '0.75rem', fontWeight: 800, padding: '0.25rem 0.65rem', backgroundColor: 'rgba(56, 189, 248, 0.12)', border: '1px solid #38bdf8', borderRadius: '9999px' }}>
+                        👤 Reported by User (Live in Feed)
+                      </span>
+                    ) : (
+                      <span style={{ color: '#f59e0b', fontSize: '0.75rem', fontWeight: 800, padding: '0.25rem 0.65rem', backgroundColor: 'rgba(245, 158, 11, 0.12)', border: '1px solid #f59e0b', borderRadius: '9999px' }}>
+                        🤖 AI Automated Filter (Hidden from Feed)
+                      </span>
+                    )}
                   </div>
                   <div className={styles.metaInfo}>
                     <span>Creator: @{post.creatorUsername} ({post.creatorDisplayName})</span>
-                    <span style={{ color: '#f43f5e' }}>Reason: {post.flaggedReason || 'Automated filter'}</span>
+                    <span style={{ color: '#f43f5e', fontWeight: 600 }}>Reason: {post.flaggedReason || 'Automated filter'}</span>
                   </div>
                 </div>
 
