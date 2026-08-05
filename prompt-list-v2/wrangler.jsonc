@@ -4,7 +4,7 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "prompt-list-v2",
+	"name": "olin-prompt-list1",
 	"compatibility_date": "2026-08-03",
 	"pages_build_output_dir": "./dist",
 	"observability": {
