@@ -90,6 +90,8 @@ export async function analyzeArtworkWithGemini(imageUrlOrBase64: string): Promis
 export interface MultimodalVisionResult {
   tags: string[];
   colorProfile: ColorProfile | null;
+  error?: string;
+  modelUsed?: string;
 }
 
 /**
@@ -105,14 +107,32 @@ export async function analyzeArtworkMultimodalWithGemini(imageUrlOrBase64: strin
     });
     if (res.ok) {
       const data = await res.json();
+      if (data.error) {
+        console.warn("Gemini Vision pipeline error reported by backend:", data.error);
+      } else if (data.modelUsed) {
+        console.log(`✨ Successfully indexed via Gemini Model: ${data.modelUsed} (${data.apiVersion})`);
+      }
       return {
         tags: Array.isArray(data.tags) ? data.tags : [],
-        colorProfile: data.colorProfile || null
+        colorProfile: data.colorProfile || null,
+        error: data.error,
+        modelUsed: data.modelUsed
       };
     }
-  } catch (e) {
+  } catch (e: any) {
     console.error("Failed to extract Gemini multimodal vision & color data:", e);
+    return { tags: [], colorProfile: null, error: e.message || String(e) };
   }
   return { tags: [], colorProfile: null };
+}
+
+export async function diagnoseGeminiApi(): Promise<any> {
+  try {
+    const res = await fetch('/api/diagnose-gemini');
+    if (res.ok) return await res.json();
+    return { error: `HTTP ${res.status}` };
+  } catch (err: any) {
+    return { error: err.message || String(err) };
+  }
 }
 

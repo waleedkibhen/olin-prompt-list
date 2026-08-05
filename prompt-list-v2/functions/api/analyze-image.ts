@@ -6,52 +6,70 @@ interface Env {
 
 async function resolveVisionModels(apiKey: string): Promise<string[]> {
   const fallbackModels = [
+    "models/gemini-3.1-flash-preview",
+    "models/gemini-3.1-flash",
+    "models/gemini-3-flash-preview",
+    "models/gemini-3-flash",
+    "models/gemini-3.5-flash",
+    "models/gemini-3.6-pro",
+    "models/gemini-3.1-pro",
+    "models/gemini-2.5-flash-latest",
     "models/gemini-2.5-flash",
     "models/gemini-2.5-pro",
     "models/gemini-2.0-flash",
-    "models/gemini-1.5-flash",
-    "models/gemini-1.5-flash-latest",
     "models/gemini-1.5-pro",
     "models/gemini-pro-vision"
   ];
-  try {
-    const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
-    if (listRes.ok) {
-      const data: any = await listRes.json();
-      if (Array.isArray(data.models)) {
-        const supported = data.models
-          .filter((m: any) => m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent") && m.name.toLowerCase().includes("gemini"))
-          .map((m: any) => m.name);
-        if (supported.length > 0) {
-          supported.sort((a: string, b: string) => {
-            const score = (name: string) => {
-              let s = 0;
-              if (name.includes("flash")) s += 10;
-              if (name.includes("2.5")) s += 5;
-              if (name.includes("2.0")) s += 3;
-              if (name.includes("1.5")) s += 2;
-              if (name.includes("pro")) s += 1;
-              return s;
-            };
-            return score(b) - score(a);
-          });
-          return Array.from(new Set([...supported, ...fallbackModels]));
+  const discovered: string[] = [];
+
+  for (const apiVer of ["v1beta", "v1"]) {
+    try {
+      const listRes = await fetch(`https://generativelanguage.googleapis.com/${apiVer}/models?key=${apiKey}`);
+      if (listRes.ok) {
+        const data: any = await listRes.json();
+        if (Array.isArray(data.models)) {
+          for (const m of data.models) {
+            if (m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent") && m.name.toLowerCase().includes("gemini")) {
+              discovered.push(m.name);
+            }
+          }
         }
       }
+    } catch (e) {
+      console.warn(`Failed to query Gemini model list from ${apiVer}:`, e);
     }
-  } catch (e) {
-    console.warn("Failed to query Gemini model list, using fallback chain:", e);
   }
-  return fallbackModels;
+
+  if (discovered.length > 0) {
+    discovered.sort((a: string, b: string) => {
+      const score = (name: string) => {
+        let s = 0;
+        if (name.includes("flash")) s += 20;
+        if (name.includes("3.1")) s += 15;
+        if (name.includes("3.")) s += 12;
+        if (name.includes("3-")) s += 10;
+        if (name.includes("2.5")) s += 8;
+        if (name.includes("2.0")) s += 5;
+        if (name.includes("preview")) s += 2;
+        if (name.includes("pro")) s += 1;
+        return s;
+      };
+      return score(b) - score(a);
+    });
+  }
+
+  return Array.from(new Set([...discovered, ...fallbackModels]));
 }
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
+  const errorLogs: string[] = [];
   try {
     const { imageUrl, base64 } = await context.request.json<any>();
     const apiKey = context.env.GEMINI_API_KEY;
     if (!apiKey) {
+      errorLogs.push("GEMINI_API_KEY is missing in Cloudflare environment secrets.");
       console.warn("GEMINI_API_KEY is missing in Cloudflare environment. Skipping Gemini vision indexing.");
-      return new Response(JSON.stringify({ tags: [], colorProfile: null }), { status: 200, headers: { "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ tags: [], colorProfile: null, error: errorLogs.join(" | ") }), { status: 200, headers: { "Content-Type": "application/json" } });
     }
 
     let inlineData: any = null;
@@ -66,11 +84,14 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         const b64Data = Buffer.from(buffer).toString('base64');
         const contentType = imgRes.headers.get('content-type') || "image/jpeg";
         inlineData = { mime_type: contentType.split(';')[0], data: b64Data };
+      } else {
+        errorLogs.push(`Failed to fetch imageUrl: HTTP ${imgRes.status}`);
       }
     }
 
     if (!inlineData) {
-      return new Response(JSON.stringify({ tags: [], colorProfile: null }), { status: 200, headers: { "Content-Type": "application/json" } });
+      errorLogs.push("No valid inline image data could be extracted from input.");
+      return new Response(JSON.stringify({ tags: [], colorProfile: null, error: errorLogs.join(" | ") }), { status: 200, headers: { "Content-Type": "application/json" } });
     }
 
     const promptText = `You are an expert art director, lighting designer, and human color perception analyzer. Analyze this artwork and return a JSON object containing two properties:
@@ -99,38 +120,42 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     for (const modelName of modelCandidates) {
       const formattedModel = modelName.startsWith('models/') ? modelName : `models/${modelName}`;
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/${formattedModel}:generateContent?key=${apiKey}`;
-      try {
-        const res = await fetch(endpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: bodyPayload
-        });
+      for (const apiVer of ["v1beta", "v1"]) {
+        const endpoint = `https://generativelanguage.googleapis.com/${apiVer}/${formattedModel}:generateContent?key=${apiKey}`;
+        try {
+          const res = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: bodyPayload
+          });
 
-        if (res.ok) {
-          const data: any = await res.json();
-          const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-          try {
-            const parsed = JSON.parse(rawText);
-            const tags = Array.isArray(parsed.tags) 
-              ? parsed.tags.map((t: string) => String(t).trim().toLowerCase().replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, '')).filter((t: string) => t.length >= 2)
-              : [];
-            const colorProfile = parsed.colorProfile && typeof parsed.colorProfile === 'object' ? parsed.colorProfile : null;
-            return new Response(JSON.stringify({ tags: Array.from(new Set(tags)), colorProfile }), { status: 200, headers: { "Content-Type": "application/json" } });
-          } catch (e) {
-            console.error(`Error parsing structured JSON from ${formattedModel}:`, e, rawText);
-            continue;
+          if (res.ok) {
+            const data: any = await res.json();
+            const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+            try {
+              const parsed = JSON.parse(rawText);
+              const tags = Array.isArray(parsed.tags) 
+                ? parsed.tags.map((t: string) => String(t).trim().toLowerCase().replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, '')).filter((t: string) => t.length >= 2)
+                : [];
+              const colorProfile = parsed.colorProfile && typeof parsed.colorProfile === 'object' ? parsed.colorProfile : null;
+              return new Response(JSON.stringify({ tags: Array.from(new Set(tags)), colorProfile, modelUsed: formattedModel, apiVersion: apiVer }), { status: 200, headers: { "Content-Type": "application/json" } });
+            } catch (e: any) {
+              errorLogs.push(`[${apiVer}/${formattedModel}] JSON Parse Error: ${e.message}`);
+              continue;
+            }
+          } else {
+            const errText = await res.text();
+            errorLogs.push(`[${apiVer}/${formattedModel}] HTTP ${res.status}: ${errText}`);
           }
-        } else {
-          console.warn(`Gemini model ${formattedModel} failed with HTTP ${res.status}:`, await res.text());
+        } catch (err: any) {
+          errorLogs.push(`[${apiVer}/${formattedModel}] Network Error: ${err.message}`);
         }
-      } catch (err) {
-        console.warn(`Error invoking Gemini model ${formattedModel}:`, err);
       }
     }
-  } catch (error) {
-    console.error("Error running Multimodal Gemini vision pipeline:", error);
+  } catch (error: any) {
+    errorLogs.push(`Fatal Pipeline Error: ${error.message || error}`);
   }
-  return new Response(JSON.stringify({ tags: [], colorProfile: null }), { status: 200, headers: { "Content-Type": "application/json" } });
+  return new Response(JSON.stringify({ tags: [], colorProfile: null, error: errorLogs.slice(0, 10).join(" || ") }), { status: 200, headers: { "Content-Type": "application/json" } });
 };
+
 

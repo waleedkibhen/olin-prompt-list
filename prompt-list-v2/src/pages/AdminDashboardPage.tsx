@@ -8,7 +8,7 @@ import { ShieldAlert, Check, X, AlertTriangle, Users, MessageSquare, Flame, Ban,
 import { Link } from 'react-router-dom';
 import RichTextRenderer from '@/components/RichTextRenderer';
 import { extractImagePalette } from '@/lib/colorAnalyzer';
-import { analyzeArtworkMultimodalWithGemini } from '@/lib/ai';
+import { analyzeArtworkMultimodalWithGemini, diagnoseGeminiApi } from '@/lib/ai';
 import { ENABLE_MONETIZATION } from '@/lib/config';
 
 interface AdminPost {
@@ -220,6 +220,21 @@ export default function AdminDashboardPage() {
 
   const [isScanningColors, setIsScanningColors] = useState(false);
   const [scanStatus, setScanStatus] = useState<string | null>(null);
+  const [isDiagnosing, setIsDiagnosing] = useState(false);
+  const [diagnosticData, setDiagnosticData] = useState<any>(null);
+
+  const handleRunDiagnostics = async () => {
+    setIsDiagnosing(true);
+    setDiagnosticData(null);
+    try {
+      const report = await diagnoseGeminiApi();
+      setDiagnosticData(report);
+    } catch (err: any) {
+      setDiagnosticData({ error: err.message || String(err) });
+    } finally {
+      setIsDiagnosing(false);
+    }
+  };
 
   const handleRescanAllColors = async () => {
     if (!window.confirm("Start Gemini Multimodal AI scan on ALL existing catalog posts? This deeply indexes objects (grass, tower, humans, lighting) and assigns human perceptual colors.")) return;
@@ -236,6 +251,12 @@ export default function AdminDashboardPage() {
         if (imgUrl) {
           setScanStatus(`Analyzing via Gemini Multimodal AI (${successCount + blockedCount + 1}/${total}): "${pData.title || 'Untitled'}"...`);
           const visionRes = await analyzeArtworkMultimodalWithGemini(imgUrl);
+          if (visionRes.error) {
+            console.warn(`[Rescan Error on ${pData.title || 'Untitled'}]:`, visionRes.error);
+            setScanStatus(`⚠️ Gemini Error on "${pData.title || 'Untitled'}": ${visionRes.error}`);
+            await new Promise(res => setTimeout(res, 2500)); // Pause so admin can see the error
+          }
+
           let colorProfile = visionRes.colorProfile;
           if (!colorProfile) {
             colorProfile = await extractImagePalette(imgUrl);
@@ -256,11 +277,11 @@ export default function AdminDashboardPage() {
         }
       }
       if (blockedCount > 0) {
-        setScanStatus(`✨ indexed & tagged ${successCount} items via Multimodal AI! (Note: ${blockedCount} items used offline fallback.)`);
+        setScanStatus(`✨ indexed & tagged ${successCount} items via Multimodal AI! (Note: ${blockedCount} items used offline fallback or had errors.)`);
       } else {
         setScanStatus(`✨ Successfully indexed all ${successCount} catalog items with deep visual tags & perceptual human colors!`);
       }
-      setTimeout(() => setScanStatus(null), 12000);
+      setTimeout(() => setScanStatus(null), 15000);
     } catch (err: any) {
       alert(`Scan failed: ${err.message}`);
       setScanStatus(null);
@@ -308,12 +329,45 @@ export default function AdminDashboardPage() {
             {isScanningColors ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
             <span>{isScanningColors ? 'Running Gemini AI Indexer...' : '⚡ Gemini Multimodal Deep Rescan & Color Index'}</span>
           </button>
+          <button
+            type="button"
+            onClick={handleRunDiagnostics}
+            disabled={isDiagnosing}
+            style={{
+              background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+              color: '#fff',
+              border: 'none',
+              padding: '0.45rem 0.85rem',
+              borderRadius: '9999px',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              cursor: isDiagnosing ? 'not-allowed' : 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
+            }}
+          >
+            {isDiagnosing ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
+            <span>{isDiagnosing ? 'Querying Google API...' : '🔍 Diagnose Gemini API & Models'}</span>
+          </button>
         </div>
       </header>
       {scanStatus && (
         <div style={{ background: 'rgba(168, 85, 247, 0.15)', border: '1px solid #a855f7', color: '#f3e8ff', padding: '0.75rem 1rem', borderRadius: '12px', margin: '1rem 0', fontWeight: 600, fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
           <Sparkles size={18} style={{ color: '#ec4899', flexShrink: 0 }} />
           <span>{scanStatus}</span>
+        </div>
+      )}
+      {diagnosticData && (
+        <div style={{ background: '#0f172a', border: '1px solid #3b82f6', color: '#e2e8f0', padding: '1rem', borderRadius: '12px', margin: '1rem 0', overflow: 'auto', maxHeight: '400px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+            <strong style={{ color: '#60a5fa', fontSize: '0.95rem' }}>🔍 Google Gemini API Diagnostic Report:</strong>
+            <button onClick={() => setDiagnosticData(null)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontWeight: 700 }}>✕ Close</button>
+          </div>
+          <pre style={{ margin: 0, fontSize: '0.8rem', whiteSpace: 'pre-wrap', wordBreak: 'break-all', fontFamily: 'monospace' }}>
+            {JSON.stringify(diagnosticData, null, 2)}
+          </pre>
         </div>
       )}
 
