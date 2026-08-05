@@ -18,21 +18,56 @@ export default function PricingPage() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
   const [showToastModal, setShowToastModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verificationStatus, setVerificationStatus] = useState<'pending' | 'success' | 'failed'>('pending');
+
+  const verifyWhopPayment = async () => {
+    if (!user?.email) return;
+    setIsVerifying(true);
+    setVerificationStatus('pending');
+    
+    try {
+      const res = await fetch('/api/verify-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email })
+      });
+      const data: any = await res.json();
+      if (data && data.isPremium) {
+        setVerificationStatus('success');
+        localStorage.setItem('olin_recent_success', 'true');
+        localStorage.setItem(`olin_subscription_${user.uid}`, 'active');
+        if (data.planTier) {
+          localStorage.setItem(`olin_sub_tier_${user.uid}`, data.planTier);
+        }
+      } else {
+        setVerificationStatus('failed');
+      }
+    } catch (err) {
+      console.error('Error verifying Whop payment:', err);
+      setVerificationStatus('failed');
+    } finally {
+      setIsVerifying(false);
+    }
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('success') === 'true' || params.get('checkout') === 'success' || params.get('upgraded') === 'true') {
       setShowSuccessModal(true);
-      localStorage.setItem('olin_recent_success', 'true');
-      const pendingTier = localStorage.getItem('olin_pending_tier') || 'monthly';
-      localStorage.setItem('olin_active_tier', pendingTier);
-      if (user) {
-        localStorage.setItem(`olin_subscription_${user.uid}`, 'active');
-        localStorage.setItem(`olin_sub_tier_${user.uid}`, pendingTier);
-      }
       window.history.replaceState({}, document.title, window.location.pathname);
     }
-  }, [user]);
+  }, []);
+
+  useEffect(() => {
+    if (showSuccessModal && user?.email && verificationStatus === 'pending' && !isVerifying) {
+      verifyWhopPayment();
+      const timer = setTimeout(() => {
+        verifyWhopPayment();
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [showSuccessModal, user, verificationStatus, isVerifying]);
 
   useEffect(() => {
     if (user && localStorage.getItem('olin_recent_success') === 'true') {
@@ -278,19 +313,56 @@ export default function PricingPage() {
         </div>
       )}
 
-      {/* Celebration Success Modal after Whop Payment */}
+      {/* Celebration & Real-Time Verification Modal after Whop Payment */}
       {showSuccessModal && (
         <div className={styles.toastOverlay} onClick={() => setShowSuccessModal(false)}>
-          <div className={styles.toastCard} onClick={e => e.stopPropagation()} style={{ border: '2px solid #fbbf24', maxWidth: '480px' }}>
-            <div style={{ background: 'rgba(251, 191, 36, 0.15)', padding: '1rem', borderRadius: '50%', marginBottom: '0.25rem' }}>
-              <Sparkles size={52} style={{ color: '#fbbf24' }} />
+          <div className={styles.toastCard} onClick={e => e.stopPropagation()} style={{ border: '2px solid #fbbf24', maxWidth: '500px', padding: '2rem', textAlign: 'center' }}>
+            <div style={{ background: 'rgba(251, 191, 36, 0.15)', padding: '1rem', borderRadius: '50%', marginBottom: '0.5rem', display: 'inline-block' }}>
+              <Sparkles size={48} style={{ color: '#fbbf24' }} />
             </div>
-            <h3 className={styles.toastTitle} style={{ fontSize: '1.6rem', color: '#d97706' }}>
-              🎉 Welcome to Olin Pro!
-            </h3>
-            <p className={styles.toastMessage} style={{ fontSize: '1rem', lineHeight: 1.6, color: 'var(--text-primary)' }}>
-              Your subscription payment was processed successfully! You are now an official <strong>Olin Premium Subscriber</strong>. All sponsor ads are bypassed forever, and protected creator vaults are instantly unlocked for you.
-            </p>
+            
+            {isVerifying ? (
+              <>
+                <h3 className={styles.toastTitle} style={{ fontSize: '1.4rem', color: 'var(--text-primary)' }}>
+                  ⏳ Checking Whop Records...
+                </h3>
+                <p className={styles.toastMessage} style={{ fontSize: '0.95rem', color: 'var(--text-secondary)' }}>
+                  We are securely communicating with Whop payment servers to confirm your transaction for <strong>{user?.email || 'your account'}</strong>.
+                </p>
+              </>
+            ) : verificationStatus === 'success' || isPremiumSubscriber ? (
+              <>
+                <div style={{ background: '#059669', color: '#fff', fontSize: '0.75rem', fontWeight: 800, padding: '2px 10px', borderRadius: '9999px', margin: '0 auto 0.5rem auto', width: 'fit-content' }}>
+                  ✅ CONFIRMED VIA WHOP API
+                </div>
+                <h3 className={styles.toastTitle} style={{ fontSize: '1.6rem', color: '#d97706', margin: '0.25rem 0 0.75rem 0' }}>
+                  🎉 Welcome to Olin Pro!
+                </h3>
+                <p className={styles.toastMessage} style={{ fontSize: '1rem', lineHeight: 1.6, color: 'var(--text-primary)' }}>
+                  Your membership receipt was officially verified against Whop servers! You are now an active <strong>Olin Premium Subscriber</strong>. All sponsor advertisements are bypassed forever and exclusive vaults are fully unlocked.
+                </p>
+              </>
+            ) : (
+              <>
+                <div style={{ background: '#dc2626', color: '#fff', fontSize: '0.75rem', fontWeight: 800, padding: '2px 10px', borderRadius: '9999px', margin: '0 auto 0.5rem auto', width: 'fit-content' }}>
+                  ⏳ PENDING OR UNVERIFIED
+                </div>
+                <h3 className={styles.toastTitle} style={{ fontSize: '1.4rem', color: 'var(--text-primary)' }}>
+                  Payment Processing
+                </h3>
+                <p className={styles.toastMessage} style={{ fontSize: '0.95rem', lineHeight: 1.6, color: 'var(--text-secondary)' }}>
+                  Whop servers haven't finished propagating your payment receipt yet for <strong>{user?.email}</strong>. It can take up to 60 seconds after completing checkout.
+                </p>
+                <button 
+                  type="button" 
+                  onClick={verifyWhopPayment}
+                  style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', padding: '0.6rem 1rem', borderRadius: '0.5rem', cursor: 'pointer', fontWeight: 600, width: '100%', marginBottom: '0.5rem' }}
+                >
+                  🔄 Re-verify Membership with Whop Now
+                </button>
+              </>
+            )}
+
             <button 
               type="button" 
               className={styles.toastBtn}
@@ -300,7 +372,7 @@ export default function PricingPage() {
               }}
               style={{ width: '100%', background: 'var(--accent-color)', color: 'var(--text-inverted)', marginTop: '0.5rem' }}
             >
-              ⚡ Start Creating &amp; Exploring
+              ⚡ Continue to Marketplace
             </button>
           </div>
         </div>

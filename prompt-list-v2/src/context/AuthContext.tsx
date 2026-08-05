@@ -19,6 +19,7 @@ export interface CreatorProfile {
   isBanned?: boolean;
   subscriptionStatus?: 'active' | 'canceled' | 'expired' | string;
   isPremium?: boolean;
+  subscriptionTier?: 'monthly' | 'yearly' | string;
 }
 
 interface AuthContextType {
@@ -85,6 +86,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         } catch (error) {
           console.error("Error initializing user profile:", error);
+        }
+
+        // Automatically verify subscription status against live Whop servers in real-time
+        if (currentUser.email) {
+          fetch('/api/verify-subscription', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: currentUser.email })
+          })
+            .then(res => res.json())
+            .then(async (data: any) => {
+              if (data && data.success && data.isPremium !== undefined) {
+                const isPrem = Boolean(data.isPremium);
+                const statusStr = isPrem ? 'active' : 'canceled';
+                const tier = data.planTier || 'monthly';
+                if (isPrem) {
+                  localStorage.setItem(`olin_subscription_${currentUser.uid}`, 'active');
+                  localStorage.setItem(`olin_sub_tier_${currentUser.uid}`, tier);
+                } else {
+                  localStorage.removeItem(`olin_subscription_${currentUser.uid}`);
+                }
+                // Sync real verified status back to Firestore document securely via authenticated client
+                try {
+                  await setDoc(userDocRef, {
+                    isPremium: isPrem,
+                    subscriptionStatus: statusStr,
+                    subscriptionTier: tier
+                  }, { merge: true });
+                } catch (err) {
+                  console.error('Failed to sync Whop subscription status to Firestore:', err);
+                }
+              }
+            })
+            .catch(e => console.error("Whop subscription verification fetch error:", e));
         }
 
         profileUnsubscribe = onSnapshot(userDocRef, (docSnap) => {
