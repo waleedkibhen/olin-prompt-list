@@ -8,6 +8,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
 import { CheckCircle2, Loader2, Trash2, AlertTriangle, UploadCloud } from 'lucide-react';
 import { ENABLE_MONETIZATION } from '@/lib/config';
+import RichTextEditor from '@/components/RichTextEditor';
 
 interface CreatePostModalProps {
   onClose: () => void;
@@ -428,12 +429,10 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
 
             <div className={styles.fieldGroup}>
               <label>Prompt parameters</label>
-              <textarea 
-                rows={3} 
-                placeholder="Generative prompt parameters, seeds, or camera flags..."
+              <RichTextEditor
                 value={promptText}
-                onChange={e => setPromptText(e.target.value)}
-                required
+                onChange={html => setPromptText(html)}
+                placeholder="Generative prompt parameters, seeds, or camera flags with rich formatting (bold, bullet points, lists)..."
               />
             </div>
 

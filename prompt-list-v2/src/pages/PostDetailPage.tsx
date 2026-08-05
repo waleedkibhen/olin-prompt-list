@@ -9,6 +9,7 @@ import { Sparkles, Heart, Bookmark, Copy, Check, Share2, MessageSquare, ArrowLef
 import { moderateText } from '@/lib/ai';
 import { ENABLE_MONETIZATION } from '@/lib/config';
 import ReportModal from '@/components/ReportModal';
+import RichTextRenderer, { copyRichPrompt } from '@/components/RichTextRenderer';
 
 interface CommentItem {
   id: string;
@@ -158,7 +159,7 @@ export default function PostDetailPage() {
 
   const handleCopyPrompt = async () => {
     if (!post) return;
-    navigator.clipboard.writeText(post.promptText);
+    await copyRichPrompt(post.promptText);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2500);
 
@@ -449,7 +450,9 @@ export default function PostDetailPage() {
                   </div>
                 </div>
               ) : (
-                <code className={styles.promptText}>{post.promptText}</code>
+                <div className={styles.promptText} style={{ padding: 0, overflow: 'hidden' }}>
+                  <RichTextRenderer content={post.promptText} />
+                </div>
               )}
             </div>
 

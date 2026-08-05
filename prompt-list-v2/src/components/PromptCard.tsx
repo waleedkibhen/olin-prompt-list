@@ -9,6 +9,7 @@ import { moderateText } from '@/lib/ai';
 import { Link, useNavigate } from 'react-router-dom';
 import { ENABLE_MONETIZATION } from '@/lib/config';
 import ReportModal from '@/components/ReportModal';
+import RichTextRenderer, { copyRichPrompt } from '@/components/RichTextRenderer';
 
 interface PromptCardProps {
   post: PromptPost;
@@ -166,7 +167,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
 
   const handleCopyPrompt = async (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    navigator.clipboard.writeText(post.promptText);
+    await copyRichPrompt(post.promptText);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2500);
 
@@ -514,8 +515,8 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                     </div>
                   </div>
                 ) : (
-                  <div className={styles.promptTextContainer}>
-                    <code className={styles.promptCode}>{post.promptText}</code>
+                  <div className={styles.promptTextContainer} style={{ padding: 0 }}>
+                    <RichTextRenderer content={post.promptText} className={styles.promptCode} />
                   </div>
                 )}
               </div>

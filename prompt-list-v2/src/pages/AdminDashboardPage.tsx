@@ -6,6 +6,7 @@ import { collection, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/fire
 import { sendNotification } from '@/lib/notifications';
 import { ShieldAlert, Check, X, AlertTriangle, Users, MessageSquare, Flame, Ban, CheckCircle, ShieldCheck, Send } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import RichTextRenderer from '@/components/RichTextRenderer';
 
 interface AdminPost {
   id: string;
@@ -301,9 +302,10 @@ export default function AdminDashboardPage() {
                   <img src={post.imageUrls[0]} alt="Flagged Visual" className={styles.imgPreview} />
                 )}
 
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', background: 'var(--bg-tertiary)', padding: '0.75rem', borderRadius: '8px', margin: 0 }}>
-                  <strong>Prompt:</strong> {post.promptText}
-                </p>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', background: 'var(--bg-tertiary)', padding: '0.5rem', borderRadius: '8px', margin: 0 }}>
+                  <strong style={{ display: 'block', paddingBottom: '4px' }}>Prompt:</strong>
+                  <RichTextRenderer content={post.promptText} style={{ padding: 0, minHeight: 'auto', maxHeight: '150px' }} />
+                </div>
 
                 <div className={styles.actionRow}>
                   <button type="button" className={styles.btnApprove} onClick={() => handleApprovePost(post)}>

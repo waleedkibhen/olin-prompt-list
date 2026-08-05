@@ -1,0 +1,151 @@
+.editorWrapper {
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background-color: var(--bg-secondary);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.editorWrapper:focus-within {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px 10px;
+  background-color: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-color);
+  align-items: center;
+}
+
+.toolBtn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.toolBtn:hover {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.toolBtnActive {
+  background-color: rgba(99, 102, 241, 0.15);
+  color: var(--accent-color);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.separator {
+  width: 1px;
+  height: 20px;
+  background-color: var(--border-color);
+  margin: 0 4px;
+}
+
+.editorContent,
+.rendererContent {
+  padding: 12px 14px;
+  min-height: 110px;
+  max-height: 350px;
+  overflow-y: auto;
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  outline: none;
+  word-wrap: break-word;
+}
+
+.editorContent:empty:before {
+  content: attr(data-placeholder);
+  color: var(--text-secondary);
+  opacity: 0.6;
+  pointer-events: none;
+  display: block;
+}
+
+/* Rich text formatting rules inside editor and viewer */
+.editorContent strong,
+.editorContent b,
+.rendererContent strong,
+.rendererContent b {
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.editorContent em,
+.editorContent i,
+.rendererContent em,
+.rendererContent i {
+  font-style: italic;
+  color: var(--text-primary);
+}
+
+.editorContent u,
+.rendererContent u {
+  text-decoration: underline;
+  text-decoration-color: var(--accent-color);
+  text-underline-offset: 3px;
+}
+
+.editorContent ul,
+.editorContent ol,
+.rendererContent ul,
+.rendererContent ol {
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+.editorContent li,
+.rendererContent li {
+  margin-bottom: 0.3rem;
+  list-style-position: outside;
+}
+
+.editorContent code,
+.rendererContent code {
+  background-color: var(--bg-primary);
+  color: #38bdf8;
+  padding: 0.2rem 0.45rem;
+  border-radius: 4px;
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 0.85em;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+.editorContent blockquote,
+.rendererContent blockquote {
+  border-left: 4px solid var(--accent-color);
+  margin: 0.5rem 0;
+  padding: 0.5rem 0 0.5rem 1rem;
+  background-color: var(--bg-tertiary);
+  border-radius: 0 8px 8px 0;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.editorContent p,
+.rendererContent p {
+  margin: 0 0 0.6rem 0;
+}
+
+.editorContent p:last-child,
+.rendererContent p:last-child {
+  margin-bottom: 0;
+}
