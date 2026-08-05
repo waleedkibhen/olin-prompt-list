@@ -7,6 +7,7 @@ import { PromptPost } from '@/lib/mockData';
 import { BarChart2, Eye, Heart, Bookmark, Copy, Trash2, ExternalLink, PlusCircle, Loader2, AlertTriangle, Sparkles, CheckCircle, Award } from 'lucide-react';
 import CreatePostModal from '@/components/CreatePostModal';
 import { Link } from 'react-router-dom';
+import { ENABLE_MONETIZATION } from '@/lib/config';
 
 export default function CreatorDashboardPage() {
   const { user, profile, updateProfileState, loading: authLoading, signInWithGoogle } = useAuth();
@@ -148,83 +149,112 @@ export default function CreatorDashboardPage() {
         </div>
       ) : (
         <>
-          <section style={{ 
-            backgroundColor: 'var(--bg-secondary)', 
-            border: '1px solid var(--border-color)', 
-            borderRadius: '16px', 
-            padding: '1.5rem', 
-            marginBottom: '2rem',
-            boxShadow: '0 8px 30px rgba(0,0,0,0.12)' 
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <Award size={32} style={{ color: '#f59e0b' }} />
+          {ENABLE_MONETIZATION ? (
+            <section style={{ 
+              backgroundColor: 'var(--bg-secondary)', 
+              border: '1px solid var(--border-color)', 
+              borderRadius: '16px', 
+              padding: '1.5rem', 
+              marginBottom: '2rem',
+              boxShadow: '0 8px 30px rgba(0,0,0,0.12)' 
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <Award size={32} style={{ color: '#f59e0b' }} />
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>Creator Subscription &amp; Ad Monetization Funnel</h3>
+                    <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                      Achieve 50+ generative prompt copies in the last 90 days to unlock Premium subscriber-only prompt vaults.
+                    </span>
+                  </div>
+                </div>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>Creator Subscription &amp; Ad Monetization Funnel</h3>
-                  <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                    Achieve 50+ generative prompt copies in the last 90 days to unlock Premium subscriber-only prompt vaults.
-                  </span>
+                  {profile?.monetizationStatus === 'approved' && (
+                    <span style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', color: '#10b981', padding: '0.5rem 1rem', borderRadius: '9999px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.4rem', border: '1px solid #10b981' }}>
+                      <CheckCircle size={16} /> Approved Verified Creator
+                    </span>
+                  )}
+                  {profile?.monetizationStatus === 'pending_review' && (
+                    <span style={{ backgroundColor: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', padding: '0.5rem 1rem', borderRadius: '9999px', fontWeight: 700, border: '1px solid #f59e0b' }}>
+                      ⏳ Under Admin Review
+                    </span>
+                  )}
+                  {profile?.monetizationStatus === 'rejected' && (
+                    <span style={{ backgroundColor: 'rgba(244, 63, 94, 0.15)', color: '#f43f5e', padding: '0.5rem 1rem', borderRadius: '9999px', fontWeight: 700, border: '1px solid #f43f5e' }}>
+                      ❌ Application Rejected — Reach out via Support
+                    </span>
+                  )}
                 </div>
               </div>
-              <div>
-                {profile?.monetizationStatus === 'approved' && (
-                  <span style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', color: '#10b981', padding: '0.5rem 1rem', borderRadius: '9999px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.4rem', border: '1px solid #10b981' }}>
-                    <CheckCircle size={16} /> Approved Verified Creator
-                  </span>
-                )}
-                {profile?.monetizationStatus === 'pending_review' && (
-                  <span style={{ backgroundColor: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', padding: '0.5rem 1rem', borderRadius: '9999px', fontWeight: 700, border: '1px solid #f59e0b' }}>
-                    ⏳ Under Admin Review
-                  </span>
-                )}
-                {profile?.monetizationStatus === 'rejected' && (
-                  <span style={{ backgroundColor: 'rgba(244, 63, 94, 0.15)', color: '#f43f5e', padding: '0.5rem 1rem', borderRadius: '9999px', fontWeight: 700, border: '1px solid #f43f5e' }}>
-                    ❌ Application Rejected — Reach out via Support
-                  </span>
-                )}
-              </div>
-            </div>
 
-            {(!profile?.monetizationStatus || profile.monetizationStatus === 'ineligible') && (
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontWeight: 700, fontSize: '0.9rem' }}>
-                  <span>Milestone Progress (Last 90 Days)</span>
-                  <span style={{ color: '#10b981' }}>{Math.min(recentCopies, 50)} / 50 Copies to Unlock Monetization</span>
-                </div>
-                <div style={{ width: '100%', height: '12px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '9999px', overflow: 'hidden', marginBottom: '1rem' }}>
-                  <div style={{ 
-                    width: `${Math.min((recentCopies / 50) * 100, 100)}%`, 
-                    height: '100%', 
-                    background: 'linear-gradient(90deg, #10b981 0%, #34d399 100%)', 
-                    borderRadius: '9999px',
-                    transition: 'width 0.5s ease' 
-                  }} />
-                </div>
+              {(!profile?.monetizationStatus || profile.monetizationStatus === 'ineligible') && (
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontWeight: 700, fontSize: '0.9rem' }}>
+                    <span>Milestone Progress (Last 90 Days)</span>
+                    <span style={{ color: '#10b981' }}>{Math.min(recentCopies, 50)} / 50 Copies to Unlock Monetization</span>
+                  </div>
+                  <div style={{ width: '100%', height: '12px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '9999px', overflow: 'hidden', marginBottom: '1rem' }}>
+                    <div style={{ 
+                      width: `${Math.min((recentCopies / 50) * 100, 100)}%`, 
+                      height: '100%', 
+                      background: 'linear-gradient(90deg, #10b981 0%, #34d399 100%)', 
+                      borderRadius: '9999px',
+                      transition: 'width 0.5s ease' 
+                    }} />
+                  </div>
 
-                {recentCopies >= 50 ? (
-                  <button
-                    type="button"
-                    className="btn-solid"
-                    style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', fontWeight: 800, padding: '0.65rem 1.5rem', borderRadius: '9999px' }}
-                    onClick={async () => {
-                      try {
-                        await updateProfileState({ monetizationStatus: 'pending_review' });
-                        alert("Application submitted! Our Admin team will review your account analytics and copy verification.");
-                      } catch (e: any) {
-                        alert(`Application error: ${e.message}`);
-                      }
-                    }}
-                  >
-                    🚀 Apply for Monetization
-                  </button>
-                ) : (
-                  <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                    Share high-quality visual prompts in community feeds to generate more copy events!
-                  </span>
-                )}
+                  {recentCopies >= 50 ? (
+                    <button
+                      type="button"
+                      className="btn-solid"
+                      style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', fontWeight: 800, padding: '0.65rem 1.5rem', borderRadius: '9999px' }}
+                      onClick={async () => {
+                        try {
+                          await updateProfileState({ monetizationStatus: 'pending_review' });
+                          alert("Application submitted! Our Admin team will review your account analytics and copy verification.");
+                        } catch (e: any) {
+                          alert(`Application error: ${e.message}`);
+                        }
+                      }}
+                    >
+                      🚀 Apply for Monetization
+                    </button>
+                  ) : (
+                    <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                      Share high-quality visual prompts in community feeds to generate more copy events!
+                    </span>
+                  )}
+                </div>
+              )}
+            </section>
+          ) : (
+            <section style={{ 
+              backgroundColor: 'var(--bg-secondary)', 
+              border: '1px dashed #f59e0b', 
+              borderRadius: '16px', 
+              padding: '1.5rem', 
+              marginBottom: '2rem',
+              background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(0,0,0,0.15))',
+              boxShadow: '0 8px 30px rgba(0,0,0,0.12)' 
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div style={{ background: 'rgba(245, 158, 11, 0.15)', padding: '12px', borderRadius: '14px', border: '1px solid rgba(245, 158, 11, 0.35)', display: 'flex' }}>
+                  <Sparkles size={28} style={{ color: '#f59e0b' }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.35rem' }}>
+                    <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)' }}>Creator Monetization Program</h3>
+                    <span style={{ backgroundColor: '#f59e0b', color: '#000', fontSize: '0.72rem', fontWeight: 900, padding: '2px 9px', borderRadius: '9999px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      🚀 Coming Soon
+                    </span>
+                  </div>
+                  <p style={{ margin: 0, fontSize: '0.925rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                    We are engineering an exclusive Creator Monetization program where active contributors will be able to earn income from their published AI parameter portfolios and subscriber vaults! Stay tuned — monetization unlocks will be arriving soon as our creator ecosystem expands. Keep sharing high-quality prompts and building your audience!
+                  </p>
+                </div>
               </div>
-            )}
-          </section>
+            </section>
+          )}
 
           <section className={styles.kpiGrid}>
             <div className={styles.kpiCard}>
@@ -285,7 +315,7 @@ export default function CreatorDashboardPage() {
                   <tr>
                     <th>Artwork &amp; Title</th>
                     <th>Model &amp; Style</th>
-                    <th>Pricing</th>
+                    {ENABLE_MONETIZATION && <th>Pricing</th>}
                     <th>Views</th>
                     <th style={{ color: '#10b981' }}>Copies</th>
                     <th>Saves</th>
@@ -310,15 +340,17 @@ export default function CreatorDashboardPage() {
                         <span className="badge-pill">{post.model}</span>
                         <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.3rem' }}>{post.styleTag}</div>
                       </td>
-                      <td>
-                        {post.isPaid ? (
-                          <span style={{ color: '#10b981', fontWeight: 700, backgroundColor: 'rgba(16, 185, 129, 0.15)', padding: '0.25rem 0.65rem', borderRadius: '9999px', fontSize: '0.8rem', border: '1px solid rgba(16, 185, 129, 0.35)', display: 'inline-block' }}>
-                            💎 ${post.price?.toLocaleString()}
-                          </span>
-                        ) : (
-                          <span style={{ color: 'var(--text-muted)', fontSize: '0.825rem', padding: '0.2rem 0.5rem', backgroundColor: 'var(--bg-primary)', borderRadius: '6px', border: '1px solid var(--border-color)' }}>Free</span>
-                        )}
-                      </td>
+                      {ENABLE_MONETIZATION && (
+                        <td>
+                          {post.isPaid ? (
+                            <span style={{ color: '#10b981', fontWeight: 700, backgroundColor: 'rgba(16, 185, 129, 0.15)', padding: '0.25rem 0.65rem', borderRadius: '9999px', fontSize: '0.8rem', border: '1px solid rgba(16, 185, 129, 0.35)', display: 'inline-block' }}>
+                              💎 ${post.price?.toLocaleString()}
+                            </span>
+                          ) : (
+                            <span style={{ color: 'var(--text-muted)', fontSize: '0.825rem', padding: '0.2rem 0.5rem', backgroundColor: 'var(--bg-primary)', borderRadius: '6px', border: '1px solid var(--border-color)' }}>Free</span>
+                          )}
+                        </td>
+                      )}
                       <td className={styles.metricCell}>{post.viewsCount.toLocaleString()}</td>
                       <td className={styles.metricCell} style={{ color: '#10b981', fontWeight: 900 }}>
                         {post.copiesCount ? post.copiesCount.toLocaleString() : '0'}
