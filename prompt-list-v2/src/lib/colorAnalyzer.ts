@@ -58,184 +58,241 @@ export function rgbToHex(r: number, g: number, b: number): string {
 
 // Classify an HSL pixel into standard spectrum labels
 function classifyHslToName(h: number, s: number, l: number): string | null {
-  if (l <= 18 || (l <= 25 && s <= 25)) return 'Dark & Noir';
-  if (l >= 85) return 'Clean White & Light';
-  if (s <= 15) return 'Monochrome & Grayscale';
+  if (l <= 15 || (l <= 22 && s <= 20)) return 'Dark & Noir';
+  if (l >= 88 && s <= 20) return 'Clean White & Light';
+  if (s <= 12 && l > 15 && l < 88) return 'Monochrome & Grayscale';
 
-  if (h >= 345 || h < 15) return 'Red & Crimson';
-  if (h >= 15 && h < 42) return 'Orange & Sunset';
+  if (h >= 345 || h < 14) return 'Red & Crimson';
+  if (h >= 14 && h < 42) return 'Orange & Sunset';
   if (h >= 42 && h < 68) return 'Yellow & Gold';
-  if (h >= 68 && h < 172) return 'Green & Emerald';
-  if (h >= 172 && h < 262) return 'Blue & Cyan';
-  if (h >= 262 && h < 315) return 'Purple & Violet';
-  if (h >= 315 && h < 345) return 'Pink & Rose';
+  if (h >= 68 && h < 168) return 'Green & Emerald';
+  if (h >= 168 && h < 260) return 'Blue & Cyan';
+  if (h >= 260 && h < 312) return 'Purple & Violet';
+  if (h >= 312 && h < 345) return 'Pink & Rose';
   return null;
 }
 
-// Extract rich color palette and spectrum classification from any image URL or Blob URL via HTML5 Canvas
+// Extract rich color palette and spectrum classification via HTML5 Canvas with CORS fallback
 export async function extractImagePalette(imageSrc: string): Promise<ColorProfile> {
-  return new Promise((resolve) => {
-    const defaultProfile: ColorProfile = {
-      dominantHex: '#3b82f6',
-      paletteHexes: ['#3b82f6', '#1e293b', '#f8fafc'],
-      colorNames: ['Blue & Cyan', 'Dark & Noir', 'Clean White & Light'],
-      spectrumHues: [210],
-      isDark: false,
-      isLight: false,
-      isMonochrome: false,
-    };
+  // Helper function to process an image element once loaded onto canvas
+  const processImage = (imgEl: HTMLImageElement): ColorProfile => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = 80;
+    canvas.height = 80;
+    ctx?.drawImage(imgEl, 0, 0, 80, 80);
 
+    const imgData = ctx?.getImageData(0, 0, 80, 80).data;
+    if (!imgData) {
+      throw new Error("Empty image data");
+    }
+
+    const categoryCounts: Record<string, number> = {};
+    const colorBuckets: Record<string, { r: number; g: number; b: number; count: number; h: number; s: number; l: number }> = {};
+    let darkCount = 0;
+    let lightCount = 0;
+    let monoCount = 0;
+    let totalPixels = 0;
+
+    for (let i = 0; i < imgData.length; i += 4) {
+      const r = imgData[i];
+      const g = imgData[i + 1];
+      const b = imgData[i + 2];
+      const a = imgData[i + 3];
+
+      if (a < 128) continue; // Skip transparent pixels
+      totalPixels++;
+
+      const hsl = rgbToHsl(r, g, b);
+      if (hsl.l <= 18) darkCount++;
+      if (hsl.l >= 85) lightCount++;
+      if (hsl.s <= 15 && hsl.l > 18 && hsl.l < 85) monoCount++;
+
+      const catName = classifyHslToName(hsl.h, hsl.s, hsl.l);
+      if (catName) {
+        categoryCounts[catName] = (categoryCounts[catName] || 0) + 1;
+      }
+
+      // Quantize RGB values by grid of 24 for clean grouping
+      const qr = Math.round(r / 24) * 24;
+      const qg = Math.round(g / 24) * 24;
+      const qb = Math.round(b / 24) * 24;
+      const bucketKey = `${qr}_${qg}_${qb}`;
+      if (!colorBuckets[bucketKey]) {
+        colorBuckets[bucketKey] = { r, g, b, count: 0, h: hsl.h, s: hsl.s, l: hsl.l };
+      }
+      colorBuckets[bucketKey].count++;
+    }
+
+    if (totalPixels === 0) throw new Error("No visible pixels");
+
+    // REQUIRE HIGH PREDOMINANCE: A color category must represent at least 15% of the artwork to be tagged!
+    let dominantCategoryNames = Object.entries(categoryCounts)
+      .filter(([_, count]) => count / totalPixels >= 0.15)
+      .sort((a, b) => b[1] - a[1])
+      .map(([name]) => name);
+
+    // If an image has extremely varied soft hues and none hit 15%, take the #1 most abundant category
+    if (dominantCategoryNames.length === 0 && Object.keys(categoryCounts).length > 0) {
+      const topEntry = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0];
+      if (topEntry) dominantCategoryNames = [topEntry[0]];
+    }
+
+    // Sort buckets by frequency and take only top 3 dominant color swatches (predominant colors only)
+    const sortedBuckets = Object.values(colorBuckets)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 3);
+
+    const paletteHexes = sortedBuckets.map(b => rgbToHex(b.r, b.g, b.b));
+    const dominantHex = paletteHexes[0] || '#71717a';
+    const spectrumHues = sortedBuckets.map(b => b.h);
+
+    return {
+      dominantHex,
+      paletteHexes,
+      colorNames: dominantCategoryNames,
+      spectrumHues,
+      isDark: darkCount / totalPixels > 0.45,
+      isLight: lightCount / totalPixels > 0.45,
+      isMonochrome: monoCount / totalPixels > 0.5,
+    };
+  };
+
+  return new Promise((resolve) => {
+    // Attempt 1: Load direct image with CORS Anonymous
     const img = new Image();
     img.crossOrigin = "Anonymous";
+    
+    const tryProxy = () => {
+      // Attempt 2: If direct CORS canvas reading fails, route through public zero-config CORS proxy
+      if (imageSrc.startsWith('data:') || imageSrc.includes('images.weserv.nl')) {
+        // Already local or proxy failed, return generic dark neutral instead of false blue
+        resolve({
+          dominantHex: '#27272a',
+          paletteHexes: ['#27272a', '#3f3f46', '#71717a'],
+          colorNames: ['Monochrome & Grayscale'],
+          spectrumHues: [0],
+          isDark: true,
+          isLight: false,
+          isMonochrome: true,
+        });
+        return;
+      }
+      const proxyImg = new Image();
+      proxyImg.crossOrigin = "Anonymous";
+      proxyImg.onload = () => {
+        try {
+          resolve(processImage(proxyImg));
+        } catch (e) {
+          resolve({
+            dominantHex: '#27272a',
+            paletteHexes: ['#27272a'],
+            colorNames: ['Monochrome & Grayscale'],
+            spectrumHues: [0],
+            isDark: true,
+            isLight: false,
+            isMonochrome: true,
+          });
+        }
+      };
+      proxyImg.onerror = () => {
+        resolve({
+          dominantHex: '#27272a',
+          paletteHexes: ['#27272a'],
+          colorNames: ['Monochrome & Grayscale'],
+          spectrumHues: [0],
+          isDark: true,
+          isLight: false,
+          isMonochrome: true,
+        });
+      };
+      proxyImg.src = `https://images.weserv.nl/?url=${encodeURIComponent(imageSrc)}&w=120&h=120`;
+    };
+
     img.onload = () => {
       try {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        // Scale down to 80x80 for lightning speed computation ($0 cost, <30ms) while preserving color statistical distribution
-        canvas.width = 80;
-        canvas.height = 80;
-        ctx?.drawImage(img, 0, 0, 80, 80);
-
-        const imgData = ctx?.getImageData(0, 0, 80, 80).data;
-        if (!imgData) return resolve(defaultProfile);
-
-        const categoryCounts: Record<string, number> = {};
-        const colorBuckets: Record<string, { r: number; g: number; b: number; count: number; h: number }> = {};
-        const allHues: number[] = [];
-        let darkCount = 0;
-        let lightCount = 0;
-        let monoCount = 0;
-        let totalPixels = 0;
-
-        for (let i = 0; i < imgData.length; i += 4) {
-          const r = imgData[i];
-          const g = imgData[i + 1];
-          const b = imgData[i + 2];
-          const a = imgData[i + 3];
-
-          if (a < 128) continue; // Skip transparency
-          totalPixels++;
-
-          const hsl = rgbToHsl(r, g, b);
-          allHues.push(hsl.h);
-
-          // Track luminosity & neutrality
-          if (hsl.l <= 20) darkCount++;
-          if (hsl.l >= 82) lightCount++;
-          if (hsl.s <= 15) monoCount++;
-
-          // Classify color name
-          const catName = classifyHslToName(hsl.h, hsl.s, hsl.l);
-          if (catName) {
-            categoryCounts[catName] = (categoryCounts[catName] || 0) + 1;
-          }
-
-          // Quantize to color swatches (round color values by grid of 32 to find dominant palette swatches)
-          const bucketKey = `${Math.round(r / 32) * 32}_${Math.round(g / 32) * 32}_${Math.round(b / 32) * 32}`;
-          if (!colorBuckets[bucketKey]) {
-            colorBuckets[bucketKey] = { r, g, b, count: 0, h: hsl.h };
-          }
-          colorBuckets[bucketKey].count++;
-        }
-
-        // Filter color categories present in at least 3.5% of total pixels
-        const validColorNames = Object.entries(categoryCounts)
-          .filter(([_, count]) => count / totalPixels >= 0.035)
-          .sort((a, b) => b[1] - a[1])
-          .map(([name]) => name);
-
-        // Get top 6 distinct dominant hex colors
-        const sortedBuckets = Object.values(colorBuckets)
-          .sort((a, b) => b.count - a.count)
-          .slice(0, 6);
-
-        const paletteHexes = sortedBuckets.map(b => rgbToHex(b.r, b.g, b.b));
-        const dominantHex = paletteHexes[0] || '#3b82f6';
-        const spectrumHues = sortedBuckets.map(b => b.h);
-
-        resolve({
-          dominantHex,
-          paletteHexes,
-          colorNames: validColorNames.length > 0 ? validColorNames : ['Blue & Cyan', 'Dark & Noir'],
-          spectrumHues,
-          isDark: darkCount / totalPixels > 0.5,
-          isLight: lightCount / totalPixels > 0.4,
-          isMonochrome: monoCount / totalPixels > 0.6,
-        });
+        resolve(processImage(img));
       } catch (e) {
-        // Fallback if CORS prevents pixel inspection on specific servers without proxy
-        console.warn("Canvas analysis CORS warning, resorting to clean fallback palette:", e);
-        resolve(defaultProfile);
+        tryProxy();
       }
     };
-
-    img.onerror = () => {
-      resolve(defaultProfile);
-    };
-
+    img.onerror = tryProxy;
     img.src = imageSrc;
   });
 }
 
-// Calculate if an image profile matches a search color (either preset category name or exact hex from color picker)
+// Strict high-precision color matching algorithm
 export function matchesColorFilter(filterValue: string, profile?: ColorProfile, fallbackText?: string, filterKeywords: string[] = []): boolean {
   if (!filterValue || filterValue === 'All') return true;
 
-  // 1. If filterValue is a standard Category Name (e.g., "Red & Crimson", "Blue & Cyan", "Dark & Noir")
+  // 1. Preset Category Matching (e.g., "Yellow & Gold", "Blue & Cyan")
   if (!filterValue.startsWith('#')) {
-    if (profile?.colorNames && profile.colorNames.includes(filterValue)) {
-      return true;
+    // Primary match: analyzed predominant color profile
+    if (profile?.colorNames && profile.colorNames.length > 0) {
+      if (profile.colorNames.includes(filterValue)) {
+        return true;
+      }
+      // If post HAS a verified color profile and the color is NOT in dominant category names, REJECT IT.
+      // Do not fall back to loose text words if visual analysis verified the actual colors!
+      if (profile.colorNames.length > 0 && profile.paletteHexes && profile.paletteHexes.length > 0) {
+        // Special luminosity checks
+        if (filterValue === 'Dark & Noir' && profile.isDark) return true;
+        if (filterValue === 'Clean White & Light' && profile.isLight) return true;
+        if (filterValue === 'Monochrome & Grayscale' && profile.isMonochrome) return true;
+        return false;
+      }
     }
-    // Check fallback text keywords if older post lacks profile
+
+    // Fallback: only if post has never been scanned by the visual analyzer
     if (fallbackText && filterKeywords.length > 0) {
       const lower = fallbackText.toLowerCase();
       if (filterKeywords.some(kw => lower.includes(kw.toLowerCase()))) return true;
     }
-    // Secondary matching: if filtering for Dark/Light
-    if (filterValue === 'Dark & Noir' && profile?.isDark) return true;
-    if (filterValue === 'Clean White & Light' && profile?.isLight) return true;
-    if (filterValue === 'Monochrome & Grayscale' && profile?.isMonochrome) return true;
-
     return false;
   }
 
-  // 2. If filterValue is a Hex code from our Full-Spectrum Custom Color Picker (e.g. #ff007f)
+  // 2. Custom Hex / Spectrum Picker Matching (e.g., #EEFF00 or #0062FF)
   const targetRgb = hexToRgb(filterValue);
-  if (!targetRgb) return true;
+  if (!targetRgb) return false; // Invalid hex should not show all posts!
   const targetHsl = rgbToHsl(targetRgb.r, targetRgb.g, targetRgb.b);
 
+  // If no profile exists yet for this post, do NOT return true for everything!
   if (!profile || !profile.paletteHexes || profile.paletteHexes.length === 0) {
-    // If post has no color profile yet, permit or match text fallback
-    return true;
+    return false;
   }
 
-  // Compare Target HSL against each extracted color in the image's palette
+  const isTargetNeutral = targetHsl.s < 12 || targetHsl.l <= 15 || targetHsl.l >= 88;
+
+  // Check each dominant swatch extracted from the image
   for (const hex of profile.paletteHexes) {
     const pRgb = hexToRgb(hex);
     if (!pRgb) continue;
     const pHsl = rgbToHsl(pRgb.r, pRgb.g, pRgb.b);
 
-    // Calculate Hue distance (accounting for circular 360 degree spectrum)
+    const isSwatchNeutral = pHsl.s < 12 || pHsl.l <= 15 || pHsl.l >= 88;
+
+    // Case A: User searched for a neutral shade (Black, White, Gray)
+    if (isTargetNeutral) {
+      if (isSwatchNeutral && Math.abs(targetHsl.l - pHsl.l) <= 22) {
+        return true;
+      }
+      continue;
+    }
+
+    // Case B: User searched for a chromatic color (Yellow, Blue, Green, Pink, etc.)
+    // Ignore neutral background swatches (like pure white or pitch black) when matching saturated spectrum colors!
+    if (isSwatchNeutral) {
+      continue;
+    }
+
+    // Calculate Hue distance around the 360-degree color circle
     let hueDelta = Math.abs(targetHsl.h - pHsl.h);
     if (hueDelta > 180) hueDelta = 360 - hueDelta;
 
-    // If both colors are neutral dark/light/monochrome, compare lightness and saturation
-    if (targetHsl.s < 20 || pHsl.s < 20 || targetHsl.l < 20 || targetHsl.l > 82 || pHsl.l < 20 || pHsl.l > 82) {
-      const lightnessDelta = Math.abs(targetHsl.l - pHsl.l);
-      const satDelta = Math.abs(targetHsl.s - pHsl.s);
-      if (lightnessDelta <= 25 && satDelta <= 25) return true;
-    }
-
-    // Standard spectrum hue matching (within a 32-degree hue radius across the color circle)
-    if (hueDelta <= 32 && Math.abs(targetHsl.l - pHsl.l) <= 45) {
+    // REQUIRE STRICT HSL SIMILARITY: Hue within 22 degrees and reasonable lightness similarity
+    if (hueDelta <= 22 && Math.abs(targetHsl.l - pHsl.l) <= 45) {
       return true;
     }
-  }
-
-  // Check general category alignment for custom hex
-  const targetCategory = classifyHslToName(targetHsl.h, targetHsl.s, targetHsl.l);
-  if (targetCategory && profile.colorNames?.includes(targetCategory)) {
-    return true;
   }
 
   return false;
