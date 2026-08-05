@@ -242,7 +242,7 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
         const tags = await analyzeArtworkWithGemini(imgUrl);
         visualTags.push(...tags);
       }
-      const colorProfile = await extractImagePalette(uploadedImageUrls[0] || selectedFiles[0]?.previewUrl || '');
+      const colorProfile = await extractImagePalette(selectedFiles[0]?.previewUrl || uploadedImageUrls[0] || '');
       const uniqueVisualTags = Array.from(new Set([...visualTags, ...colorProfile.colorNames]));
 
       setStatusText('Finalizing...');

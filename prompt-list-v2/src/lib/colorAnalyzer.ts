@@ -72,9 +72,8 @@ function classifyHslToName(h: number, s: number, l: number): string | null {
   return null;
 }
 
-// Extract rich color palette and spectrum classification via HTML5 Canvas with CORS fallback
+// Extract rich color palette and spectrum classification via HTML5 Canvas with robust multi-proxy failover cascade
 export async function extractImagePalette(imageSrc: string): Promise<ColorProfile> {
-  // Helper function to process an image element once loaded onto canvas
   const processImage = (imgEl: HTMLImageElement): ColorProfile => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -84,7 +83,7 @@ export async function extractImagePalette(imageSrc: string): Promise<ColorProfil
 
     const imgData = ctx?.getImageData(0, 0, 80, 80).data;
     if (!imgData) {
-      throw new Error("Empty image data");
+      throw new Error("Empty image data from canvas");
     }
 
     const categoryCounts: Record<string, number> = {};
@@ -124,7 +123,7 @@ export async function extractImagePalette(imageSrc: string): Promise<ColorProfil
       colorBuckets[bucketKey].count++;
     }
 
-    if (totalPixels === 0) throw new Error("No visible pixels");
+    if (totalPixels === 0) throw new Error("No visible pixels on canvas");
 
     // REQUIRE HIGH PREDOMINANCE: A color category must represent at least 15% of the artwork to be tagged!
     let dominantCategoryNames = Object.entries(categoryCounts)
@@ -159,43 +158,28 @@ export async function extractImagePalette(imageSrc: string): Promise<ColorProfil
   };
 
   return new Promise((resolve) => {
-    // Attempt 1: Load direct image with CORS Anonymous
-    const img = new Image();
-    img.crossOrigin = "Anonymous";
-    
-    const tryProxy = () => {
-      // Attempt 2: If direct CORS canvas reading fails, route through public zero-config CORS proxy
-      if (imageSrc.startsWith('data:') || imageSrc.includes('images.weserv.nl')) {
-        // Already local or proxy failed, return generic dark neutral instead of false blue
-        resolve({
-          dominantHex: '#27272a',
-          paletteHexes: ['#27272a', '#3f3f46', '#71717a'],
-          colorNames: ['Monochrome & Grayscale'],
-          spectrumHues: [0],
-          isDark: true,
-          isLight: false,
-          isMonochrome: true,
-        });
-        return;
+    // Generate a reliable cascade of URLs to bypass strict cloud storage CORS policies
+    const getUrlsToAttempt = (): string[] => {
+      if (!imageSrc || imageSrc.startsWith('data:') || imageSrc.startsWith('blob:')) {
+        return [imageSrc];
       }
-      const proxyImg = new Image();
-      proxyImg.crossOrigin = "Anonymous";
-      proxyImg.onload = () => {
-        try {
-          resolve(processImage(proxyImg));
-        } catch (e) {
-          resolve({
-            dominantHex: '#27272a',
-            paletteHexes: ['#27272a'],
-            colorNames: ['Monochrome & Grayscale'],
-            spectrumHues: [0],
-            isDark: true,
-            isLight: false,
-            isMonochrome: true,
-          });
-        }
-      };
-      proxyImg.onerror = () => {
+      const encoded = encodeURIComponent(imageSrc);
+      // For external HTTP images (like Firebase Storage without bucket CORS), attempt CORS gateways first before raw URL
+      return [
+        `https://api.allorigins.win/raw?url=${encoded}`,
+        `https://corsproxy.io/?url=${encoded}`,
+        `https://images.weserv.nl/?url=${encoded}&w=150&h=150`,
+        imageSrc
+      ];
+    };
+
+    const urls = getUrlsToAttempt();
+    let attemptIndex = 0;
+
+    const tryNextUrl = () => {
+      if (attemptIndex >= urls.length) {
+        console.error("All proxy failovers exhausted for color extraction on:", imageSrc);
+        // Default to monochrome neutral so we never trigger false positive primary colors
         resolve({
           dominantHex: '#27272a',
           paletteHexes: ['#27272a'],
@@ -205,19 +189,30 @@ export async function extractImagePalette(imageSrc: string): Promise<ColorProfil
           isLight: false,
           isMonochrome: true,
         });
+        return;
+      }
+
+      const currentUrl = urls[attemptIndex++];
+      const img = new Image();
+      img.crossOrigin = "Anonymous";
+      
+      img.onload = () => {
+        try {
+          const profile = processImage(img);
+          resolve(profile);
+        } catch (e) {
+          tryNextUrl();
+        }
       };
-      proxyImg.src = `https://images.weserv.nl/?url=${encodeURIComponent(imageSrc)}&w=120&h=120`;
+
+      img.onerror = () => {
+        tryNextUrl();
+      };
+
+      img.src = currentUrl;
     };
 
-    img.onload = () => {
-      try {
-        resolve(processImage(img));
-      } catch (e) {
-        tryProxy();
-      }
-    };
-    img.onerror = tryProxy;
-    img.src = imageSrc;
+    tryNextUrl();
   });
 }
 
@@ -253,7 +248,7 @@ export function matchesColorFilter(filterValue: string, profile?: ColorProfile, 
 
   // 2. Custom Hex / Spectrum Picker Matching (e.g., #EEFF00 or #0062FF)
   const targetRgb = hexToRgb(filterValue);
-  if (!targetRgb) return false; // Invalid hex should not show all posts!
+  if (!targetRgb) return false;
   const targetHsl = rgbToHsl(targetRgb.r, targetRgb.g, targetRgb.b);
 
   // If no profile exists yet for this post, do NOT return true for everything!
