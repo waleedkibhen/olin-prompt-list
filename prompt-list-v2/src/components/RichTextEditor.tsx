@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import styles from './RichText.module.css';
-import { Bold, Italic, Underline, List, ListOrdered, Code, Quote, Eraser, Sparkles } from 'lucide-react';
+import { Bold, Italic, Underline, List, ListOrdered } from 'lucide-react';
 
 interface RichTextEditorProps {
   value: string;
@@ -8,7 +8,7 @@ interface RichTextEditorProps {
   placeholder?: string;
 }
 
-export default function RichTextEditor({ value, onChange, placeholder = "Enter prompt parameters, seeds, or camera flags with rich formatting..." }: RichTextEditorProps) {
+export default function RichTextEditor({ value, onChange, placeholder = "Enter prompt parameters, seeds, or camera flags with formatting..." }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const isFirstRender = useRef(true);
 
@@ -36,18 +36,6 @@ export default function RichTextEditor({ value, onChange, placeholder = "Enter p
     document.execCommand(command, false, arg);
     if (editorRef.current) {
       editorRef.current.focus();
-      onChange(editorRef.current.innerHTML);
-    }
-  };
-
-  const insertCode = () => {
-    const selection = window.getSelection();
-    if (!selection || selection.isCollapsed) {
-      document.execCommand('insertHTML', false, '<code>--param 1.0</code>&nbsp;');
-    } else {
-      document.execCommand('insertHTML', false, `<code>${selection.toString()}</code>`);
-    }
-    if (editorRef.current) {
       onChange(editorRef.current.innerHTML);
     }
   };
@@ -102,62 +90,26 @@ export default function RichTextEditor({ value, onChange, placeholder = "Enter p
     }
   };
 
-  // Convert common AI markdown symbols to rich HTML formatting
-  const handleAutoFormatMarkdown = () => {
-    if (!editorRef.current) return;
-    let html = editorRef.current.innerHTML;
-    // Replace markdown **bold** with <strong>bold</strong>
-    html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-    // Replace markdown `code` with <code>code</code>
-    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-    editorRef.current.innerHTML = html;
-    onChange(html);
-  };
-
   return (
     <div className={styles.editorWrapper}>
       <div className={styles.toolbar}>
         <button type="button" className={styles.toolBtn} onClick={() => exec('bold')} title="Bold (Ctrl+B)">
-          <Bold size={14} />
+          <Bold size={15} />
         </button>
         <button type="button" className={styles.toolBtn} onClick={() => exec('italic')} title="Italic (Ctrl+I)">
-          <Italic size={14} />
+          <Italic size={15} />
         </button>
         <button type="button" className={styles.toolBtn} onClick={() => exec('underline')} title="Underline (Ctrl+U)">
-          <Underline size={14} />
+          <Underline size={15} />
         </button>
 
         <div className={styles.separator} />
 
         <button type="button" className={styles.toolBtn} onClick={() => exec('insertUnorderedList')} title="Bullet List">
-          <List size={14} />
+          <List size={15} />
         </button>
         <button type="button" className={styles.toolBtn} onClick={() => exec('insertOrderedList')} title="Numbered List">
-          <ListOrdered size={14} />
-        </button>
-        <button type="button" className={styles.toolBtn} onClick={() => exec('formatBlock', '<blockquote>')} title="Quote / Callout">
-          <Quote size={14} />
-        </button>
-        <button type="button" className={styles.toolBtn} onClick={insertCode} title="Parameter / Inline Code">
-          <Code size={14} />
-        </button>
-
-        <div className={styles.separator} />
-
-        <button type="button" className={styles.toolBtn} onClick={() => exec('removeFormat')} title="Clear Formatting">
-          <Eraser size={14} />
-          <span>Clear</span>
-        </button>
-
-        <button 
-          type="button" 
-          className={styles.toolBtn} 
-          onClick={handleAutoFormatMarkdown} 
-          style={{ marginLeft: 'auto', color: '#a855f7', borderColor: 'rgba(168, 85, 247, 0.3)' }}
-          title="Instantly transform AI Markdown asterisks and backticks into styled Rich Text"
-        >
-          <Sparkles size={13} />
-          <span>Format AI Markdown</span>
+          <ListOrdered size={15} />
         </button>
       </div>
 
