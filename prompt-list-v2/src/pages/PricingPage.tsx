@@ -4,10 +4,12 @@ import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Check, Zap, Sparkles, ShieldCheck, ExternalLink, X, AlertCircle } from 'lucide-react';
 
-// TODO: Replace with live Whop checkout URLs once generated
+// Live Whop Checkout URLs & Plan IDs
+// Plan ID Monthly: plan_GQc9sa68Db1k5
+// Plan ID Yearly: plan_8r7fZPEtKV1Cs
 const WHOP_CHECKOUT_URLS = {
-  monthly: '', // e.g., 'https://whop.com/checkout/...'
-  yearly: '',  // e.g., 'https://whop.com/checkout/...'
+  monthly: 'https://whop.com/checkout/plan_GQc9sa68Db1k5',
+  yearly: 'https://whop.com/checkout/plan_8r7fZPEtKV1Cs',
 };
 
 export default function PricingPage() {
@@ -22,12 +24,19 @@ export default function PricingPage() {
     (user && localStorage.getItem(`olin_subscription_${user.uid}`) === 'active');
 
   const handleSubscribe = (planType: 'monthly' | 'yearly') => {
-    const url = WHOP_CHECKOUT_URLS[planType];
+    let url = WHOP_CHECKOUT_URLS[planType];
     if (!url) {
       setShowToastModal(true);
-    } else {
-      window.open(url, '_blank', 'noopener,noreferrer');
+      return;
     }
+    
+    // Automatically pre-fill user email in Whop checkout if authenticated
+    if (user?.email) {
+      const separator = url.includes('?') ? '&' : '?';
+      url += `${separator}email=${encodeURIComponent(user.email)}`;
+    }
+    
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const handleManageWhop = () => {
