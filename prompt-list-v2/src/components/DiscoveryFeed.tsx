@@ -13,6 +13,7 @@ import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useSearchParams } from 'react-router-dom';
 import { ENABLE_MONETIZATION } from '@/lib/config';
+import { matchesColorFilter } from '@/lib/colorAnalyzer';
 
 const COLOR_OPTIONS = [
   { name: 'Yellow & Gold', hex: '#facc15', keywords: ['yellow', 'gold', 'amber', 'lemon', 'blonde', 'sun', 'golden', 'warm', 'brass', 'honey'] },
@@ -185,12 +186,11 @@ export default function DiscoveryFeed() {
     // 2. Color Palette Filter
     if (color && color !== 'All') {
       const selectedColObj = COLOR_OPTIONS.find(c => c.name === color);
-      if (selectedColObj) {
-        current = current.filter(post => {
-          const contentStr = `${post.title} ${post.description} ${post.promptText} ${post.styleTag} ${post.categories.join(" ")}`.toLowerCase();
-          return selectedColObj.keywords.some(kw => contentStr.includes(kw));
-        });
-      }
+      const keywords = selectedColObj ? selectedColObj.keywords : [];
+      current = current.filter(post => {
+        const contentStr = `${post.title} ${post.description} ${post.promptText} ${post.styleTag} ${post.categories.join(" ")}`;
+        return matchesColorFilter(color, post.colorProfile, contentStr, keywords);
+      });
     }
 
     // 3. Art Type & Medium Filter
@@ -433,6 +433,29 @@ export default function DiscoveryFeed() {
                   {colorFilter === c.name && <Check size={14} style={{ color: c.hex === '#f8fafc' || c.hex === '#facc15' ? '#000' : '#fff' }} />}
                 </button>
               ))}
+              <label 
+                className={`${styles.filterPill} ${colorFilter.startsWith('#') ? styles.filterPillActive : ''}`}
+                style={{ 
+                  padding: '0.2rem 0.65rem', 
+                  fontSize: '0.75rem', 
+                  display: 'inline-flex', 
+                  alignItems: 'center', 
+                  gap: '6px',
+                  cursor: 'pointer',
+                  background: colorFilter.startsWith('#') ? 'var(--accent-color)' : 'var(--bg-tertiary)',
+                  borderColor: colorFilter.startsWith('#') ? 'var(--accent-color)' : 'var(--border-color)',
+                  color: colorFilter.startsWith('#') ? '#fff' : 'var(--text-secondary)'
+                }}
+                title="Pick any exact shade from the entire full color spectrum"
+              >
+                <input
+                  type="color"
+                  value={colorFilter.startsWith('#') ? colorFilter : '#a855f7'}
+                  onChange={e => setColorFilter(e.target.value)}
+                  style={{ width: '18px', height: '18px', padding: 0, border: 'none', background: 'transparent', cursor: 'pointer', borderRadius: '4px' }}
+                />
+                <span>{colorFilter.startsWith('#') ? `Spectrum: ${colorFilter.toUpperCase()}` : '🌈 Spectrum Picker'}</span>
+              </label>
             </div>
           </div>
 

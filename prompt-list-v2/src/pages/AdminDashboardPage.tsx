@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import styles from './AdminDashboardPage.module.css';
 import { useAuth } from '@/context/AuthContext';
 import { db } from '@/lib/firebase';
-import { collection, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, onSnapshot, doc, updateDoc, deleteDoc, getDocs } from 'firebase/firestore';
 import { sendNotification } from '@/lib/notifications';
-import { ShieldAlert, Check, X, AlertTriangle, Users, MessageSquare, Flame, Ban, CheckCircle, ShieldCheck, Send } from 'lucide-react';
+import { ShieldAlert, Check, X, AlertTriangle, Users, MessageSquare, Flame, Ban, CheckCircle, ShieldCheck, Send, Loader2, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import RichTextRenderer from '@/components/RichTextRenderer';
+import { extractImagePalette } from '@/lib/colorAnalyzer';
+import { ENABLE_MONETIZATION } from '@/lib/config';
 
 interface AdminPost {
   id: string;
@@ -215,6 +217,37 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const [isScanningColors, setIsScanningColors] = useState(false);
+  const [scanStatus, setScanStatus] = useState<string | null>(null);
+
+  const handleRescanAllColors = async () => {
+    if (!window.confirm("Start automated Full-Spectrum HSL color scan on ALL existing catalog posts? This calculates exact primary/secondary/tertiary colors at $0.00 cost.")) return;
+    setIsScanningColors(true);
+    try {
+      setScanStatus("Fetching catalog from Firestore...");
+      const querySnapshot = await getDocs(collection(db, 'posts'));
+      let count = 0;
+      const total = querySnapshot.docs.length;
+      for (const d of querySnapshot.docs) {
+        const pData = d.data();
+        const imgUrl = pData.imageUrls && pData.imageUrls.length > 0 ? pData.imageUrls[0] : null;
+        if (imgUrl) {
+          count++;
+          setScanStatus(`Analyzing image color spectrum (${count}/${total}): "${pData.title || 'Untitled'}"...`);
+          const colorProfile = await extractImagePalette(imgUrl);
+          await updateDoc(doc(db, 'posts', d.id), { colorProfile });
+        }
+      }
+      setScanStatus(`✨ Successfully analyzed & tagged ${count} catalog items with precise HSL color spectrum! ($0.00 cost)`);
+      setTimeout(() => setScanStatus(null), 10000);
+    } catch (err: any) {
+      alert(`Scan failed: ${err.message}`);
+      setScanStatus(null);
+    } finally {
+      setIsScanningColors(false);
+    }
+  };
+
   return (
     <div className={styles.adminContainer}>
       <header className={styles.header}>
@@ -227,11 +260,41 @@ export default function AdminDashboardPage() {
             <p>Real-time system oversight, content moderation, and monetization pipeline management.</p>
           </div>
         </div>
-        <div className={styles.adminBadge}>
-          <ShieldAlert size={16} />
-          <span>Verified Admin: wisecrafts81@gmail.com</span>
+        <div className={styles.adminBadge} style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', alignItems: 'flex-end' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <ShieldAlert size={16} />
+            <span>Verified Admin: wisecrafts81@gmail.com</span>
+          </div>
+          <button
+            type="button"
+            onClick={handleRescanAllColors}
+            disabled={isScanningColors}
+            style={{
+              background: 'linear-gradient(135deg, #a855f7, #ec4899)',
+              color: '#fff',
+              border: 'none',
+              padding: '0.45rem 0.85rem',
+              borderRadius: '9999px',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              cursor: isScanningColors ? 'not-allowed' : 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 4px 12px rgba(168, 85, 247, 0.3)'
+            }}
+          >
+            {isScanningColors ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+            <span>{isScanningColors ? 'Scanning Colors...' : '⚡ Auto-Scan & Tag All Catalog Colors ($0.00)'}</span>
+          </button>
         </div>
       </header>
+      {scanStatus && (
+        <div style={{ background: 'rgba(168, 85, 247, 0.15)', border: '1px solid #a855f7', color: '#f3e8ff', padding: '0.75rem 1rem', borderRadius: '12px', margin: '1rem 0', fontWeight: 600, fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+          <Sparkles size={18} style={{ color: '#ec4899', flexShrink: 0 }} />
+          <span>{scanStatus}</span>
+        </div>
+      )}
 
       <div className={styles.tabBar}>
         <button 

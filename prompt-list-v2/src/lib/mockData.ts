@@ -1,3 +1,5 @@
+import { ColorProfile } from './colorAnalyzer';
+
 export interface Creator {
   uid: string;
   displayName: string;
@@ -30,6 +32,7 @@ export interface PromptPost {
   monetizationType?: 'free' | 'ad_supported' | 'subscribers_only';
   isFlagged?: boolean;
   flaggedReason?: string;
+  colorProfile?: ColorProfile;
 }
 
 export const MOCK_POSTS: PromptPost[] = [];

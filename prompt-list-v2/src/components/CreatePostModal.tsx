@@ -9,6 +9,7 @@ import { db, storage } from '@/lib/firebase';
 import { CheckCircle2, Loader2, Trash2, AlertTriangle, UploadCloud } from 'lucide-react';
 import { ENABLE_MONETIZATION } from '@/lib/config';
 import RichTextEditor from '@/components/RichTextEditor';
+import { extractImagePalette } from '@/lib/colorAnalyzer';
 
 interface CreatePostModalProps {
   onClose: () => void;
@@ -235,13 +236,14 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
         }
       }
 
-      setStatusText('Analyzing visual scene with Gemini...');
+      setStatusText('Analyzing visual scene & color spectrum...');
       const visualTags: string[] = [];
       for (const imgUrl of uploadedImageUrls) {
         const tags = await analyzeArtworkWithGemini(imgUrl);
         visualTags.push(...tags);
       }
-      const uniqueVisualTags = Array.from(new Set(visualTags));
+      const colorProfile = await extractImagePalette(uploadedImageUrls[0] || selectedFiles[0]?.previewUrl || '');
+      const uniqueVisualTags = Array.from(new Set([...visualTags, ...colorProfile.colorNames]));
 
       setStatusText('Finalizing...');
       const fullTextToEmbed = `${title} ${description} ${promptText} ${model} ${uniqueVisualTags.join(" ")}`;
@@ -276,7 +278,8 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
         viewsCount: 1,
         copiesCount: 0,
         createdAt: serverTimestamp(),
-        embedding
+        embedding,
+        colorProfile
       };
 
       await setDoc(postDocRef, postPayload);
