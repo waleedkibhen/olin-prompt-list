@@ -1,20 +1,72 @@
 import React, { useState, useEffect } from 'react';
 import styles from './DiscoveryFeed.module.css';
 import { PromptPost } from '@/lib/mockData';
-import { getPersonalizedCategories, recordSearchTerm } from '@/lib/personalization';
+import { recordSearchTerm } from '@/lib/personalization';
 import PromptCard from './PromptCard';
-import { Compass, Flame, Clock, Layers, Loader2, Search, AlertTriangle, X } from 'lucide-react';
+import { 
+  Compass, Flame, Clock, Layers, Loader2, Search, AlertTriangle, X, 
+  SlidersHorizontal, Palette, Sparkles, Image as ImageIcon, Calendar, Lock, RotateCcw, Check 
+} from 'lucide-react';
 import { calculateCosineSimilarity } from '@/lib/vector';
 import { generateLiveEmbedding } from '@/lib/ai';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useSearchParams } from 'react-router-dom';
 
+const COLOR_OPTIONS = [
+  { name: 'Yellow & Gold', hex: '#facc15', keywords: ['yellow', 'gold', 'amber', 'lemon', 'blonde', 'sun', 'golden', 'warm', 'brass', 'honey'] },
+  { name: 'Blue & Cyan', hex: '#3b82f6', keywords: ['blue', 'cyan', 'azure', 'navy', 'water', 'sky', 'ocean', 'sapphire', 'ice', 'cool', 'turquoise'] },
+  { name: 'Red & Crimson', hex: '#ef4444', keywords: ['red', 'crimson', 'blood', 'scarlet', 'fire', 'ruby', 'flames', 'rose', 'maroon', 'cherry'] },
+  { name: 'Green & Emerald', hex: '#10b981', keywords: ['green', 'emerald', 'forest', 'moss', 'nature', 'jade', 'grass', 'jungle', 'mint', 'foliage'] },
+  { name: 'Purple & Violet', hex: '#a855f7', keywords: ['purple', 'violet', 'magenta', 'indigo', 'lavender', 'neon purple', 'amethyst', 'plum', 'grape'] },
+  { name: 'Orange & Sunset', hex: '#f97316', keywords: ['orange', 'sunset', 'bronze', 'copper', 'rust', 'coral', 'autumn', 'tiger', 'tangerine'] },
+  { name: 'Pink & Rose', hex: '#ec4899', keywords: ['pink', 'rose', 'pastel', 'blush', 'cherry blossom', 'flamingo', 'fuschia'] },
+  { name: 'Dark & Noir', hex: '#1e293b', keywords: ['dark', 'black', 'noir', 'shadow', 'midnight', 'obsidian', 'gloomy', 'monochrome', 'goth', 'night'] },
+  { name: 'Clean White & Light', hex: '#f8fafc', keywords: ['white', 'light', 'clean', 'minimal', 'ivory', 'snow', 'bright', 'studio background', 'silver'] },
+];
+
+const TYPE_OPTIONS = [
+  { label: 'All Types', value: 'All Types' },
+  { label: '📸 Photorealism', value: 'Photorealistic', keywords: ['photo', 'realistic', 'portrait', 'canon', 'macro', '8k', 'photorealistic', 'photography', 'lifelike', 'raw photo', 'dslr'] },
+  { label: '🧊 3D Render & CGI', value: '3D Render', keywords: ['3d', 'blender', 'unreal engine', 'render', 'cgi', 'octane', 'pixar', 'volumetric', 'cinema4d', 'rendering', '3d model'] },
+  { label: '🎨 Digital & Anime', value: 'Illustration', keywords: ['anime', 'manga', 'illustration', 'digital art', 'comic', 'painting', 'watercolor', 'concept art', 'cel-shaded', 'ghibli'] },
+  { label: '🚀 Cyberpunk & Sci-Fi', value: 'Sci-Fi', keywords: ['cyberpunk', 'futuristic', 'sci-fi', 'neon', 'mecha', 'space', 'synthwave', 'android', 'cyber', 'robot', 'scifi'] },
+  { label: '🪄 Fantasy & Mythical', value: 'Fantasy', keywords: ['fantasy', 'dragon', 'magic', 'wizard', 'elf', 'mystical', 'enchanted', 'spell', 'armor', 'mythical', 'fairy', 'witch'] },
+  { label: '📐 Clipart / Line / Logo', value: 'Minimalist', keywords: ['minimal', 'simple', 'clipart', 'line drawing', 'logo', 'vector', 'flat', 'icon', 'background', 'minimalist', 'clean'] }
+];
+
+const ASPECT_OPTIONS = [
+  { label: 'All Dimensions', value: 'All Dimensions' },
+  { label: '⏹️ Square (1:1)', value: 'Square', keywords: ['1:1', 'square', 'avatar', 'instagram'] },
+  { label: '📱 Portrait (9:16 / Vertical)', value: 'Portrait', keywords: ['9:16', '3:4', 'portrait', 'vertical', 'wallpaper', 'reels', 'mobile'] },
+  { label: '🖥️ Landscape (16:9 / Widescreen)', value: 'Landscape', keywords: ['16:9', '4:3', '21:9', 'landscape', 'horizontal', 'widescreen', 'cinematic', 'header', 'desktop'] }
+];
+
+const TIME_OPTIONS = [
+  { label: 'All Time', value: 'All Time' },
+  { label: '⚡ Past 24 Hours', value: '24h', ms: 24 * 60 * 60 * 1000 },
+  { label: '📅 Past 7 Days', value: '7d', ms: 7 * 24 * 60 * 60 * 1000 },
+  { label: '🗓️ Past 30 Days', value: '30d', ms: 30 * 24 * 60 * 60 * 1000 }
+];
+
+const VAULT_OPTIONS = [
+  { label: 'All Artwork', value: 'All Artwork' },
+  { label: '🎁 Free Open Prompts', value: 'free' },
+  { label: '💎 PRO Exclusive Vaults', value: 'subscribers_only' }
+];
+
 export default function DiscoveryFeed() {
   const [searchParams, setSearchParams] = useSearchParams();
   
-  const [selectedCategory, setSelectedCategory] = useState('All');
   const [activeTab, setActiveTab] = useState<'for_you' | 'trending' | 'newest'>('for_you');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  // Multi-dimensional filter states
+  const [colorFilter, setColorFilter] = useState('All');
+  const [typeFilter, setTypeFilter] = useState('All Types');
+  const [aspectFilter, setAspectFilter] = useState('All Dimensions');
+  const [timeFilter, setTimeFilter] = useState('All Time');
+  const [vaultFilter, setVaultFilter] = useState('All Artwork');
   
   const [dbPosts, setDbPosts] = useState<PromptPost[]>([]);
   const [displayedPosts, setDisplayedPosts] = useState<PromptPost[]>([]);
@@ -28,6 +80,15 @@ export default function DiscoveryFeed() {
   const [likedPosts, setLikedPosts] = useState<string[]>([]);
   const [savedPosts, setSavedPosts] = useState<string[]>([]);
 
+  const activeFilterCount = [
+    colorFilter !== 'All',
+    typeFilter !== 'All Types',
+    aspectFilter !== 'All Dimensions',
+    timeFilter !== 'All Time',
+    vaultFilter !== 'All Artwork',
+    modelFilter !== 'All Models'
+  ].filter(Boolean).length;
+
   useEffect(() => {
     const queryParam = searchParams.get('search') || '';
     const modelParam = searchParams.get('model') || 'All Models';
@@ -37,9 +98,9 @@ export default function DiscoveryFeed() {
       recordSearchTerm(queryParam);
     }
     if (dbPosts.length > 0) {
-      applyFiltersAndSearch(dbPosts, selectedCategory, activeTab, queryParam, modelParam);
+      applyAllFiltersAndSearch(dbPosts, activeTab, queryParam, modelParam, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter);
     }
-  }, [searchParams, selectedCategory, activeTab]);
+  }, [searchParams, activeTab, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter]);
 
   useEffect(() => {
     const postsQuery = query(collection(db, "posts"), orderBy("createdAt", "desc"));
@@ -77,6 +138,8 @@ export default function DiscoveryFeed() {
           isFlagged: data.isFlagged || false,
           flaggedReason: data.flaggedReason || '',
           createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString() : 'Just now',
+          rawTimestamp: data.createdAt?.toMillis ? data.createdAt.toMillis() : Date.now(),
+          aspectRatio: data.aspectRatio || 'Square',
           embedding: data.embedding
         });
       });
@@ -86,7 +149,7 @@ export default function DiscoveryFeed() {
       
       const queryParam = searchParams.get('search') || '';
       const modelParam = searchParams.get('model') || 'All Models';
-      applyFiltersAndSearch(liveItems, selectedCategory, activeTab, queryParam, modelParam, true);
+      applyAllFiltersAndSearch(liveItems, activeTab, queryParam, modelParam, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter, true);
     }, (error: any) => {
       console.error("Firestore error:", error);
       setIsLoadingDb(false);
@@ -98,29 +161,86 @@ export default function DiscoveryFeed() {
     return () => unsubscribe();
   }, []);
 
-  const applyFiltersAndSearch = async (
+  const applyAllFiltersAndSearch = async (
     items: PromptPost[],
-    category: string,
     tab: 'for_you' | 'trending' | 'newest',
     search: string,
     model: string,
+    color: string,
+    type: string,
+    aspect: string,
+    time: string,
+    vault: string,
     isBackgroundUpdate = false
   ) => {
     let current = [...items];
 
+    // 1. Model Engine Filter
     if (model && model !== 'All Models') {
-      current = current.filter(p => p.model === model);
+      current = current.filter(p => p.model === model || p.model.toLowerCase().includes(model.toLowerCase()));
     }
 
-    const activeCategoryQuery = (category !== 'All' && category !== 'All Styles') ? category.trim() : '';
-    const activeSearchQuery = search.trim();
-    const combinedQuery = [activeCategoryQuery, activeSearchQuery].filter(Boolean).join(' ');
-
-    if (combinedQuery) {
-      if (!isBackgroundUpdate) {
-        setIsSearching(true);
+    // 2. Color Palette Filter
+    if (color && color !== 'All') {
+      const selectedColObj = COLOR_OPTIONS.find(c => c.name === color);
+      if (selectedColObj) {
+        current = current.filter(post => {
+          const contentStr = `${post.title} ${post.description} ${post.promptText} ${post.styleTag} ${post.categories.join(" ")}`.toLowerCase();
+          return selectedColObj.keywords.some(kw => contentStr.includes(kw));
+        });
       }
-      const cleanSearch = combinedQuery.toLowerCase();
+    }
+
+    // 3. Art Type & Medium Filter
+    if (type && type !== 'All Types') {
+      const selectedTypeObj = TYPE_OPTIONS.find(t => t.value === type);
+      if (selectedTypeObj && selectedTypeObj.keywords) {
+        current = current.filter(post => {
+          if (post.styleTag === selectedTypeObj.value || post.styleTag.toLowerCase().includes(type.toLowerCase())) return true;
+          const contentStr = `${post.title} ${post.description} ${post.promptText} ${post.styleTag} ${post.categories.join(" ")}`.toLowerCase();
+          return selectedTypeObj.keywords.some(kw => contentStr.includes(kw));
+        });
+      }
+    }
+
+    // 4. Aspect Ratio / Dimensions Filter
+    if (aspect && aspect !== 'All Dimensions') {
+      const selectedAspectObj = ASPECT_OPTIONS.find(a => a.value === aspect);
+      if (selectedAspectObj) {
+        current = current.filter(post => {
+          if (post.aspectRatio && post.aspectRatio.toLowerCase().includes(selectedAspectObj.value.toLowerCase())) return true;
+          const contentStr = `${post.title} ${post.description} ${post.promptText} ${post.categories.join(" ")}`.toLowerCase();
+          return selectedAspectObj.keywords?.some(kw => contentStr.includes(kw));
+        });
+      }
+    }
+
+    // 5. Timeframe / Recency Filter
+    if (time && time !== 'All Time') {
+      const timeObj = TIME_OPTIONS.find(t => t.value === time);
+      if (timeObj && timeObj.ms) {
+        const now = Date.now();
+        current = current.filter(post => {
+          const postTime = post.rawTimestamp || now;
+          return (now - postTime) <= timeObj.ms!;
+        });
+      }
+    }
+
+    // 6. Vault Access / Monetization Filter
+    if (vault && vault !== 'All Artwork') {
+      if (vault === 'free') {
+        current = current.filter(p => !p.isPaid && p.monetizationType !== 'subscribers_only');
+      } else if (vault === 'subscribers_only') {
+        current = current.filter(p => p.isPaid || p.monetizationType === 'subscribers_only');
+      }
+    }
+
+    // 7. Keyword & Semantic Vector Search
+    const activeSearchQuery = search.trim();
+    if (activeSearchQuery) {
+      if (!isBackgroundUpdate) setIsSearching(true);
+      const cleanSearch = activeSearchQuery.toLowerCase();
       const queryTokens = cleanSearch.split(/\s+/).filter(Boolean);
 
       try {
@@ -158,14 +278,13 @@ export default function DiscoveryFeed() {
           return queryTokens.some(token => text.includes(token));
         });
       } finally {
-        if (!isBackgroundUpdate) {
-          setIsSearching(false);
-        }
+        if (!isBackgroundUpdate) setIsSearching(false);
       }
     }
 
+    // 8. Sorting Logic
     if (tab === 'trending') {
-      current.sort((a, b) => (b.likesCount + b.savesCount) - (a.likesCount + a.savesCount));
+      current.sort((a, b) => (b.likesCount + b.savesCount + b.viewsCount) - (a.likesCount + a.savesCount + a.viewsCount));
     } else if (tab === 'for_you') {
       const userFavoriteStyles = items
         .filter(p => likedPosts.includes(p.id) || savedPosts.includes(p.id))
@@ -183,14 +302,21 @@ export default function DiscoveryFeed() {
     setDisplayedPosts(current);
   };
 
-  const handleCategoryClick = (category: string) => {
-    setSelectedCategory(category);
-    applyFiltersAndSearch(dbPosts, category, activeTab, searchFilter, modelFilter);
+  const resetAllFilters = () => {
+    setColorFilter('All');
+    setTypeFilter('All Types');
+    setAspectFilter('All Dimensions');
+    setTimeFilter('All Time');
+    setVaultFilter('All Artwork');
+    setModelFilter('All Models');
+    setSearchFilter('');
+    setSearchParams({});
+    applyAllFiltersAndSearch(dbPosts, activeTab, '', 'All Models', 'All', 'All Types', 'All Dimensions', 'All Time', 'All Artwork');
   };
 
   const handleTabChange = (tab: 'for_you' | 'trending' | 'newest') => {
     setActiveTab(tab);
-    applyFiltersAndSearch(dbPosts, selectedCategory, tab, searchFilter, modelFilter);
+    applyAllFiltersAndSearch(dbPosts, tab, searchFilter, modelFilter, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter);
   };
 
   const handleLike = (id: string) => {
@@ -204,10 +330,8 @@ export default function DiscoveryFeed() {
   const clearSearch = () => {
     setSearchFilter('');
     setSearchParams({});
-    applyFiltersAndSearch(dbPosts, selectedCategory, activeTab, '', modelFilter);
+    applyAllFiltersAndSearch(dbPosts, activeTab, '', modelFilter, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter);
   };
-
-  const dynamicCategories = getPersonalizedCategories(dbPosts, 6);
 
   return (
     <div className={styles.feedWrapper}>
@@ -222,7 +346,7 @@ export default function DiscoveryFeed() {
         <div className={styles.searchPill}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Search size={15} style={{ color: 'var(--text-secondary)' }} />
-            <span>Search results for <strong>"{searchFilter}"</strong> ({displayedPosts.length})</span>
+            <span>Search results for <strong>"{searchFilter}"</strong> ({displayedPosts.length} found)</span>
           </div>
           <button onClick={clearSearch} className={styles.clearSearchBtn} title="Clear Search">
             <X size={15} />
@@ -230,68 +354,175 @@ export default function DiscoveryFeed() {
         </div>
       )}
 
-      <nav className={styles.categoryNav}>
-        <div className={styles.categoryRoller}>
-          {dynamicCategories.map((category) => {
-            const isActive = selectedCategory === category;
-            return (
-              <button
-                key={category}
-                className={`${styles.categoryTab} ${isActive ? styles.categoryTabActive : ''}`}
-                onClick={() => handleCategoryClick(category)}
-              >
-                {category}
-              </button>
-            );
-          })}
-        </div>
-      </nav>
-
+      {/* Primary Feed Control Bar */}
       <div className={styles.feedSortRow}>
         <div className={styles.sortTabs}>
           <button 
             className={`${styles.sortBtn} ${activeTab === 'for_you' ? styles.sortActive : ''}`}
             onClick={() => handleTabChange('for_you')}
           >
-            <Compass size={15} />
+            <Compass size={16} />
             <span>For You</span>
           </button>
           <button 
             className={`${styles.sortBtn} ${activeTab === 'trending' ? styles.sortActive : ''}`}
             onClick={() => handleTabChange('trending')}
           >
-            <Flame size={15} />
+            <Flame size={16} />
             <span>Trending</span>
           </button>
           <button 
             className={`${styles.sortBtn} ${activeTab === 'newest' ? styles.sortActive : ''}`}
             onClick={() => handleTabChange('newest')}
           >
-            <Clock size={15} />
+            <Clock size={16} />
             <span>Newest</span>
           </button>
         </div>
 
-        <span className={styles.itemCount}>{displayedPosts.length} Pins</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <button 
+            className={`${styles.filterToggleBtn} ${isFilterOpen || activeFilterCount > 0 ? styles.filterToggleBtnActive : ''}`}
+            onClick={() => setIsFilterOpen(prev => !prev)}
+            title="Toggle Visual & AI Parameter Filters"
+          >
+            <SlidersHorizontal size={16} style={{ color: activeFilterCount > 0 ? 'var(--accent-color)' : 'inherit' }} />
+            <span>Filters</span>
+            {activeFilterCount > 0 && (
+              <span className={styles.activeFilterBadge}>{activeFilterCount}</span>
+            )}
+          </button>
+
+          {activeFilterCount > 0 && (
+            <button onClick={resetAllFilters} className={styles.resetAllBtn} title="Clear All Active Filters">
+              Reset ({activeFilterCount})
+            </button>
+          )}
+
+          <span className={styles.itemCount}>{displayedPosts.length} Pins</span>
+        </div>
       </div>
 
+      {/* Advanced Visual & Parameter Filter Studio */}
+      {(isFilterOpen || activeFilterCount > 0) && (
+        <section className={styles.filterStudioContainer}>
+          {/* Row 1: Dominant Color Palette */}
+          <div className={styles.filterRow}>
+            <span className={styles.filterLabel}>
+              <Palette size={15} style={{ color: '#ec4899' }} />
+              Color Palette
+            </span>
+            <div className={styles.colorSwatchRow}>
+              <button 
+                className={`${styles.filterPill} ${colorFilter === 'All' ? styles.filterPillActive : ''}`}
+                onClick={() => setColorFilter('All')}
+                style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem' }}
+              >
+                Any Color
+              </button>
+              {COLOR_OPTIONS.map(c => (
+                <button
+                  key={c.name}
+                  className={`${styles.colorSwatch} ${colorFilter === c.name ? styles.colorSwatchActive : ''}`}
+                  style={{ backgroundColor: c.hex }}
+                  onClick={() => setColorFilter(prev => prev === c.name ? 'All' : c.name)}
+                  title={`Filter by dominant color: ${c.name}`}
+                >
+                  {colorFilter === c.name && <Check size={14} style={{ color: c.hex === '#f8fafc' || c.hex === '#facc15' ? '#000' : '#fff' }} />}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Row 2: Art Type & Medium */}
+          <div className={styles.filterRow}>
+            <span className={styles.filterLabel}>
+              <Sparkles size={15} style={{ color: '#3b82f6' }} />
+              Art Medium
+            </span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {TYPE_OPTIONS.map(t => (
+                <button
+                  key={t.value}
+                  className={`${styles.filterPill} ${typeFilter === t.value ? styles.filterPillActive : ''}`}
+                  onClick={() => setTypeFilter(prev => prev === t.value ? 'All Types' : t.value)}
+                >
+                  <span>{t.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Row 3: Aspect Ratio & Dimensions */}
+          <div className={styles.filterRow}>
+            <span className={styles.filterLabel}>
+              <ImageIcon size={15} style={{ color: '#10b981' }} />
+              Orientation
+            </span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {ASPECT_OPTIONS.map(a => (
+                <button
+                  key={a.value}
+                  className={`${styles.filterPill} ${aspectFilter === a.value ? styles.filterPillActive : ''}`}
+                  onClick={() => setAspectFilter(prev => prev === a.value ? 'All Dimensions' : a.value)}
+                >
+                  <span>{a.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Row 4: Recency & Vault Access */}
+          <div className={styles.filterRow} style={{ borderTop: '1px dashed var(--border-color)', paddingTop: '0.85rem', marginTop: '0.25rem' }}>
+            <span className={styles.filterLabel}>
+              <Calendar size={15} style={{ color: '#f97316' }} />
+              Time &amp; Vault
+            </span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
+              {TIME_OPTIONS.map(time => (
+                <button
+                  key={time.value}
+                  className={`${styles.filterPill} ${timeFilter === time.value ? styles.filterPillActive : ''}`}
+                  onClick={() => setTimeFilter(prev => prev === time.value ? 'All Time' : time.value)}
+                >
+                  <span>{time.label}</span>
+                </button>
+              ))}
+              
+              <span style={{ color: 'var(--text-muted)', margin: '0 0.4rem' }}>|</span>
+
+              {VAULT_OPTIONS.map(vault => (
+                <button
+                  key={vault.value}
+                  className={`${styles.filterPill} ${vaultFilter === vault.value ? styles.filterPillActive : ''}`}
+                  onClick={() => setVaultFilter(prev => prev === vault.value ? 'All Artwork' : vault.value)}
+                  style={vault.value === 'subscribers_only' ? { borderColor: '#f59e0b' } : {}}
+                >
+                  <span>{vault.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Feed Content Area */}
       {isLoadingDb || isSearching ? (
         <div className={styles.emptyState}>
           <Loader2 size={32} className={styles.spinner} />
-          <span>{isSearching ? 'Searching artwork...' : 'Loading visuals...'}</span>
+          <span>{isSearching ? 'Scanning visuals and vector space...' : 'Loading AI prompt creations...'}</span>
         </div>
       ) : displayedPosts.length === 0 ? (
         <div className={styles.emptyState}>
           <Layers size={36} style={{ color: 'var(--text-secondary)', opacity: 0.5 }} />
-          <h3>{searchFilter ? `No visual matches found for "${searchFilter}"` : 'No artwork uploaded yet'}</h3>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '400px' }}>
-            {searchFilter ? 'Try searching another keyword or clearing filters.' : 'Be the first creator to upload visual AI artwork using the Share button.'}
+          <h3>No visual artwork matched your active filter configuration</h3>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '450px' }}>
+            We filtered out all items that didn't match your selected color palette, art medium, orientation, or timeframe. Try broadening your filter selection.
           </p>
-          {searchFilter && (
-            <button className="btn-outline" onClick={() => { setSelectedCategory('All'); clearSearch(); }} style={{ marginTop: '0.5rem' }}>
-              Reset Filters
-            </button>
-          )}
+          <button className="btn-outline" onClick={resetAllFilters} style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <RotateCcw size={15} />
+            <span>Reset All Filters</span>
+          </button>
         </div>
       ) : (
         <main className={styles.masonryGrid}>

@@ -54,53 +54,156 @@
   gap: 0.75rem;
 }
 
-.categoryNav {
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 0.75rem;
-}
-
-.categoryRoller {
+.filterStudioContainer {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
   display: flex;
-  gap: 1.5rem;
-  overflow-x: auto;
-  padding-bottom: 0.25rem;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.categoryRoller::-webkit-scrollbar {
-  display: none;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-medium);
 }
 
-.categoryTab {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  white-space: nowrap;
-  padding: 0.4rem 0.2rem;
+.filterRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.filterLabel {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  min-width: 130px;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.colorSwatchRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.colorSwatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
-  transition: color var(--transition-fast);
-  background: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+.colorSwatch:hover {
+  transform: scale(1.18);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+}
+.colorSwatchActive {
+  transform: scale(1.22);
+  border: 2.5px solid #fff !important;
+  box-shadow: 0 0 14px var(--accent-color);
+  z-index: 2;
+}
+
+.filterPill {
+  padding: 0.35rem 0.9rem;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 600;
+  background-color: var(--surface-color);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+.filterPill:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-hover);
+  border-color: var(--text-muted);
+}
+.filterPillActive {
+  background-color: var(--text-primary) !important;
+  color: var(--bg-primary) !important;
+  border-color: var(--text-primary) !important;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(255, 255, 255, 0.15);
+}
+
+.filterToggleBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 700;
+  background-color: var(--surface-color);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+.filterToggleBtn:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--text-primary);
+}
+.filterToggleBtnActive {
+  background: linear-gradient(135deg, var(--bg-secondary), var(--surface-color));
+  border-color: var(--accent-color);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.2);
+}
+
+.activeFilterBadge {
+  background: var(--accent-color);
+  color: #000;
+  font-size: 0.7rem;
+  font-weight: 900;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.resetAllBtn {
+  font-size: 0.8rem;
+  color: #f59e0b;
+  background: transparent;
   border: none;
   cursor: pointer;
+  text-decoration: underline;
+  font-weight: 600;
+  margin-left: 0.5rem;
+  transition: opacity var(--transition-fast);
+}
+.resetAllBtn:hover {
+  opacity: 0.8;
 }
 
-.categoryTab:hover {
-  color: var(--text-primary);
-}
-
-.categoryTabActive {
-  color: var(--text-primary) !important;
-  font-weight: 700;
-}
-
-.categoryTabActive::after {
-  content: '';
-  position: absolute;
-  bottom: -0.75rem;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background-color: var(--text-primary);
+@media (max-width: 680px) {
+  .filterLabel {
+    min-width: 100%;
+    margin-bottom: 0.2rem;
+  }
 }
 
 .feedSortRow {

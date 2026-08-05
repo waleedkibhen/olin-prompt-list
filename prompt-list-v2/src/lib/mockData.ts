@@ -22,6 +22,7 @@ export interface PromptPost {
   viewsCount: number;
   copiesCount?: number;
   createdAt: string;
+  rawTimestamp?: number;
   aspectRatio?: string;
   embedding?: number[];
   isPaid?: boolean;
