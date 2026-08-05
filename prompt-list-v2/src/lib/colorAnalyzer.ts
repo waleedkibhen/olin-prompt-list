@@ -2,6 +2,7 @@ export interface ColorProfile {
   dominantHex: string;
   paletteHexes: string[];
   colorNames: string[];
+  colorPercentages?: Record<string, number>;
   spectrumHues: number[];
   isDark: boolean;
   isLight: boolean;
@@ -56,23 +57,25 @@ export function rgbToHex(r: number, g: number, b: number): string {
   return "#" + [r, g, b].map((x) => Math.min(255, Math.max(0, Math.round(x))).toString(16).padStart(2, '0')).join('');
 }
 
-// Classify an HSL pixel into standard spectrum labels
+// Classify an HSL pixel into universal Google Images-style color categories
 function classifyHslToName(h: number, s: number, l: number): string | null {
   if (l <= 15 || (l <= 22 && s <= 20)) return 'Dark & Noir';
   if (l >= 88 && s <= 20) return 'Clean White & Light';
-  if (s <= 12 && l > 15 && l < 88) return 'Monochrome & Grayscale';
+  if (s <= 14 && l > 15 && l < 88) return 'Monochrome & Gray';
+  if (h >= 10 && h < 46 && l > 15 && l <= 48) return 'Brown & Earth';
 
   if (h >= 345 || h < 14) return 'Red & Crimson';
   if (h >= 14 && h < 42) return 'Orange & Sunset';
   if (h >= 42 && h < 68) return 'Yellow & Gold';
-  if (h >= 68 && h < 168) return 'Green & Emerald';
-  if (h >= 168 && h < 260) return 'Blue & Cyan';
+  if (h >= 68 && h < 165) return 'Green & Emerald';
+  if (h >= 165 && h < 200) return 'Cyan & Teal';
+  if (h >= 200 && h < 260) return 'Blue & Azure';
   if (h >= 260 && h < 312) return 'Purple & Violet';
   if (h >= 312 && h < 345) return 'Pink & Rose';
   return null;
 }
 
-// Extract rich color palette and spectrum classification via HTML5 Canvas with robust multi-proxy failover cascade
+// Extract rich color palette, exact concentration percentages, and classification via HTML5 Canvas with robust CORS failovers
 export async function extractImagePalette(imageSrc: string): Promise<ColorProfile | null> {
   const processImage = (imgEl: HTMLImageElement): ColorProfile => {
     const canvas = document.createElement('canvas');
@@ -125,19 +128,30 @@ export async function extractImagePalette(imageSrc: string): Promise<ColorProfil
 
     if (totalPixels === 0) throw new Error("No visible pixels on canvas");
 
-    // REQUIRE HIGH PREDOMINANCE: A color category must represent at least 15% of the artwork to be tagged!
+    // Compute integer percentages and keep colors representing at least 12% of the artwork
+    const colorPercentages: Record<string, number> = {};
     let dominantCategoryNames = Object.entries(categoryCounts)
-      .filter(([_, count]) => count / totalPixels >= 0.15)
+      .filter(([name, count]) => {
+        const perc = Math.round((count / totalPixels) * 100);
+        if (perc >= 12) {
+          colorPercentages[name] = perc;
+          return true;
+        }
+        return false;
+      })
       .sort((a, b) => b[1] - a[1])
       .map(([name]) => name);
 
-    // If an image has extremely varied soft hues and none hit 15%, take the #1 most abundant category
+    // If an image has varied soft hues and none hit 12%, take the #1 most abundant category
     if (dominantCategoryNames.length === 0 && Object.keys(categoryCounts).length > 0) {
       const topEntry = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0];
-      if (topEntry) dominantCategoryNames = [topEntry[0]];
+      if (topEntry) {
+        dominantCategoryNames = [topEntry[0]];
+        colorPercentages[topEntry[0]] = Math.max(12, Math.round((topEntry[1] / totalPixels) * 100));
+      }
     }
 
-    // Sort buckets by frequency and take only top 3 dominant color swatches (predominant colors only)
+    // Sort buckets by frequency and take only top 3 dominant color swatches
     const sortedBuckets = Object.values(colorBuckets)
       .sort((a, b) => b.count - a.count)
       .slice(0, 3);
@@ -150,6 +164,7 @@ export async function extractImagePalette(imageSrc: string): Promise<ColorProfil
       dominantHex,
       paletteHexes,
       colorNames: dominantCategoryNames,
+      colorPercentages,
       spectrumHues,
       isDark: darkCount / totalPixels > 0.45,
       isLight: lightCount / totalPixels > 0.45,
@@ -158,13 +173,11 @@ export async function extractImagePalette(imageSrc: string): Promise<ColorProfil
   };
 
   return new Promise((resolve) => {
-    // Generate a reliable cascade of URLs to bypass strict cloud storage CORS policies
     const getUrlsToAttempt = (): string[] => {
       if (!imageSrc || imageSrc.startsWith('data:') || imageSrc.startsWith('blob:')) {
         return [imageSrc];
       }
       const encoded = encodeURIComponent(imageSrc);
-      // For external HTTP images (like Firebase Storage without bucket CORS), attempt CORS gateways first before raw URL
       return [
         `https://api.allorigins.win/raw?url=${encoded}`,
         `https://corsproxy.io/?url=${encoded}`,
@@ -207,118 +220,30 @@ export async function extractImagePalette(imageSrc: string): Promise<ColorProfil
   });
 }
 
-// Strict high-precision color matching algorithm
+// Precise preset color matching algorithm
 export function matchesColorFilter(filterValue: string, profile?: ColorProfile, fallbackText?: string, filterKeywords: string[] = []): boolean {
-  if (!filterValue || filterValue === 'All') return true;
+  if (!filterValue || filterValue === 'All' || filterValue === 'Any Color') return true;
 
-  // 1. Preset Category Matching (e.g., "Yellow & Gold", "Blue & Cyan")
-  if (!filterValue.startsWith('#')) {
-    // Primary match: analyzed predominant color profile
-    if (profile?.colorNames && profile.colorNames.length > 0) {
-      if (profile.colorNames.includes(filterValue)) {
-        return true;
-      }
-      // If post HAS a verified color profile and the color is NOT in dominant category names, REJECT IT.
-      // Do not fall back to loose text words if visual analysis verified the actual colors!
-      if (profile.colorNames.length > 0 && profile.paletteHexes && profile.paletteHexes.length > 0) {
-        // Special luminosity checks
-        if (filterValue === 'Dark & Noir' && profile.isDark) return true;
-        if (filterValue === 'Clean White & Light' && profile.isLight) return true;
-        if (filterValue === 'Monochrome & Grayscale' && profile.isMonochrome) return true;
-        return false;
-      }
-    }
-
-    // Fallback: only if post has never been scanned by the visual analyzer
-    if (fallbackText && filterKeywords.length > 0) {
-      const lower = fallbackText.toLowerCase();
-      if (filterKeywords.some(kw => lower.includes(kw.toLowerCase()))) return true;
-    }
-    return false;
-  }
-
-  // 2. Custom Hex / Spectrum Picker Matching (e.g., #FF0000 or #0062FF)
-  const targetRgb = hexToRgb(filterValue);
-  if (!targetRgb) return false;
-  const targetHsl = rgbToHsl(targetRgb.r, targetRgb.g, targetRgb.b);
-  const targetCategory = classifyHslToName(targetHsl.h, targetHsl.s, targetHsl.l);
-
-  // If post has an analyzed color profile, check both spectrum category ("if it comes in that spectrum, it counts") and swatch proximity!
-  if (profile && (profile.colorNames?.length > 0 || profile.paletteHexes?.length > 0)) {
-    // 1. Spectrum Category Match: If the chosen hex falls into a color band (e.g. Red & Crimson) present in the artwork!
-    if (targetCategory && profile.colorNames && profile.colorNames.includes(targetCategory)) {
+  if (profile?.colorNames && profile.colorNames.length > 0) {
+    if (profile.colorNames.includes(filterValue)) {
       return true;
     }
+    // Backward compatibility for older records before expanding Cyan, Brown, and Gray names
+    if (filterValue === 'Blue & Azure' && profile.colorNames.includes('Blue & Cyan')) return true;
+    if (filterValue === 'Cyan & Teal' && profile.colorNames.includes('Blue & Cyan')) return true;
+    if (filterValue === 'Monochrome & Gray' && profile.colorNames.includes('Monochrome & Grayscale')) return true;
 
-    const isTargetNeutral = targetHsl.s < 12 || targetHsl.l <= 15 || targetHsl.l >= 88;
-
-    // 2. Swatch Distance Match: Check each dominant swatch extracted from the image
-    for (const hex of (profile.paletteHexes || [])) {
-      const pRgb = hexToRgb(hex);
-      if (!pRgb) continue;
-      const pHsl = rgbToHsl(pRgb.r, pRgb.g, pRgb.b);
-      const isSwatchNeutral = pHsl.s < 12 || pHsl.l <= 15 || pHsl.l >= 88;
-
-      if (isTargetNeutral) {
-        if (isSwatchNeutral && Math.abs(targetHsl.l - pHsl.l) <= 25) return true;
-        continue;
-      }
-
-      if (isSwatchNeutral) continue;
-
-      let hueDelta = Math.abs(targetHsl.h - pHsl.h);
-      if (hueDelta > 180) hueDelta = 360 - hueDelta;
-
-      // Allow 38 degrees hue tolerance around the circle so closest variations within the color family show up!
-      if (hueDelta <= 38 && Math.abs(targetHsl.l - pHsl.l) <= 65) {
-        return true;
-      }
-    }
+    if (filterValue === 'Dark & Noir' && profile.isDark) return true;
+    if (filterValue === 'Clean White & Light' && profile.isLight) return true;
+    if (filterValue === 'Monochrome & Gray' && profile.isMonochrome) return true;
+    
     return false;
   }
 
-  // Fallback: If post hasn't been scanned yet, match target category words in fallback text
-  if (fallbackText && targetCategory) {
-    const mainWord = targetCategory.split('&')[0].trim().toLowerCase();
-    if (fallbackText.toLowerCase().includes(mainWord)) return true;
+  // Fallback if post hasn't been visually scanned yet
+  if (fallbackText && filterKeywords.length > 0) {
+    const lower = fallbackText.toLowerCase();
+    if (filterKeywords.some(kw => lower.includes(kw.toLowerCase()))) return true;
   }
-
   return false;
-}
-
-// Calculate visual similarity score between a target hex and an image's color profile (higher score = closer visual match)
-export function calculateColorSimilarityScore(targetHex: string, profile?: ColorProfile): number {
-  const targetRgb = hexToRgb(targetHex);
-  if (!targetRgb || !profile || !profile.paletteHexes || profile.paletteHexes.length === 0) return 0;
-
-  const targetHsl = rgbToHsl(targetRgb.r, targetRgb.g, targetRgb.b);
-  const targetCategory = classifyHslToName(targetHsl.h, targetHsl.s, targetHsl.l);
-
-  let maxScore = 0;
-
-  // Check distances across all extracted palette swatches and dominant hex
-  const allHexes = Array.from(new Set([profile.dominantHex, ...profile.paletteHexes].filter(Boolean)));
-
-  for (const hex of allHexes) {
-    const pRgb = hexToRgb(hex);
-    if (!pRgb) continue;
-
-    // Euclidean RGB color difference (0 to ~442)
-    const diff = Math.sqrt(
-      Math.pow(targetRgb.r - pRgb.r, 2) +
-      Math.pow(targetRgb.g - pRgb.g, 2) +
-      Math.pow(targetRgb.b - pRgb.b, 2)
-    );
-    const score = Math.max(0, Math.round((1 - diff / 442) * 1000));
-    if (score > maxScore) maxScore = score;
-  }
-
-  // Add +200 similarity bonus if the image's #1 most dominant color category identically matches the target hex's spectrum
-  if (targetCategory && profile.colorNames && profile.colorNames[0] === targetCategory) {
-    maxScore += 200;
-  } else if (targetCategory && profile.colorNames && profile.colorNames.includes(targetCategory)) {
-    maxScore += 100;
-  }
-
-  return maxScore;
 }

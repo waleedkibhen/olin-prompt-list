@@ -13,18 +13,21 @@ import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useSearchParams } from 'react-router-dom';
 import { ENABLE_MONETIZATION } from '@/lib/config';
-import { matchesColorFilter, calculateColorSimilarityScore } from '@/lib/colorAnalyzer';
+import { matchesColorFilter } from '@/lib/colorAnalyzer';
 
 const COLOR_OPTIONS = [
-  { name: 'Yellow & Gold', hex: '#facc15', keywords: ['yellow', 'gold', 'amber', 'lemon', 'blonde', 'sun', 'golden', 'warm', 'brass', 'honey'] },
-  { name: 'Blue & Cyan', hex: '#3b82f6', keywords: ['blue', 'cyan', 'azure', 'navy', 'water', 'sky', 'ocean', 'sapphire', 'ice', 'cool', 'turquoise'] },
   { name: 'Red & Crimson', hex: '#ef4444', keywords: ['red', 'crimson', 'blood', 'scarlet', 'fire', 'ruby', 'flames', 'rose', 'maroon', 'cherry'] },
-  { name: 'Green & Emerald', hex: '#10b981', keywords: ['green', 'emerald', 'forest', 'moss', 'nature', 'jade', 'grass', 'jungle', 'mint', 'foliage'] },
-  { name: 'Purple & Violet', hex: '#a855f7', keywords: ['purple', 'violet', 'magenta', 'indigo', 'lavender', 'neon purple', 'amethyst', 'plum', 'grape'] },
   { name: 'Orange & Sunset', hex: '#f97316', keywords: ['orange', 'sunset', 'bronze', 'copper', 'rust', 'coral', 'autumn', 'tiger', 'tangerine'] },
-  { name: 'Pink & Rose', hex: '#ec4899', keywords: ['pink', 'rose', 'pastel', 'blush', 'cherry blossom', 'flamingo', 'fuschia'] },
-  { name: 'Dark & Noir', hex: '#1e293b', keywords: ['dark', 'black', 'noir', 'shadow', 'midnight', 'obsidian', 'gloomy', 'monochrome', 'goth', 'night'] },
-  { name: 'Clean White & Light', hex: '#f8fafc', keywords: ['white', 'light', 'clean', 'minimal', 'ivory', 'snow', 'bright', 'studio background', 'silver'] },
+  { name: 'Yellow & Gold', hex: '#eab308', keywords: ['yellow', 'gold', 'amber', 'lemon', 'blonde', 'sun', 'golden', 'warm', 'brass', 'honey'] },
+  { name: 'Green & Emerald', hex: '#10b981', keywords: ['green', 'emerald', 'forest', 'moss', 'nature', 'jade', 'grass', 'jungle', 'mint', 'foliage'] },
+  { name: 'Cyan & Teal', hex: '#06b6d4', keywords: ['cyan', 'teal', 'turquoise', 'aqua', 'mint', 'marine', 'sea', 'cyan blue'] },
+  { name: 'Blue & Azure', hex: '#3b82f6', keywords: ['blue', 'azure', 'navy', 'water', 'sky', 'ocean', 'sapphire', 'ice', 'cool', 'cobalt'] },
+  { name: 'Purple & Violet', hex: '#a855f7', keywords: ['purple', 'violet', 'magenta', 'indigo', 'lavender', 'neon purple', 'amethyst', 'plum', 'grape'] },
+  { name: 'Pink & Rose', hex: '#ec4899', keywords: ['pink', 'rose', 'pastel', 'blush', 'cherry blossom', 'flamingo', 'fuchsia'] },
+  { name: 'Brown & Earth', hex: '#8b4513', keywords: ['brown', 'earth', 'wood', 'timber', 'leather', 'coffee', 'chocolate', 'dirt', 'mud', 'sand', 'sepia'] },
+  { name: 'Monochrome & Gray', hex: '#94a3b8', keywords: ['gray', 'grey', 'monochrome', 'grayscale', 'silver', 'neutral', 'slate', 'ash', 'charcoal', 'black and white'] },
+  { name: 'Dark & Noir', hex: '#1e293b', keywords: ['dark', 'black', 'noir', 'shadow', 'midnight', 'obsidian', 'gloomy', 'goth', 'night'] },
+  { name: 'Clean White & Light', hex: '#f8fafc', keywords: ['white', 'light', 'clean', 'minimal', 'ivory', 'snow', 'bright', 'studio background'] },
 ];
 
 const TYPE_OPTIONS = [
@@ -183,8 +186,8 @@ export default function DiscoveryFeed() {
       current = current.filter(p => p.model === model || p.model.toLowerCase().includes(model.toLowerCase()));
     }
 
-    // 2. Color Palette Filter
-    if (color && color !== 'All') {
+    // 2. Color Palette Filter & Percentage Concentration Ranking
+    if (color && color !== 'All' && color !== 'Any Color') {
       const selectedColObj = COLOR_OPTIONS.find(c => c.name === color);
       const keywords = selectedColObj ? selectedColObj.keywords : [];
       current = current.filter(post => {
@@ -192,12 +195,32 @@ export default function DiscoveryFeed() {
         return matchesColorFilter(color, post.colorProfile, contentStr, keywords);
       });
 
-      // If a custom hex from Spectrum Picker is selected, rank results from closest visual color match to furthest!
-      if (color.startsWith('#')) {
-        current.sort((a, b) => 
-          calculateColorSimilarityScore(color, b.colorProfile) - calculateColorSimilarityScore(color, a.colorProfile)
-        );
-      }
+      // Rank results strictly by percentage concentration of the selected color! (100% color -> 50% color -> 15% color)
+      current.sort((a, b) => {
+        const getPercentage = (p?: any): number => {
+          if (!p) return 0;
+          if (p.colorPercentages && p.colorPercentages[color] !== undefined) {
+            return p.colorPercentages[color];
+          }
+          // Backward compatibility mappings for pre-existing catalog scans
+          if (color === 'Blue & Azure' && p.colorPercentages?.['Blue & Cyan']) return p.colorPercentages['Blue & Cyan'];
+          if (color === 'Cyan & Teal' && p.colorPercentages?.['Blue & Cyan']) return p.colorPercentages['Blue & Cyan'];
+          if (color === 'Monochrome & Gray' && p.colorPercentages?.['Monochrome & Grayscale']) return p.colorPercentages['Monochrome & Grayscale'];
+
+          // Fallback percentage estimations based on primary vs secondary dominance rank
+          if (p.colorNames && p.colorNames.length > 0) {
+            const idx = p.colorNames.indexOf(color);
+            if (idx === 0) return 65; // Primary dominant color
+            if (idx === 1) return 35; // Secondary color
+            if (idx >= 2) return 18;  // Tertiary color
+          }
+          if (color === 'Dark & Noir' && p.isDark) return 50;
+          if (color === 'Clean White & Light' && p.isLight) return 50;
+          if (color === 'Monochrome & Gray' && p.isMonochrome) return 50;
+          return 0;
+        };
+        return getPercentage(b.colorProfile) - getPercentage(a.colorProfile);
+      });
     }
 
     // 3. Art Type & Medium Filter
@@ -435,34 +458,11 @@ export default function DiscoveryFeed() {
                   className={`${styles.colorSwatch} ${colorFilter === c.name ? styles.colorSwatchActive : ''}`}
                   style={{ backgroundColor: c.hex }}
                   onClick={() => setColorFilter(prev => prev === c.name ? 'All' : c.name)}
-                  title={`Filter by dominant color: ${c.name}`}
+                  title={`Filter by dominant color: ${c.name} (sorted by % concentration)`}
                 >
-                  {colorFilter === c.name && <Check size={14} style={{ color: c.hex === '#f8fafc' || c.hex === '#facc15' ? '#000' : '#fff' }} />}
+                  {colorFilter === c.name && <Check size={14} style={{ color: c.hex === '#f8fafc' || c.hex === '#eab308' || c.hex === '#facc15' || c.hex === '#06b6d4' ? '#000' : '#fff' }} />}
                 </button>
               ))}
-              <label 
-                className={`${styles.filterPill} ${colorFilter.startsWith('#') ? styles.filterPillActive : ''}`}
-                style={{ 
-                  padding: '0.2rem 0.65rem', 
-                  fontSize: '0.75rem', 
-                  display: 'inline-flex', 
-                  alignItems: 'center', 
-                  gap: '6px',
-                  cursor: 'pointer',
-                  background: colorFilter.startsWith('#') ? 'var(--accent-color)' : 'var(--bg-tertiary)',
-                  borderColor: colorFilter.startsWith('#') ? 'var(--accent-color)' : 'var(--border-color)',
-                  color: colorFilter.startsWith('#') ? '#fff' : 'var(--text-secondary)'
-                }}
-                title="Pick any exact shade from the entire full color spectrum"
-              >
-                <input
-                  type="color"
-                  value={colorFilter.startsWith('#') ? colorFilter : '#a855f7'}
-                  onChange={e => setColorFilter(e.target.value)}
-                  style={{ width: '18px', height: '18px', padding: 0, border: 'none', background: 'transparent', cursor: 'pointer', borderRadius: '4px' }}
-                />
-                <span>{colorFilter.startsWith('#') ? `Spectrum: ${colorFilter.toUpperCase()}` : '🌈 Spectrum Picker'}</span>
-              </label>
             </div>
           </div>
 
