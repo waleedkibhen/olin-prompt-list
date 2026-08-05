@@ -57,21 +57,40 @@ export function rgbToHex(r: number, g: number, b: number): string {
   return "#" + [r, g, b].map((x) => Math.min(255, Math.max(0, Math.round(x))).toString(16).padStart(2, '0')).join('');
 }
 
-// Classify an HSL pixel into universal Google Images-style color categories
+// Classify an HSL pixel into high-precision, human-curated color spectrum categories
 function classifyHslToName(h: number, s: number, l: number): string | null {
-  if (l <= 15 || (l <= 22 && s <= 20)) return 'Dark & Noir';
-  if (l >= 88 && s <= 20) return 'Clean White & Light';
-  if (s <= 14 && l > 15 && l < 88) return 'Monochrome & Gray';
-  if (h >= 10 && h < 46 && l > 15 && l <= 48) return 'Brown & Earth';
+  // 1. Extreme luminosity and achromatic (grayscale/neutral) checks first
+  if (l <= 14 || (l <= 20 && s <= 22)) return 'Dark & Noir';
+  if (l >= 88 && s <= 25) return 'Clean White & Light';
+  if (s <= 18 && l > 14 && l < 88) return 'Monochrome & Gray';
+  
+  // Extra filter against dull atmospheric haze / gray shadows in cool tints (prevents dull grey mountain haze from counting as saturated Blue)
+  if (h >= 170 && h <= 270 && s <= 25) {
+    return l >= 75 ? 'Clean White & Light' : 'Monochrome & Gray';
+  }
 
-  if (h >= 345 || h < 14) return 'Red & Crimson';
+  // 2. Brown & Earth vs Orange/Yellow
+  if (h >= 12 && h < 46 && l > 14 && l <= 46) return 'Brown & Earth';
+
+  // 3. Pink & Rose vs Red & Crimson (CRITICAL: Light/pastel tints of red/salmon are visually PINK, not RED!)
+  if (h >= 305 && h <= 345) return 'Pink & Rose';
+  if (h > 345 || h < 20) {
+    // If it's a bright/soft pastel tint (e.g. blush rose, peach, baby pink flowers), it is PINK & ROSE!
+    if (l >= 62 || (l >= 50 && s <= 65)) {
+      return 'Pink & Rose';
+    }
+    if (h < 14) return 'Red & Crimson';
+    if (h >= 345) return 'Red & Crimson';
+  }
+
+  // 4. Standard chromatic spectrum with precision boundaries
   if (h >= 14 && h < 42) return 'Orange & Sunset';
   if (h >= 42 && h < 68) return 'Yellow & Gold';
   if (h >= 68 && h < 165) return 'Green & Emerald';
-  if (h >= 165 && h < 200) return 'Cyan & Teal';
-  if (h >= 200 && h < 260) return 'Blue & Azure';
-  if (h >= 260 && h < 312) return 'Purple & Violet';
-  if (h >= 312 && h < 345) return 'Pink & Rose';
+  if (h >= 165 && h < 188) return 'Cyan & Teal';
+  if (h >= 188 && h < 252) return 'Blue & Azure';
+  if (h >= 252 && h < 305) return 'Purple & Violet';
+
   return null;
 }
 
@@ -108,7 +127,7 @@ export async function extractImagePalette(imageSrc: string): Promise<ColorProfil
       const hsl = rgbToHsl(r, g, b);
       if (hsl.l <= 18) darkCount++;
       if (hsl.l >= 85) lightCount++;
-      if (hsl.s <= 15 && hsl.l > 18 && hsl.l < 85) monoCount++;
+      if (hsl.s <= 18 && hsl.l > 18 && hsl.l < 85) monoCount++;
 
       const catName = classifyHslToName(hsl.h, hsl.s, hsl.l);
       if (catName) {
@@ -128,12 +147,12 @@ export async function extractImagePalette(imageSrc: string): Promise<ColorProfil
 
     if (totalPixels === 0) throw new Error("No visible pixels on canvas");
 
-    // Compute integer percentages and keep colors representing at least 12% of the artwork
+    // Compute integer percentages and keep colors representing at least 10% of the artwork
     const colorPercentages: Record<string, number> = {};
     let dominantCategoryNames = Object.entries(categoryCounts)
       .filter(([name, count]) => {
         const perc = Math.round((count / totalPixels) * 100);
-        if (perc >= 12) {
+        if (perc >= 10) {
           colorPercentages[name] = perc;
           return true;
         }
@@ -142,12 +161,12 @@ export async function extractImagePalette(imageSrc: string): Promise<ColorProfil
       .sort((a, b) => b[1] - a[1])
       .map(([name]) => name);
 
-    // If an image has varied soft hues and none hit 12%, take the #1 most abundant category
+    // If an image has varied soft hues and none hit 10%, take the #1 most abundant category
     if (dominantCategoryNames.length === 0 && Object.keys(categoryCounts).length > 0) {
       const topEntry = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0];
       if (topEntry) {
         dominantCategoryNames = [topEntry[0]];
-        colorPercentages[topEntry[0]] = Math.max(12, Math.round((topEntry[1] / totalPixels) * 100));
+        colorPercentages[topEntry[0]] = Math.max(10, Math.round((topEntry[1] / totalPixels) * 100));
       }
     }
 
@@ -178,10 +197,13 @@ export async function extractImagePalette(imageSrc: string): Promise<ColorProfil
         return [imageSrc];
       }
       const encoded = encodeURIComponent(imageSrc);
+      // Prioritize high-performance image CDNs (wsrv.nl and weserv.nl) to guarantee instant CORS access during batch rescanning
       return [
+        `https://wsrv.nl/?url=${encoded}&w=200`,
+        `https://images.weserv.nl/?url=${encoded}&w=200`,
         `https://api.allorigins.win/raw?url=${encoded}`,
         `https://corsproxy.io/?url=${encoded}`,
-        `https://images.weserv.nl/?url=${encoded}&w=150&h=150`,
+        `https://api.codetabs.com/v1/proxy?quest=${encoded}`,
         imageSrc
       ];
     };
