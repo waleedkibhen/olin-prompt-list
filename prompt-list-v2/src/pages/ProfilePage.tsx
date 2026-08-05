@@ -7,10 +7,11 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { updateProfile } from 'firebase/auth';
 import { User, ShieldAlert, Sparkles, Upload, Loader2, MessageSquarePlus, CheckCircle2, AlertTriangle } from 'lucide-react';
 import FeedbackModal from '@/components/FeedbackModal';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function ProfilePage() {
   const { user, profile, loading } = useAuth();
+  const navigate = useNavigate();
   
   const [displayName, setDisplayName] = useState('');
   const [username, setUsername] = useState('');
@@ -31,10 +32,12 @@ export default function ProfilePage() {
       setUsername(profile?.username || '');
       setAvatarUrl(profile?.avatarUrl || user?.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80');
     }
-    if (user) {
-      const subStatus = localStorage.getItem(`olin_subscription_${user.uid}`);
-      setIsSubscriber(subStatus === 'active');
-    }
+    const subStatus = user ? localStorage.getItem(`olin_subscription_${user.uid}`) : null;
+    setIsSubscriber(
+      profile?.isPremium === true || 
+      profile?.subscriptionStatus === 'active' || 
+      subStatus === 'active'
+    );
   }, [profile, user]);
 
   if (loading) {
@@ -182,17 +185,9 @@ export default function ProfilePage() {
   const handleToggleSubscription = () => {
     if (!user) return;
     if (isSubscriber) {
-      if (window.confirm("Are you sure you want to cancel your Olin Premium Subscription? You will return to the Free Ad-Supported plan.")) {
-        localStorage.setItem(`olin_subscription_${user.uid}`, 'inactive');
-        setIsSubscriber(false);
-        alert("Your subscription plan has been cancelled.");
-      }
+      window.open('https://whop.com/orders', '_blank', 'noopener,noreferrer');
     } else {
-      if (window.confirm("Upgrade to Olin Premium Subscriber? This unlocks subscriber-only creator vaults across the marketplace.")) {
-        localStorage.setItem(`olin_subscription_${user.uid}`, 'active');
-        setIsSubscriber(true);
-        alert("🎉 Welcome to Olin Premium! You now have instant access to subscriber vaults.");
-      }
+      navigate('/pricing');
     }
   };
 
@@ -346,7 +341,7 @@ export default function ProfilePage() {
                 className={isSubscriber ? styles.btnCancelPlan : styles.btnUpgradePlan}
                 onClick={handleToggleSubscription}
               >
-                {isSubscriber ? 'Cancel Subscription Plan' : 'Upgrade to Subscriber Plan →'}
+                {isSubscriber ? 'Manage / Cancel Plan on Whop ↗' : 'Upgrade to Subscriber Plan →'}
               </button>
             </div>
           </div>

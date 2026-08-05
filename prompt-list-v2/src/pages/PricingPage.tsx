@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './pricing.module.css';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -17,6 +17,18 @@ export default function PricingPage() {
   const navigate = useNavigate();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
   const [showToastModal, setShowToastModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('success') === 'true' || params.get('checkout') === 'success' || params.get('upgraded') === 'true') {
+      setShowSuccessModal(true);
+      if (user) {
+        localStorage.setItem(`olin_subscription_${user.uid}`, 'active');
+      }
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [user]);
 
   // Check if the currently logged-in user is already an approved Premium Subscriber
   const isPremiumSubscriber = 
@@ -222,6 +234,34 @@ export default function PricingPage() {
               onClick={() => setShowToastModal(false)}
             >
               Got it, thanks!
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Celebration Success Modal after Whop Payment */}
+      {showSuccessModal && (
+        <div className={styles.toastOverlay} onClick={() => setShowSuccessModal(false)}>
+          <div className={styles.toastCard} onClick={e => e.stopPropagation()} style={{ border: '2px solid #fbbf24', maxWidth: '480px' }}>
+            <div style={{ background: 'rgba(251, 191, 36, 0.15)', padding: '1rem', borderRadius: '50%', marginBottom: '0.25rem' }}>
+              <Sparkles size={52} style={{ color: '#fbbf24' }} />
+            </div>
+            <h3 className={styles.toastTitle} style={{ fontSize: '1.6rem', color: '#d97706' }}>
+              🎉 Welcome to Olin Pro!
+            </h3>
+            <p className={styles.toastMessage} style={{ fontSize: '1rem', lineHeight: 1.6, color: 'var(--text-primary)' }}>
+              Your subscription payment was processed successfully! You are now an official <strong>Olin Premium Subscriber</strong>. All sponsor ads are bypassed forever, and protected creator vaults are instantly unlocked for you.
+            </p>
+            <button 
+              type="button" 
+              className={styles.toastBtn}
+              onClick={() => {
+                setShowSuccessModal(false);
+                navigate('/');
+              }}
+              style={{ width: '100%', background: 'var(--accent-color)', color: 'var(--text-inverted)', marginTop: '0.5rem' }}
+            >
+              ⚡ Start Creating &amp; Exploring
             </button>
           </div>
         </div>

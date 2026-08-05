@@ -119,7 +119,13 @@ export default function PostDetailPage() {
       let subUnlocked = false;
       if (user && effectiveMonetization === 'subscribers_only') {
         const subStatus = localStorage.getItem(`olin_subscription_${user.uid}`);
-        if (subStatus === 'active') subUnlocked = true;
+        if (
+          subStatus === 'active' || 
+          profile?.isPremium === true || 
+          profile?.subscriptionStatus === 'active'
+        ) {
+          subUnlocked = true;
+        }
       }
 
       setIsUnlocked(isFree || isOwner || subUnlocked || unlockedArr.includes(id));

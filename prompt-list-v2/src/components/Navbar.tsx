@@ -11,6 +11,12 @@ export default function Navbar() {
   const { user, profile, loading, signInWithGoogle, signOut } = useAuth();
   const navigate = useNavigate();
   
+  const isPro = Boolean(
+    profile?.isPremium === true || 
+    profile?.subscriptionStatus === 'active' || 
+    (user && localStorage.getItem(`olin_subscription_${user.uid}`) === 'active')
+  );
+
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -163,13 +169,35 @@ export default function Navbar() {
                     <button 
                       className={styles.userAvatarBtn} 
                       onClick={() => setIsMenuOpen(!isMenuOpen)}
-                      title={profile?.displayName || user.displayName || 'Google Account'}
+                      title={isPro ? `${profile?.displayName || user.displayName} (Pro Subscriber)` : profile?.displayName || user.displayName || 'Google Account'}
+                      style={{ position: 'relative' }}
                     >
                       <img 
                         src={profile?.avatarUrl || user.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'} 
                         alt="Avatar" 
                         className={styles.avatarImg}
                       />
+                      {isPro && (
+                        <span style={{
+                          position: 'absolute',
+                          bottom: '-2px',
+                          right: '-2px',
+                          background: '#fbbf24',
+                          color: '#000',
+                          borderRadius: '50%',
+                          width: '16px',
+                          height: '16px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '10px',
+                          fontWeight: 900,
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.4)',
+                          border: '1.5px solid var(--bg-primary)'
+                        }}>
+                          ⚡
+                        </span>
+                      )}
                     </button>
 
                     {isMenuOpen && (
@@ -177,6 +205,25 @@ export default function Navbar() {
                         <div className={styles.menuHeader}>
                           <strong>{profile?.displayName || user.displayName}</strong>
                           <span>@{profile?.username || 'creator'}</span>
+                          {isPro && (
+                            <div style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '5px',
+                              background: 'rgba(251, 191, 36, 0.15)',
+                              color: '#d97706',
+                              border: '1px solid rgba(251, 191, 36, 0.4)',
+                              padding: '2px 8px',
+                              borderRadius: '9999px',
+                              fontSize: '0.72rem',
+                              fontWeight: 800,
+                              marginTop: '6px',
+                              width: 'fit-content'
+                            }}>
+                              <Sparkles size={12} style={{ color: '#fbbf24' }} />
+                              <span>PRO MEMBER</span>
+                            </div>
+                          )}
                         </div>
                         
                         <Link to="/profile" className={styles.menuItem} onClick={() => setIsMenuOpen(false)}>
