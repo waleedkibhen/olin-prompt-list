@@ -73,7 +73,7 @@ function classifyHslToName(h: number, s: number, l: number): string | null {
 }
 
 // Extract rich color palette and spectrum classification via HTML5 Canvas with robust multi-proxy failover cascade
-export async function extractImagePalette(imageSrc: string): Promise<ColorProfile> {
+export async function extractImagePalette(imageSrc: string): Promise<ColorProfile | null> {
   const processImage = (imgEl: HTMLImageElement): ColorProfile => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -178,17 +178,8 @@ export async function extractImagePalette(imageSrc: string): Promise<ColorProfil
 
     const tryNextUrl = () => {
       if (attemptIndex >= urls.length) {
-        console.error("All proxy failovers exhausted for color extraction on:", imageSrc);
-        // Default to monochrome neutral so we never trigger false positive primary colors
-        resolve({
-          dominantHex: '#27272a',
-          paletteHexes: ['#27272a'],
-          colorNames: ['Monochrome & Grayscale'],
-          spectrumHues: [0],
-          isDark: true,
-          isLight: false,
-          isMonochrome: true,
-        });
+        console.warn("All proxy failovers exhausted or blocked by CORS for:", imageSrc);
+        resolve(null);
         return;
       }
 

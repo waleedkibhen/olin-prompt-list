@@ -226,20 +226,29 @@ export default function AdminDashboardPage() {
     try {
       setScanStatus("Fetching catalog from Firestore...");
       const querySnapshot = await getDocs(collection(db, 'posts'));
-      let count = 0;
+      let successCount = 0;
+      let blockedCount = 0;
       const total = querySnapshot.docs.length;
       for (const d of querySnapshot.docs) {
         const pData = d.data();
         const imgUrl = pData.imageUrls && pData.imageUrls.length > 0 ? pData.imageUrls[0] : null;
         if (imgUrl) {
-          count++;
-          setScanStatus(`Analyzing image color spectrum (${count}/${total}): "${pData.title || 'Untitled'}"...`);
+          setScanStatus(`Analyzing image color spectrum (${successCount + blockedCount + 1}/${total}): "${pData.title || 'Untitled'}"...`);
           const colorProfile = await extractImagePalette(imgUrl);
-          await updateDoc(doc(db, 'posts', d.id), { colorProfile });
+          if (colorProfile) {
+            successCount++;
+            await updateDoc(doc(db, 'posts', d.id), { colorProfile });
+          } else {
+            blockedCount++;
+          }
         }
       }
-      setScanStatus(`✨ Successfully analyzed & tagged ${count} catalog items with precise HSL color spectrum! ($0.00 cost)`);
-      setTimeout(() => setScanStatus(null), 10000);
+      if (blockedCount > 0) {
+        setScanStatus(`✨ Tagged ${successCount} items! (Note: ${blockedCount} items blocked by Google Storage CORS. New uploads bypass CORS automatically via local blob reading!)`);
+      } else {
+        setScanStatus(`✨ Successfully analyzed & tagged all ${successCount} catalog items with precise HSL color spectrum! ($0.00 cost)`);
+      }
+      setTimeout(() => setScanStatus(null), 12000);
     } catch (err: any) {
       alert(`Scan failed: ${err.message}`);
       setScanStatus(null);

@@ -243,7 +243,7 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
         visualTags.push(...tags);
       }
       const colorProfile = await extractImagePalette(selectedFiles[0]?.previewUrl || uploadedImageUrls[0] || '');
-      const uniqueVisualTags = Array.from(new Set([...visualTags, ...colorProfile.colorNames]));
+      const uniqueVisualTags = Array.from(new Set([...visualTags, ...(colorProfile?.colorNames || [])]));
 
       setStatusText('Finalizing...');
       const fullTextToEmbed = `${title} ${description} ${promptText} ${model} ${uniqueVisualTags.join(" ")}`;
@@ -279,7 +279,7 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
         copiesCount: 0,
         createdAt: serverTimestamp(),
         embedding,
-        colorProfile
+        colorProfile: colorProfile || null
       };
 
       await setDoc(postDocRef, postPayload);
