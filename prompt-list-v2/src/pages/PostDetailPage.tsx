@@ -122,7 +122,8 @@ export default function PostDetailPage() {
         if (
           subStatus === 'active' || 
           profile?.isPremium === true || 
-          profile?.subscriptionStatus === 'active'
+          profile?.subscriptionStatus === 'active' ||
+          localStorage.getItem('olin_recent_success') === 'true'
         ) {
           subUnlocked = true;
         }

@@ -36,7 +36,8 @@ export default function ProfilePage() {
     setIsSubscriber(
       profile?.isPremium === true || 
       profile?.subscriptionStatus === 'active' || 
-      subStatus === 'active'
+      subStatus === 'active' ||
+      localStorage.getItem('olin_recent_success') === 'true'
     );
   }, [profile, user]);
 

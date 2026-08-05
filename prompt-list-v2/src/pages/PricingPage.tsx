@@ -23,20 +23,37 @@ export default function PricingPage() {
     const params = new URLSearchParams(window.location.search);
     if (params.get('success') === 'true' || params.get('checkout') === 'success' || params.get('upgraded') === 'true') {
       setShowSuccessModal(true);
+      localStorage.setItem('olin_recent_success', 'true');
+      const pendingTier = localStorage.getItem('olin_pending_tier') || 'monthly';
+      localStorage.setItem('olin_active_tier', pendingTier);
       if (user) {
         localStorage.setItem(`olin_subscription_${user.uid}`, 'active');
+        localStorage.setItem(`olin_sub_tier_${user.uid}`, pendingTier);
       }
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, [user]);
 
+  useEffect(() => {
+    if (user && localStorage.getItem('olin_recent_success') === 'true') {
+      localStorage.setItem(`olin_subscription_${user.uid}`, 'active');
+      const tier = localStorage.getItem('olin_active_tier') || 'monthly';
+      localStorage.setItem(`olin_sub_tier_${user.uid}`, tier);
+    }
+  }, [user]);
+
   // Check if the currently logged-in user is already an approved Premium Subscriber
-  const isPremiumSubscriber = 
+  const isPremiumSubscriber = Boolean(
     profile?.subscriptionStatus === 'active' || 
     profile?.isPremium === true ||
-    (user && localStorage.getItem(`olin_subscription_${user.uid}`) === 'active');
+    (user && localStorage.getItem(`olin_subscription_${user.uid}`) === 'active') ||
+    localStorage.getItem('olin_recent_success') === 'true'
+  );
+
+  const activeTier = (profile as any)?.subscriptionTier || (user && localStorage.getItem(`olin_sub_tier_${user.uid}`)) || localStorage.getItem('olin_active_tier') || 'monthly';
 
   const handleSubscribe = (planType: 'monthly' | 'yearly') => {
+    localStorage.setItem('olin_pending_tier', planType);
     let url = WHOP_CHECKOUT_URLS[planType];
     if (!url) {
       setShowToastModal(true);
@@ -200,10 +217,32 @@ export default function PricingPage() {
           </ul>
 
           {isPremiumSubscriber ? (
-            <button type="button" className={`${styles.ctaBtn} ${styles.primaryCta}`} onClick={handleManageWhop}>
-              <ExternalLink size={18} />
-              <span>Manage Subscription on Whop</span>
-            </button>
+            activeTier === billingCycle ? (
+              <button type="button" className={`${styles.ctaBtn} ${styles.primaryCta}`} onClick={handleManageWhop}>
+                <ExternalLink size={18} />
+                <span>✨ Current Active Plan — Manage on Whop</span>
+              </button>
+            ) : activeTier === 'monthly' && billingCycle === 'yearly' ? (
+              <button 
+                type="button" 
+                className={`${styles.ctaBtn} ${styles.primaryCta}`} 
+                onClick={() => handleSubscribe('yearly')}
+                style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#000', fontWeight: 800 }}
+              >
+                <Zap size={18} />
+                <span>⚡ Upgrade to Yearly Plan ($50/yr) — Save $10 ↗</span>
+              </button>
+            ) : (
+              <button 
+                type="button" 
+                className={`${styles.ctaBtn} ${styles.primaryCta}`} 
+                onClick={() => handleSubscribe('monthly')}
+                style={{ background: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
+              >
+                <ExternalLink size={18} />
+                <span>📉 Downgrade to Monthly Plan ($5/mo) ↗</span>
+              </button>
+            )
           ) : (
             <button 
               type="button" 

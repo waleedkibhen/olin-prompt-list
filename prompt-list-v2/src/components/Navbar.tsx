@@ -14,7 +14,8 @@ export default function Navbar() {
   const isPro = Boolean(
     profile?.isPremium === true || 
     profile?.subscriptionStatus === 'active' || 
-    (user && localStorage.getItem(`olin_subscription_${user.uid}`) === 'active')
+    (user && localStorage.getItem(`olin_subscription_${user.uid}`) === 'active') ||
+    localStorage.getItem('olin_recent_success') === 'true'
   );
 
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
@@ -152,6 +153,30 @@ export default function Navbar() {
               <Plus size={16} />
               <span>Create</span>
             </button>
+
+            {isPro && (
+              <div 
+                onClick={() => navigate('/profile')} 
+                style={{
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                  color: '#000',
+                  padding: '5px 12px',
+                  borderRadius: '9999px',
+                  fontSize: '0.8rem',
+                  fontWeight: 800,
+                  boxShadow: '0 2px 8px rgba(245, 158, 11, 0.4)',
+                  border: '1px solid #fcd34d',
+                  userSelect: 'none'
+                }}
+                title="Active Premium Subscriber — Click to view membership"
+              >
+                <span>💎 PRO</span>
+              </div>
+            )}
 
             {!loading && (
               <div className={styles.profileDropdownContainer}>

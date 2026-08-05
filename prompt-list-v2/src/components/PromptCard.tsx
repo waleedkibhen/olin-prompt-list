@@ -61,7 +61,8 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
       if (
         subStatus === 'active' || 
         profile?.isPremium === true || 
-        profile?.subscriptionStatus === 'active'
+        profile?.subscriptionStatus === 'active' ||
+        localStorage.getItem('olin_recent_success') === 'true'
       ) {
         subUnlocked = true;
       }
