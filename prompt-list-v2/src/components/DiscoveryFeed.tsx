@@ -268,66 +268,86 @@ export default function DiscoveryFeed() {
       }
     }
 
-    // 7. Keyword & Semantic Vector Search
+    // 7. High-Precision Visual Color & Keyword Search
     const activeSearchQuery = search.trim();
     if (activeSearchQuery) {
       if (!isBackgroundUpdate) setIsSearching(true);
       const cleanSearch = activeSearchQuery.toLowerCase();
       const queryTokens = cleanSearch.split(/\s+/).filter(Boolean);
 
-      try {
-        const queryVec = await generateLiveEmbedding(cleanSearch);
-        const evaluated = await Promise.all(
-          current.map(async (post) => {
-            const contentString = `${post.title} ${post.description} ${post.promptText} ${post.styleTag} ${post.categories.join(" ")}`.toLowerCase();
-            const hasKeywordMatch = queryTokens.some(token => contentString.includes(token));
-            
-            let similarity = 0;
-            if (post.embedding && post.embedding.length === 768) {
-              similarity = calculateCosineSimilarity(queryVec, post.embedding);
-            } else {
-              const postVec = await generateLiveEmbedding(contentString);
-              similarity = calculateCosineSimilarity(queryVec, postVec);
+      // Identify if the search query corresponds to one of our universal color palettes
+      const matchedColorOption = COLOR_OPTIONS.find(c => 
+        c.name.toLowerCase().includes(cleanSearch) || 
+        c.keywords.some(kw => kw.toLowerCase() === cleanSearch || cleanSearch.includes(kw.toLowerCase()))
+      );
+
+      const isColorSearch = Boolean(matchedColorOption) && queryTokens.length <= 2;
+      const targetColorName = matchedColorOption?.name;
+
+      current = current
+        .map(post => {
+          let score = 0;
+          const contentStr = `${post.title} ${post.description} ${post.promptText} ${post.styleTag} ${post.categories.join(" ")}`.toLowerCase();
+          const hasKeywordMatch = queryTokens.some(token => contentStr.includes(token));
+          const hasExactMatch = contentStr.includes(cleanSearch);
+
+          if (isColorSearch && targetColorName) {
+            // RULE: Visual color spectrum in the image has SUPER PRIORITY over text commands/captions!
+            const profile = post.colorProfile;
+            const hasVisualColor = profile && (
+              profile.colorNames?.includes(targetColorName) ||
+              (targetColorName === 'Blue & Azure' && profile.colorNames?.includes('Blue & Cyan')) ||
+              (targetColorName === 'Cyan & Teal' && profile.colorNames?.includes('Blue & Cyan')) ||
+              (targetColorName === 'Monochrome & Gray' && profile.colorNames?.includes('Monochrome & Grayscale')) ||
+              (targetColorName === 'Dark & Noir' && profile.isDark) ||
+              (targetColorName === 'Clean White & Light' && profile.isLight)
+            );
+
+            if (hasVisualColor) {
+              const perc = profile?.colorPercentages?.[targetColorName] || 
+                           (profile?.colorNames?.[0] === targetColorName ? 65 : 35);
+              // Visual color presence yields huge score (1000 to 1100), ensuring visual color dominates #1 ranking!
+              score = 1000 + perc;
+            } else if (hasKeywordMatch) {
+              // Text-only mention (e.g. caption says "red" but image is orange fox) gets low fallback priority (10 pts)
+              score = 10;
             }
+          } else {
+            // Strict Keyword & Tag Search (Eliminating random floating-point mock embedding false matches)
+            if (hasExactMatch) score += 100;
+            queryTokens.forEach(token => {
+              if (contentStr.includes(token)) score += 20;
+            });
+            if (post.styleTag && cleanSearch.includes(post.styleTag.toLowerCase())) score += 50;
+          }
 
-            return { post, similarity, hasKeywordMatch };
-          })
-        );
+          return { post, score };
+        })
+        .filter(item => item.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .map(item => item.post);
 
-        const STRICT_SEMANTIC_THRESHOLD = 0.22;
-        const strictMatches = evaluated.filter(item => item.hasKeywordMatch || item.similarity >= STRICT_SEMANTIC_THRESHOLD);
-
-        strictMatches.sort((a, b) => {
-          if (a.hasKeywordMatch && !b.hasKeywordMatch) return -1;
-          if (!a.hasKeywordMatch && b.hasKeywordMatch) return 1;
-          return b.similarity - a.similarity;
-        });
-
-        current = strictMatches.map(item => item.post);
-      } catch (err) {
-        current = current.filter(post => {
-          const text = `${post.title} ${post.description} ${post.promptText} ${post.styleTag} ${post.categories.join(" ")}`.toLowerCase();
-          return queryTokens.some(token => text.includes(token));
-        });
-      } finally {
-        if (!isBackgroundUpdate) setIsSearching(false);
-      }
+      if (!isBackgroundUpdate) setIsSearching(false);
     }
 
-    // 8. Sorting Logic
-    if (tab === 'trending') {
-      current.sort((a, b) => (b.likesCount + b.savesCount + b.viewsCount) - (a.likesCount + a.savesCount + a.viewsCount));
-    } else if (tab === 'for_you') {
-      const userFavoriteStyles = items
-        .filter(p => likedPosts.includes(p.id) || savedPosts.includes(p.id))
-        .map(p => p.styleTag);
+    // 8. Sorting Logic (CRITICAL: Do NOT override ranking if Color Filter or Search is active!)
+    const isRelevanceSorted = (color && color !== 'All' && color !== 'Any Color') || Boolean(activeSearchQuery);
 
-      if (userFavoriteStyles.length > 0) {
-        current.sort((a, b) => {
-          const aMatch = userFavoriteStyles.includes(a.styleTag) ? 1 : 0;
-          const bMatch = userFavoriteStyles.includes(b.styleTag) ? 1 : 0;
-          return bMatch - aMatch;
-        });
+    if (!isRelevanceSorted) {
+      if (tab === 'trending') {
+        current.sort((a, b) => (b.likesCount + b.savesCount + b.viewsCount) - (a.likesCount + a.savesCount + a.viewsCount));
+      } else if (tab === 'for_you') {
+        const userFavoriteStyles = items
+          .filter(p => likedPosts.includes(p.id) || savedPosts.includes(p.id))
+          .map(p => p.styleTag);
+
+        if (userFavoriteStyles.length > 0) {
+          current.sort((a, b) => {
+            const aMatch = userFavoriteStyles.includes(a.styleTag) ? 1 : 0;
+            const bMatch = userFavoriteStyles.includes(b.styleTag) ? 1 : 0;
+            return bMatch - aMatch;
+          });
+        }
       }
     }
 
