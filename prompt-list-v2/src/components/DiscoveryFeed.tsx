@@ -105,7 +105,7 @@ export default function DiscoveryFeed() {
     if (dbPosts.length > 0) {
       applyAllFiltersAndSearch(dbPosts, activeTab, queryParam, modelParam, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter);
     }
-  }, [searchParams, activeTab, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter]);
+  }, [searchParams, activeTab, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter, dbPosts, profile]);
 
   useEffect(() => {
     // Limit to newest 200 posts to create the local candidate pool (prevents catastrophic db read costs)
@@ -154,10 +154,6 @@ export default function DiscoveryFeed() {
 
       setDbPosts(liveItems);
       setIsLoadingDb(false);
-      
-      const queryParam = searchParams.get('search') || '';
-      const modelParam = searchParams.get('model') || 'All Models';
-      applyAllFiltersAndSearch(liveItems, activeTab, queryParam, modelParam, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter, true);
     }, (error: any) => {
       console.error("Firestore error:", error);
       setIsLoadingDb(false);
@@ -407,15 +403,17 @@ export default function DiscoveryFeed() {
           const topStyle = Object.entries(styleFreq).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
 
           // 2. Score Candidate Pool using Preference Affinity
-          current.sort((a, b) => {
-            let scoreA = 0; let scoreB = 0;
-            a.categories.forEach(c => { if (topTags.includes(c)) scoreA += 3; });
-            b.categories.forEach(c => { if (topTags.includes(c)) scoreB += 3; });
-            if (a.styleTag === topStyle) scoreA += 5;
-            if (b.styleTag === topStyle) scoreB += 5;
-            // Introduce slight recency bias for tie-breakers
-            return (scoreB + (b.rawTimestamp || 0)/1e12) - (scoreA + (a.rawTimestamp || 0)/1e12);
-          });
+          current = current.map(post => {
+            let score = 0;
+            post.categories.forEach(c => { if (topTags.includes(c)) score += 10; });
+            if (post.styleTag === topStyle) score += 5;
+            
+            // Introduce recency bias so older posts don't permanently dominate
+            const ageInDays = (Date.now() - (post.rawTimestamp || 0)) / (1000 * 60 * 60 * 24);
+            const finalScore = score / Math.pow(Math.max(1, ageInDays), 0.5);
+            
+            return { post, finalScore };
+          }).sort((a, b) => b.finalScore - a.finalScore).map(item => item.post);
         } else {
           // Cold Start Fallback: Fall back to Trending if they haven't liked anything yet
           current.sort((a, b) => {
