@@ -72,8 +72,8 @@ function classifyHslToName(h: number, s: number, l: number): string | null {
   // 2. Brown & Earth vs Orange/Yellow
   if (h >= 12 && h < 46 && l > 14 && l <= 46) return 'Brown & Earth';
 
-  // 3. Pink & Rose vs Red & Crimson (CRITICAL: Light/pastel tints of red/salmon are visually PINK, not RED!)
-  if (h >= 305 && h <= 345) return 'Pink & Rose';
+  // 3. Pink & Rose vs Red & Crimson / Purple (CRITICAL: Magenta, pastel tints of red/salmon, and pinks starting around hue 288 are PINK & ROSE!)
+  if (h >= 288 && h <= 345) return 'Pink & Rose';
   if (h > 345 || h < 20) {
     // If it's a bright/soft pastel tint (e.g. blush rose, peach, baby pink flowers), it is PINK & ROSE!
     if (l >= 62 || (l >= 50 && s <= 65)) {
@@ -89,7 +89,7 @@ function classifyHslToName(h: number, s: number, l: number): string | null {
   if (h >= 68 && h < 165) return 'Green & Emerald';
   if (h >= 165 && h < 188) return 'Cyan & Teal';
   if (h >= 188 && h < 252) return 'Blue & Azure';
-  if (h >= 252 && h < 305) return 'Purple & Violet';
+  if (h >= 252 && h < 288) return 'Purple & Violet';
 
   return null;
 }
@@ -147,12 +147,12 @@ export async function extractImagePalette(imageSrc: string): Promise<ColorProfil
 
     if (totalPixels === 0) throw new Error("No visible pixels on canvas");
 
-    // Compute integer percentages and keep colors representing at least 10% of the artwork
+    // Compute integer percentages and keep only dominant colors representing at least 20% of the artwork
     const colorPercentages: Record<string, number> = {};
     let dominantCategoryNames = Object.entries(categoryCounts)
       .filter(([name, count]) => {
         const perc = Math.round((count / totalPixels) * 100);
-        if (perc >= 10) {
+        if (perc >= 20) {
           colorPercentages[name] = perc;
           return true;
         }
@@ -242,27 +242,46 @@ export async function extractImagePalette(imageSrc: string): Promise<ColorProfil
   });
 }
 
-// Precise preset color matching algorithm
+// Precise preset dominant color matching algorithm (Pinterest-level strictness)
 export function matchesColorFilter(filterValue: string, profile?: ColorProfile, fallbackText?: string, filterKeywords: string[] = []): boolean {
   if (!filterValue || filterValue === 'All' || filterValue === 'Any Color') return true;
 
   if (profile?.colorNames && profile.colorNames.length > 0) {
-    if (profile.colorNames.includes(filterValue)) {
-      return true;
-    }
-    // Backward compatibility for older records before expanding Cyan, Brown, and Gray names
-    if (filterValue === 'Blue & Azure' && profile.colorNames.includes('Blue & Cyan')) return true;
-    if (filterValue === 'Cyan & Teal' && profile.colorNames.includes('Blue & Cyan')) return true;
-    if (filterValue === 'Monochrome & Gray' && profile.colorNames.includes('Monochrome & Grayscale')) return true;
+    const idx = profile.colorNames.indexOf(filterValue);
+    const perc = profile.colorPercentages?.[filterValue];
 
-    if (filterValue === 'Dark & Noir' && profile.isDark) return true;
-    if (filterValue === 'Clean White & Light' && profile.isLight) return true;
-    if (filterValue === 'Monochrome & Gray' && profile.isMonochrome) return true;
+    // Check backward compatibility names
+    let matchedIndex = idx;
+    let matchedPerc = perc;
+    if (filterValue === 'Blue & Azure' && matchedIndex === -1) {
+      matchedIndex = profile.colorNames.indexOf('Blue & Cyan');
+      if (matchedIndex !== -1) matchedPerc = profile.colorPercentages?.['Blue & Cyan'];
+    }
+    if (filterValue === 'Cyan & Teal' && matchedIndex === -1) {
+      matchedIndex = profile.colorNames.indexOf('Blue & Cyan');
+      if (matchedIndex !== -1) matchedPerc = profile.colorPercentages?.['Blue & Cyan'];
+    }
+    if (filterValue === 'Monochrome & Gray' && matchedIndex === -1) {
+      matchedIndex = profile.colorNames.indexOf('Monochrome & Grayscale');
+      if (matchedIndex !== -1) matchedPerc = profile.colorPercentages?.['Monochrome & Grayscale'];
+    }
+
+    // STRICT DOMINANCE RULE: To match a color filter, the color MUST be either:
+    // 1) The #1 most dominant visual color in the image (matchedIndex === 0)
+    // 2) A major secondary color representing >= 20% visual concentration
+    if (matchedIndex === 0) return true;
+    if (matchedIndex === 1 && (matchedPerc === undefined || matchedPerc >= 20)) return true;
+    if (matchedIndex > 1 && matchedPerc !== undefined && matchedPerc >= 25) return true;
+
+    // Specialized lighting / tone fallbacks only if primary color isn't completely chromatic
+    if (filterValue === 'Dark & Noir' && profile.isDark && matchedIndex <= 1) return true;
+    if (filterValue === 'Clean White & Light' && profile.isLight && matchedIndex <= 1) return true;
+    if (filterValue === 'Monochrome & Gray' && profile.isMonochrome && matchedIndex <= 1) return true;
     
     return false;
   }
 
-  // Fallback if post hasn't been visually scanned yet
+  // Fallback ONLY if post hasn't been visually scanned yet
   if (fallbackText && filterKeywords.length > 0) {
     const lower = fallbackText.toLowerCase();
     if (filterKeywords.some(kw => lower.includes(kw.toLowerCase()))) return true;

@@ -16,14 +16,14 @@ import { ENABLE_MONETIZATION } from '@/lib/config';
 import { matchesColorFilter } from '@/lib/colorAnalyzer';
 
 const COLOR_OPTIONS = [
-  { name: 'Red & Crimson', hex: '#ef4444', keywords: ['red', 'crimson', 'blood', 'scarlet', 'fire', 'ruby', 'flames', 'rose', 'maroon', 'cherry'] },
+  { name: 'Red & Crimson', hex: '#ef4444', keywords: ['red', 'crimson', 'blood', 'scarlet', 'fire', 'ruby', 'flames', 'maroon', 'cherry'] },
   { name: 'Orange & Sunset', hex: '#f97316', keywords: ['orange', 'sunset', 'bronze', 'copper', 'rust', 'coral', 'autumn', 'tiger', 'tangerine'] },
   { name: 'Yellow & Gold', hex: '#eab308', keywords: ['yellow', 'gold', 'amber', 'lemon', 'blonde', 'sun', 'golden', 'warm', 'brass', 'honey'] },
   { name: 'Green & Emerald', hex: '#10b981', keywords: ['green', 'emerald', 'forest', 'moss', 'nature', 'jade', 'grass', 'jungle', 'mint', 'foliage'] },
-  { name: 'Cyan & Teal', hex: '#06b6d4', keywords: ['cyan', 'teal', 'turquoise', 'aqua', 'mint', 'marine', 'sea', 'cyan blue'] },
+  { name: 'Cyan & Teal', hex: '#06b6d4', keywords: ['cyan', 'teal', 'turquoise', 'aqua', 'marine', 'sea', 'cyan blue'] },
   { name: 'Blue & Azure', hex: '#3b82f6', keywords: ['blue', 'azure', 'navy', 'water', 'sky', 'ocean', 'sapphire', 'ice', 'cool', 'cobalt'] },
-  { name: 'Purple & Violet', hex: '#a855f7', keywords: ['purple', 'violet', 'magenta', 'indigo', 'lavender', 'neon purple', 'amethyst', 'plum', 'grape'] },
-  { name: 'Pink & Rose', hex: '#ec4899', keywords: ['pink', 'rose', 'pastel', 'blush', 'cherry blossom', 'flamingo', 'fuchsia'] },
+  { name: 'Purple & Violet', hex: '#a855f7', keywords: ['purple', 'violet', 'indigo', 'lavender', 'neon purple', 'amethyst', 'plum', 'grape'] },
+  { name: 'Pink & Rose', hex: '#ec4899', keywords: ['pink', 'rose', 'pastel', 'blush', 'magenta', 'cherry blossom', 'flamingo', 'fuchsia', 'salmon'] },
   { name: 'Brown & Earth', hex: '#8b4513', keywords: ['brown', 'earth', 'wood', 'timber', 'leather', 'coffee', 'chocolate', 'dirt', 'mud', 'sand', 'sepia'] },
   { name: 'Monochrome & Gray', hex: '#94a3b8', keywords: ['gray', 'grey', 'monochrome', 'grayscale', 'silver', 'neutral', 'slate', 'ash', 'charcoal', 'black and white'] },
   { name: 'Dark & Noir', hex: '#1e293b', keywords: ['dark', 'black', 'noir', 'shadow', 'midnight', 'obsidian', 'gloomy', 'goth', 'night'] },
@@ -292,25 +292,38 @@ export default function DiscoveryFeed() {
           const hasExactMatch = contentStr.includes(cleanSearch);
 
           if (isColorSearch && targetColorName) {
-            // RULE: Visual color spectrum in the image has SUPER PRIORITY over text commands/captions!
+            // PINTEREST-LEVEL QUALITY RULE: Visual color dominance in the artwork is MANDATORY!
+            // Trace colors (<20%) or text mentions without visual dominance must NOT pollute results.
             const profile = post.colorProfile;
-            const hasVisualColor = profile && (
-              profile.colorNames?.includes(targetColorName) ||
-              (targetColorName === 'Blue & Azure' && profile.colorNames?.includes('Blue & Cyan')) ||
-              (targetColorName === 'Cyan & Teal' && profile.colorNames?.includes('Blue & Cyan')) ||
-              (targetColorName === 'Monochrome & Gray' && profile.colorNames?.includes('Monochrome & Grayscale')) ||
-              (targetColorName === 'Dark & Noir' && profile.isDark) ||
-              (targetColorName === 'Clean White & Light' && profile.isLight)
-            );
+            if (profile?.colorNames && profile.colorNames.length > 0) {
+              let idx = profile.colorNames.indexOf(targetColorName);
+              let perc = profile.colorPercentages?.[targetColorName];
+              if (targetColorName === 'Blue & Azure' && idx === -1) {
+                idx = profile.colorNames.indexOf('Blue & Cyan');
+                if (idx !== -1) perc = profile.colorPercentages?.['Blue & Cyan'];
+              }
+              if (targetColorName === 'Cyan & Teal' && idx === -1) {
+                idx = profile.colorNames.indexOf('Blue & Cyan');
+                if (idx !== -1) perc = profile.colorPercentages?.['Blue & Cyan'];
+              }
+              if (targetColorName === 'Monochrome & Gray' && idx === -1) {
+                idx = profile.colorNames.indexOf('Monochrome & Grayscale');
+                if (idx !== -1) perc = profile.colorPercentages?.['Monochrome & Grayscale'];
+              }
 
-            if (hasVisualColor) {
-              const perc = profile?.colorPercentages?.[targetColorName] || 
-                           (profile?.colorNames?.[0] === targetColorName ? 65 : 35);
-              // Visual color presence yields huge score (1000 to 1100), ensuring visual color dominates #1 ranking!
-              score = 1000 + perc;
-            } else if (hasKeywordMatch) {
-              // Text-only mention (e.g. caption says "red" but image is orange fox) gets low fallback priority (10 pts)
-              score = 10;
+              const isPrimary = idx === 0;
+              const isStrongSecondary = idx === 1 && (perc === undefined || perc >= 20);
+
+              if (isPrimary || isStrongSecondary || (perc !== undefined && perc >= 25)) {
+                // Score is strictly scaled by concentration! (100% solid red -> 10,100 #1 rank)
+                score = 10000 + (perc !== undefined ? perc : (isPrimary ? 80 : 35));
+              } else {
+                // Reject images where color is merely a trace accent or completely missing
+                score = 0;
+              }
+            } else if (!profile) {
+              // Fallback ONLY for legacy posts that haven't been scanned by AI yet
+              if (hasExactMatch || hasKeywordMatch) score = 10;
             }
           } else {
             // Strict Keyword & Tag Search (Eliminating random floating-point mock embedding false matches)
