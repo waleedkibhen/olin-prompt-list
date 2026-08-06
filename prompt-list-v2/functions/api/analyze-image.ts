@@ -14,19 +14,18 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
 
 async function resolveVisionModels(apiKey: string): Promise<string[]> {
   const fallbackModels = [
-    "models/gemini-3.1-flash-preview",
+    "models/gemini-3.6-flash",
+    "models/gemini-3.5-flash",
+    "models/gemini-3.1-flash-image",
     "models/gemini-3.1-flash",
     "models/gemini-3-flash-preview",
-    "models/gemini-3-flash",
-    "models/gemini-3.5-flash",
-    "models/gemini-3.6-pro",
-    "models/gemini-3.1-pro",
-    "models/gemini-2.5-flash-latest",
     "models/gemini-2.5-flash",
+    "models/gemini-2.5-flash-image",
+    "models/gemini-3.6-pro",
+    "models/gemini-3.5-flash-lite",
     "models/gemini-2.5-pro",
     "models/gemini-2.0-flash",
-    "models/gemini-1.5-pro",
-    "models/gemini-pro-vision"
+    "models/gemini-1.5-pro"
   ];
   const discovered: string[] = [];
 
@@ -37,7 +36,17 @@ async function resolveVisionModels(apiKey: string): Promise<string[]> {
         const data: any = await listRes.json();
         if (Array.isArray(data.models)) {
           for (const m of data.models) {
-            if (m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent") && m.name.toLowerCase().includes("gemini")) {
+            const nameLower = m.name.toLowerCase();
+            if (
+              m.supportedGenerationMethods && 
+              m.supportedGenerationMethods.includes("generateContent") && 
+              nameLower.includes("gemini") &&
+              !nameLower.includes("embedding") &&
+              !nameLower.includes("tts") &&
+              !nameLower.includes("robotics") &&
+              !nameLower.includes("computer-use") &&
+              !nameLower.includes("audio")
+            ) {
               discovered.push(m.name);
             }
           }
@@ -48,25 +57,25 @@ async function resolveVisionModels(apiKey: string): Promise<string[]> {
     }
   }
 
-  if (discovered.length > 0) {
-    discovered.sort((a: string, b: string) => {
-      const score = (name: string) => {
-        let s = 0;
-        if (name.includes("flash")) s += 20;
-        if (name.includes("3.1")) s += 15;
-        if (name.includes("3.")) s += 12;
-        if (name.includes("3-")) s += 10;
-        if (name.includes("2.5")) s += 8;
-        if (name.includes("2.0")) s += 5;
-        if (name.includes("preview")) s += 2;
-        if (name.includes("pro")) s += 1;
-        return s;
-      };
-      return score(b) - score(a);
-    });
-  }
+  const allCandidates = Array.from(new Set([...discovered, ...fallbackModels]));
+  allCandidates.sort((a: string, b: string) => {
+    const score = (name: string) => {
+      let s = 0;
+      if (name.includes("3.6-flash")) s += 50;
+      else if (name.includes("3.5-flash")) s += 45;
+      else if (name.includes("3.1-flash-image")) s += 40;
+      else if (name.includes("3.1-flash")) s += 35;
+      else if (name.includes("3-flash")) s += 30;
+      else if (name.includes("2.5-flash")) s += 25;
+      else if (name.includes("flash")) s += 15;
+      if (name.includes("lite")) s -= 5;
+      if (name.includes("pro")) s += 10;
+      return s;
+    };
+    return score(b) - score(a);
+  });
 
-  return Array.from(new Set([...discovered, ...fallbackModels]));
+  return allCandidates;
 }
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
