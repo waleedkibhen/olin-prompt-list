@@ -79,6 +79,10 @@ function classifyHslToName(h: number, s: number, l: number): string | null {
     if (l >= 62 || (l >= 50 && s <= 65)) {
       return 'Pink & Rose';
     }
+    // CRITICAL: Muted brick, warm stone towers, and shadow reflections (s < 45) must NEVER be classified as Red!
+    if (s < 45) {
+      return l <= 45 ? 'Brown & Earth' : 'Monochrome & Gray';
+    }
     if (h < 14) return 'Red & Crimson';
     if (h >= 345) return 'Red & Crimson';
   }
@@ -293,26 +297,27 @@ export function matchesColorFilter(filterValue: string, profile?: ColorProfile, 
       if (matchedIndex !== -1) matchedPerc = profile.colorPercentages?.['Monochrome & Grayscale'];
     }
 
-    // PINTEREST-QUALITY CONTRAST REJECTION RULES:
-    // 1) If user selects Blue/Cyan, but the #1 dominant color is bright warm (Red, Pink, Orange, Yellow), reject! (Stops glowing red towers from appearing under Blue)
+    // PINTEREST-QUALITY ABSOLUTE CONTRAST REJECTION RULES:
+    // 1) If user selects Blue/Cyan, and #1 primary dominant color is warm (Red, Pink, Orange, Yellow), reject unconditionally!
     const isWarmPrimary = ['Red & Crimson', 'Orange & Sunset', 'Pink & Rose', 'Yellow & Gold', 'Orange & Amber'].includes(primaryColor);
     const isCoolFilter = ['Blue & Azure', 'Cyan & Teal', 'Blue & Cyan'].includes(filterValue);
-    if (isCoolFilter && isWarmPrimary && (matchedPerc === undefined || matchedPerc < 40)) {
+    if (isCoolFilter && isWarmPrimary) {
       return false;
     }
 
-    // 2) If user selects Red/Orange/Yellow/Pink, but the #1 dominant color is cool (Blue, Cyan, Green), reject! (Stops sunny blue sky towers from appearing under Red/Yellow)
+    // 2) If user selects Red/Orange/Yellow/Pink, and #1 primary dominant color is cool (Blue, Cyan, Green), reject unconditionally!
+    // (This guarantees sunny blue-sky photos like Tower of Pisa will NEVER appear under Red or Yellow!)
     const isCoolPrimary = ['Blue & Azure', 'Cyan & Teal', 'Blue & Cyan', 'Green & Emerald'].includes(primaryColor);
     const isWarmFilter = ['Red & Crimson', 'Orange & Sunset', 'Pink & Rose', 'Yellow & Gold', 'Orange & Amber'].includes(filterValue);
-    if (isWarmFilter && isCoolPrimary && (matchedPerc === undefined || matchedPerc < 40)) {
+    if (isWarmFilter && isCoolPrimary) {
       return false;
     }
 
-    // STRICT DOMINANCE RULE: To match a color filter, the color MUST be either:
+    // STRICT DOMINANCE RULE: For vibrant primary colors (Red, Blue, Green, Yellow, etc.), the artwork MUST feature it as:
     // 1) The #1 primary dominant color (matchedIndex === 0)
-    // 2) A major secondary color representing >= 35% visual concentration
+    // 2) A major secondary color representing at least >= 45% visual concentration
     if (matchedIndex === 0) return true;
-    if (matchedIndex === 1 && matchedPerc !== undefined && matchedPerc >= 35) return true;
+    if (matchedIndex === 1 && matchedPerc !== undefined && matchedPerc >= 45) return true;
 
     // Specialized lighting / tone fallbacks only if primary color is neutral/monochrome
     if (filterValue === 'Dark & Noir' && profile.isDark && matchedIndex === 0) return true;

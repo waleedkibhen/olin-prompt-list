@@ -320,11 +320,11 @@ export default function DiscoveryFeed() {
 
               const isContrasting = (isCoolTarget && isWarmPrimary) || (isWarmTarget && isCoolPrimary);
               const isPrimary = idx === 0;
-              const isStrongSecondary = idx === 1 && (perc !== undefined && perc >= 35);
+              const isStrongSecondary = idx === 1 && (perc !== undefined && perc >= 45);
 
               if (!isContrasting && (isPrimary || isStrongSecondary)) {
                 // Score strictly by visual concentration! (100% solid red -> 10,100 #1 rank)
-                score = 10000 + (perc !== undefined ? perc : (isPrimary ? 80 : 35));
+                score = 10000 + (perc !== undefined ? perc : (isPrimary ? 80 : 45));
               } else {
                 // Reject images where color is merely a trace accent, contrasting, or completely missing
                 score = 0;

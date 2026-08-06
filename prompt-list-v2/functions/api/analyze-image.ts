@@ -13,14 +13,15 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
 }
 
 async function resolveVisionModels(apiKey: string): Promise<string[]> {
-  // Official, production-proven Gemini AI Studio vision models that NEVER throw 404 NotFound
+  // Verified high-quota workhorse models from live diagnostic reports (avoids 20 req/day caps on preview models)
   return [
-    "models/gemini-1.5-flash",
-    "models/gemini-1.5-flash-latest",
-    "models/gemini-flash-latest",
-    "models/gemini-1.5-pro-latest",
-    "models/gemini-1.5-pro",
-    "models/gemini-pro-latest"
+    "models/gemini-2.0-flash",
+    "models/gemini-2.0-flash-lite",
+    "models/gemini-2.0-flash-001",
+    "models/gemini-2.5-flash-lite",
+    "models/gemini-3.1-flash-lite",
+    "models/gemini-3.5-flash-lite",
+    "models/gemini-2.5-flash"
   ];
 }
 
@@ -108,14 +109,19 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
               errorLogs.push(`[${apiVer}/${formattedModel}] JSON Parse Error: ${e.message}`);
               break; // Don't retry on parse error, jump to next model
             }
-          } else {
             const status = res.status;
             const errText = await res.text();
             errorLogs.push(`[${apiVer}/${formattedModel} (Att ${attempt})] HTTP ${status}: ${errText}`);
             
-            // If Free Tier encounters 429 TooManyRequests or 503 ServiceUnavailable, wait 3,000ms so Free Tier quota resets cleanly!
-            if ((status === 429 || status === 503) && attempt < 3) {
-              await new Promise(r => setTimeout(r, 3000));
+            // If Free Tier daily quota is exhausted (GenerateRequestsPerDayPerProjectPerModel-FreeTier), do NOT retry! Immediately switch to next model!
+            if (errText.includes('GenerateRequestsPerDay') || errText.includes('quotaId')) {
+              console.warn(`Daily quota exhausted for model ${formattedModel}. Skipping immediately to next failover model.`);
+              break;
+            }
+
+            // If Free Tier encounters temporary per-minute burst rate limits (429/503), wait 2,500ms before retrying
+            if ((status === 429 || status === 503) && attempt < 2) {
+              await new Promise(r => setTimeout(r, 2500));
               continue;
             }
             break; // For 404 or other errors, immediately failover to next verified model
