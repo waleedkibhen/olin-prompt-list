@@ -474,24 +474,50 @@ export default function DiscoveryFeed() {
           
           const tagFreq: Record<string, number> = {};
           const styleFreq: Record<string, number> = {};
+          const colorFreq: Record<string, number> = {};
+          const modelFreq: Record<string, number> = {};
           
           preferredPosts.forEach(p => {
-            p.categories.forEach(c => { tagFreq[c] = (tagFreq[c] || 0) + 1; });
-            styleFreq[p.styleTag] = (styleFreq[p.styleTag] || 0) + 1;
+            const likeIdx = likedArr.indexOf(p.id);
+            const saveIdx = savedArr.indexOf(p.id);
+            
+            // Weight recent likes MUCH heavier so the algorithm instantly pivots to new tastes
+            let weight = 1;
+            if (likeIdx !== -1 && likeIdx >= likedArr.length - 5) weight += 10;
+            if (saveIdx !== -1 && saveIdx >= savedArr.length - 5) weight += 15;
+
+            p.categories.forEach(c => { tagFreq[c] = (tagFreq[c] || 0) + weight; });
+            styleFreq[p.styleTag] = (styleFreq[p.styleTag] || 0) + weight;
+            if (p.model) modelFreq[p.model] = (modelFreq[p.model] || 0) + weight;
+            if (p.colorProfile?.colorNames?.[0]) {
+              const primaryColor = p.colorProfile.colorNames[0];
+              colorFreq[primaryColor] = (colorFreq[primaryColor] || 0) + weight;
+            }
           });
           
           const topTags = Object.entries(tagFreq).sort((a, b) => b[1] - a[1]).slice(0, 15).map(x => x[0]);
           const topStyle = Object.entries(styleFreq).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
+          const topColor = Object.entries(colorFreq).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
+          const topModel = Object.entries(modelFreq).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
 
-          // 2. Score Candidate Pool using Preference Affinity
+          // 2. Score Candidate Pool using Multi-Dimensional Preference Affinity
           current = current.map(post => {
             let score = 0;
-            post.categories.forEach(c => { if (topTags.includes(c)) score += 10; });
-            if (post.styleTag === topStyle) score += 5;
             
-            // Introduce recency bias so older posts don't permanently dominate
+            // Core Affinity
+            post.categories.forEach(c => { if (topTags.includes(c)) score += 12; });
+            if (post.styleTag === topStyle) score += 15;
+            if (post.model === topModel) score += 8;
+            if (post.colorProfile?.colorNames?.[0] === topColor) score += 10;
+            
+            // Gentle Recency Penalty (Max 60% penalty for very old posts, rather than 95% penalty)
             const ageInDays = (Date.now() - (post.rawTimestamp || 0)) / (1000 * 60 * 60 * 24);
-            const finalScore = score / Math.pow(Math.max(1, ageInDays), 0.5);
+            const recencyMultiplier = Math.max(0.4, 1 - (ageInDays * 0.02)); 
+            
+            // Natural Viral Quality Bonus (Great art still floats up)
+            const viralBonus = ((post.likesCount || 0) * 0.5) + ((post.savesCount || 0) * 1);
+            
+            const finalScore = (score * recencyMultiplier) + viralBonus;
             
             return { post, finalScore };
           }).sort((a, b) => b.finalScore - a.finalScore).map(item => item.post);
