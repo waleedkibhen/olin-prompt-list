@@ -86,6 +86,7 @@ export default function DiscoveryFeed() {
   const [isSearching, setIsSearching] = useState(false);
   
   const [activeVector, setActiveVector] = useState<number[] | null>(null);
+  const [visibleCount, setVisibleCount] = useState(24);
 
   const activeFilterCount = [
     colorFilter !== 'All',
@@ -119,10 +120,26 @@ export default function DiscoveryFeed() {
         }));
       } else {
         // Full recalculation and resort for filter/tab/auth changes
+        setVisibleCount(24); // Reset visible items on new layout
         applyAllFiltersAndSearch(dbPosts, activeTab, queryParam, modelParam, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter, activeVector);
       }
     }
   }, [searchParams, activeTab, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter, dbPosts, profile, activeVector]);
+
+  // Infinite Scroll Observer
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + document.documentElement.scrollTop + 800 >= 
+        document.documentElement.offsetHeight
+      ) {
+        setVisibleCount(prev => Math.min(prev + 24, displayedPosts.length));
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [displayedPosts.length]);
 
   useEffect(() => {
     const fetchEmbedding = async () => {
@@ -789,7 +806,7 @@ export default function DiscoveryFeed() {
         </div>
       ) : (
         <main className={styles.masonryGrid}>
-          {displayedPosts.map((post) => (
+          {displayedPosts.slice(0, visibleCount).map((post) => (
             <PromptCard 
               key={post.id} 
               post={post} 
