@@ -82,8 +82,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     for (const modelName of modelCandidates) {
       const formattedModel = modelName.startsWith('models/') ? modelName : `models/${modelName}`;
-      for (const apiVer of ["v1beta", "v1"]) {
-        const endpoint = `https://generativelanguage.googleapis.com/${apiVer}/${formattedModel}:generateContent?key=${apiKey}`;
+      const apiVer = "v1beta";
+      const endpoint = `https://generativelanguage.googleapis.com/${apiVer}/${formattedModel}:generateContent?key=${apiKey}`;
+      
+      for (let attempt = 1; attempt <= 2; attempt++) {
         try {
           const res = await fetch(endpoint, {
             method: "POST",
@@ -103,14 +105,23 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
               return new Response(JSON.stringify({ tags: Array.from(new Set(tags)), colorProfile, modelUsed: formattedModel, apiVersion: apiVer }), { status: 200, headers: { "Content-Type": "application/json" } });
             } catch (e: any) {
               errorLogs.push(`[${apiVer}/${formattedModel}] JSON Parse Error: ${e.message}`);
-              continue;
+              break; // Don't retry on parse error, jump to next model
             }
           } else {
+            const status = res.status;
             const errText = await res.text();
-            errorLogs.push(`[${apiVer}/${formattedModel}] HTTP ${res.status}: ${errText}`);
+            errorLogs.push(`[${apiVer}/${formattedModel} (Att ${attempt})] HTTP ${status}: ${errText}`);
+            
+            // If Free Tier encounters 429 TooManyRequests or 503 ServiceUnavailable, wait 1500ms before attempting retry or failover
+            if ((status === 429 || status === 503) && attempt === 1) {
+              await new Promise(r => setTimeout(r, 1500));
+              continue;
+            }
+            break; // For 404 or other errors, immediately failover to next flash model
           }
         } catch (err: any) {
           errorLogs.push(`[${apiVer}/${formattedModel}] Network Error: ${err.message}`);
+          break;
         }
       }
     }

@@ -210,9 +210,22 @@ export async function extractImagePalette(imageSrc: string): Promise<ColorProfil
 
     const urls = getUrlsToAttempt();
     let attemptIndex = 0;
+    let isResolved = false;
+
+    // Global maximum timeout for offline color palette extraction: 6 seconds total!
+    const globalTimer = setTimeout(() => {
+      if (!isResolved) {
+        isResolved = true;
+        console.warn("Global timeout reached for extractImagePalette fallback on:", imageSrc);
+        resolve(null);
+      }
+    }, 6000);
 
     const tryNextUrl = () => {
+      if (isResolved) return;
       if (attemptIndex >= urls.length) {
+        isResolved = true;
+        clearTimeout(globalTimer);
         console.warn("All proxy failovers exhausted or blocked by CORS for:", imageSrc);
         resolve(null);
         return;
@@ -222,9 +235,21 @@ export async function extractImagePalette(imageSrc: string): Promise<ColorProfil
       const img = new Image();
       img.crossOrigin = "Anonymous";
       
+      // Strict 3.5s per-proxy timeout in case proxy hangs without triggering onload/onerror
+      const proxyTimer = setTimeout(() => {
+        if (!isResolved) {
+          img.src = ""; // Cancel pending image loading
+          tryNextUrl();
+        }
+      }, 3500);
+
       img.onload = () => {
+        if (isResolved) return;
+        clearTimeout(proxyTimer);
         try {
           const profile = processImage(img);
+          isResolved = true;
+          clearTimeout(globalTimer);
           resolve(profile);
         } catch (e) {
           tryNextUrl();
@@ -232,6 +257,8 @@ export async function extractImagePalette(imageSrc: string): Promise<ColorProfil
       };
 
       img.onerror = () => {
+        if (isResolved) return;
+        clearTimeout(proxyTimer);
         tryNextUrl();
       };
 

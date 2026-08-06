@@ -291,6 +291,9 @@ export default function AdminDashboardPage() {
           } else {
             blockedCount++;
           }
+
+          // 800ms spacing buffer between batch items to ensure zero 429 TooManyRequests errors on Google AI Studio Free Tier
+          await new Promise(r => setTimeout(r, 800));
         }
       }
       if (blockedCount > 0) {

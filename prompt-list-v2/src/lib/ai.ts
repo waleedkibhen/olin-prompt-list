@@ -98,13 +98,17 @@ export interface MultimodalVisionResult {
  * Analyzes artwork using Gemini Multimodal Vision to produce both comprehensive visual search tags (objects, atmosphere, clothing) and human-perceptive color profiles.
  */
 export async function analyzeArtworkMultimodalWithGemini(imageUrlOrBase64: string): Promise<MultimodalVisionResult> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000); // 15-second strict max timeout
   try {
     const isBase64 = imageUrlOrBase64.startsWith('data:');
     const res = await fetch('/api/analyze-image', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(isBase64 ? { base64: imageUrlOrBase64 } : { imageUrl: imageUrlOrBase64 }),
+      signal: controller.signal,
     });
+    clearTimeout(timeoutId);
     if (res.ok) {
       const data = await res.json();
       if (data.error) {
@@ -120,8 +124,10 @@ export async function analyzeArtworkMultimodalWithGemini(imageUrlOrBase64: strin
       };
     }
   } catch (e: any) {
-    console.error("Failed to extract Gemini multimodal vision & color data:", e);
-    return { tags: [], colorProfile: null, error: e.message || String(e) };
+    clearTimeout(timeoutId);
+    const msg = e.name === 'AbortError' ? 'Timeout: AI analysis took longer than 15s' : (e.message || String(e));
+    console.error("Failed to extract Gemini multimodal vision & color data:", msg);
+    return { tags: [], colorProfile: null, error: msg };
   }
   return { tags: [], colorProfile: null };
 }
