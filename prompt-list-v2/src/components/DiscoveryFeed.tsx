@@ -293,9 +293,10 @@ export default function DiscoveryFeed() {
 
           if (isColorSearch && targetColorName) {
             // PINTEREST-LEVEL QUALITY RULE: Visual color dominance in the artwork is MANDATORY!
-            // Trace colors (<20%) or text mentions without visual dominance must NOT pollute results.
+            // Trace colors (<35%) or text mentions without visual dominance must NOT pollute results.
             const profile = post.colorProfile;
             if (profile?.colorNames && profile.colorNames.length > 0) {
+              const primaryColor = profile.colorNames[0];
               let idx = profile.colorNames.indexOf(targetColorName);
               let perc = profile.colorPercentages?.[targetColorName];
               if (targetColorName === 'Blue & Azure' && idx === -1) {
@@ -311,14 +312,21 @@ export default function DiscoveryFeed() {
                 if (idx !== -1) perc = profile.colorPercentages?.['Monochrome & Grayscale'];
               }
 
-              const isPrimary = idx === 0;
-              const isStrongSecondary = idx === 1 && (perc === undefined || perc >= 20);
+              // Contrast Rejection Rule: Stop glowing red towers from appearing in blue search, and vice versa!
+              const isWarmPrimary = ['Red & Crimson', 'Orange & Sunset', 'Pink & Rose', 'Yellow & Gold', 'Orange & Amber'].includes(primaryColor);
+              const isCoolTarget = ['Blue & Azure', 'Cyan & Teal', 'Blue & Cyan'].includes(targetColorName);
+              const isCoolPrimary = ['Blue & Azure', 'Cyan & Teal', 'Blue & Cyan', 'Green & Emerald'].includes(primaryColor);
+              const isWarmTarget = ['Red & Crimson', 'Orange & Sunset', 'Pink & Rose', 'Yellow & Gold', 'Orange & Amber'].includes(targetColorName);
 
-              if (isPrimary || isStrongSecondary || (perc !== undefined && perc >= 25)) {
-                // Score is strictly scaled by concentration! (100% solid red -> 10,100 #1 rank)
+              const isContrasting = (isCoolTarget && isWarmPrimary) || (isWarmTarget && isCoolPrimary);
+              const isPrimary = idx === 0;
+              const isStrongSecondary = idx === 1 && (perc !== undefined && perc >= 35);
+
+              if (!isContrasting && (isPrimary || isStrongSecondary)) {
+                // Score strictly by visual concentration! (100% solid red -> 10,100 #1 rank)
                 score = 10000 + (perc !== undefined ? perc : (isPrimary ? 80 : 35));
               } else {
-                // Reject images where color is merely a trace accent or completely missing
+                // Reject images where color is merely a trace accent, contrasting, or completely missing
                 score = 0;
               }
             } else if (!profile) {

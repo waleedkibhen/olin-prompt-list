@@ -247,12 +247,12 @@ export function matchesColorFilter(filterValue: string, profile?: ColorProfile, 
   if (!filterValue || filterValue === 'All' || filterValue === 'Any Color') return true;
 
   if (profile?.colorNames && profile.colorNames.length > 0) {
+    const primaryColor = profile.colorNames[0];
     const idx = profile.colorNames.indexOf(filterValue);
-    const perc = profile.colorPercentages?.[filterValue];
+    let matchedIndex = idx;
+    let matchedPerc = profile.colorPercentages?.[filterValue];
 
     // Check backward compatibility names
-    let matchedIndex = idx;
-    let matchedPerc = perc;
     if (filterValue === 'Blue & Azure' && matchedIndex === -1) {
       matchedIndex = profile.colorNames.indexOf('Blue & Cyan');
       if (matchedIndex !== -1) matchedPerc = profile.colorPercentages?.['Blue & Cyan'];
@@ -266,17 +266,31 @@ export function matchesColorFilter(filterValue: string, profile?: ColorProfile, 
       if (matchedIndex !== -1) matchedPerc = profile.colorPercentages?.['Monochrome & Grayscale'];
     }
 
-    // STRICT DOMINANCE RULE: To match a color filter, the color MUST be either:
-    // 1) The #1 most dominant visual color in the image (matchedIndex === 0)
-    // 2) A major secondary color representing >= 20% visual concentration
-    if (matchedIndex === 0) return true;
-    if (matchedIndex === 1 && (matchedPerc === undefined || matchedPerc >= 20)) return true;
-    if (matchedIndex > 1 && matchedPerc !== undefined && matchedPerc >= 25) return true;
+    // PINTEREST-QUALITY CONTRAST REJECTION RULES:
+    // 1) If user selects Blue/Cyan, but the #1 dominant color is bright warm (Red, Pink, Orange, Yellow), reject! (Stops glowing red towers from appearing under Blue)
+    const isWarmPrimary = ['Red & Crimson', 'Orange & Sunset', 'Pink & Rose', 'Yellow & Gold', 'Orange & Amber'].includes(primaryColor);
+    const isCoolFilter = ['Blue & Azure', 'Cyan & Teal', 'Blue & Cyan'].includes(filterValue);
+    if (isCoolFilter && isWarmPrimary && (matchedPerc === undefined || matchedPerc < 40)) {
+      return false;
+    }
 
-    // Specialized lighting / tone fallbacks only if primary color isn't completely chromatic
-    if (filterValue === 'Dark & Noir' && profile.isDark && matchedIndex <= 1) return true;
-    if (filterValue === 'Clean White & Light' && profile.isLight && matchedIndex <= 1) return true;
-    if (filterValue === 'Monochrome & Gray' && profile.isMonochrome && matchedIndex <= 1) return true;
+    // 2) If user selects Red/Orange/Yellow/Pink, but the #1 dominant color is cool (Blue, Cyan, Green), reject! (Stops sunny blue sky towers from appearing under Red/Yellow)
+    const isCoolPrimary = ['Blue & Azure', 'Cyan & Teal', 'Blue & Cyan', 'Green & Emerald'].includes(primaryColor);
+    const isWarmFilter = ['Red & Crimson', 'Orange & Sunset', 'Pink & Rose', 'Yellow & Gold', 'Orange & Amber'].includes(filterValue);
+    if (isWarmFilter && isCoolPrimary && (matchedPerc === undefined || matchedPerc < 40)) {
+      return false;
+    }
+
+    // STRICT DOMINANCE RULE: To match a color filter, the color MUST be either:
+    // 1) The #1 primary dominant color (matchedIndex === 0)
+    // 2) A major secondary color representing >= 35% visual concentration
+    if (matchedIndex === 0) return true;
+    if (matchedIndex === 1 && matchedPerc !== undefined && matchedPerc >= 35) return true;
+
+    // Specialized lighting / tone fallbacks only if primary color is neutral/monochrome
+    if (filterValue === 'Dark & Noir' && profile.isDark && matchedIndex === 0) return true;
+    if (filterValue === 'Clean White & Light' && profile.isLight && matchedIndex === 0) return true;
+    if (filterValue === 'Monochrome & Gray' && profile.isMonochrome && matchedIndex === 0) return true;
     
     return false;
   }

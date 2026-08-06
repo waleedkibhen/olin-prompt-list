@@ -13,69 +13,14 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
 }
 
 async function resolveVisionModels(apiKey: string): Promise<string[]> {
-  const fallbackModels = [
-    "models/gemini-3.6-flash",
-    "models/gemini-3.5-flash",
-    "models/gemini-3.1-flash-image",
-    "models/gemini-3.1-flash",
-    "models/gemini-3-flash-preview",
+  // Ultra-fast, lightweight model priority list for <2s scans with maximum rate-limit compatibility
+  return [
     "models/gemini-2.5-flash",
-    "models/gemini-2.5-flash-image",
-    "models/gemini-3.6-pro",
-    "models/gemini-3.5-flash-lite",
-    "models/gemini-2.5-pro",
+    "models/gemini-2.5-flash-lite",
     "models/gemini-2.0-flash",
-    "models/gemini-1.5-pro"
+    "models/gemini-3.5-flash",
+    "models/gemini-flash-latest"
   ];
-  const discovered: string[] = [];
-
-  for (const apiVer of ["v1beta", "v1"]) {
-    try {
-      const listRes = await fetch(`https://generativelanguage.googleapis.com/${apiVer}/models?key=${apiKey}`);
-      if (listRes.ok) {
-        const data: any = await listRes.json();
-        if (Array.isArray(data.models)) {
-          for (const m of data.models) {
-            const nameLower = m.name.toLowerCase();
-            if (
-              m.supportedGenerationMethods && 
-              m.supportedGenerationMethods.includes("generateContent") && 
-              nameLower.includes("gemini") &&
-              !nameLower.includes("embedding") &&
-              !nameLower.includes("tts") &&
-              !nameLower.includes("robotics") &&
-              !nameLower.includes("computer-use") &&
-              !nameLower.includes("audio")
-            ) {
-              discovered.push(m.name);
-            }
-          }
-        }
-      }
-    } catch (e) {
-      console.warn(`Failed to query Gemini model list from ${apiVer}:`, e);
-    }
-  }
-
-  const allCandidates = Array.from(new Set([...discovered, ...fallbackModels]));
-  allCandidates.sort((a: string, b: string) => {
-    const score = (name: string) => {
-      let s = 0;
-      if (name.includes("3.6-flash")) s += 50;
-      else if (name.includes("3.5-flash")) s += 45;
-      else if (name.includes("3.1-flash-image")) s += 40;
-      else if (name.includes("3.1-flash")) s += 35;
-      else if (name.includes("3-flash")) s += 30;
-      else if (name.includes("2.5-flash")) s += 25;
-      else if (name.includes("flash")) s += 15;
-      if (name.includes("lite")) s -= 5;
-      if (name.includes("pro")) s += 10;
-      return s;
-    };
-    return score(b) - score(a);
-  });
-
-  return allCandidates;
 }
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {

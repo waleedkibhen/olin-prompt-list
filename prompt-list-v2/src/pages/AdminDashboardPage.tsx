@@ -245,16 +245,30 @@ export default function AdminDashboardPage() {
       let successCount = 0;
       let blockedCount = 0;
       const total = querySnapshot.docs.length;
+
+      const OLD_COLOR_WORDS = new Set([
+        'red', 'crimson', 'blood', 'scarlet', 'fire', 'ruby', 'flames', 'maroon', 'cherry', 'red & crimson',
+        'orange', 'sunset', 'bronze', 'copper', 'rust', 'coral', 'autumn', 'tiger', 'tangerine', 'orange & sunset', 'orange & amber',
+        'yellow', 'gold', 'amber', 'lemon', 'blonde', 'sun', 'golden', 'warm', 'brass', 'honey', 'yellow & gold',
+        'green', 'emerald', 'forest', 'moss', 'nature', 'jade', 'mint', 'foliage', 'green & emerald',
+        'cyan', 'teal', 'turquoise', 'aqua', 'marine', 'sea', 'cyan blue', 'cyan & teal', 'blue & cyan',
+        'blue', 'azure', 'navy', 'water', 'sky', 'ocean', 'sapphire', 'ice', 'cool', 'cobalt', 'blue & azure',
+        'purple', 'violet', 'indigo', 'lavender', 'neon purple', 'amethyst', 'plum', 'grape', 'purple & violet',
+        'pink', 'rose', 'pastel', 'blush', 'magenta', 'cherry blossom', 'flamingo', 'fuchsia', 'salmon', 'pink & rose',
+        'brown', 'earth', 'wood', 'timber', 'leather', 'coffee', 'chocolate', 'dirt', 'mud', 'sand', 'sepia', 'brown & earth',
+        'gray', 'grey', 'monochrome', 'grayscale', 'silver', 'neutral', 'slate', 'ash', 'charcoal', 'black and white', 'monochrome & gray', 'monochrome & grayscale',
+        'dark', 'black', 'noir', 'shadow', 'midnight', 'obsidian', 'gloomy', 'goth', 'night', 'dark & noir',
+        'white', 'light', 'clean', 'minimal', 'ivory', 'snow', 'bright', 'studio background', 'clean white & light'
+      ]);
+
       for (const d of querySnapshot.docs) {
         const pData = d.data();
         const imgUrl = pData.imageUrls && pData.imageUrls.length > 0 ? pData.imageUrls[0] : null;
         if (imgUrl) {
-          setScanStatus(`Analyzing via Gemini Multimodal AI (${successCount + blockedCount + 1}/${total}): "${pData.title || 'Untitled'}"...`);
+          setScanStatus(`High-Speed AI Indexing (${successCount + blockedCount + 1}/${total}): "${pData.title || 'Untitled'}"...`);
           const visionRes = await analyzeArtworkMultimodalWithGemini(imgUrl);
           if (visionRes.error) {
             console.warn(`[Rescan Error on ${pData.title || 'Untitled'}]:`, visionRes.error);
-            setScanStatus(`⚠️ Gemini Error on "${pData.title || 'Untitled'}": ${visionRes.error}`);
-            await new Promise(res => setTimeout(res, 2500)); // Pause so admin can see the error
           }
 
           let colorProfile = visionRes.colorProfile;
@@ -262,8 +276,11 @@ export default function AdminDashboardPage() {
             colorProfile = await extractImagePalette(imgUrl);
           }
 
-          const existingCategories = Array.isArray(pData.categories) ? pData.categories : [];
-          const newCategories = Array.from(new Set([...existingCategories, ...(visionRes.tags || []), ...(colorProfile?.colorNames || [])]));
+          // PURGE legacy inaccurate color tags from existing categories so old false results never persist!
+          const cleanExisting = (Array.isArray(pData.categories) ? pData.categories : [])
+            .filter((c: string) => !OLD_COLOR_WORDS.has(String(c).toLowerCase()) && !String(c).includes('&'));
+
+          const newCategories = Array.from(new Set([...cleanExisting, ...(visionRes.tags || []), ...(colorProfile?.colorNames || [])]));
 
           if (colorProfile || (visionRes.tags && visionRes.tags.length > 0)) {
             successCount++;
