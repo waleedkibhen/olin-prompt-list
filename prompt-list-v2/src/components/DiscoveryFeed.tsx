@@ -146,7 +146,8 @@ export default function DiscoveryFeed() {
           createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString() : 'Just now',
           rawTimestamp: data.createdAt?.toMillis ? data.createdAt.toMillis() : Date.now(),
           aspectRatio: data.aspectRatio || 'Square',
-          embedding: data.embedding
+          embedding: data.embedding,
+          colorProfile: data.colorProfile || null
         });
       });
 
@@ -284,16 +285,27 @@ export default function DiscoveryFeed() {
       const isColorSearch = Boolean(matchedColorOption) && queryTokens.length <= 2;
       const targetColorName = matchedColorOption?.name;
 
+      // Strict regex word-boundary matcher (prevents words like "layered" or "tattered" from matching "red")
+      const matchWord = (text: string, kw: string): boolean => {
+        if (!kw || !text) return false;
+        try {
+          const regex = new RegExp(`\\b${kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+          return regex.test(text);
+        } catch {
+          return text.toLowerCase().includes(kw.toLowerCase());
+        }
+      };
+
       current = current
         .map(post => {
           let score = 0;
           const contentStr = `${post.title} ${post.description} ${post.promptText} ${post.styleTag} ${post.categories.join(" ")}`.toLowerCase();
-          const hasKeywordMatch = queryTokens.some(token => contentStr.includes(token));
-          const hasExactMatch = contentStr.includes(cleanSearch);
+          const hasKeywordMatch = queryTokens.some(token => matchWord(contentStr, token));
+          const hasExactMatch = matchWord(contentStr, cleanSearch);
 
           if (isColorSearch && targetColorName) {
             // PINTEREST-LEVEL QUALITY RULE: Visual color dominance in the artwork is MANDATORY!
-            // Trace colors (<35%) or text mentions without visual dominance must NOT pollute results.
+            // Trace colors (<45%) or text mentions without visual dominance (like "red flag" on a blue tower) MUST NOT pollute results.
             const profile = post.colorProfile;
             if (profile?.colorNames && profile.colorNames.length > 0) {
               const primaryColor = profile.colorNames[0];
@@ -330,16 +342,16 @@ export default function DiscoveryFeed() {
                 score = 0;
               }
             } else if (!profile) {
-              // Fallback ONLY for legacy posts that haven't been scanned by AI yet
+              // Fallback ONLY for legacy posts that haven't been scanned by AI yet (uses strict whole-word match)
               if (hasExactMatch || hasKeywordMatch) score = 10;
             }
           } else {
-            // Strict Keyword & Tag Search (Eliminating random floating-point mock embedding false matches)
+            // Strict Keyword & Tag Search with whole-word boundaries
             if (hasExactMatch) score += 100;
             queryTokens.forEach(token => {
-              if (contentStr.includes(token)) score += 20;
+              if (matchWord(contentStr, token)) score += 20;
             });
-            if (post.styleTag && cleanSearch.includes(post.styleTag.toLowerCase())) score += 50;
+            if (post.styleTag && matchWord(cleanSearch, post.styleTag)) score += 50;
           }
 
           return { post, score };
