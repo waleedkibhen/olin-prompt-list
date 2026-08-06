@@ -1,7 +1,15 @@
-import { Buffer } from 'node:buffer';
-
 interface Env {
   GEMINI_API_KEY: string;
+}
+
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
 }
 
 async function resolveVisionModels(apiKey: string): Promise<string[]> {
@@ -81,7 +89,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       const imgRes = await fetch(imageUrl);
       if (imgRes.ok) {
         const buffer = await imgRes.arrayBuffer();
-        const b64Data = Buffer.from(buffer).toString('base64');
+        const b64Data = arrayBufferToBase64(buffer);
         const contentType = imgRes.headers.get('content-type') || "image/jpeg";
         inlineData = { mime_type: contentType.split(';')[0], data: b64Data };
       } else {
