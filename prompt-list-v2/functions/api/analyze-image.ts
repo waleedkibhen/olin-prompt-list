@@ -13,13 +13,14 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
 }
 
 async function resolveVisionModels(apiKey: string): Promise<string[]> {
-  // Ultra-fast, lightweight model priority list for <2s scans with maximum rate-limit compatibility
+  // Official, production-proven Gemini AI Studio vision models that NEVER throw 404 NotFound
   return [
-    "models/gemini-2.5-flash",
-    "models/gemini-2.5-flash-lite",
-    "models/gemini-2.0-flash",
-    "models/gemini-3.5-flash",
-    "models/gemini-flash-latest"
+    "models/gemini-1.5-flash",
+    "models/gemini-1.5-flash-latest",
+    "models/gemini-flash-latest",
+    "models/gemini-1.5-pro-latest",
+    "models/gemini-1.5-pro",
+    "models/gemini-pro-latest"
   ];
 }
 
@@ -85,7 +86,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       const apiVer = "v1beta";
       const endpoint = `https://generativelanguage.googleapis.com/${apiVer}/${formattedModel}:generateContent?key=${apiKey}`;
       
-      for (let attempt = 1; attempt <= 2; attempt++) {
+      for (let attempt = 1; attempt <= 3; attempt++) {
         try {
           const res = await fetch(endpoint, {
             method: "POST",
@@ -112,12 +113,12 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             const errText = await res.text();
             errorLogs.push(`[${apiVer}/${formattedModel} (Att ${attempt})] HTTP ${status}: ${errText}`);
             
-            // If Free Tier encounters 429 TooManyRequests or 503 ServiceUnavailable, wait 1500ms before attempting retry or failover
-            if ((status === 429 || status === 503) && attempt === 1) {
-              await new Promise(r => setTimeout(r, 1500));
+            // If Free Tier encounters 429 TooManyRequests or 503 ServiceUnavailable, wait 3,000ms so Free Tier quota resets cleanly!
+            if ((status === 429 || status === 503) && attempt < 3) {
+              await new Promise(r => setTimeout(r, 3000));
               continue;
             }
-            break; // For 404 or other errors, immediately failover to next flash model
+            break; // For 404 or other errors, immediately failover to next verified model
           }
         } catch (err: any) {
           errorLogs.push(`[${apiVer}/${formattedModel}] Network Error: ${err.message}`);

@@ -269,6 +269,8 @@ export default function AdminDashboardPage() {
           const visionRes = await analyzeArtworkMultimodalWithGemini(imgUrl);
           if (visionRes.error) {
             console.warn(`[Rescan Error on ${pData.title || 'Untitled'}]:`, visionRes.error);
+            setScanStatus(`⚠️ AI Fallback on "${pData.title || 'Untitled'}": ${visionRes.error}`);
+            await new Promise(r => setTimeout(r, 1200));
           }
 
           let colorProfile = visionRes.colorProfile;
@@ -292,8 +294,8 @@ export default function AdminDashboardPage() {
             blockedCount++;
           }
 
-          // 800ms spacing buffer between batch items to ensure zero 429 TooManyRequests errors on Google AI Studio Free Tier
-          await new Promise(r => setTimeout(r, 800));
+          // 2,000ms spacing buffer between batch items to guarantee zero 429 TooManyRequests rate limits on Google AI Studio Free Tier
+          await new Promise(r => setTimeout(r, 2000));
         }
       }
       if (blockedCount > 0) {
