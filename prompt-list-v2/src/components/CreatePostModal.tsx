@@ -261,9 +261,10 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
 
       // COST-OPTIMIZATION RULE: ONLY scan index 0 (Cover Image) for tags and colors!
       // Additional images (up to 4 more) stay in the gallery without consuming scan tokens or API billing.
-      const coverUrl = selectedFiles[0]?.previewUrl || uploadedImageUrls[0] || '';
-      if (coverUrl) {
-        const res = await analyzeArtworkMultimodalWithGemini(coverUrl);
+      // ALWAYS pass the uploaded public storage URL or base64 data to the cloud AI backend (never browser blob: URLs)
+      const serverScanUrl = uploadedImageUrls[0] || selectedFiles[0]?.base64 || '';
+      if (serverScanUrl) {
+        const res = await analyzeArtworkMultimodalWithGemini(serverScanUrl);
         if (res.tags && res.tags.length > 0) {
           visualTags.push(...res.tags);
         }
@@ -271,7 +272,9 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
       }
 
       if (!colorProfile) {
-        colorProfile = await extractImagePalette(coverUrl);
+        // Fallback to offline browser canvas color extraction if AI fails
+        const localPreview = selectedFiles[0]?.previewUrl || uploadedImageUrls[0] || '';
+        colorProfile = await extractImagePalette(localPreview);
       }
 
       const uniqueVisualTags = Array.from(new Set([...visualTags, ...(colorProfile?.colorNames || [])]));
