@@ -205,8 +205,8 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
       setModerationError(`Prompt exceeds security limits (Current: ${promptText.length.toLocaleString()} / 30,000 chars | ${wordCount.toLocaleString()} / 5,000 words). Please shorten your prompt.`);
       return;
     }
-    if (title.length > 150 || description.length > 5000) {
-      setModerationError(`Title or description exceeds secure character limits (Title max 150, Description max 5,000).`);
+    if (title.length > 75 || description.length > 5000) {
+      setModerationError(`Title exceeds strict 75-character limit or description exceeds 5,000 characters.`);
       return;
     }
 
@@ -483,13 +483,20 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
 
             <div className={styles.fieldRow}>
               <div className={styles.fieldGroup} style={{ flex: 1.5 }}>
-                <label>Title</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label style={{ marginBottom: 0 }}>Title</label>
+                  <span style={{ fontSize: '0.75rem', color: title.length >= 75 ? '#ef4444' : '#64748b' }}>
+                    <strong>{title.length}</strong> / 75 chars
+                  </span>
+                </div>
                 <input 
                   type="text" 
-                  placeholder="e.g. Cyberpunk rain scene"
+                  placeholder="e.g. Cyberpunk rain scene (max 75 chars)"
                   value={title}
+                  maxLength={75}
                   onChange={e => setTitle(e.target.value)}
                   required
+                  style={{ marginTop: '6px' }}
                 />
               </div>
 
