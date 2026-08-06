@@ -6,7 +6,7 @@ import PromptCard from './PromptCard';
 import { useAuth } from '@/context/AuthContext';
 import { 
   Compass, Flame, Clock, Layers, Loader2, Search, AlertTriangle, X, 
-  SlidersHorizontal, Palette, Sparkles, Image as ImageIcon, Calendar, Lock, RotateCcw, Check 
+  SlidersHorizontal, Palette, Sparkles, Image as ImageIcon, Calendar, RotateCcw, Check 
 } from 'lucide-react';
 import { calculateCosineSimilarity } from '@/lib/vector';
 import { generateLiveEmbedding } from '@/lib/ai';
@@ -124,6 +124,7 @@ export default function DiscoveryFeed() {
         applyAllFiltersAndSearch(dbPosts, activeTab, queryParam, modelParam, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter, activeVector);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, activeTab, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter, dbPosts, profile, activeVector]);
 
   // Infinite Scroll Observer
@@ -595,11 +596,11 @@ export default function DiscoveryFeed() {
     applyAllFiltersAndSearch(dbPosts, tab, searchFilter, modelFilter, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter);
   };
 
-  const handleLike = (id: string) => {
+  const handleLike = (_id: string) => {
     // AuthContext automatically syncs changes via Firestore onSnapshot
   };
 
-  const handleSave = (id: string) => {
+  const handleSave = (_id: string) => {
     // AuthContext automatically syncs changes via Firestore onSnapshot
   };
 

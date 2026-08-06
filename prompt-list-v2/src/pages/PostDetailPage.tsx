@@ -146,7 +146,7 @@ export default function PostDetailPage() {
         setIsFollowing(followedArr.includes(post.creator.uid));
       }
     }
-  }, [id, user, post]);
+  }, [id, user, post, profile?.isPremium, profile?.subscriptionStatus, effectiveMonetization]);
 
   const requireAuth = (actionName: string): boolean => {
     if (!user) {

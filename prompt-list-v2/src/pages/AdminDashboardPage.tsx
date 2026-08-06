@@ -9,7 +9,6 @@ import { Link } from 'react-router-dom';
 import RichTextRenderer from '@/components/RichTextRenderer';
 import { extractImagePalette } from '@/lib/colorAnalyzer';
 import { analyzeArtworkMultimodalWithGemini, diagnoseGeminiApi } from '@/lib/ai';
-import { ENABLE_MONETIZATION } from '@/lib/config';
 
 interface AdminPost {
   id: string;
@@ -57,7 +56,11 @@ export default function AdminDashboardPage() {
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
   
   const [replyTextMap, setReplyTextMap] = useState<{ [ticketId: string]: string }>({});
-  const [rejectReasonMap, setRejectReasonMap] = useState<{ [uid: string]: string }>({});
+
+  const [isScanningColors, setIsScanningColors] = useState(false);
+  const [scanStatus, setScanStatus] = useState<string | null>(null);
+  const [isDiagnosing, setIsDiagnosing] = useState(false);
+  const [diagnosticData, setDiagnosticData] = useState<any>(null);
 
   useEffect(() => {
     if (loading || !user || user.email !== 'wisecrafts81@gmail.com') return;
@@ -83,7 +86,7 @@ export default function AdminDashboardPage() {
       snapshot.forEach(docSnap => {
         items.push({ id: docSnap.id, ...docSnap.data() } as SupportTicket);
       });
-      items.sort((a, b) => (a.status === 'open' ? -1 : 1));
+      items.sort((a, _b) => (a.status === 'open' ? -1 : 1));
       setTickets(items);
     });
 
@@ -217,11 +220,6 @@ export default function AdminDashboardPage() {
       alert(`Error updating user status: ${e.message}`);
     }
   };
-
-  const [isScanningColors, setIsScanningColors] = useState(false);
-  const [scanStatus, setScanStatus] = useState<string | null>(null);
-  const [isDiagnosing, setIsDiagnosing] = useState(false);
-  const [diagnosticData, setDiagnosticData] = useState<any>(null);
 
   const handleRunDiagnostics = async () => {
     setIsDiagnosing(true);

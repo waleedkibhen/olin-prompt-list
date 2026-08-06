@@ -8,11 +8,12 @@ interface RichTextRendererProps {
 }
 
 // Utility to copy rich HTML formatting to clipboard while keeping a clean plain text fallback
+// eslint-disable-next-line react-refresh/only-export-components
 export async function copyRichPrompt(content: string): Promise<void> {
   try {
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = content
-      .replace(/<br\s*[\/]?>/gi, "\n")
+      .replace(/<br\s*[/]?>/gi, "\n")
       .replace(/<\/p>/gi, "\n\n")
       .replace(/<\/li>/gi, "\n")
       .replace(/<\/div>/gi, "\n");
@@ -29,7 +30,7 @@ export async function copyRichPrompt(content: string): Promise<void> {
     } else {
       await navigator.clipboard.writeText(plainText || content);
     }
-  } catch (err) {
+  } catch (_err) {
     // Fallback if writing ClipboardItem is restricted in current browser environment
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = content;

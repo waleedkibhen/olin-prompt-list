@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import styles from './CreatePostModal.module.css';
 import { useAuth } from '@/context/AuthContext';
-import { moderateText, moderateSingleImage, generateLiveEmbedding, analyzeArtworkWithGemini, analyzeArtworkMultimodalWithGemini } from '@/lib/ai';
+import { moderateText, moderateSingleImage, generateLiveEmbedding, analyzeArtworkMultimodalWithGemini } from '@/lib/ai';
 import { sendNotification } from '@/lib/notifications';
 import { doc, setDoc, serverTimestamp, collection, query, getDocs, orderBy, limit } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';

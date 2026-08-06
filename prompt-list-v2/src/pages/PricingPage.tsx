@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styles from './pricing.module.css';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Check, Zap, Sparkles, ShieldCheck, ExternalLink, X, AlertCircle } from 'lucide-react';
+import { Check, Zap, Sparkles, ExternalLink } from 'lucide-react';
 import { ENABLE_MONETIZATION } from '@/lib/config';
 
 // Live Whop Checkout URLs & Plan IDs
@@ -22,7 +22,7 @@ export default function PricingPage() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<'pending' | 'success' | 'failed'>('pending');
 
-  const verifyWhopPayment = async () => {
+  const verifyWhopPayment = useCallback(async () => {
     if (!user?.email) return;
     setIsVerifying(true);
     setVerificationStatus('pending');
@@ -50,7 +50,7 @@ export default function PricingPage() {
     } finally {
       setIsVerifying(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -68,7 +68,7 @@ export default function PricingPage() {
       }, 2500);
       return () => clearTimeout(timer);
     }
-  }, [showSuccessModal, user, verificationStatus, isVerifying]);
+  }, [showSuccessModal, user, verificationStatus, isVerifying, verifyWhopPayment]);
 
   useEffect(() => {
     if (user && localStorage.getItem('olin_recent_success') === 'true') {

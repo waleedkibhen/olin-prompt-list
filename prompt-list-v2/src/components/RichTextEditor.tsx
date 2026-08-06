@@ -24,7 +24,7 @@ export default function RichTextEditor({ value, onChange, placeholder = "Enter p
       editorRef.current.innerHTML = value;
       isFirstRender.current = false;
     }
-  }, []);
+  }, [value]);
 
   const handleInput = () => {
     if (editorRef.current) {
@@ -60,7 +60,7 @@ export default function RichTextEditor({ value, onChange, placeholder = "Enter p
         }
       }
       return doc.body.innerHTML;
-    } catch (e) {
+    } catch (_e) {
       return rawHtml;
     }
   };

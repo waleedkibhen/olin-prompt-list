@@ -5,7 +5,7 @@ interface Env {
 }
 
 const DEFAULT_WEBHOOK_SECRET = "ws_41a8e47e2fa92f349fb34b98e7185ecd576682f4876f64165b9104165384c8ae";
-const DEFAULT_API_KEY = "apik_ehGz6NoKEOfQv_C5388822_C_4ef6b481f1f55c864cab889eeada81dda783fa0f1257ac1654cd863031830c";
+// Removed unused DEFAULT_API_KEY
 const DEFAULT_FIREBASE_PROJECT_ID = "promptlist-15659";
 
 /**
@@ -149,7 +149,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     let payload: any;
     try {
       payload = JSON.parse(rawBody);
-    } catch (parseErr) {
+    } catch (_parseErr) {
       console.error("Invalid JSON payload in Whop webhook.");
       return new Response("OK: Malformed JSON ignored", { status: 200 });
     }

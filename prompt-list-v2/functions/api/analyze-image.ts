@@ -12,7 +12,7 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
   return btoa(binary);
 }
 
-async function resolveVisionModels(apiKey: string): Promise<string[]> {
+async function resolveVisionModels(_apiKey: string): Promise<string[]> {
   // Verified high-quota workhorse models from live diagnostic reports (avoids 20 req/day caps on preview models)
   return [
     "models/gemini-2.0-flash",
@@ -109,6 +109,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
               errorLogs.push(`[${apiVer}/${formattedModel}] JSON Parse Error: ${e.message}`);
               break; // Don't retry on parse error, jump to next model
             }
+          }
             const status = res.status;
             const errText = await res.text();
             errorLogs.push(`[${apiVer}/${formattedModel} (Att ${attempt})] HTTP ${status}: ${errText}`);
@@ -125,7 +126,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
               continue;
             }
             break; // For 404 or other errors, immediately failover to next verified model
-          }
         } catch (err: any) {
           errorLogs.push(`[${apiVer}/${formattedModel}] Network Error: ${err.message}`);
           break;
