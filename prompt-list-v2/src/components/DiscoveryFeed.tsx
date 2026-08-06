@@ -3,13 +3,14 @@ import styles from './DiscoveryFeed.module.css';
 import { PromptPost } from '@/lib/mockData';
 import { recordSearchTerm } from '@/lib/personalization';
 import PromptCard from './PromptCard';
+import { useAuth } from '@/context/AuthContext';
 import { 
   Compass, Flame, Clock, Layers, Loader2, Search, AlertTriangle, X, 
   SlidersHorizontal, Palette, Sparkles, Image as ImageIcon, Calendar, Lock, RotateCcw, Check 
 } from 'lucide-react';
 import { calculateCosineSimilarity } from '@/lib/vector';
 import { generateLiveEmbedding } from '@/lib/ai';
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useSearchParams } from 'react-router-dom';
 import { ENABLE_MONETIZATION } from '@/lib/config';
@@ -73,6 +74,8 @@ export default function DiscoveryFeed() {
   const [timeFilter, setTimeFilter] = useState('All Time');
   const [vaultFilter, setVaultFilter] = useState('All Artwork');
   
+  const { profile } = useAuth();
+  
   const [dbPosts, setDbPosts] = useState<PromptPost[]>([]);
   const [displayedPosts, setDisplayedPosts] = useState<PromptPost[]>([]);
   const [isLoadingDb, setIsLoadingDb] = useState(true);
@@ -81,9 +84,6 @@ export default function DiscoveryFeed() {
   const [searchFilter, setSearchFilter] = useState('');
   const [modelFilter, setModelFilter] = useState('All Models');
   const [isSearching, setIsSearching] = useState(false);
-  
-  const [likedPosts, setLikedPosts] = useState<string[]>([]);
-  const [savedPosts, setSavedPosts] = useState<string[]>([]);
 
   const activeFilterCount = [
     colorFilter !== 'All',
@@ -108,7 +108,8 @@ export default function DiscoveryFeed() {
   }, [searchParams, activeTab, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter]);
 
   useEffect(() => {
-    const postsQuery = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+    // Limit to newest 200 posts to create the local candidate pool (prevents catastrophic db read costs)
+    const postsQuery = query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(200));
     
     const unsubscribe = onSnapshot(postsQuery, (snapshot) => {
       setPermissionError(false);
@@ -367,18 +368,60 @@ export default function DiscoveryFeed() {
     const isRelevanceSorted = (color && color !== 'All' && color !== 'Any Color') || Boolean(activeSearchQuery);
 
     if (!isRelevanceSorted) {
-      if (tab === 'trending') {
-        current.sort((a, b) => (b.likesCount + b.savesCount + b.viewsCount) - (a.likesCount + a.savesCount + a.viewsCount));
+      if (tab === 'newest') {
+        // Strict chronological sort
+        current.sort((a, b) => (b.rawTimestamp || 0) - (a.rawTimestamp || 0));
+      } else if (tab === 'trending') {
+        // Viral Velocity Rank: Likes * 3 + Saves * 4 + Copies * 2 + Views
+        const now = Date.now();
+        current = current.filter(p => {
+          const ageInDays = (now - (p.rawTimestamp || 0)) / (1000 * 60 * 60 * 24);
+          return ageInDays <= 14; // Fallback to 14 days to ensure candidates exist
+        }).sort((a, b) => {
+          const scoreA = (a.likesCount * 3) + (a.savesCount * 4) + ((a.copiesCount || 0) * 2) + (a.viewsCount);
+          const scoreB = (b.likesCount * 3) + (b.savesCount * 4) + ((b.copiesCount || 0) * 2) + (b.viewsCount);
+          return scoreB - scoreA;
+        });
+        
+        // If trending pool is totally empty (e.g. brand new db), fallback to newest
+        if (current.length === 0) {
+          current = [...items].sort((a, b) => (b.rawTimestamp || 0) - (a.rawTimestamp || 0));
+        }
       } else if (tab === 'for_you') {
-        const userFavoriteStyles = items
-          .filter(p => likedPosts.includes(p.id) || savedPosts.includes(p.id))
-          .map(p => p.styleTag);
+        const likedArr = profile?.likedPosts || [];
+        const savedArr = profile?.savedPosts || [];
+        
+        if (likedArr.length > 0 || savedArr.length > 0) {
+          // 1. Build Preference Vector from user's historical liked/saved posts
+          const preferredPosts = items.filter(p => likedArr.includes(p.id) || savedArr.includes(p.id));
+          
+          const tagFreq: Record<string, number> = {};
+          const styleFreq: Record<string, number> = {};
+          
+          preferredPosts.forEach(p => {
+            p.categories.forEach(c => { tagFreq[c] = (tagFreq[c] || 0) + 1; });
+            styleFreq[p.styleTag] = (styleFreq[p.styleTag] || 0) + 1;
+          });
+          
+          const topTags = Object.entries(tagFreq).sort((a, b) => b[1] - a[1]).slice(0, 15).map(x => x[0]);
+          const topStyle = Object.entries(styleFreq).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
 
-        if (userFavoriteStyles.length > 0) {
+          // 2. Score Candidate Pool using Preference Affinity
           current.sort((a, b) => {
-            const aMatch = userFavoriteStyles.includes(a.styleTag) ? 1 : 0;
-            const bMatch = userFavoriteStyles.includes(b.styleTag) ? 1 : 0;
-            return bMatch - aMatch;
+            let scoreA = 0; let scoreB = 0;
+            a.categories.forEach(c => { if (topTags.includes(c)) scoreA += 3; });
+            b.categories.forEach(c => { if (topTags.includes(c)) scoreB += 3; });
+            if (a.styleTag === topStyle) scoreA += 5;
+            if (b.styleTag === topStyle) scoreB += 5;
+            // Introduce slight recency bias for tie-breakers
+            return (scoreB + (b.rawTimestamp || 0)/1e12) - (scoreA + (a.rawTimestamp || 0)/1e12);
+          });
+        } else {
+          // Cold Start Fallback: Fall back to Trending if they haven't liked anything yet
+          current.sort((a, b) => {
+            const scoreA = (a.likesCount * 3) + (a.savesCount * 4) + (a.viewsCount);
+            const scoreB = (b.likesCount * 3) + (b.savesCount * 4) + (b.viewsCount);
+            return scoreB - scoreA;
           });
         }
       }
@@ -405,11 +448,11 @@ export default function DiscoveryFeed() {
   };
 
   const handleLike = (id: string) => {
-    setLikedPosts(prev => prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]);
+    // AuthContext automatically syncs changes via Firestore onSnapshot
   };
 
   const handleSave = (id: string) => {
-    setSavedPosts(prev => prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]);
+    // AuthContext automatically syncs changes via Firestore onSnapshot
   };
 
   const clearSearch = () => {

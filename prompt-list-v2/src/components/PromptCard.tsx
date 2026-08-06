@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styles from './PromptCard.module.css';
 import { PromptPost } from '@/lib/mockData';
 import { useAuth } from '@/context/AuthContext';
-import { doc, updateDoc, increment, collection, onSnapshot, addDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
+import { doc, updateDoc, increment, collection, onSnapshot, addDoc, serverTimestamp, query, orderBy, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Heart, Bookmark, Copy, Check, Sparkles, Share2, MessageSquare, ExternalLink, Send, Loader2, PlayCircle, ShieldCheck, Flag } from 'lucide-react';
 import { moderateText } from '@/lib/ai';
@@ -74,9 +74,9 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
 
     setIsUnlocked(isFree || isOwner || subUnlocked || unlockedArr.includes(post.id));
 
-    if (user) {
-      const savedArr = JSON.parse(localStorage.getItem(`saves_${user.uid}`) || '[]');
-      const likedArr = JSON.parse(localStorage.getItem(`likes_${user.uid}`) || '[]');
+    if (user && profile) {
+      const savedArr = profile.savedPosts || JSON.parse(localStorage.getItem(`saves_${user.uid}`) || '[]');
+      const likedArr = profile.likedPosts || JSON.parse(localStorage.getItem(`likes_${user.uid}`) || '[]');
       const followedArr = JSON.parse(localStorage.getItem(`following_${user.uid}`) || '[]');
       
       setIsSaved(savedArr.includes(post.id));
@@ -84,8 +84,14 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
       if (post.creator?.uid) {
         setIsFollowing(followedArr.includes(post.creator.uid));
       }
+    } else if (user) {
+      // Fallback for when profile is still loading but user exists
+      const savedArr = JSON.parse(localStorage.getItem(`saves_${user.uid}`) || '[]');
+      const likedArr = JSON.parse(localStorage.getItem(`likes_${user.uid}`) || '[]');
+      setIsSaved(savedArr.includes(post.id));
+      setIsLiked(likedArr.includes(post.id));
     }
-  }, [user, post.id, post.creator?.uid, post.isPaid, post.monetizationType, effectiveMonetization]);
+  }, [user, profile, post.id, post.creator?.uid, post.isPaid, post.monetizationType, effectiveMonetization]);
 
   useEffect(() => {
     if (!isModalOpen) return;
@@ -126,12 +132,19 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
     setIsLiked(nextVal);
     setLikesCount(prev => nextVal ? prev + 1 : Math.max(0, prev - 1));
 
+    // Fallback local storage for immediate responsiveness and offline support
     const likedArr = JSON.parse(localStorage.getItem(`likes_${user.uid}`) || '[]');
     const nextArr = nextVal ? [...likedArr, post.id] : likedArr.filter((item: string) => item !== post.id);
     localStorage.setItem(`likes_${user.uid}`, JSON.stringify(nextArr));
 
     if (onLike) onLike(post.id);
-    await updateDoc(doc(db, 'posts', post.id), { likesCount: increment(nextVal ? 1 : -1) }).catch(() => {});
+    
+    // Cloud sync: update the post counts AND the user's profile array in Firestore
+    const postUpdate = updateDoc(doc(db, 'posts', post.id), { likesCount: increment(nextVal ? 1 : -1) });
+    const userUpdate = updateDoc(doc(db, 'users', user.uid), { 
+      likedPosts: nextVal ? arrayUnion(post.id) : arrayRemove(post.id) 
+    });
+    await Promise.all([postUpdate, userUpdate]).catch(() => {});
   };
 
   const toggleSave = async (e: React.MouseEvent) => {
@@ -148,7 +161,12 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
     localStorage.setItem(`saves_${user.uid}`, JSON.stringify(nextArr));
 
     if (onSave) onSave(post.id);
-    await updateDoc(doc(db, 'posts', post.id), { savesCount: increment(nextVal ? 1 : -1) }).catch(() => {});
+    
+    const postUpdate = updateDoc(doc(db, 'posts', post.id), { savesCount: increment(nextVal ? 1 : -1) });
+    const userUpdate = updateDoc(doc(db, 'users', user.uid), { 
+      savedPosts: nextVal ? arrayUnion(post.id) : arrayRemove(post.id) 
+    });
+    await Promise.all([postUpdate, userUpdate]).catch(() => {});
   };
 
   const toggleFollow = (e: React.MouseEvent) => {

@@ -20,6 +20,8 @@ export interface CreatorProfile {
   subscriptionStatus?: 'active' | 'canceled' | 'expired' | string;
   isPremium?: boolean;
   subscriptionTier?: 'monthly' | 'yearly' | string;
+  likedPosts?: string[];
+  savedPosts?: string[];
 }
 
 interface AuthContextType {
