@@ -3,7 +3,7 @@ import styles from './CreatePostModal.module.css';
 import { useAuth } from '@/context/AuthContext';
 import { moderateText, moderateSingleImage, generateLiveEmbedding, analyzeArtworkWithGemini, analyzeArtworkMultimodalWithGemini } from '@/lib/ai';
 import { sendNotification } from '@/lib/notifications';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp, collection, query, getDocs, orderBy, limit } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
 import { CheckCircle2, Loader2, Trash2, AlertTriangle, UploadCloud } from 'lucide-react';
@@ -191,6 +191,25 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
       return;
     }
 
+    // Anti-Spam & DDoS Shield: 15-second upload cooldown between submissions per device
+    const lastUploadTimestamp = Number(localStorage.getItem('last_post_upload') || '0');
+    if (Date.now() - lastUploadTimestamp < 15000) {
+      const waitSec = Math.ceil((15000 - (Date.now() - lastUploadTimestamp)) / 1000);
+      setModerationError(`Anti-spam protection active: Please wait ${waitSec} seconds before publishing another creation.`);
+      return;
+    }
+
+    // Strict Hard Limit: Max 30,000 characters OR 5,000 words to stop spam & system crash attempts
+    const wordCount = promptText.trim() ? promptText.trim().split(/\s+/).filter(Boolean).length : 0;
+    if (promptText.length > 30000 || wordCount > 5000) {
+      setModerationError(`Prompt exceeds security limits (Current: ${promptText.length.toLocaleString()} / 30,000 chars | ${wordCount.toLocaleString()} / 5,000 words). Please shorten your prompt.`);
+      return;
+    }
+    if (title.length > 150 || description.length > 5000) {
+      setModerationError(`Title or description exceeds secure character limits (Title max 150, Description max 5,000).`);
+      return;
+    }
+
     setIsScanning(true);
     try {
       let isFlagged = false;
@@ -236,26 +255,68 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
         }
       }
 
-      setStatusText('Analyzing visual scene & human color spectrum via Multimodal AI...');
+      setStatusText('Scanning Cover Image for visual tags & color spectrum via Multimodal AI...');
       const visualTags: string[] = [];
       let colorProfile = null;
 
-      for (let i = 0; i < uploadedImageUrls.length; i++) {
-        const targetUrl = selectedFiles[i]?.previewUrl || uploadedImageUrls[i] || '';
-        const res = await analyzeArtworkMultimodalWithGemini(targetUrl);
+      // COST-OPTIMIZATION RULE: ONLY scan index 0 (Cover Image) for tags and colors!
+      // Additional images (up to 4 more) stay in the gallery without consuming scan tokens or API billing.
+      const coverUrl = selectedFiles[0]?.previewUrl || uploadedImageUrls[0] || '';
+      if (coverUrl) {
+        const res = await analyzeArtworkMultimodalWithGemini(coverUrl);
         if (res.tags && res.tags.length > 0) {
           visualTags.push(...res.tags);
         }
-        if (i === 0 && res.colorProfile) {
-          colorProfile = res.colorProfile;
-        }
+        colorProfile = res.colorProfile || null;
       }
 
       if (!colorProfile) {
-        colorProfile = await extractImagePalette(selectedFiles[0]?.previewUrl || uploadedImageUrls[0] || '');
+        colorProfile = await extractImagePalette(coverUrl);
       }
 
       const uniqueVisualTags = Array.from(new Set([...visualTags, ...(colorProfile?.colorNames || [])]));
+
+      // ZERO-COST SIMILARITY & COPYRIGHT SHIELD: Check against existing catalog creations before saving!
+      setStatusText('Verifying originality against catalog (copyright & duplicate protection)...');
+      try {
+        const catalogQuery = query(collection(db, 'posts'), orderBy('createdAt', 'desc'), limit(60));
+        const catalogSnap = await getDocs(catalogQuery);
+        
+        for (const docSnap of catalogSnap.docs) {
+          const existingData = docSnap.data();
+          if (existingData.isFlagged || docSnap.id === user.uid) continue;
+
+          // Check for exact cover image file duplication
+          const existingCover = existingData.imageUrls?.[0] || '';
+          if (existingCover === uploadedImageUrls[0] && uploadedImageUrls[0]) {
+            throw new Error(`Duplicate artwork detected: This exact cover image already exists in our catalog as "${existingData.title || 'Untitled'}".`);
+          }
+
+          // Jaccard Tag & Visual Mood Similarity comparison
+          const existingTags = (Array.isArray(existingData.categories) ? existingData.categories : []).map(String).map((t: string) => t.toLowerCase());
+          const newTagsLower = uniqueVisualTags.map(t => t.toLowerCase());
+
+          if (existingTags.length >= 8 && newTagsLower.length >= 8) {
+            const intersection = newTagsLower.filter(t => existingTags.includes(t));
+            const union = new Set([...existingTags, ...newTagsLower]);
+            const jaccardScore = union.size > 0 ? intersection.length / union.size : 0;
+
+            // Compare dominant primary colors
+            const existingPrimaryColor = existingData.colorProfile?.colorNames?.[0] || existingTags.find((t: string) => t.includes('&'));
+            const newPrimaryColor = colorProfile?.colorNames?.[0];
+            const samePrimaryColor = existingPrimaryColor && newPrimaryColor && existingPrimaryColor.toLowerCase() === newPrimaryColor.toLowerCase();
+
+            // If >= 65% tag similarity and exact same primary color mood, restrict as duplicate / derivative!
+            if (jaccardScore >= 0.65 && samePrimaryColor) {
+              throw new Error(`Copyright & Similarity Shield: Your cover image visual composition and color spectrum closely resemble existing creation "${existingData.title}". To maintain platform originality and protect creator copyright, highly similar uploads are restricted.`);
+            }
+          }
+        }
+      } catch (simError: any) {
+        setIsScanning(false);
+        setModerationError(simError.message || "Upload restricted by automated similarity and copyright protection.");
+        return;
+      }
 
       setStatusText('Finalizing...');
       const fullTextToEmbed = `${title} ${description} ${promptText} ${model} ${uniqueVisualTags.join(" ")}`;
@@ -295,6 +356,7 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
       };
 
       await setDoc(postDocRef, postPayload);
+      localStorage.setItem('last_post_upload', String(Date.now())); // Save anti-spam rate-limit timestamp
       setIsScanning(false);
       setWasFlagged(isFlagged);
       setSuccessMsg(true);
@@ -449,6 +511,9 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
                 onChange={html => setPromptText(html)}
                 placeholder="Generative prompt parameters, seeds, or camera flags with rich formatting (bold, bullet points, lists)..."
               />
+              <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '0.75rem', marginTop: '6px', color: (promptText.length > 30000 || (promptText.trim().split(/\s+/).filter(Boolean).length > 5000)) ? '#ef4444' : '#64748b' }}>
+                <span>🛡️ Security Limit: <strong>{promptText.length.toLocaleString()}</strong> / 30,000 chars &nbsp;|&nbsp; <strong>{promptText.trim() ? promptText.trim().split(/\s+/).filter(Boolean).length.toLocaleString() : 0}</strong> / 5,000 words</span>
+              </div>
             </div>
 
             {ENABLE_MONETIZATION && (

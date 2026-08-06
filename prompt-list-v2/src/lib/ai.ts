@@ -94,43 +94,66 @@ export interface MultimodalVisionResult {
   modelUsed?: string;
 }
 
+// Global sequential execution queue for AI calls to eliminate concurrency rate limits and server crashes
+let aiTaskQueue = Promise.resolve();
+
+function executeSequentialAiTask<T>(taskFn: () => Promise<T>, pacingMs: number = 1200): Promise<T> {
+  return new Promise((resolve, reject) => {
+    aiTaskQueue = aiTaskQueue.then(async () => {
+      try {
+        const result = await taskFn();
+        // Enforce time gap between sequential queries to prevent quota overload or rate-limit bursting
+        await new Promise(r => setTimeout(r, pacingMs));
+        resolve(result);
+      } catch (err) {
+        await new Promise(r => setTimeout(r, pacingMs));
+        reject(err);
+      }
+    });
+  });
+}
+
 /**
- * Analyzes artwork using Gemini Multimodal Vision to produce both comprehensive visual search tags (objects, atmosphere, clothing) and human-perceptive color profiles.
+ * Analyzes artwork sequentially using Gemini Multimodal Vision to produce both comprehensive visual search tags and human-perceptive color profiles.
+ * Includes automatic sequential queuing with a safety buffer between invocations.
  */
 export async function analyzeArtworkMultimodalWithGemini(imageUrlOrBase64: string): Promise<MultimodalVisionResult> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000); // 15-second strict max timeout
-  try {
-    const isBase64 = imageUrlOrBase64.startsWith('data:');
-    const res = await fetch('/api/analyze-image', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(isBase64 ? { base64: imageUrlOrBase64 } : { imageUrl: imageUrlOrBase64 }),
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-    if (res.ok) {
-      const data = await res.json();
-      if (data.error) {
-        console.warn("Gemini Vision pipeline error reported by backend:", data.error);
-      } else if (data.modelUsed) {
-        console.log(`✨ Successfully indexed via Gemini Model: ${data.modelUsed} (${data.apiVersion})`);
+  return executeSequentialAiTask(async () => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 18000); // 18-second strict max timeout for sequential processing
+    try {
+      const isBase64 = imageUrlOrBase64.startsWith('data:');
+      const res = await fetch('/api/analyze-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(isBase64 ? { base64: imageUrlOrBase64 } : { imageUrl: imageUrlOrBase64 }),
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.error) {
+          console.warn("Gemini Vision pipeline error reported by backend:", data.error);
+        } else if (data.modelUsed) {
+          console.log(`✨ Successfully indexed via Gemini Model: ${data.modelUsed} (${data.apiVersion})`);
+        }
+        return {
+          tags: Array.isArray(data.tags) ? data.tags : [],
+          colorProfile: data.colorProfile || null,
+          error: data.error,
+          modelUsed: data.modelUsed
+        };
       }
-      return {
-        tags: Array.isArray(data.tags) ? data.tags : [],
-        colorProfile: data.colorProfile || null,
-        error: data.error,
-        modelUsed: data.modelUsed
-      };
+    } catch (e: any) {
+      clearTimeout(timeoutId);
+      const msg = e.name === 'AbortError' ? 'Timeout: AI analysis took longer than 18s' : (e.message || String(e));
+      console.error("Failed to extract Gemini multimodal vision & color data:", msg);
+      return { tags: [], colorProfile: null, error: msg };
     }
-  } catch (e: any) {
-    clearTimeout(timeoutId);
-    const msg = e.name === 'AbortError' ? 'Timeout: AI analysis took longer than 15s' : (e.message || String(e));
-    console.error("Failed to extract Gemini multimodal vision & color data:", msg);
-    return { tags: [], colorProfile: null, error: msg };
-  }
-  return { tags: [], colorProfile: null };
+    return { tags: [], colorProfile: null };
+  }, 1200);
 }
+
 
 export async function diagnoseGeminiApi(): Promise<any> {
   try {
