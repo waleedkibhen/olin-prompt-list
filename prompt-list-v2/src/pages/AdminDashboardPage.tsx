@@ -56,6 +56,7 @@ export default function AdminDashboardPage() {
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
   
   const [replyTextMap, setReplyTextMap] = useState<{ [ticketId: string]: string }>({});
+  const [rejectReasonMap, _setRejectReasonMap] = useState<{ [uid: string]: string }>({});
 
   const [isScanningColors, setIsScanningColors] = useState(false);
   const [scanStatus, setScanStatus] = useState<string | null>(null);
