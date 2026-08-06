@@ -84,6 +84,8 @@ export default function DiscoveryFeed() {
   const [searchFilter, setSearchFilter] = useState('');
   const [modelFilter, setModelFilter] = useState('All Models');
   const [isSearching, setIsSearching] = useState(false);
+  
+  const [activeVector, setActiveVector] = useState<number[] | null>(null);
 
   const activeFilterCount = [
     colorFilter !== 'All',
@@ -103,9 +105,34 @@ export default function DiscoveryFeed() {
       recordSearchTerm(queryParam);
     }
     if (dbPosts.length > 0) {
-      applyAllFiltersAndSearch(dbPosts, activeTab, queryParam, modelParam, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter);
+      applyAllFiltersAndSearch(dbPosts, activeTab, queryParam, modelParam, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter, activeVector);
     }
-  }, [searchParams, activeTab, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter, dbPosts, profile]);
+  }, [searchParams, activeTab, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter, dbPosts, profile, activeVector]);
+
+  useEffect(() => {
+    const fetchEmbedding = async () => {
+      const term = searchParams.get('search')?.trim() || '';
+      
+      // Skip embedding generation for short terms or known color searches to save API costs
+      const isColor = COLOR_OPTIONS.some(c => 
+        c.name.toLowerCase().includes(term.toLowerCase()) || 
+        c.keywords.some(kw => kw.toLowerCase() === term.toLowerCase() || term.toLowerCase().includes(kw.toLowerCase()))
+      );
+      
+      if (term.length >= 3 && !isColor) {
+        try {
+          const vec = await generateLiveEmbedding(term);
+          setActiveVector(vec);
+        } catch (e) {
+          console.error('Failed to generate search embedding', e);
+          setActiveVector(null);
+        }
+      } else {
+        setActiveVector(null);
+      }
+    };
+    fetchEmbedding();
+  }, [searchParams]);
 
   useEffect(() => {
     // Limit to newest 200 posts to create the local candidate pool (prevents catastrophic db read costs)
@@ -175,6 +202,7 @@ export default function DiscoveryFeed() {
     aspect: string,
     time: string,
     vault: string,
+    vectorToCompare: number[] | null = null,
     isBackgroundUpdate = false
   ) => {
     let current = [...items];
@@ -349,6 +377,15 @@ export default function DiscoveryFeed() {
               if (matchWord(contentStr, token)) score += 20;
             });
             if (post.styleTag && matchWord(cleanSearch, post.styleTag)) score += 50;
+            
+            // Semantic Vector Search: Mathing "kids" to "children"
+            if (vectorToCompare && post.embedding && post.embedding.length > 0) {
+              const sim = calculateCosineSimilarity(vectorToCompare, post.embedding);
+              if (sim > 0.70) {
+                // Exponential scaling for highly semantically similar vectors
+                score += Math.floor((sim - 0.70) * 400); 
+              }
+            }
           }
 
           return { post, score };
