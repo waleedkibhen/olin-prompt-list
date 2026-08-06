@@ -481,10 +481,9 @@ export default function DiscoveryFeed() {
             const likeIdx = likedArr.indexOf(p.id);
             const saveIdx = savedArr.indexOf(p.id);
             
-            // Weight recent likes MUCH heavier so the algorithm instantly pivots to new tastes
             let weight = 1;
-            if (likeIdx !== -1 && likeIdx >= likedArr.length - 5) weight += 10;
-            if (saveIdx !== -1 && saveIdx >= savedArr.length - 5) weight += 15;
+            if (likeIdx !== -1 && likeIdx >= likedArr.length - 5) weight += 5;
+            if (saveIdx !== -1 && saveIdx >= savedArr.length - 5) weight += 8;
 
             p.categories.forEach(c => { tagFreq[c] = (tagFreq[c] || 0) + weight; });
             styleFreq[p.styleTag] = (styleFreq[p.styleTag] || 0) + weight;
@@ -495,29 +494,56 @@ export default function DiscoveryFeed() {
             }
           });
           
-          const topTags = Object.entries(tagFreq).sort((a, b) => b[1] - a[1]).slice(0, 15).map(x => x[0]);
-          const topStyle = Object.entries(styleFreq).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
-          const topColor = Object.entries(colorFreq).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
-          const topModel = Object.entries(modelFreq).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
+          // Normalize Global Frequencies (0.0 to 1.0)
+          const maxTagFreq = Math.max(...Object.values(tagFreq), 1);
+          const maxStyleFreq = Math.max(...Object.values(styleFreq), 1);
+          const maxColorFreq = Math.max(...Object.values(colorFreq), 1);
+          const maxModelFreq = Math.max(...Object.values(modelFreq), 1);
 
-          // 2. Score Candidate Pool using Multi-Dimensional Preference Affinity
+          // Nearest Neighbor Extraction: Find the 5 most recent explicit likes/saves
+          const recentInteractions = [...preferredPosts].sort((a, b) => {
+            const aIdx = Math.max(likedArr.indexOf(a.id), savedArr.indexOf(a.id));
+            const bIdx = Math.max(likedArr.indexOf(b.id), savedArr.indexOf(b.id));
+            return bIdx - aIdx;
+          }).slice(0, 5);
+
+          // 2. Score Candidate Pool using Multi-Dimensional Preference Affinity + Nearest Neighbor
           current = current.map(post => {
-            let score = 0;
+            let globalScore = 0;
             
-            // Core Affinity
-            post.categories.forEach(c => { if (topTags.includes(c)) score += 12; });
-            if (post.styleTag === topStyle) score += 15;
-            if (post.model === topModel) score += 8;
-            if (post.colorProfile?.colorNames?.[0] === topColor) score += 10;
+            // Proportional Global Affinity
+            post.categories.forEach(c => { if (tagFreq[c]) globalScore += (tagFreq[c] / maxTagFreq) * 10; });
+            if (post.styleTag && styleFreq[post.styleTag]) globalScore += (styleFreq[post.styleTag] / maxStyleFreq) * 15;
+            if (post.model && modelFreq[post.model]) globalScore += (modelFreq[post.model] / maxModelFreq) * 5;
+            if (post.colorProfile?.colorNames?.[0]) {
+              const pColor = post.colorProfile.colorNames[0];
+              if (colorFreq[pColor]) globalScore += (colorFreq[pColor] / maxColorFreq) * 10;
+            }
+
+            // Nearest Neighbor Clustering (Massive boost for posts heavily similar to a recent specific like)
+            let maxNeighborSim = 0;
+            recentInteractions.forEach(recent => {
+              let sim = 0;
+              const sharedTags = post.categories.filter(c => recent.categories.includes(c)).length;
+              sim += (sharedTags * 12); // Shared tags are huge indicators of topic
+              if (post.styleTag === recent.styleTag) sim += 20;
+              if (post.model === recent.model) sim += 10;
+              if (post.colorProfile?.colorNames?.[0] === recent.colorProfile?.colorNames?.[0]) sim += 15;
+              
+              if (sim > maxNeighborSim) maxNeighborSim = sim;
+            });
             
-            // Gentle Recency Penalty (Max 60% penalty for very old posts, rather than 95% penalty)
+            // Total Affinity Score
+            const rawScore = globalScore + maxNeighborSim;
+            
+            // Gentle Recency Penalty
             const ageInDays = (Date.now() - (post.rawTimestamp || 0)) / (1000 * 60 * 60 * 24);
-            const recencyMultiplier = Math.max(0.4, 1 - (ageInDays * 0.02)); 
+            const recencyMultiplier = Math.max(0.5, 1 - (ageInDays * 0.02)); 
             
-            // Natural Viral Quality Bonus (Great art still floats up)
+            // Natural Viral Quality Bonus
             const viralBonus = ((post.likesCount || 0) * 0.5) + ((post.savesCount || 0) * 1);
             
-            const finalScore = (score * recencyMultiplier) + viralBonus;
+            const finalScore = (rawScore * recencyMultiplier) + viralBonus;
             
             return { post, finalScore };
           }).sort((a, b) => b.finalScore - a.finalScore).map(item => item.post);
