@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styles from './DiscoveryFeed.module.css';
 import { PromptPost } from '@/lib/mockData';
 import { recordSearchTerm } from '@/lib/personalization';
@@ -96,6 +96,9 @@ export default function DiscoveryFeed() {
     modelFilter !== 'All Models'
   ].filter(Boolean).length;
 
+  const filterSignature = `${searchParams.toString()}|${activeTab}|${colorFilter}|${typeFilter}|${aspectFilter}|${timeFilter}|${vaultFilter}|${profile?.uid || 'anon'}|${activeVector ? 'vector' : 'no-vector'}`;
+  const lastFilterSignature = useRef<string>('');
+
   useEffect(() => {
     const queryParam = searchParams.get('search') || '';
     const modelParam = searchParams.get('model') || 'All Models';
@@ -105,7 +108,19 @@ export default function DiscoveryFeed() {
       recordSearchTerm(queryParam);
     }
     if (dbPosts.length > 0) {
-      applyAllFiltersAndSearch(dbPosts, activeTab, queryParam, modelParam, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter, activeVector);
+      const isBackgroundUpdate = lastFilterSignature.current === filterSignature && displayedPosts.length > 0;
+      lastFilterSignature.current = filterSignature;
+
+      if (isBackgroundUpdate) {
+        // Sync new db data (like counts/saves) strictly in-place to prevent UI jumping while scrolling!
+        setDisplayedPosts(prev => prev.map(p => {
+          const updated = dbPosts.find(dbP => dbP.id === p.id);
+          return updated ? updated : p;
+        }));
+      } else {
+        // Full recalculation and resort for filter/tab/auth changes
+        applyAllFiltersAndSearch(dbPosts, activeTab, queryParam, modelParam, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter, activeVector);
+      }
     }
   }, [searchParams, activeTab, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter, dbPosts, profile, activeVector]);
 
