@@ -299,7 +299,36 @@ export default function DiscoveryFeed() {
     if (activeSearchQuery) {
       if (!isBackgroundUpdate) setIsSearching(true);
       const cleanSearch = activeSearchQuery.toLowerCase();
-      const queryTokens = cleanSearch.split(/\s+/).filter(Boolean);
+      
+      // Synonym Expansion Dictionary (Zero-Cost Semantic Fallback)
+      const synonymMap: Record<string, string[]> = {
+        'kids': ['children', 'child', 'toddler', 'baby', 'youth'],
+        'child': ['children', 'kids', 'kid', 'toddler'],
+        'children': ['kids', 'child', 'kid', 'youth'],
+        'car': ['cars', 'vehicle', 'automobile'],
+        'cars': ['car', 'vehicle', 'automobile'],
+        'dog': ['dogs', 'puppy', 'hound', 'canine'],
+        'dogs': ['dog', 'puppy', 'hound', 'canine'],
+        'cat': ['cats', 'kitten', 'feline'],
+        'cats': ['cat', 'kitten', 'feline'],
+        'tree': ['trees', 'forest', 'woods'],
+        'trees': ['tree', 'forest', 'woods'],
+        'city': ['cities', 'urban', 'metropolis', 'town'],
+        'house': ['houses', 'home', 'building', 'mansion'],
+        'woman': ['women', 'girl', 'female', 'lady'],
+        'man': ['men', 'boy', 'male', 'guy'],
+      };
+
+      let queryTokens = cleanSearch.split(/\s+/).filter(Boolean);
+      
+      // Expand query tokens with synonyms
+      const expandedTokens = new Set<string>(queryTokens);
+      queryTokens.forEach(token => {
+        if (synonymMap[token]) {
+          synonymMap[token].forEach(syn => expandedTokens.add(syn));
+        }
+      });
+      queryTokens = Array.from(expandedTokens);
 
       // Identify if the search query corresponds to one of our universal color palettes
       const matchedColorOption = COLOR_OPTIONS.find(c => 
@@ -381,9 +410,9 @@ export default function DiscoveryFeed() {
             // Semantic Vector Search: Mathing "kids" to "children"
             if (vectorToCompare && post.embedding && post.embedding.length > 0) {
               const sim = calculateCosineSimilarity(vectorToCompare, post.embedding);
-              if (sim > 0.70) {
+              if (sim > 0.45) { // Lowered threshold to 0.45 (standard for text-embedding-3-small related words)
                 // Exponential scaling for highly semantically similar vectors
-                score += Math.floor((sim - 0.70) * 400); 
+                score += Math.floor((sim - 0.45) * 400); 
               }
             }
           }
