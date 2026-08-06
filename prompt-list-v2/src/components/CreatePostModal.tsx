@@ -584,12 +584,19 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
             )}
 
             <div className={styles.fieldGroup}>
-              <label>Description (optional)</label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <label style={{ marginBottom: 0 }}>Description (optional)</label>
+                <span style={{ fontSize: '0.75rem', color: description.length >= 1000 ? '#ef4444' : '#64748b' }}>
+                  <strong>{description.length}</strong> / 1000 chars
+                </span>
+              </div>
               <input 
                 type="text" 
                 placeholder="Brief artistic description or styling notes..."
                 value={description}
+                maxLength={1000}
                 onChange={e => setDescription(e.target.value)}
+                style={{ marginTop: '6px' }}
               />
             </div>
 
