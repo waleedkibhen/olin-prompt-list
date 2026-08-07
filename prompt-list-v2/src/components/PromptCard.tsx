@@ -288,7 +288,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                 </div>
               </div>
 
-              <div className={styles.actionBtns} style={{ position: 'absolute', bottom: '12px', left: '12px' }}>
+              <div className={styles.actionBtns} style={{ position: 'absolute', bottom: '12px', right: '12px' }}>
                 <button 
                   onClick={toggleLike}
                   title="Like artwork"
