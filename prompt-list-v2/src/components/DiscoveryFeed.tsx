@@ -602,6 +602,13 @@ export default function DiscoveryFeed() {
     applyAllFiltersAndSearch(dbPosts, activeTab, '', modelFilter, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter);
   };
 
+  const handleTabClick = (tab: string) => {
+    setSearchParams(prev => {
+      prev.set('tab', tab);
+      return prev;
+    });
+  };
+
   return (
     <div className={styles.feedWrapper}>
       {permissionError && (
@@ -610,6 +617,18 @@ export default function DiscoveryFeed() {
           <span>Firestore rules block access. Open Firebase Console &rarr; Firestore Database &rarr; Rules &rarr; set <code>allow read, write: if true;</code></span>
         </div>
       )}
+
+      <div className={styles.navTabs}>
+        {['for_you', 'trending', 'newest', 'saved'].map(tab => (
+          <button 
+            key={tab}
+            className={`${styles.navTab} ${activeTab === tab ? styles.navTabActive : ''}`}
+            onClick={() => handleTabClick(tab)}
+          >
+            {tab === 'for_you' ? 'For You' : tab === 'trending' ? 'Trending' : tab === 'newest' ? 'Newest' : 'Saved'}
+          </button>
+        ))}
+      </div>
 
       {searchFilter && (
         <div className={styles.searchPill}>

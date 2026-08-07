@@ -119,17 +119,7 @@ export default function Navbar() {
               <span className={styles.brandSuffix}>Prompt List</span>
             </Link>
             
-            <div className={styles.navTabs}>
-              {['for_you', 'trending', 'newest', 'saved'].map(tab => (
-                <button 
-                  key={tab}
-                  className={`${styles.navTab} ${activeTab === tab ? styles.navTabActive : ''}`}
-                  onClick={() => handleTabClick(tab)}
-                >
-                  {tab === 'for_you' ? 'For You' : tab === 'trending' ? 'Trending' : tab === 'newest' ? 'Newest' : 'Saved'}
-                </button>
-              ))}
-            </div>
+
           </div>
         )}
 

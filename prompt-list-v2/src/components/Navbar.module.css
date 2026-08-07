@@ -53,33 +53,7 @@
   font-size: 18px;
 }
 
-.navTabs {
-  display: flex;
-  gap: 24px;
-}
 
-.navTab {
-  font-family: var(--font-family);
-  font-size: 14px;
-  font-weight: 400;
-  color: var(--text-muted);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px 0;
-  border-bottom: 1px solid transparent;
-  transition: color 200ms ease-in-out, border-color 200ms ease-in-out;
-}
-
-.navTab:hover {
-  color: var(--text-primary);
-}
-
-.navTabActive {
-  color: var(--text-primary);
-  font-weight: 500;
-  border-bottom: 1px solid var(--text-primary);
-}
 
 .actionControls {
   display: flex;
