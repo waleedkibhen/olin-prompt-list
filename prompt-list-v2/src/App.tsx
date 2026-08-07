@@ -15,7 +15,7 @@ export default function App() {
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
       <OnboardingModal />
-      <div style={{ flex: 1 }}>
+      <div style={{ flex: 1, paddingTop: '64px' }}>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/dashboard" element={<CreatorDashboardPage />} />
