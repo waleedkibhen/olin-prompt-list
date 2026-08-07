@@ -281,14 +281,14 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
           
           <div className={styles.overlay}>
             <div className={styles.bottomOverlay}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', overflow: 'hidden' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', overflow: 'hidden', paddingBottom: '32px' }}>
                 <span className={styles.captionTitle} style={{ color: '#fff', fontSize: '1rem', fontWeight: 600 }}>{post.title}</span>
                 <div className={styles.creatorTiny} onClick={(e) => { e.stopPropagation(); navigate(`/profile?id=${post.creator.uid}`); }} style={{ cursor: 'pointer' }}>
                   <span className={styles.creatorNameTiny} style={{ color: 'rgba(255,255,255,0.8)' }}>{post.creator.displayName}</span>
                 </div>
               </div>
 
-              <div className={styles.actionBtns} style={{ marginTop: '0.5rem', alignSelf: 'flex-start' }}>
+              <div className={styles.actionBtns} style={{ position: 'absolute', bottom: '10px', left: '10px' }}>
                 <button 
                   className={`${styles.actionIconBtn} ${isLiked ? styles.likedBtn : ''}`}
                   onClick={toggleLike}

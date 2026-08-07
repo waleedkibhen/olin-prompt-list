@@ -65,16 +65,14 @@ export default function DiscoveryFeed() {
   const [searchParams, setSearchParams] = useSearchParams();
   
   type TabType = 'for_you' | 'trending' | 'newest' | 'following' | 'saved';
-  const initialTab = (searchParams.get('tab') as TabType) || 'for_you';
-  const [activeTab, setActiveTab] = useState<TabType>(initialTab);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const activeTab = (searchParams.get('tab') as TabType) || 'for_you';
 
   // Multi-dimensional filter states
-  const [colorFilter, setColorFilter] = useState('All');
-  const [typeFilter, setTypeFilter] = useState('All Types');
-  const [aspectFilter, setAspectFilter] = useState('All Dimensions');
-  const [timeFilter, setTimeFilter] = useState('All Time');
-  const [vaultFilter, setVaultFilter] = useState('All Artwork');
+  const colorFilter = searchParams.get('color') || 'All';
+  const typeFilter = searchParams.get('type') || 'All Types';
+  const aspectFilter = searchParams.get('aspect') || 'All Dimensions';
+  const timeFilter = searchParams.get('time') || 'All Time';
+  const vaultFilter = searchParams.get('vault') || 'All Artwork';
   
   const { profile } = useAuth();
   
@@ -589,27 +587,6 @@ export default function DiscoveryFeed() {
     setDisplayedPosts(current);
   };
 
-  const resetAllFilters = () => {
-    setColorFilter('All');
-    setTypeFilter('All Types');
-    setAspectFilter('All Dimensions');
-    setTimeFilter('All Time');
-    setVaultFilter('All Artwork');
-    setModelFilter('All Models');
-    setSearchFilter('');
-    setSearchParams({});
-    applyAllFiltersAndSearch(dbPosts, activeTab, '', 'All Models', 'All', 'All Types', 'All Dimensions', 'All Time', 'All Artwork');
-  };
-
-  const handleTabChange = (tab: TabType) => {
-    setActiveTab(tab);
-    setSearchParams(prev => {
-      const newParams = new URLSearchParams(prev);
-      newParams.set('tab', tab);
-      return newParams;
-    });
-    applyAllFiltersAndSearch(dbPosts, tab, searchFilter, modelFilter, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter);
-  };
 
   const handleLike = (_id: string) => {
     // AuthContext automatically syncs changes via Firestore onSnapshot
@@ -646,143 +623,7 @@ export default function DiscoveryFeed() {
         </div>
       )}
 
-      {/* Discovery Feed Tabs */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
-        <button 
-          onClick={() => handleTabChange('for_you')} 
-          style={{ background: 'none', border: 'none', padding: 0, fontSize: '1.1rem', fontWeight: activeTab === 'for_you' ? 700 : 500, color: activeTab === 'for_you' ? 'var(--text-primary)' : 'var(--text-secondary)', cursor: 'pointer', position: 'relative' }}
-        >
-          For You
-          {activeTab === 'for_you' && <div style={{ position: 'absolute', bottom: '-0.75rem', left: 0, right: 0, height: '2px', backgroundColor: 'var(--text-primary)' }} />}
-        </button>
-        <button 
-          onClick={() => handleTabChange('trending')} 
-          style={{ background: 'none', border: 'none', padding: 0, fontSize: '1.1rem', fontWeight: activeTab === 'trending' ? 700 : 500, color: activeTab === 'trending' ? 'var(--text-primary)' : 'var(--text-secondary)', cursor: 'pointer', position: 'relative' }}
-        >
-          Trending
-          {activeTab === 'trending' && <div style={{ position: 'absolute', bottom: '-0.75rem', left: 0, right: 0, height: '2px', backgroundColor: 'var(--text-primary)' }} />}
-        </button>
-        <button 
-          onClick={() => handleTabChange('newest')} 
-          style={{ background: 'none', border: 'none', padding: 0, fontSize: '1.1rem', fontWeight: activeTab === 'newest' ? 700 : 500, color: activeTab === 'newest' ? 'var(--text-primary)' : 'var(--text-secondary)', cursor: 'pointer', position: 'relative' }}
-        >
-          Newest
-          {activeTab === 'newest' && <div style={{ position: 'absolute', bottom: '-0.75rem', left: 0, right: 0, height: '2px', backgroundColor: 'var(--text-primary)' }} />}
-        </button>
-      </div>
 
-      {/* Primary Feed Control Bar */}
-      <div className={styles.feedSortRow}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <button 
-            className={`${styles.filterToggleBtn} ${isFilterOpen || activeFilterCount > 0 ? styles.filterToggleBtnActive : ''}`}
-            onClick={() => setIsFilterOpen(prev => !prev)}
-            title="Toggle Visual & AI Parameter Filters"
-          >
-            <SlidersHorizontal size={16} style={{ color: activeFilterCount > 0 ? 'var(--accent-color)' : 'inherit' }} />
-            <span>Filters</span>
-            {activeFilterCount > 0 && (
-              <span className={styles.activeFilterBadge}>{activeFilterCount}</span>
-            )}
-          </button>
-
-          {activeFilterCount > 0 && (
-            <button onClick={resetAllFilters} className={styles.resetAllBtn} title="Clear All Active Filters">
-              Reset ({activeFilterCount})
-            </button>
-          )}
-
-          <span className={styles.itemCount}>{displayedPosts.length} Pins</span>
-        </div>
-      </div>
-
-      {/* Advanced Visual & Parameter Filter Studio */}
-      {(isFilterOpen || activeFilterCount > 0) && (
-        <section className={styles.filterStudioContainer}>
-          {/* Row 1: Dominant Color Palette */}
-          <div className={styles.filterRow}>
-            <span className={styles.filterLabel}>
-              <Palette size={15} style={{ color: '#ec4899' }} />
-              Color Palette
-            </span>
-            <div className={styles.colorSwatchRow}>
-              <button 
-                className={`${styles.filterPill} ${colorFilter === 'All' ? styles.filterPillActive : ''}`}
-                onClick={() => setColorFilter('All')}
-                style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem' }}
-              >
-                Any Color
-              </button>
-              {COLOR_OPTIONS.map(c => (
-                <button
-                  key={c.name}
-                  className={`${styles.colorSwatch} ${colorFilter === c.name ? styles.colorSwatchActive : ''}`}
-                  style={{ backgroundColor: c.hex }}
-                  onClick={() => setColorFilter(prev => prev === c.name ? 'All' : c.name)}
-                  title={`Filter by dominant color: ${c.name} (sorted by % concentration)`}
-                >
-                  {colorFilter === c.name && <Check size={14} style={{ color: c.hex === '#f8fafc' || c.hex === '#eab308' || c.hex === '#facc15' || c.hex === '#06b6d4' ? '#000' : '#fff' }} />}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Row 2: Aspect Ratio & Dimensions */}
-          <div className={styles.filterRow}>
-            <span className={styles.filterLabel}>
-              <ImageIcon size={15} style={{ color: '#10b981' }} />
-              Orientation
-            </span>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-              {ASPECT_OPTIONS.map(a => (
-                <button
-                  key={a.value}
-                  className={`${styles.filterPill} ${aspectFilter === a.value ? styles.filterPillActive : ''}`}
-                  onClick={() => setAspectFilter(prev => prev === a.value ? 'All Dimensions' : a.value)}
-                >
-                  <span>{a.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Row 4: Recency & Vault Access */}
-          <div className={styles.filterRow} style={{ borderTop: '1px dashed var(--border-color)', paddingTop: '0.85rem', marginTop: '0.25rem' }}>
-            <span className={styles.filterLabel}>
-              <Calendar size={15} style={{ color: '#f97316' }} />
-              {ENABLE_MONETIZATION ? 'Time & Vault' : 'Timeframe'}
-            </span>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
-              {TIME_OPTIONS.map(time => (
-                <button
-                  key={time.value}
-                  className={`${styles.filterPill} ${timeFilter === time.value ? styles.filterPillActive : ''}`}
-                  onClick={() => setTimeFilter(prev => prev === time.value ? 'All Time' : time.value)}
-                >
-                  <span>{time.label}</span>
-                </button>
-              ))}
-              
-              {ENABLE_MONETIZATION && (
-                <>
-                  <span style={{ color: 'var(--text-muted)', margin: '0 0.4rem' }}>|</span>
-
-                  {VAULT_OPTIONS.map(vault => (
-                    <button
-                      key={vault.value}
-                      className={`${styles.filterPill} ${vaultFilter === vault.value ? styles.filterPillActive : ''}`}
-                      onClick={() => setVaultFilter(prev => prev === vault.value ? 'All Artwork' : vault.value)}
-                      style={vault.value === 'subscribers_only' ? { borderColor: '#f59e0b' } : {}}
-                    >
-                      <span>{vault.label}</span>
-                    </button>
-                  ))}
-                </>
-              )}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Feed Content Area */}
       {isLoadingDb || isSearching ? (
@@ -797,7 +638,7 @@ export default function DiscoveryFeed() {
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '450px' }}>
             We filtered out all items that didn't match your selected color palette, art medium, orientation, or timeframe. Try broadening your filter selection.
           </p>
-          <button className="btn-outline" onClick={resetAllFilters} style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <button className="btn-outline" onClick={() => setSearchParams({})} style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <RotateCcw size={15} />
             <span>Reset All Filters</span>
           </button>
