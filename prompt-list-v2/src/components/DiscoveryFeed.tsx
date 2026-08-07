@@ -43,9 +43,9 @@ const TYPE_OPTIONS = [
 
 const ASPECT_OPTIONS = [
   { label: 'All Dimensions', value: 'All Dimensions' },
-  { label: 'Square (1:1)', value: 'Square', keywords: ['1:1', 'square', 'avatar', 'instagram'] },
-  { label: 'Portrait / Vertical', value: 'Portrait', keywords: ['9:16', '3:4', 'portrait', 'vertical', 'wallpaper', 'reels', 'mobile'] },
-  { label: 'Landscape / Horizontal', value: 'Landscape', keywords: ['16:9', '4:3', '21:9', 'landscape', 'horizontal', 'widescreen', 'cinematic', 'header', 'desktop'] }
+  { label: 'Square', value: 'Square', keywords: ['1:1', 'square', 'avatar', 'instagram'] },
+  { label: 'Portrait', value: 'Portrait', keywords: ['9:16', '3:4', 'portrait', 'vertical', 'wallpaper', 'reels', 'mobile'] },
+  { label: 'Landscape', value: 'Landscape', keywords: ['16:9', '4:3', '21:9', 'landscape', 'horizontal', 'widescreen', 'cinematic', 'header', 'desktop'] }
 ];
 
 const TIME_OPTIONS = [
