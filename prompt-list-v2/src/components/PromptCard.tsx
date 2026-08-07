@@ -280,30 +280,30 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
           />
           
           <div className={styles.overlay}>
-              <div className={styles.actionBtns} style={{ alignSelf: 'flex-end', gap: '12px' }}>
+              <div className={styles.actionBtns} style={{ alignSelf: 'flex-end', gap: '16px' }}>
                 <button 
                   onClick={toggleSave}
                   title="Save bookmark"
-                  style={{ background: 'transparent', border: 'none', color: '#fff', padding: '4px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
+                  style={{ background: 'transparent', border: 'none', color: '#fff', padding: '4px', cursor: 'pointer', display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '6px' }}
                 >
-                  <Bookmark size={24} fill={isSaved ? "currentColor" : "none"} />
-                  <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>{savesCount}</span>
+                  <Bookmark size={22} fill={isSaved ? "currentColor" : "none"} />
+                  <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{savesCount}</span>
                 </button>
                 <button 
                   onClick={toggleLike}
                   title="Like artwork"
-                  style={{ background: 'transparent', border: 'none', color: isLiked ? '#ef4444' : '#fff', padding: '4px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
+                  style={{ background: 'transparent', border: 'none', color: isLiked ? '#ef4444' : '#fff', padding: '4px', cursor: 'pointer', display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '6px' }}
                   className={isLiked ? styles.heartLiked : ''}
                 >
-                  <Heart size={24} fill={isLiked ? "currentColor" : "none"} strokeWidth={isLiked ? 0 : 2} />
-                  <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#fff' }}>{likesCount}</span>
+                  <Heart size={22} fill={isLiked ? "currentColor" : "none"} strokeWidth={isLiked ? 0 : 2} />
+                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#fff' }}>{likesCount}</span>
                 </button>
                 <div
                   title={`${post.viewsCount} views`}
-                  style={{ background: 'transparent', border: 'none', color: '#fff', padding: '4px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
+                  style={{ background: 'transparent', border: 'none', color: '#fff', padding: '4px', display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '6px' }}
                 >
-                  <Eye size={24} strokeWidth={2} />
-                  <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>{post.viewsCount}</span>
+                  <Eye size={22} strokeWidth={2} />
+                  <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{post.viewsCount}</span>
                 </div>
               </div>
 
