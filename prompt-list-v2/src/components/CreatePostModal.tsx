@@ -329,6 +329,28 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
       const newPostId = `post_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
       const postDocRef = doc(db, 'posts', newPostId);
 
+      // Calculate Aspect Ratio from Cover Image
+      let calculatedAspectRatio = 'Square';
+      try {
+        const coverUrl = selectedFiles[0]?.previewUrl || '';
+        if (coverUrl) {
+          const img = new Image();
+          await new Promise((resolve) => {
+            img.onload = resolve;
+            img.onerror = resolve;
+            img.src = coverUrl;
+          });
+          const ratio = img.width / img.height;
+          if (ratio > 1.1) {
+            calculatedAspectRatio = 'Landscape';
+          } else if (ratio < 0.9) {
+            calculatedAspectRatio = 'Portrait';
+          }
+        }
+      } catch (e) {
+        console.warn('Could not calculate aspect ratio', e);
+      }
+
       const postPayload = {
         id: newPostId,
         creatorId: user.uid,
@@ -354,7 +376,8 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
         copiesCount: 0,
         createdAt: serverTimestamp(),
         embedding,
-        colorProfile: colorProfile || null
+        colorProfile: colorProfile || null,
+        aspectRatio: calculatedAspectRatio
       };
 
       await setDoc(postDocRef, postPayload);
