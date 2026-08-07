@@ -159,9 +159,10 @@
   transform: translateX(-50%);
   width: 100%;
   max-width: 800px;
-  background-color: var(--bg-primary);
+  background-color: #121212;
   padding: 1.5rem;
   border: 1px solid var(--border-color);
+  border-radius: 2px;
   z-index: 52;
 }
 
@@ -200,8 +201,9 @@
   top: 100%;
   right: 0;
   width: 320px;
-  background-color: var(--bg-primary);
+  background-color: #121212;
   border: 1px solid var(--border-color);
+  border-radius: 2px;
   padding: 1.25rem;
   z-index: 55;
   display: flex;
@@ -259,8 +261,9 @@
   top: 100%;
   right: 0;
   margin-top: 0.5rem;
-  background-color: var(--bg-primary);
+  background-color: #121212;
   border: 1px solid var(--border-color);
+  border-radius: 2px;
   padding: 0.5rem 0;
   z-index: 55;
 }

@@ -3,6 +3,7 @@ import styles from './Navbar.module.css';
 import { Search, Filter, Plus, User, Bell, ChevronDown, Check, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import CreatePostModal from './CreatePostModal';
+import FeedbackModal from './FeedbackModal';
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { COLOR_OPTIONS, ASPECT_OPTIONS, TIME_OPTIONS } from '../lib/filters';
 
@@ -15,6 +16,7 @@ export default function Navbar() {
   const activeTab = searchParams.get('tab') || 'for_you';
   
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
 
   // Search state
@@ -276,8 +278,10 @@ export default function Navbar() {
                   </div>
                   <div className={styles.dropdownDivider} />
                   <Link to={`/profile?id=${user.uid}`} className={styles.dropdownItem} onClick={() => setShowProfileMenu(false)}>Creator Dashboard</Link>
-                  <Link to="/settings" className={styles.dropdownItem} onClick={() => setShowProfileMenu(false)}>Account Settings</Link>
-                  <Link to="/pricing" className={styles.dropdownItem} onClick={() => setShowProfileMenu(false)}>Subscription & Plans</Link>
+                  <Link to="/settings" className={styles.dropdownItem} onClick={() => setShowProfileMenu(false)}>Profile Settings</Link>
+                  <button className={styles.dropdownItem} onClick={() => { setIsFeedbackModalOpen(true); setShowProfileMenu(false); }} style={{ width: '100%', textAlign: 'left', cursor: 'pointer', border: 'none', background: 'none' }}>
+                    Submit Feedback
+                  </button>
                   {user.email === 'wisecrafts81@gmail.com' && (
                     <Link to="/admin" className={styles.dropdownItem} onClick={() => setShowProfileMenu(false)}>Superadmin Console</Link>
                   )}
@@ -298,6 +302,7 @@ export default function Navbar() {
       )}
 
       {isCreateModalOpen && <CreatePostModal onClose={() => setIsCreateModalOpen(false)} />}
+      {isFeedbackModalOpen && <FeedbackModal onClose={() => setIsFeedbackModalOpen(false)} />}
     </>
   );
 }

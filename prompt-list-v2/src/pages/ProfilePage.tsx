@@ -16,6 +16,7 @@ export default function ProfilePage() {
   
   const [displayName, setDisplayName] = useState('');
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -31,6 +32,7 @@ export default function ProfilePage() {
     if (profile || user) {
       setDisplayName(profile?.displayName || user?.displayName || '');
       setUsername(profile?.username || '');
+      setEmail(profile?.email || user?.email || '');
       setAvatarUrl(profile?.avatarUrl || user?.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80');
     }
     const subStatus = user ? localStorage.getItem(`olin_subscription_${user.uid}`) : null;
@@ -135,7 +137,8 @@ export default function ProfilePage() {
       await updateDoc(userDocRef, {
         displayName: displayName.trim(),
         username: cleanedUsername,
-        avatarUrl: newAvatarUrl
+        avatarUrl: newAvatarUrl,
+        email: email.trim()
       });
 
       // Sync directly with Firebase Auth currentUser
@@ -282,14 +285,15 @@ export default function ProfilePage() {
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="email">Email Address (ReadOnly)</label>
+            <label htmlFor="email">Email Address</label>
             <input 
               id="email"
               type="email" 
               className={styles.formInput} 
-              value={user.email || ''} 
-              disabled 
-              style={{ opacity: 0.6, cursor: 'not-allowed' }}
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+              placeholder="e.g. wizard@example.com"
             />
           </div>
 
