@@ -265,7 +265,11 @@ export default function Navbar() {
             {/* Profile Menu */}
             <div style={{ position: 'relative' }} ref={profileRef}>
               <button className={styles.iconBtn} onClick={() => user ? setShowProfileMenu(!showProfileMenu) : signInWithGoogle()} title={user ? "Profile" : "Sign In"}>
-                <User size={22} strokeWidth={2} />
+                {user ? (
+                  <img src={profile?.avatarUrl || user.photoURL || ''} alt="Profile" style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover' }} />
+                ) : (
+                  <User size={22} strokeWidth={2} />
+                )}
               </button>
               {user && showProfileMenu && (
                 <div className={styles.dropdownMenu} style={{ right: 0, width: '220px' }}>
