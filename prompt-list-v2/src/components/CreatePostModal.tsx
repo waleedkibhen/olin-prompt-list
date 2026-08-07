@@ -456,7 +456,7 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
                     <>
                       <img src={selectedFiles[0].previewUrl} alt="Hero Cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       <div className={styles.thumbMeta} style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0.5rem', background: 'rgba(0,0,0,0.6)', color: 'white' }}>
-                        <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>⭐ Cover: {selectedFiles[0].file.name}</span>
+                        <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Cover: {selectedFiles[0].file.name}</span>
                         <button type="button" className={styles.removeBtn} onClick={(e) => { e.stopPropagation(); handleRemoveFile(0); }} title="Remove Hero Cover">
                           <Trash2 size={13} />
                         </button>
@@ -556,7 +556,7 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
                 placeholder="Generative prompt parameters, seeds, or camera flags with rich formatting (bold, bullet points, lists)..."
               />
               <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '0.75rem', marginTop: '6px', color: (promptText.length > 30000 || (promptText.trim().split(/\s+/).filter(Boolean).length > 5000)) ? '#ef4444' : '#64748b' }}>
-                <span>🛡️ Security Limit: <strong>{promptText.length.toLocaleString()}</strong> / 30,000 chars &nbsp;|&nbsp; <strong>{promptText.trim() ? promptText.trim().split(/\s+/).filter(Boolean).length.toLocaleString() : 0}</strong> / 5,000 words</span>
+                <span>Security Limit: <strong>{promptText.length.toLocaleString()}</strong> / 30,000 chars &nbsp;|&nbsp; <strong>{promptText.trim() ? promptText.trim().split(/\s+/).filter(Boolean).length.toLocaleString() : 0}</strong> / 5,000 words</span>
               </div>
             </div>
 
@@ -569,7 +569,7 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
                     className={`${styles.pricingOptionBtn} ${monetizationType === 'free' ? styles.pricingActive : ''}`}
                     onClick={() => setMonetizationType('free')}
                   >
-                    <span className={styles.optionTitle}>🟢 Free (Open to All)</span>
+                    <span className={styles.optionTitle}>Free (Open to All)</span>
                     <span className={styles.optionSub}>Prompt text is open &amp; immediately visible without ads or paywalls</span>
                   </button>
                   <button
@@ -585,9 +585,9 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
                     }}
                     style={profile?.monetizationStatus !== 'approved' ? { opacity: 0.55, cursor: 'not-allowed', border: '1px dashed #f59e0b' } : {}}
                   >
-                    <span className={styles.optionTitle}>▶️ Ad-Supported</span>
+                    <span className={styles.optionTitle}>Ad-Supported</span>
                     <span className={styles.optionSub}>
-                      {profile?.monetizationStatus === 'approved' ? 'Users watch a brief sponsor ad to unlock prompt text' : '🔒 Requires Approved Monetization (50+ Copies)'}
+                      {profile?.monetizationStatus === 'approved' ? 'Users watch a brief sponsor ad to unlock prompt text' : 'Requires Approved Monetization (50+ Copies)'}
                     </span>
                   </button>
                   <button
@@ -603,15 +603,15 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
                     }}
                     style={profile?.monetizationStatus !== 'approved' ? { opacity: 0.55, cursor: 'not-allowed', border: '1px dashed #f59e0b' } : {}}
                   >
-                    <span className={styles.optionTitle}>💎 Subscribers Only</span>
+                    <span className={styles.optionTitle}>Subscribers Only</span>
                     <span className={styles.optionSub}>
-                      {profile?.monetizationStatus === 'approved' ? 'Exclusively accessible to Olin Premium Subscribers' : '🔒 Requires Approved Monetization (50+ Copies)'}
+                      {profile?.monetizationStatus === 'approved' ? 'Exclusively accessible to Olin Premium Subscribers' : 'Requires Approved Monetization (50+ Copies)'}
                     </span>
                   </button>
                 </div>
                 {profile?.monetizationStatus !== 'approved' && (
                   <span style={{ fontSize: '0.78rem', color: '#f59e0b', marginTop: '0.2rem' }}>
-                    💡 Check your Creator Dashboard to track your progress toward 50 copies and apply for monetization!
+                    Check your Creator Dashboard to track your progress toward 50 copies and apply for monetization!
                   </span>
                 )}
               </div>

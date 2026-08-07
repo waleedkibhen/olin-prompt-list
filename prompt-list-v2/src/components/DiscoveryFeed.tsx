@@ -646,6 +646,31 @@ export default function DiscoveryFeed() {
         </div>
       )}
 
+      {/* Discovery Feed Tabs */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
+        <button 
+          onClick={() => handleTabChange('for_you')} 
+          style={{ background: 'none', border: 'none', padding: 0, fontSize: '1.1rem', fontWeight: activeTab === 'for_you' ? 700 : 500, color: activeTab === 'for_you' ? 'var(--text-primary)' : 'var(--text-secondary)', cursor: 'pointer', position: 'relative' }}
+        >
+          For You
+          {activeTab === 'for_you' && <div style={{ position: 'absolute', bottom: '-0.75rem', left: 0, right: 0, height: '2px', backgroundColor: 'var(--text-primary)' }} />}
+        </button>
+        <button 
+          onClick={() => handleTabChange('trending')} 
+          style={{ background: 'none', border: 'none', padding: 0, fontSize: '1.1rem', fontWeight: activeTab === 'trending' ? 700 : 500, color: activeTab === 'trending' ? 'var(--text-primary)' : 'var(--text-secondary)', cursor: 'pointer', position: 'relative' }}
+        >
+          Trending
+          {activeTab === 'trending' && <div style={{ position: 'absolute', bottom: '-0.75rem', left: 0, right: 0, height: '2px', backgroundColor: 'var(--text-primary)' }} />}
+        </button>
+        <button 
+          onClick={() => handleTabChange('newest')} 
+          style={{ background: 'none', border: 'none', padding: 0, fontSize: '1.1rem', fontWeight: activeTab === 'newest' ? 700 : 500, color: activeTab === 'newest' ? 'var(--text-primary)' : 'var(--text-secondary)', cursor: 'pointer', position: 'relative' }}
+        >
+          Newest
+          {activeTab === 'newest' && <div style={{ position: 'absolute', bottom: '-0.75rem', left: 0, right: 0, height: '2px', backgroundColor: 'var(--text-primary)' }} />}
+        </button>
+      </div>
+
       {/* Primary Feed Control Bar */}
       <div className={styles.feedSortRow}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>

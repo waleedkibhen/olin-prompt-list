@@ -15,6 +15,18 @@ export default function Navbar() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
 
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/?search=${encodeURIComponent(searchQuery)}`);
+    } else {
+      navigate('/');
+    }
+  };
+
   useEffect(() => {
     let lastScrollTop = 0;
     const handleScroll = () => {
@@ -34,31 +46,36 @@ export default function Navbar() {
   return (
     <>
       <nav className={`${styles.navbarContainer} ${isHidden ? styles.navHidden : ''}`} id="top-nav">
-        <Link to="/" className={styles.brandTitle}>GALLERY</Link>
+        <Link to="/" className={styles.brandTitle}>Olin</Link>
         
-        <div className={styles.desktopTabs}>
-          <Link to="/?tab=for_you" className={`${styles.navTab} ${activeTab === 'for_you' ? styles.navTabActive : ''}`}>For You</Link>
-          <Link to="/?tab=trending" className={`${styles.navTab} ${activeTab === 'trending' ? styles.navTabActive : ''}`}>Trending</Link>
-          <Link to="/?tab=newest" className={`${styles.navTab} ${activeTab === 'newest' ? styles.navTabActive : ''}`}>Newest</Link>
-        </div>
+        <form onSubmit={handleSearchSubmit} style={{ display: 'flex', alignItems: 'center', backgroundColor: 'var(--bg-secondary)', borderRadius: '9999px', padding: '0.4rem 1rem', flex: 1, maxWidth: '400px', margin: '0 2rem' }}>
+          <Search size={16} style={{ color: 'var(--text-muted)', marginRight: '0.5rem' }} />
+          <input 
+            type="search" 
+            placeholder="Search prompts, tags, or styles..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{ border: 'none', background: 'transparent', color: 'var(--text-primary)', outline: 'none', width: '100%', fontSize: '0.9rem' }}
+          />
+        </form>
 
         <div className={styles.actionControls}>
           <button className={styles.iconBtn} onClick={() => setIsCreateModalOpen(true)} title="Create Artwork">
             <Plus size={24} strokeWidth={1.5} />
           </button>
           
-          <button className={styles.iconBtn} onClick={() => {}} title="Filters">
-            <Filter size={24} strokeWidth={1.5} />
-          </button>
-          
-          <button className={styles.iconBtn} onClick={() => {}} title="Search">
-            <Search size={24} strokeWidth={1.5} />
-          </button>
-
           {user && (
-            <button className={styles.iconBtn} title="Notifications">
-              <Bell size={24} strokeWidth={1.5} />
-            </button>
+            <div style={{ position: 'relative' }}>
+              <button className={styles.iconBtn} onClick={() => setShowNotifications(!showNotifications)} title="Notifications">
+                <Bell size={24} strokeWidth={1.5} />
+              </button>
+              {showNotifications && (
+                <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '0.5rem', width: '280px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', padding: '1rem', zIndex: 50, boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }}>
+                  <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: 'var(--text-primary)' }}>Notifications</h4>
+                  <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>You have no new notifications.</p>
+                </div>
+              )}
+            </div>
           )}
           
           <button className={styles.iconBtn} onClick={() => user ? navigate('/profile') : signInWithGoogle()} title={user ? "Profile" : "Sign In"}>

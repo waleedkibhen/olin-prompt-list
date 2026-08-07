@@ -288,7 +288,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                 </div>
               </div>
 
-              <div className={styles.actionBtns}>
+              <div className={styles.actionBtns} style={{ marginTop: '0.5rem', alignSelf: 'flex-start' }}>
                 <button 
                   className={`${styles.actionIconBtn} ${isLiked ? styles.likedBtn : ''}`}
                   onClick={toggleLike}
@@ -369,26 +369,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
 
               <div className={styles.modalTitleArea}>
                 <h2 className={styles.modalTitle}>{post.title}</h2>
-                <div className={styles.tagGroup}>
-                  <span className={styles.modelBadgeModal}>{post.model}</span>
-                  <span className={styles.styleBadgeModal}>{post.styleTag}</span>
-                  {effectiveMonetization === 'subscribers_only' ? (
-                    <span className={styles.modalPriceBadge}>
-                      💎 Premium (Subscribers Only)
-                    </span>
-                  ) : effectiveMonetization === 'ad_supported' ? (
-                    <span style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1px solid #10b981', fontSize: '0.75rem', fontWeight: 800, padding: '0.2rem 0.6rem', borderRadius: '9999px' }}>
-                      ▶️ Ad-Supported
-                    </span>
-                  ) : (
-                    <span style={{ backgroundColor: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', border: '1px solid #3b82f6', fontSize: '0.75rem', fontWeight: 800, padding: '0.2rem 0.6rem', borderRadius: '9999px' }}>
-                      🟢 Free (Open)
-                    </span>
-                  )}
-                  {post.categories.map(cat => (
-                    <span key={cat} className={styles.catPill}>#{cat}</span>
-                  ))}
-                </div>
+
                 {post.description && <p className={styles.modalDesc}>{post.description}</p>}
               </div>
 
@@ -409,22 +390,18 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                   </div>
                 )}
 
-                <div className={styles.vaultHeader}>
-                  <div className={styles.vaultTitle}>
-                    <Sparkles size={15} />
-                    <strong>{isProtected ? "Protected AI Prompt Parameters" : "AI Prompt Parameters"}</strong>
-                  </div>
+                <div style={{ position: 'relative', marginTop: '1rem' }}>
                   {!isProtected && (
                     <button 
                       className={`btn-solid ${styles.copyVaultBtn}`} 
                       onClick={handleCopyPrompt}
+                      style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', zIndex: 10, padding: '0.4rem 0.8rem', borderRadius: '9999px', fontSize: '0.75rem', backgroundColor: '#fff', color: '#000', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
                     >
                       {isCopied ? <Check size={14} /> : <Copy size={14} />}
                       <span>{isCopied ? 'Copied' : 'Copy'}</span>
                     </button>
                   )}
                 </div>
-                
                 {isWatchingAd ? (
                   <div style={{ padding: '2.5rem 1.5rem', textAlign: 'center', backgroundColor: 'var(--bg-primary)', border: '2px dashed #10b981', borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', color: 'var(--text-primary)' }}>
                     <Loader2 size={38} style={{ animation: 'spin 1s linear infinite', color: '#10b981' }} />
