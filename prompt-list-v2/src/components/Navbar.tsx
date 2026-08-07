@@ -225,15 +225,8 @@ export default function Navbar() {
                           Any color
                           {activeColor === 'All' && <Check size={14} />}
                         </button>
-                        <button 
-                          className={`${styles.filterSubMenuItem} ${activeColor === 'Monochrome & Gray' ? styles.active : ''}`}
-                          onClick={() => handleFilterChange('color', 'Monochrome & Gray')}
-                        >
-                          Black and white
-                          {activeColor === 'Monochrome & Gray' && <Check size={14} />}
-                        </button>
                         <div className={styles.colorSquaresRow}>
-                          {COLOR_OPTIONS.filter(c => c.name !== 'Monochrome & Gray').map(c => (
+                          {COLOR_OPTIONS.map(c => (
                             <button
                               key={c.name}
                               title={c.name}
