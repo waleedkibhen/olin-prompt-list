@@ -43,22 +43,22 @@ const TYPE_OPTIONS = [
 
 const ASPECT_OPTIONS = [
   { label: 'All Dimensions', value: 'All Dimensions' },
-  { label: '⏹️ Square (1:1)', value: 'Square', keywords: ['1:1', 'square', 'avatar', 'instagram'] },
-  { label: '📱 Portrait (9:16 / Vertical)', value: 'Portrait', keywords: ['9:16', '3:4', 'portrait', 'vertical', 'wallpaper', 'reels', 'mobile'] },
-  { label: '🖥️ Landscape (16:9 / Widescreen)', value: 'Landscape', keywords: ['16:9', '4:3', '21:9', 'landscape', 'horizontal', 'widescreen', 'cinematic', 'header', 'desktop'] }
+  { label: 'Square (1:1)', value: 'Square', keywords: ['1:1', 'square', 'avatar', 'instagram'] },
+  { label: 'Portrait (9:16 / Vertical)', value: 'Portrait', keywords: ['9:16', '3:4', 'portrait', 'vertical', 'wallpaper', 'reels', 'mobile'] },
+  { label: 'Landscape (16:9 / Widescreen)', value: 'Landscape', keywords: ['16:9', '4:3', '21:9', 'landscape', 'horizontal', 'widescreen', 'cinematic', 'header', 'desktop'] }
 ];
 
 const TIME_OPTIONS = [
   { label: 'All Time', value: 'All Time' },
-  { label: '⚡ Past 24 Hours', value: '24h', ms: 24 * 60 * 60 * 1000 },
-  { label: '📅 Past 7 Days', value: '7d', ms: 7 * 24 * 60 * 60 * 1000 },
-  { label: '🗓️ Past 30 Days', value: '30d', ms: 30 * 24 * 60 * 60 * 1000 }
+  { label: 'Past 24 Hours', value: '24h', ms: 24 * 60 * 60 * 1000 },
+  { label: 'Past 7 Days', value: '7d', ms: 7 * 24 * 60 * 60 * 1000 },
+  { label: 'Past 30 Days', value: '30d', ms: 30 * 24 * 60 * 60 * 1000 }
 ];
 
 const VAULT_OPTIONS = [
   { label: 'All Artwork', value: 'All Artwork' },
-  { label: '🎁 Free Open Prompts', value: 'free' },
-  { label: '💎 PRO Exclusive Vaults', value: 'subscribers_only' }
+  { label: 'Free Open Prompts', value: 'free' },
+  { label: 'PRO Exclusive Vaults', value: 'subscribers_only' }
 ];
 
 export default function DiscoveryFeed() {
@@ -284,6 +284,7 @@ export default function DiscoveryFeed() {
     }
 
     // 3. Art Type & Medium Filter
+    /* 
     if (type && type !== 'All Types') {
       const selectedTypeObj = TYPE_OPTIONS.find(t => t.value === type);
       if (selectedTypeObj && selectedTypeObj.keywords) {
@@ -294,6 +295,7 @@ export default function DiscoveryFeed() {
         });
       }
     }
+    */
 
     // 4. Aspect Ratio / Dimensions Filter
     if (aspect && aspect !== 'All Dimensions') {
@@ -646,39 +648,6 @@ export default function DiscoveryFeed() {
 
       {/* Primary Feed Control Bar */}
       <div className={styles.feedSortRow}>
-        <div className={styles.sortTabs}>
-          <button 
-            className={`${styles.sortBtn} ${activeTab === 'for_you' ? styles.sortActive : ''}`}
-            onClick={() => handleTabChange('for_you')}
-          >
-            <span>For You</span>
-          </button>
-          <button 
-            className={`${styles.sortBtn} ${activeTab === 'trending' ? styles.sortActive : ''}`}
-            onClick={() => handleTabChange('trending')}
-          >
-            <span>Trending</span>
-          </button>
-          <button 
-            className={`${styles.sortBtn} ${activeTab === 'newest' ? styles.sortActive : ''}`}
-            onClick={() => handleTabChange('newest')}
-          >
-            <span>Newest</span>
-          </button>
-          <button 
-            className={`${styles.sortBtn} ${activeTab === 'following' ? styles.sortActive : ''}`}
-            onClick={() => handleTabChange('following')}
-          >
-            <span>Following</span>
-          </button>
-          <button 
-            className={`${styles.sortBtn} ${activeTab === 'saved' ? styles.sortActive : ''}`}
-            onClick={() => handleTabChange('saved')}
-          >
-            <span>Saved</span>
-          </button>
-        </div>
-
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <button 
             className={`${styles.filterToggleBtn} ${isFilterOpen || activeFilterCount > 0 ? styles.filterToggleBtnActive : ''}`}
@@ -733,26 +702,7 @@ export default function DiscoveryFeed() {
             </div>
           </div>
 
-          {/* Row 2: Art Type & Medium */}
-          <div className={styles.filterRow}>
-            <span className={styles.filterLabel}>
-              <Sparkles size={15} style={{ color: '#3b82f6' }} />
-              Art Medium
-            </span>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-              {TYPE_OPTIONS.map(t => (
-                <button
-                  key={t.value}
-                  className={`${styles.filterPill} ${typeFilter === t.value ? styles.filterPillActive : ''}`}
-                  onClick={() => setTypeFilter(prev => prev === t.value ? 'All Types' : t.value)}
-                >
-                  <span>{t.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Row 3: Aspect Ratio & Dimensions */}
+          {/* Row 2: Aspect Ratio & Dimensions */}
           <div className={styles.filterRow}>
             <span className={styles.filterLabel}>
               <ImageIcon size={15} style={{ color: '#10b981' }} />
@@ -828,16 +778,17 @@ export default function DiscoveryFeed() {
           </button>
         </div>
       ) : (
-        <main className={styles.masonryGrid}>
-          {displayedPosts.slice(0, visibleCount).map((post) => (
-            <PromptCard 
-              key={post.id} 
-              post={post} 
-              onLike={handleLike} 
-              onSave={handleSave} 
-            />
+        <div className="masonry-grid" style={{ marginTop: '1.5rem' }}>
+          {displayedPosts.slice(0, visibleCount).map(post => (
+            <div className="masonry-item" key={post.id}>
+              <PromptCard 
+                post={post}
+                onLike={handleLike}
+                onSave={handleSave}
+              />
+            </div>
           ))}
-        </main>
+        </div>
       )}
     </div>
   );

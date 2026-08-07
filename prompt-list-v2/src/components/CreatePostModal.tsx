@@ -6,7 +6,7 @@ import { sendNotification } from '@/lib/notifications';
 import { doc, setDoc, serverTimestamp, collection, query, getDocs, orderBy, limit } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
-import { CheckCircle2, Loader2, Trash2, AlertTriangle, UploadCloud } from 'lucide-react';
+import { UploadCloud, X, CheckCircle2, Loader2, Image as ImageIcon, Trash2, ShieldAlert, AlertTriangle, Info, Tag, Layers, AlignLeft, Sparkles, PlusCircle } from 'lucide-react';
 import { ENABLE_MONETIZATION } from '@/lib/config';
 import RichTextEditor from '@/components/RichTextEditor';
 import { extractImagePalette } from '@/lib/colorAnalyzer';
@@ -205,8 +205,8 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
       setModerationError(`Prompt exceeds security limits (Current: ${promptText.length.toLocaleString()} / 30,000 chars | ${wordCount.toLocaleString()} / 5,000 words). Please shorten your prompt.`);
       return;
     }
-    if (title.length > 75 || description.length > 5000) {
-      setModerationError(`Title exceeds strict 75-character limit or description exceeds 5,000 characters.`);
+    if (title.length > 75 || description.length > 1000) {
+      setModerationError(`Title exceeds strict 75-character limit or description exceeds 1,000 characters.`);
       return;
     }
 
@@ -445,16 +445,67 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
                 <span className={styles.fileCountBadge}>{selectedFiles.length} / 5</span>
               </div>
 
-              <div 
-                className={styles.dropzone}
-                onClick={() => selectedFiles.length < 5 && fileInputRef.current?.click()}
-                style={{ cursor: selectedFiles.length >= 5 ? 'not-allowed' : 'pointer', opacity: selectedFiles.length >= 5 ? 0.6 : 1 }}
-              >
-                <UploadCloud size={28} className={styles.dropIcon} />
-                <div className={styles.dropText}>
-                  <strong>Click to select artwork</strong>
-                  <span>Supports JPG, PNG, or WEBP (up to 5 images)</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {/* Hero Cover Image (Index 0) */}
+                <div 
+                  className={`${styles.dropzone} ${selectedFiles[0] ? styles.hasImage : ''}`}
+                  onClick={() => !selectedFiles[0] && fileInputRef.current?.click()}
+                  style={{ height: '300px', padding: 0, position: 'relative', overflow: 'hidden', cursor: selectedFiles[0] ? 'default' : 'pointer' }}
+                >
+                  {selectedFiles[0] ? (
+                    <>
+                      <img src={selectedFiles[0].previewUrl} alt="Hero Cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <div className={styles.thumbMeta} style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0.5rem', background: 'rgba(0,0,0,0.6)', color: 'white' }}>
+                        <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>⭐ Cover: {selectedFiles[0].file.name}</span>
+                        <button type="button" className={styles.removeBtn} onClick={(e) => { e.stopPropagation(); handleRemoveFile(0); }} title="Remove Hero Cover">
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                      <UploadCloud size={36} style={{ color: 'var(--text-secondary)', marginBottom: '0.5rem' }} />
+                      <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                        <strong style={{ fontSize: '1rem', color: 'var(--text-primary)' }}>Upload Cover Image</strong>
+                        <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>(Required)</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
+                
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0.25rem 0' }}>This is optional</span>
+
+                {/* Supporting Images Gallery (Indices 1-4) */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem' }}>
+                  {[1, 2, 3, 4].map((idx) => {
+                    const item = selectedFiles[idx];
+                    return (
+                      <div 
+                        key={idx}
+                        className={`${styles.dropzone} ${item ? styles.hasImage : ''}`}
+                        onClick={() => !item && fileInputRef.current?.click()}
+                        style={{ height: '100px', padding: 0, position: 'relative', overflow: 'hidden', cursor: item ? 'default' : 'pointer', borderStyle: item ? 'solid' : 'dashed' }}
+                      >
+                        {item ? (
+                          <>
+                            <img src={item.previewUrl} alt={`Supporting ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <div className={styles.thumbMeta} style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0.25rem', background: 'rgba(0,0,0,0.6)', color: 'white', display: 'flex', justifyContent: 'flex-end' }}>
+                              <button type="button" className={styles.removeBtn} onClick={(e) => { e.stopPropagation(); handleRemoveFile(idx); }} title="Remove">
+                                <Trash2 size={13} />
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                            <PlusCircle size={20} style={{ color: 'var(--text-muted)' }} />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                
+                {/* Hidden File Input */}
                 <input 
                   type="file" 
                   ref={fileInputRef} 
@@ -465,41 +516,6 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
                   disabled={selectedFiles.length >= 5 || isScanning}
                 />
               </div>
-
-              {selectedFiles.length > 0 && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1rem' }}>
-                  {/* Hero Cover Image (Index 0) */}
-                  <div className={styles.thumbCard} style={{ width: '100%', height: '300px' }}>
-                    <img src={selectedFiles[0].previewUrl} alt="Hero Cover" className={styles.thumbImg} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    <div className={styles.thumbMeta}>
-                      <span className={styles.thumbName}>⭐ Cover: {selectedFiles[0].file.name}</span>
-                      <button type="button" className={styles.removeBtn} onClick={() => handleRemoveFile(0)} title="Remove Hero Cover">
-                        <Trash2 size={13} />
-                      </button>
-                    </div>
-                  </div>
-                  
-                  {/* Supporting Images Gallery (Index 1+) */}
-                  {selectedFiles.length > 1 && (
-                    <div className={styles.previewGrid} style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))' }}>
-                      {selectedFiles.slice(1).map((item, sliceIdx) => {
-                        const originalIdx = sliceIdx + 1;
-                        return (
-                          <div key={originalIdx} className={styles.thumbCard} style={{ height: '120px' }}>
-                            <img src={item.previewUrl} alt={`Supporting ${originalIdx}`} className={styles.thumbImg} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            <div className={styles.thumbMeta}>
-                              <span className={styles.thumbName}>{item.file.name}</span>
-                              <button type="button" className={styles.removeBtn} onClick={() => handleRemoveFile(originalIdx)} title="Remove">
-                                <Trash2 size={13} />
-                              </button>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
 
             <div className={styles.fieldRow}>

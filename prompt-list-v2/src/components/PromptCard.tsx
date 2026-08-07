@@ -280,75 +280,30 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
           />
           
           <div className={styles.overlay}>
-            <div className={styles.topActions}>
-              <div />
+            <div className={styles.bottomOverlay}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', overflow: 'hidden' }}>
+                <span className={styles.captionTitle} style={{ color: '#fff', fontSize: '1rem', fontWeight: 600 }}>{post.title}</span>
+                <div className={styles.creatorTiny} onClick={(e) => { e.stopPropagation(); navigate(`/profile?id=${post.creator.uid}`); }} style={{ cursor: 'pointer' }}>
+                  <span className={styles.creatorNameTiny} style={{ color: 'rgba(255,255,255,0.8)' }}>{post.creator.displayName}</span>
+                </div>
+              </div>
+
               <div className={styles.actionBtns}>
                 <button 
                   className={`${styles.actionIconBtn} ${isLiked ? styles.likedBtn : ''}`}
                   onClick={toggleLike}
                   title="Like artwork"
                 >
-                  <Heart size={15} fill={isLiked ? "currentColor" : "none"} />
-                  <span>{likesCount}</span>
+                  <Heart size={16} fill={isLiked ? "currentColor" : "none"} />
                 </button>
                 <button 
                   className={`${styles.actionIconBtn} ${isSaved ? styles.savedBtn : ''}`}
                   onClick={toggleSave}
                   title="Save bookmark"
                 >
-                  <Bookmark size={15} fill={isSaved ? "currentColor" : "none"} />
-                </button>
-                <button 
-                  className={styles.actionIconBtn}
-                  onClick={handleReportPost}
-                  title="Report or flag this artwork"
-                  style={{ color: '#f43f5e' }}
-                >
-                  <Flag size={14} />
+                  <Bookmark size={16} fill={isSaved ? "currentColor" : "none"} />
                 </button>
               </div>
-            </div>
-
-            <div className={styles.bottomOverlay}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', overflow: 'hidden' }}>
-                <span className={styles.captionTitle} style={{ color: '#fff' }}>{post.title}</span>
-                <div className={styles.creatorTiny} onClick={(e) => { e.stopPropagation(); navigate(`/profile?id=${post.creator.uid}`); }} style={{ cursor: 'pointer' }}>
-                  <span className={styles.creatorNameTiny} style={{ color: '#a3a3a3' }}>{post.creator.displayName}</span>
-                </div>
-              </div>
-
-              {isProtected ? (
-                effectiveMonetization === 'subscribers_only' ? (
-                  <button 
-                    className={styles.lockedCopyBtn}
-                    onClick={handleSubscribeToUnlock}
-                    title="Subscriber Only — Click to upgrade and unlock"
-                  >
-                    🔒 <span>Subscribe</span>
-                  </button>
-                ) : (
-                  <button 
-                    className={styles.lockedCopyBtn}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsModalOpen(true);
-                    }}
-                    title="Ad Supported — Watch brief ad to unlock"
-                    style={{ background: 'linear-gradient(135deg, #10b981, #059669)', border: 'none', color: '#fff' }}
-                  >
-                    ▶️ <span>Watch Ad</span>
-                  </button>
-                )
-              ) : (
-                <button 
-                  className={styles.quickCopyBtn}
-                  onClick={handleCopyPrompt}
-                  title="Copy generative parameters"
-                >
-                  {isCopied ? <Check size={13} className={styles.checkIcon} /> : <Copy size={13} />}
-                  <span>{isCopied ? 'Copied' : 'Copy'}</span>
-                </button>
-              )}
             </div>
           </div>
         </div>

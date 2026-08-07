@@ -2,25 +2,25 @@
 
 :root {
   /* Default Theme Variables (Dark Preference) - Gallery Minimalist */
-  --bg-primary: #09090B;
-  --bg-secondary: #000000;
-  --bg-elevated: #121212;
-  --bg-hover: #1c1c1c;
+  --bg-primary: #131316;
+  --bg-secondary: #1b1b1e;
+  --bg-elevated: #1f1f22;
+  --bg-hover: #2a2a2d;
   
-  --text-primary: #F5F5F5;
-  --text-secondary: #a3a3a3;
-  --text-muted: #737373;
-  --text-inverted: #000000;
+  --text-primary: #e4e1e5;
+  --text-secondary: #c4c7c8;
+  --text-muted: #8e9192;
+  --text-inverted: #131316;
 
-  --border-color: #27272A;
-  --border-focus: #F5F5F5;
+  --border-color: #353437;
+  --border-focus: #e4e1e5;
   
-  --accent-color: #F5F5F5;
-  --accent-hover: #ffffff;
-  --accent-secondary: #a3a3a3;
+  --accent-color: #ffffff;
+  --accent-hover: #c4c7c8;
+  --accent-secondary: #e4e1e5;
 
   --tag-bg: transparent;
-  --tag-text: #a3a3a3;
+  --tag-text: #c4c7c8;
   --tag-active-bg: transparent;
   --tag-active-text: #ffffff;
 
@@ -34,12 +34,12 @@
   --shadow-lg: none;
   --shadow-hover: none;
 
-  /* ZERO Radius */
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
-  --radius-full: 0px;
+  /* Gallery Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
 
   --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
   --transition-normal: 250ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -138,12 +138,12 @@ button:focus-visible {
   font-weight: 600;
   font-size: 0.875rem;
   padding: 0.6rem 1.25rem;
-  border-radius: var(--radius-full); /* which is 0px */
+  border-radius: var(--radius-full);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  box-shadow: var(--shadow-sm); /* which is none */
+  box-shadow: var(--shadow-sm);
   transition: transform var(--transition-fast), background-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
@@ -205,4 +205,25 @@ input, textarea, select {
 input:focus, textarea:focus, select:focus {
   border-color: var(--border-focus);
   outline: none;
+}
+
+/* Masonry Grid Classes */
+.masonry-grid {
+  column-count: 1;
+  column-gap: 16px;
+}
+@media (min-width: 640px) { .masonry-grid { column-count: 2; } }
+@media (min-width: 1024px) { .masonry-grid { column-count: 3; } }
+@media (min-width: 1280px) { .masonry-grid { column-count: 4; } }
+
+.masonry-item {
+  break-inside: avoid;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hide scrollbar for gallery feel */
+::-webkit-scrollbar {
+  display: none;
 }
