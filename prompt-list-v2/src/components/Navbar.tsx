@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './Navbar.module.css';
-import { Search, Filter, Plus, User, Bell, ChevronDown, Check, Sparkles } from 'lucide-react';
+import { Search, Filter, Plus, User, Bell, ChevronDown, Check, Sparkles, Moon, Sun } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import CreatePostModal from './CreatePostModal';
 import FeedbackModal from './FeedbackModal';
@@ -18,6 +18,7 @@ export default function Navbar() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => localStorage.getItem('theme') !== 'light');
 
   // Search state
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
@@ -56,6 +57,11 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
   
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+  }, [isDarkMode]);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
@@ -164,10 +170,13 @@ export default function Navbar() {
           </div>
         ) : (
           <div className={styles.actionControls}>
-            
-            {/* Search Icon */}
             <button className={styles.iconBtn} onClick={() => { setIsSearchExpanded(true); setTimeout(() => searchInputRef.current?.focus(), 50); }} title="Search">
               <Search size={22} strokeWidth={2} />
+            </button>
+
+            {/* Theme Toggle */}
+            <button className={styles.iconBtn} onClick={() => setIsDarkMode(!isDarkMode)} title="Toggle Theme">
+              {isDarkMode ? <Sun size={22} strokeWidth={2} /> : <Moon size={22} strokeWidth={2} />}
             </button>
             
             {/* Filter Icon & Dropdown */}
