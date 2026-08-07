@@ -284,24 +284,25 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', overflow: 'hidden', paddingBottom: '32px' }}>
                 <span className={styles.captionTitle} style={{ color: '#fff', fontSize: '1rem', fontWeight: 600 }}>{post.title}</span>
                 <div className={styles.creatorTiny} onClick={(e) => { e.stopPropagation(); navigate(`/profile?id=${post.creator.uid}`); }} style={{ cursor: 'pointer' }}>
-                  <span className={styles.creatorNameTiny} style={{ color: 'rgba(255,255,255,0.8)' }}>{post.creator.displayName}</span>
+                  <span className={styles.creatorNameTiny} style={{ color: 'rgba(255,255,255,0.8)' }}>@{post.creator.displayName}</span>
                 </div>
               </div>
 
-              <div className={styles.actionBtns} style={{ position: 'absolute', top: '12px', right: '12px' }}>
+              <div className={styles.actionBtns} style={{ position: 'absolute', bottom: '12px', left: '12px' }}>
                 <button 
                   onClick={toggleLike}
                   title="Like artwork"
-                  style={{ background: 'transparent', border: 'none', color: '#fff', padding: '4px', cursor: 'pointer' }}
+                  style={{ background: 'transparent', border: 'none', color: isLiked ? '#ef4444' : '#fff', padding: '4px', cursor: 'pointer' }}
+                  className={isLiked ? styles.heartLiked : ''}
                 >
-                  <Heart size={16} fill={isLiked ? "currentColor" : "none"} />
+                  <Heart size={24} fill={isLiked ? "currentColor" : "none"} strokeWidth={isLiked ? 0 : 2} />
                 </button>
                 <button 
                   onClick={toggleSave}
                   title="Save bookmark"
                   style={{ background: 'transparent', border: 'none', color: '#fff', padding: '4px', cursor: 'pointer' }}
                 >
-                  <Bookmark size={16} fill={isSaved ? "currentColor" : "none"} />
+                  <Bookmark size={24} fill={isSaved ? "currentColor" : "none"} />
                 </button>
               </div>
             </div>
