@@ -266,7 +266,7 @@ export default function Navbar() {
             <div style={{ position: 'relative' }} ref={profileRef}>
               <button className={styles.iconBtn} onClick={() => user ? setShowProfileMenu(!showProfileMenu) : signInWithGoogle()} title={user ? "Profile" : "Sign In"}>
                 {user ? (
-                  <img src={profile?.avatarUrl || user.photoURL || ''} alt="Profile" style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover' }} />
+                  <img src={profile?.avatarUrl || user.photoURL || ''} alt="Profile" style={{ width: '26px', height: '26px', borderRadius: '50%', objectFit: 'cover' }} />
                 ) : (
                   <User size={22} strokeWidth={2} />
                 )}
@@ -290,7 +290,7 @@ export default function Navbar() {
                     <Link to="/admin" className={styles.dropdownItem} onClick={() => setShowProfileMenu(false)}>Superadmin Console</Link>
                   )}
                   <div className={styles.dropdownDivider} />
-                  <button className={styles.dropdownItem} onClick={() => { signOut(); setShowProfileMenu(false); }} style={{ width: '100%', textAlign: 'left', cursor: 'pointer', border: 'none', background: 'none' }}>
+                  <button className={`${styles.dropdownItem} ${styles.signOutItem}`} onClick={() => { signOut(); setShowProfileMenu(false); }} style={{ width: '100%', textAlign: 'left', cursor: 'pointer', border: 'none', background: 'none' }}>
                     Sign Out
                   </button>
                 </div>

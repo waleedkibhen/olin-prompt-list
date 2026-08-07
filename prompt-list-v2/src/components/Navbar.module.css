@@ -301,3 +301,8 @@
   color: var(--text-primary);
   background-color: var(--bg-secondary);
 }
+
+.signOutItem:hover {
+  color: var(--data-red);
+  background-color: rgba(239, 68, 68, 0.1);
+}
