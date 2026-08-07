@@ -174,59 +174,100 @@
   position: absolute;
   top: 100%;
   right: 0;
-  width: 320px;
+  width: 200px;
   background-color: #121212;
   border: 1px solid var(--border-color);
   border-radius: 2px;
-  padding: 1.25rem;
+  padding: 0.5rem 0;
   z-index: 55;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
 }
 
-.filterSectionTitle {
-  margin: 0 0 0.75rem 0;
-  font-size: 0.85rem;
+.filterCategoryItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1rem;
   color: var(--text-primary);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: 0.9rem;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  text-align: left;
+  width: 100%;
 }
 
-.filterOptionsGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
+.filterCategoryItem:hover {
+  background-color: var(--bg-hover);
 }
 
-.filterOptionsFlex {
+.filterSubMenu {
+  position: absolute;
+  top: 0;
+  right: 100%;
+  width: max-content;
+  min-width: 200px;
+  background-color: #121212;
+  border: 1px solid var(--border-color);
+  border-radius: 2px;
+  padding: 0.5rem 0;
+  z-index: 56;
+  display: none;
+  flex-direction: column;
+}
+
+.filterCategoryItem:hover .filterSubMenu {
+  display: flex;
+}
+
+.filterSubMenuItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1rem;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  text-align: left;
+  width: 100%;
+}
+
+.filterSubMenuItem:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.filterSubMenuItem.active {
+  color: var(--text-primary);
+  background-color: var(--bg-hover);
+}
+
+.colorSquaresRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 4px;
+  padding: 0.5rem 1rem;
 }
 
-.filterSquare {
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
+.colorSquare {
+  width: 20px;
+  height: 20px;
   border: 1px solid var(--border-color);
-  padding: 0.5rem 0.75rem;
-  border-radius: 0px; /* Strict square corners */
-  font-size: 0.8rem;
-  font-weight: 500; /* Medium text */
+  border-radius: 2px;
   cursor: pointer;
-  text-align: left;
-  transition: all 200ms;
 }
 
-.filterSquare:hover {
-  background-color: var(--border-color);
-}
-
-.filterSquareActive {
-  background-color: var(--text-primary);
-  color: var(--bg-primary);
+.colorSquare:hover {
   border-color: var(--text-primary);
+}
+
+.colorSquareActive {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 1px;
 }
 
 /* DROPDOWN MENUS (Profile, Notifications) */

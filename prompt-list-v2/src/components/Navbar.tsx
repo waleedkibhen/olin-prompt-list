@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './Navbar.module.css';
-import { Search, Filter, Plus, User, Bell, ChevronDown, Check, Sparkles, Moon, Sun } from 'lucide-react';
+import { Search, Filter, Plus, User, Bell, ChevronDown, ChevronRight, Check, Sparkles, Moon, Sun } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import CreatePostModal from './CreatePostModal';
 import FeedbackModal from './FeedbackModal';
@@ -26,6 +26,7 @@ export default function Navbar() {
   
   // Filter state
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [activeFilterCategory, setActiveFilterCategory] = useState<string | null>(null);
   
   // Profile / Notification state
   const [showNotifications, setShowNotifications] = useState(false);
@@ -185,58 +186,89 @@ export default function Navbar() {
                 <Filter size={22} strokeWidth={2} />
               </button>
               {isFilterOpen && (
-                <div className={styles.filterDropdownMenu}>
-                  <div className={styles.filterSection}>
-                    <h6 className={styles.filterSectionTitle}>Color Palette</h6>
-                    <div className={styles.filterOptionsGrid}>
-                      <button 
-                        className={`${styles.filterSquare} ${activeColor === 'All' ? styles.filterSquareActive : ''}`}
-                        onClick={() => handleFilterChange('color', 'All')}
-                      >
-                        Any Color
-                      </button>
-                      {COLOR_OPTIONS.map(c => (
-                        <button
-                          key={c.name}
-                          className={`${styles.filterSquare} ${activeColor === c.name ? styles.filterSquareActive : ''}`}
-                          style={{ borderLeft: `4px solid ${c.hex}` }}
-                          onClick={() => handleFilterChange('color', c.name)}
-                        >
-                          {c.name}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                <div className={styles.filterDropdownMenu} onMouseLeave={() => setActiveFilterCategory(null)}>
                   
-                  <div className={styles.filterSection}>
-                    <h6 className={styles.filterSectionTitle}>Orientation</h6>
-                    <div className={styles.filterOptionsFlex}>
-                      {ASPECT_OPTIONS.map(a => (
-                        <button
-                          key={a.value}
-                          className={`${styles.filterSquare} ${activeAspect === a.value ? styles.filterSquareActive : ''}`}
-                          onClick={() => handleFilterChange('aspect', a.value)}
-                        >
-                          {a.label}
-                        </button>
-                      ))}
-                    </div>
+                  {/* Dimension / Orientation */}
+                  <div 
+                    className={styles.filterCategoryItem}
+                    onMouseEnter={() => setActiveFilterCategory('orientation')}
+                  >
+                    Size <ChevronRight size={16} />
+                    {activeFilterCategory === 'orientation' && (
+                      <div className={styles.filterSubMenu}>
+                        {ASPECT_OPTIONS.map(a => (
+                          <button
+                            key={a.value}
+                            className={`${styles.filterSubMenuItem} ${activeAspect === a.value ? styles.active : ''}`}
+                            onClick={() => handleFilterChange('aspect', a.value)}
+                          >
+                            {a.label}
+                            {activeAspect === a.value && <Check size={14} />}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  
-                  <div className={styles.filterSection}>
-                    <h6 className={styles.filterSectionTitle}>Timeframe</h6>
-                    <div className={styles.filterOptionsFlex}>
-                      {TIME_OPTIONS.map(t => (
-                        <button
-                          key={t.value}
-                          className={`${styles.filterSquare} ${activeTime === t.value ? styles.filterSquareActive : ''}`}
-                          onClick={() => handleFilterChange('time', t.value)}
+
+                  {/* Color */}
+                  <div 
+                    className={styles.filterCategoryItem}
+                    onMouseEnter={() => setActiveFilterCategory('color')}
+                  >
+                    Color <ChevronRight size={16} />
+                    {activeFilterCategory === 'color' && (
+                      <div className={styles.filterSubMenu}>
+                        <button 
+                          className={`${styles.filterSubMenuItem} ${activeColor === 'All' ? styles.active : ''}`}
+                          onClick={() => handleFilterChange('color', 'All')}
                         >
-                          {t.label}
+                          Any color
+                          {activeColor === 'All' && <Check size={14} />}
                         </button>
-                      ))}
-                    </div>
+                        <button 
+                          className={`${styles.filterSubMenuItem} ${activeColor === 'Monochrome & Gray' ? styles.active : ''}`}
+                          onClick={() => handleFilterChange('color', 'Monochrome & Gray')}
+                        >
+                          Black and white
+                          {activeColor === 'Monochrome & Gray' && <Check size={14} />}
+                        </button>
+                        <div className={styles.colorSquaresRow}>
+                          {COLOR_OPTIONS.filter(c => c.name !== 'Monochrome & Gray').map(c => (
+                            <button
+                              key={c.name}
+                              title={c.name}
+                              className={`${styles.colorSquare} ${activeColor === c.name ? styles.colorSquareActive : ''}`}
+                              style={{ backgroundColor: c.hex }}
+                              onClick={() => handleFilterChange('color', c.name)}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
+
+                  {/* Timeframe */}
+                  <div 
+                    className={styles.filterCategoryItem}
+                    onMouseEnter={() => setActiveFilterCategory('time')}
+                  >
+                    Time <ChevronRight size={16} />
+                    {activeFilterCategory === 'time' && (
+                      <div className={styles.filterSubMenu}>
+                        {TIME_OPTIONS.map(t => (
+                          <button
+                            key={t.value}
+                            className={`${styles.filterSubMenuItem} ${activeTime === t.value ? styles.active : ''}`}
+                            onClick={() => handleFilterChange('time', t.value)}
+                          >
+                            {t.label}
+                            {activeTime === t.value && <Check size={14} />}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
                 </div>
               )}
             </div>
