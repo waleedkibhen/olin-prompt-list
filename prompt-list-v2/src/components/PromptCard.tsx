@@ -280,21 +280,23 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
           />
           
           <div className={styles.overlay}>
-            <div className={styles.actionBtns} style={{ alignSelf: 'flex-end' }}>
+              <div className={styles.actionBtns} style={{ alignSelf: 'flex-end', gap: '12px' }}>
                 <button 
                   onClick={toggleSave}
                   title="Save bookmark"
-                  style={{ background: 'transparent', border: 'none', color: '#fff', padding: '4px', cursor: 'pointer' }}
+                  style={{ background: 'transparent', border: 'none', color: '#fff', padding: '4px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
                 >
                   <Bookmark size={24} fill={isSaved ? "currentColor" : "none"} />
+                  <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>{savesCount}</span>
                 </button>
                 <button 
                   onClick={toggleLike}
                   title="Like artwork"
-                  style={{ background: 'transparent', border: 'none', color: isLiked ? '#ef4444' : '#fff', padding: '4px', cursor: 'pointer' }}
+                  style={{ background: 'transparent', border: 'none', color: isLiked ? '#ef4444' : '#fff', padding: '4px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
                   className={isLiked ? styles.heartLiked : ''}
                 >
-                  <ThumbsUp size={24} fill={isLiked ? "currentColor" : "none"} strokeWidth={isLiked ? 0 : 2} />
+                  <Heart size={24} fill={isLiked ? "currentColor" : "none"} strokeWidth={isLiked ? 0 : 2} />
+                  <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#fff' }}>{likesCount}</span>
                 </button>
               </div>
 
