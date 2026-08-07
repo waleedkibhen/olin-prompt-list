@@ -15,9 +15,9 @@ export const COLOR_OPTIONS = [
 
 export const ASPECT_OPTIONS = [
   { label: 'All Dimensions', value: 'All Dimensions' },
-  { label: 'Square (1:1)', value: 'Square' },
-  { label: 'Portrait (9:16 / Vertical)', value: 'Portrait' },
-  { label: 'Landscape (16:9 / Widescreen)', value: 'Landscape' }
+  { label: 'Square', value: 'Square' },
+  { label: 'Portrait', value: 'Portrait' },
+  { label: 'Landscape', value: 'Landscape' }
 ];
 
 export const TIME_OPTIONS = [
