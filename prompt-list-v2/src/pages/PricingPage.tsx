@@ -125,7 +125,7 @@ export default function PricingPage() {
             <Sparkles size={46} style={{ color: '#10b981' }} />
           </div>
           <div style={{ background: '#10b981', color: '#000', fontSize: '0.825rem', fontWeight: 900, textTransform: 'uppercase', padding: '5px 16px', borderRadius: '9999px', display: 'inline-block', marginBottom: '1.25rem', letterSpacing: '0.05em' }}>
-            🎉 100% Free Community Period
+            100% Free Community Period
           </div>
           <h1 style={{ fontSize: '2.2rem', color: 'var(--text-primary)', marginBottom: '1.25rem', lineHeight: 1.25, fontWeight: 800 }}>
             No Paywalls. No Subscriptions.<br/>Everything is Free.
@@ -139,7 +139,7 @@ export default function PricingPage() {
             onClick={() => navigate('/')}
             style={{ width: '100%', maxWidth: '340px', padding: '0.95rem 1.5rem', fontSize: '1.05rem', borderRadius: '9999px', background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff', fontWeight: 700, margin: '0 auto' }}
           >
-            🚀 Explore All Prompts for Free
+            Explore All Prompts for Free
           </button>
         </div>
       </div>
@@ -232,7 +232,7 @@ export default function PricingPage() {
         {/* Card 2: Olin Premium Subscriber */}
         <div className={`${styles.pricingCard} ${styles.premiumCard}`}>
           <div className={styles.badgeHeader}>
-            ⚡ LAUNCH PRICING • MOST POPULAR
+            LAUNCH PRICING • MOST POPULAR
           </div>
 
           <h2 className={styles.planName}>
@@ -285,7 +285,7 @@ export default function PricingPage() {
             activeTier === billingCycle ? (
               <button type="button" className={`${styles.ctaBtn} ${styles.primaryCta}`} onClick={handleManageWhop}>
                 <ExternalLink size={18} />
-                <span>✨ Current Active Plan — Manage on Whop</span>
+                <span>Current Active Plan — Manage on Whop</span>
               </button>
             ) : activeTier === 'monthly' && billingCycle === 'yearly' ? (
               <button 
@@ -295,7 +295,7 @@ export default function PricingPage() {
                 style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#000', fontWeight: 800 }}
               >
                 <Zap size={18} />
-                <span>⚡ Upgrade to Yearly Plan ($50/yr) — Save $10 ↗</span>
+                <span>Upgrade to Yearly Plan ($50/yr) — Save $10</span>
               </button>
             ) : (
               <button 
@@ -305,7 +305,7 @@ export default function PricingPage() {
                 style={{ background: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
               >
                 <ExternalLink size={18} />
-                <span>📉 Downgrade to Monthly Plan ($5/mo) ↗</span>
+                <span>Downgrade to Monthly Plan ($5/mo)</span>
               </button>
             )
           ) : (
@@ -316,7 +316,7 @@ export default function PricingPage() {
             >
               <Zap size={18} />
               <span>
-                ⚡ Subscribe via Whop — {billingCycle === 'yearly' ? '$50/yr' : '$5/mo'}
+                Subscribe via Whop — {billingCycle === 'yearly' ? '$50/yr' : '$5/mo'}
               </span>
             </button>
           )}
@@ -354,7 +354,7 @@ export default function PricingPage() {
             {isVerifying ? (
               <>
                 <h3 className={styles.toastTitle} style={{ fontSize: '1.4rem', color: 'var(--text-primary)' }}>
-                  ⏳ Checking Whop Records...
+                  Checking Whop Records...
                 </h3>
                 <p className={styles.toastMessage} style={{ fontSize: '0.95rem', color: 'var(--text-secondary)' }}>
                   We are securely communicating with Whop payment servers to confirm your transaction for <strong>{user?.email || 'your account'}</strong>.
@@ -363,10 +363,10 @@ export default function PricingPage() {
             ) : verificationStatus === 'success' || isPremiumSubscriber ? (
               <>
                 <div style={{ background: '#059669', color: '#fff', fontSize: '0.75rem', fontWeight: 800, padding: '2px 10px', borderRadius: '9999px', margin: '0 auto 0.5rem auto', width: 'fit-content' }}>
-                  ✅ CONFIRMED VIA WHOP API
+                  CONFIRMED VIA WHOP API
                 </div>
                 <h3 className={styles.toastTitle} style={{ fontSize: '1.6rem', color: '#d97706', margin: '0.25rem 0 0.75rem 0' }}>
-                  🎉 Welcome to Olin Pro!
+                  Welcome to Olin Pro!
                 </h3>
                 <p className={styles.toastMessage} style={{ fontSize: '1rem', lineHeight: 1.6, color: 'var(--text-primary)' }}>
                   Your membership receipt was officially verified against Whop servers! You are now an active <strong>Olin Premium Subscriber</strong>. All sponsor advertisements are bypassed forever and exclusive vaults are fully unlocked.
@@ -375,7 +375,7 @@ export default function PricingPage() {
             ) : (
               <>
                 <div style={{ background: '#dc2626', color: '#fff', fontSize: '0.75rem', fontWeight: 800, padding: '2px 10px', borderRadius: '9999px', margin: '0 auto 0.5rem auto', width: 'fit-content' }}>
-                  ⏳ PENDING OR UNVERIFIED
+                  PENDING OR UNVERIFIED
                 </div>
                 <h3 className={styles.toastTitle} style={{ fontSize: '1.4rem', color: 'var(--text-primary)' }}>
                   Payment Processing
@@ -388,7 +388,7 @@ export default function PricingPage() {
                   onClick={verifyWhopPayment}
                   style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', padding: '0.6rem 1rem', borderRadius: '0.5rem', cursor: 'pointer', fontWeight: 600, width: '100%', marginBottom: '0.5rem' }}
                 >
-                  🔄 Re-verify Membership with Whop Now
+                  Re-verify Membership with Whop Now
                 </button>
               </>
             )}
@@ -402,7 +402,7 @@ export default function PricingPage() {
               }}
               style={{ width: '100%', background: 'var(--accent-color)', color: 'var(--text-inverted)', marginTop: '0.5rem' }}
             >
-              ⚡ Continue to Marketplace
+              Continue to Marketplace
             </button>
           </div>
         </div>

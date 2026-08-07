@@ -44,10 +44,9 @@
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
   padding: 0.35rem;
-  border-radius: var(--radius-full, 9999px);
+  border-radius: 0px;
   width: fit-content;
   margin: 0 auto;
-  box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
 }
 
@@ -55,7 +54,7 @@
   background: none;
   border: none;
   padding: 0.6rem 1.4rem;
-  border-radius: var(--radius-full, 9999px);
+  border-radius: 0px;
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--text-secondary);
@@ -71,18 +70,17 @@
 }
 
 .activeToggle {
-  background-color: var(--accent-color);
+  background-color: var(--text-primary); color: var(--bg-primary);
   color: var(--text-inverted) !important;
-  box-shadow: var(--shadow-sm);
 }
 
 .savingsBadge {
-  background-color: #10b981;
+  background-color: var(--text-primary);
   color: #ffffff;
   font-size: 0.72rem;
   font-weight: 800;
   padding: 0.15rem 0.5rem;
-  border-radius: var(--radius-full, 9999px);
+  border-radius: 0px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -106,25 +104,22 @@
 .pricingCard {
   background-color: var(--bg-elevated);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-xl, 24px);
+  border-radius: 0px;
   padding: 2.5rem;
   display: flex;
   flex-direction: column;
   position: relative;
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background-color 0.25s ease;
-  box-shadow: var(--shadow-md);
 }
 
 .pricingCard:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
   border-color: var(--border-focus);
 }
 
 .premiumCard {
   background-color: var(--bg-secondary);
   border: 2px solid var(--text-primary);
-  box-shadow: var(--shadow-lg);
 }
 
 .badgeHeader {
@@ -140,8 +135,7 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   padding: 0.35rem 1.1rem;
-  border-radius: var(--radius-full, 9999px);
-  box-shadow: var(--shadow-md);
+  border-radius: 0px;
   white-space: nowrap;
 }
 
@@ -214,7 +208,7 @@
 }
 
 .checkIcon {
-  color: #10b981;
+  color: var(--text-primary);
   flex-shrink: 0;
   margin-top: 0.15rem;
 }
@@ -222,7 +216,7 @@
 .ctaBtn {
   width: 100%;
   padding: 1rem 1.5rem;
-  border-radius: var(--radius-full, 9999px);
+  border-radius: 0px;
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
@@ -235,15 +229,13 @@
 }
 
 .primaryCta {
-  background-color: var(--accent-color);
+  background-color: transparent; border: 1px solid var(--text-primary); color: var(--text-primary);
   color: var(--text-inverted);
-  box-shadow: var(--shadow-sm);
 }
 
 .primaryCta:hover {
   background-color: var(--accent-hover);
   transform: scale(1.02);
-  box-shadow: var(--shadow-md);
 }
 
 .secondaryCta {
@@ -263,12 +255,10 @@
   color: var(--text-muted);
   cursor: not-allowed;
   border: 1px solid var(--border-color);
-  box-shadow: none;
 }
 
 .disabledCta:hover {
   transform: none;
-  box-shadow: none;
 }
 
 /* Modal Toast for Placeholder URL */
@@ -291,12 +281,11 @@
 .toastCard {
   background-color: var(--bg-elevated);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-xl, 24px);
+  border-radius: 0px;
   padding: 2.5rem;
   max-width: 440px;
   width: 100%;
   text-align: center;
-  box-shadow: var(--shadow-hover);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -318,9 +307,9 @@
 .toastBtn {
   background-color: var(--accent-color);
   color: var(--text-inverted);
-  border: none;
+  border: 1px solid var(--text-primary); background: transparent; color: var(--text-primary);
   padding: 0.75rem 2rem;
-  border-radius: var(--radius-full, 9999px);
+  border-radius: 0px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;

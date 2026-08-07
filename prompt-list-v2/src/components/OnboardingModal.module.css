@@ -16,10 +16,9 @@
 .modalContent {
   background-color: var(--bg-primary);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
+  border-radius: 0px;
   width: 100%;
   max-width: 480px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -71,7 +70,6 @@
   border: 3px solid var(--accent-color);
   cursor: pointer;
   background-color: var(--bg-secondary);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .avatarImg {
@@ -115,7 +113,7 @@
 
 .fieldGroup input {
   padding: 0.75rem 1rem;
-  border-radius: var(--radius-md);
+  border-radius: 0px;
   border: 1px solid var(--border-color);
   background-color: var(--bg-secondary);
   color: var(--text-primary);
@@ -154,12 +152,12 @@
 }
 
 .errorText {
-  color: #f43f5e;
+  color: var(--text-primary);
   font-weight: 600;
 }
 
 .successText {
-  color: #10b981;
+  color: var(--text-primary);
   font-weight: 600;
 }
 
@@ -168,7 +166,7 @@
   padding: 0.85rem;
   font-size: 1rem;
   font-weight: 700;
-  border-radius: var(--radius-full);
+  border-radius: 0px;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -77,11 +77,11 @@ export default function FeedbackModal({ onClose }: FeedbackModalProps) {
             <div className={styles.fieldGroup}>
               <label>Ticket Type / Subject</label>
               <select value={subject} onChange={e => setSubject(e.target.value)}>
-                <option value="Bug Report">🐛 Bug Report</option>
-                <option value="Feature Suggestion">💡 Feature Suggestion</option>
-                <option value="Monetization Question">💰 Monetization &amp; Subscriptions Question</option>
-                <option value="Flagged Appeal">🛡️ Appeal Flagged Artwork</option>
-                <option value="Other Support">📌 Other Support</option>
+                <option value="Bug Report">Bug Report</option>
+                <option value="Feature Suggestion">Feature Suggestion</option>
+                <option value="Monetization Question">Monetization &amp; Subscriptions Question</option>
+                <option value="Flagged Appeal">Appeal Flagged Artwork</option>
+                <option value="Other Support">Other Support</option>
               </select>
             </div>
 

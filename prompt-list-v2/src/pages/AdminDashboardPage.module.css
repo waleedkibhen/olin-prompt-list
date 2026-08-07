@@ -24,13 +24,12 @@
 .shieldIcon {
   width: 44px;
   height: 44px;
-  border-radius: var(--radius-md);
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.4));
+  border-radius: 0px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #f59e0b;
-  border: 1px solid #f59e0b;
+  color: var(--text-primary);
+  border: 1px solid var(--text-primary);
 }
 
 .header h1 {
@@ -47,11 +46,11 @@
 }
 
 .adminBadge {
-  background-color: rgba(245, 158, 11, 0.15);
-  color: #f59e0b;
-  border: 1px solid #f59e0b;
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+  border: 1px solid var(--text-primary);
   padding: 0.35rem 0.85rem;
-  border-radius: 9999px;
+  border-radius: 0px;
   font-size: 0.78rem;
   font-weight: 700;
   display: flex;
@@ -73,7 +72,7 @@
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
   padding: 0.7rem 1.25rem;
-  border-radius: var(--radius-md);
+  border-radius: 0px;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
@@ -90,10 +89,9 @@
 }
 
 .tabActive {
-  background-color: rgba(245, 158, 11, 0.15);
-  border-color: #f59e0b;
-  color: #f59e0b;
-  box-shadow: 0 0 15px rgba(245, 158, 11, 0.15);
+  background-color: var(--bg-hover);
+  border-color: var(--text-primary);
+  color: var(--text-primary);
 }
 
 .countBadge {
@@ -101,7 +99,7 @@
   color: var(--text-primary);
   font-size: 0.72rem;
   padding: 0.1rem 0.5rem;
-  border-radius: 9999px;
+  border-radius: 0px;
   font-weight: 800;
 }
 
@@ -114,14 +112,13 @@
 .card {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
+  border-radius: 0px;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 1rem;
   transition: transform var(--transition-fast), border-color var(--transition-fast);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .card:hover {
@@ -154,7 +151,7 @@
   width: 100%;
   height: 180px;
   object-fit: cover;
-  border-radius: var(--radius-md);
+  border-radius: 0px;
   border: 1px solid var(--border-color);
 }
 
@@ -168,11 +165,11 @@
 }
 
 .btnApprove {
-  background-color: #10b981;
-  color: #ffffff;
+  background-color: transparent;
+  color: var(--text-primary);
   border: none;
   padding: 0.55rem 1rem;
-  border-radius: var(--radius-md);
+  border-radius: 0px;
   font-weight: 700;
   font-size: 0.85rem;
   cursor: pointer;
@@ -189,11 +186,11 @@
 }
 
 .btnReject {
-  background-color: #f43f5e;
-  color: #ffffff;
+  background-color: transparent;
+  color: var(--text-primary);
   border: none;
   padding: 0.55rem 1rem;
-  border-radius: var(--radius-md);
+  border-radius: 0px;
   font-weight: 700;
   font-size: 0.85rem;
   cursor: pointer;
@@ -210,11 +207,11 @@
 }
 
 .btnBan {
-  background-color: rgba(244, 63, 94, 0.2);
-  color: #f43f5e;
-  border: 1px solid #f43f5e;
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--text-primary);
   padding: 0.55rem 1rem;
-  border-radius: var(--radius-md);
+  border-radius: 0px;
   font-weight: 700;
   font-size: 0.85rem;
   cursor: pointer;
@@ -226,11 +223,11 @@
 }
 
 .btnUnban {
-  background-color: rgba(16, 185, 129, 0.2);
-  color: #10b981;
-  border: 1px solid #10b981;
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--text-primary);
   padding: 0.55rem 1rem;
-  border-radius: var(--radius-md);
+  border-radius: 0px;
   font-weight: 700;
   font-size: 0.85rem;
   cursor: pointer;
@@ -253,7 +250,7 @@
   border: 1px solid var(--border-color);
   background-color: var(--bg-tertiary);
   color: var(--text-primary);
-  border-radius: var(--radius-md);
+  border-radius: 0px;
   font-size: 0.85rem;
   width: 100%;
   outline: none;
@@ -269,7 +266,7 @@
   text-align: center;
   background-color: var(--bg-secondary);
   border: 1px dashed var(--border-color);
-  border-radius: var(--radius-lg);
+  border-radius: 0px;
   color: var(--text-secondary);
   display: flex;
   flex-direction: column;
@@ -282,7 +279,7 @@
   width: 100%;
   border-collapse: collapse;
   background-color: var(--bg-secondary);
-  border-radius: var(--radius-lg);
+  border-radius: 0px;
   overflow: hidden;
   border: 1px solid var(--border-color);
 }
@@ -338,6 +335,6 @@
 
 .accessDenied h2 {
   font-size: 1.8rem;
-  color: #f43f5e;
+  color: var(--text-primary);
   margin: 0;
 }

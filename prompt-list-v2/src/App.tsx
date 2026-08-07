@@ -21,6 +21,7 @@ export default function App() {
           <Route path="/dashboard" element={<CreatorDashboardPage />} />
           <Route path="/post/:id" element={<PostDetailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/settings" element={<ProfilePage />} />
           <Route path="/admin" element={<AdminDashboardPage />} />
           <Route path="/pricing" element={<PricingPage />} />
         </Routes>

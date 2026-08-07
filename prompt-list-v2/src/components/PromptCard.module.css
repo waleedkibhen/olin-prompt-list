@@ -13,7 +13,7 @@
 .imageWrapper {
   position: relative;
   width: 100%;
-  border-radius: var(--radius-lg);
+  border-radius: 0px;
   overflow: hidden;
   background-color: var(--bg-secondary);
 }
@@ -24,7 +24,7 @@
   display: block;
   object-fit: cover;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  border-radius: var(--radius-lg);
+  border-radius: 0px;
 }
 
 .cardContainer:hover .postImage {
@@ -34,14 +34,14 @@
 .overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4) 0%, transparent 40%, rgba(0, 0, 0, 0.65) 100%);
+  background: rgba(0, 0, 0, 0.55);
   opacity: 0;
   transition: opacity var(--transition-normal);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 0.75rem;
-  border-radius: var(--radius-lg);
+  border-radius: 0px;
 }
 
 .cardContainer:hover .overlay {
@@ -62,7 +62,7 @@
   font-size: 0.725rem;
   font-weight: 600;
   padding: 0.3rem 0.65rem;
-  border-radius: var(--radius-full);
+  border-radius: 0px;
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
@@ -74,31 +74,30 @@
 }
 
 .actionIconBtn {
-  background-color: rgba(255, 255, 255, 0.9);
-  color: #000000;
-  border-radius: var(--radius-full);
-  padding: 0.4rem 0.65rem;
+  background: transparent;
+  color: #ffffff;
+  border-radius: 0px;
+  border: none;
+  padding: 0.3rem;
   display: flex;
   align-items: center;
   gap: 0.3rem;
   font-size: 0.75rem;
   font-weight: 700;
-  transition: transform var(--transition-fast), background-color var(--transition-fast);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  transition: opacity var(--transition-fast);
+  box-shadow: none;
 }
 
 .actionIconBtn:hover {
-  background-color: #ffffff;
-  transform: scale(1.05);
+  opacity: 0.7;
 }
 
 .likedBtn {
-  color: #f43f5e !important;
+  color: #f43f5e;
 }
 
 .savedBtn {
-  background-color: #000000 !important;
-  color: #ffffff !important;
+  color: #ffffff;
 }
 
 .bottomOverlay {
@@ -110,22 +109,21 @@
 }
 
 .quickCopyBtn {
-  background-color: #ffffff;
-  color: #000000;
+  background-color: transparent;
+  color: #ffffff;
   font-size: 0.75rem;
   font-weight: 700;
   padding: 0.4rem 0.85rem;
-  border-radius: var(--radius-full);
+  border-radius: 0px;
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  transition: transform var(--transition-fast), background-color var(--transition-fast);
+  box-shadow: none;
+  transition: opacity var(--transition-fast);
 }
 
 .quickCopyBtn:hover {
-  transform: scale(1.05);
-  background-color: #f3f4f6;
+  opacity: 0.7;
 }
 
 .checkIcon {
@@ -193,7 +191,7 @@
 .modalCard {
   background-color: var(--bg-primary);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-xl);
+  border-radius: 0px;
   max-width: 1100px;
   width: 100%;
   max-height: 88vh;
@@ -233,14 +231,14 @@
   gap: 0.5rem;
   background-color: rgba(0, 0, 0, 0.6);
   padding: 0.4rem;
-  border-radius: var(--radius-full);
+  border-radius: 0px;
   backdrop-filter: blur(6px);
 }
 
 .thumbBtn {
   width: 44px;
   height: 44px;
-  border-radius: var(--radius-sm);
+  border-radius: 0px;
   overflow: hidden;
   border: 2px solid transparent;
   padding: 0;
@@ -324,7 +322,7 @@
   font-size: 0.75rem;
   font-weight: 700;
   padding: 0.25rem 0.65rem;
-  border-radius: var(--radius-full);
+  border-radius: 0px;
 }
 
 .styleBadgeModal {
@@ -334,7 +332,7 @@
   font-size: 0.75rem;
   font-weight: 600;
   padding: 0.25rem 0.65rem;
-  border-radius: var(--radius-full);
+  border-radius: 0px;
 }
 
 .catPill {
@@ -351,7 +349,7 @@
 .promptVaultBox {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
+  border-radius: 0px;
   padding: 1.25rem;
   display: flex;
   flex-direction: column;
@@ -380,7 +378,7 @@
 .promptTextContainer {
   background-color: var(--bg-primary);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  border-radius: 0px;
   padding: 0.85rem;
   max-height: 160px;
   overflow-y: auto;
@@ -432,7 +430,7 @@
   font-weight: 600;
   color: var(--text-secondary);
   padding: 0.4rem 0.75rem;
-  border-radius: var(--radius-full);
+  border-radius: 0px;
   background: transparent;
   transition: all var(--transition-fast);
 }
@@ -459,7 +457,7 @@
   font-size: 0.725rem;
   font-weight: 700;
   padding: 0.25rem 0.6rem;
-  border-radius: var(--radius-full);
+  border-radius: 0px;
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
@@ -471,11 +469,11 @@
   font-size: 0.75rem;
   font-weight: 700;
   padding: 0.4rem 0.85rem;
-  border-radius: var(--radius-full);
+  border-radius: 0px;
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  box-shadow: none;
   transition: transform var(--transition-fast), background-color var(--transition-fast);
   border: none;
   cursor: pointer;
@@ -487,19 +485,19 @@
 }
 
 .modalPriceBadge {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.25) 100%);
+  background: transparent;
   color: #10b981;
   border: 1px solid rgba(16, 185, 129, 0.4);
   font-size: 0.75rem;
   font-weight: 700;
   padding: 0.25rem 0.75rem;
-  border-radius: var(--radius-full);
+  border-radius: 0px;
 }
 
 .lockedVaultContainer {
   background: radial-gradient(circle at center, rgba(16, 185, 129, 0.05) 0%, transparent 80%), var(--bg-primary);
   border: 1px dashed rgba(16, 185, 129, 0.5);
-  border-radius: var(--radius-md);
+  border-radius: 0px;
   padding: 1.75rem 1.25rem;
   display: flex;
   flex-direction: column;
@@ -512,13 +510,13 @@
   position: relative;
   overflow: hidden;
   border: 1px solid rgba(16, 185, 129, 0.45);
-  border-radius: var(--radius-md);
+  border-radius: 0px;
   background-color: var(--bg-primary);
   min-height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.25);
+  box-shadow: none;
 }
 
 .dummyBlurBackground {
@@ -557,7 +555,7 @@
   border: 1px solid rgba(16, 185, 129, 0.4);
   color: #10b981;
   padding: 0.25rem 0.75rem;
-  border-radius: var(--radius-full);
+  border-radius: 0px;
   font-size: 0.72rem;
   font-weight: 700;
   display: inline-flex;
@@ -586,22 +584,22 @@
 }
 
 .whopUnlockBtn {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: #ffffff;
-  border: none;
-  border-radius: var(--radius-full);
+  background: transparent;
+  color: #F5F5F5;
+  border: 1px solid #F5F5F5;
+  border-radius: 0px;
   padding: 0.75rem 1.75rem;
   font-size: 0.92rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+  box-shadow: none;
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
   margin-top: 0.4rem;
 }
 
 .whopUnlockBtn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.55);
+  box-shadow: none;
 }
 
 @media (max-width: 850px) {

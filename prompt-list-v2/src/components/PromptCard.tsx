@@ -288,18 +288,18 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                 </div>
               </div>
 
-              <div className={styles.actionBtns} style={{ position: 'absolute', bottom: '10px', left: '10px' }}>
+              <div className={styles.actionBtns} style={{ position: 'absolute', top: '12px', right: '12px' }}>
                 <button 
-                  className={`${styles.actionIconBtn} ${isLiked ? styles.likedBtn : ''}`}
                   onClick={toggleLike}
                   title="Like artwork"
+                  style={{ background: 'transparent', border: 'none', color: '#fff', padding: '4px', cursor: 'pointer' }}
                 >
                   <Heart size={16} fill={isLiked ? "currentColor" : "none"} />
                 </button>
                 <button 
-                  className={`${styles.actionIconBtn} ${isSaved ? styles.savedBtn : ''}`}
                   onClick={toggleSave}
                   title="Save bookmark"
+                  style={{ background: 'transparent', border: 'none', color: '#fff', padding: '4px', cursor: 'pointer' }}
                 >
                   <Bookmark size={16} fill={isSaved ? "currentColor" : "none"} />
                 </button>
@@ -349,7 +349,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                     <button 
                       className={isFollowing ? "btn-solid" : "btn-outline"} 
                       onClick={toggleFollow}
-                      style={{ padding: '0.4rem 0.85rem', fontSize: '0.78rem', borderRadius: '9999px' }}
+                      style={{ padding: '0.4rem 0.85rem', fontSize: '0.78rem', borderRadius: '0px' }}
                     >
                       {isFollowing ? 'Following' : '+ Follow'}
                     </button>
@@ -359,7 +359,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                     className="btn-outline" 
                     title="Open standalone post URL" 
                     onClick={() => setIsModalOpen(false)}
-                    style={{ padding: '0.4rem 0.65rem', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.3rem', borderRadius: '9999px', textDecoration: 'none' }}
+                    style={{ padding: '0.4rem 0.65rem', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.3rem', borderRadius: '0px', textDecoration: 'none' }}
                   >
                     <ExternalLink size={13} />
                     <span>View</span>
@@ -377,15 +377,15 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                 {isCreator && effectiveMonetization !== 'free' && (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.35)', borderRadius: 'var(--radius-md)', padding: '0.6rem 0.85rem', fontSize: '0.8rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#10b981', fontWeight: 700 }}>
-                      <span>👑 Creator Access Enabled</span>
+                      <span>Creator Access Enabled</span>
                       <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>— Users see the {effectiveMonetization === 'subscribers_only' ? 'Subscriber' : 'Ad Watch'} paywall</span>
                     </div>
                     <button
                       type="button"
                       onClick={(e) => { e.stopPropagation(); setPreviewPaywall(!previewPaywall); }}
-                      style={{ background: 'transparent', border: '1px solid rgba(16, 185, 129, 0.5)', color: '#10b981', borderRadius: '6px', padding: '0.3rem 0.7rem', fontSize: '0.78rem', cursor: 'pointer', fontWeight: 700 }}
+                      style={{ background: 'transparent', border: '1px solid rgba(16, 185, 129, 0.5)', color: '#10b981', borderRadius: '0px', padding: '0.3rem 0.7rem', fontSize: '0.78rem', cursor: 'pointer', fontWeight: 700 }}
                     >
-                      {previewPaywall ? '👁️ Show Real Prompt' : '🔒 Preview Public Paywall'}
+                      {previewPaywall ? 'Show Real Prompt' : 'Preview Public Paywall'}
                     </button>
                   </div>
                 )}
@@ -393,9 +393,9 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                 <div style={{ position: 'relative', marginTop: '1rem' }}>
                   {!isProtected && (
                     <button 
-                      className={`btn-solid ${styles.copyVaultBtn}`} 
+                      className={`btn-outline ${styles.copyVaultBtn}`} 
                       onClick={handleCopyPrompt}
-                      style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', zIndex: 10, padding: '0.4rem 0.8rem', borderRadius: '9999px', fontSize: '0.75rem', backgroundColor: '#fff', color: '#000', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                      style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', zIndex: 10, padding: '0.4rem 0.8rem', borderRadius: '0px', fontSize: '0.75rem', backgroundColor: 'transparent', color: '#F5F5F5', border: '1px solid #F5F5F5', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
                     >
                       {isCopied ? <Check size={14} /> : <Copy size={14} />}
                       <span>{isCopied ? 'Copied' : 'Copy'}</span>
@@ -405,7 +405,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                 {isWatchingAd ? (
                   <div style={{ padding: '2.5rem 1.5rem', textAlign: 'center', backgroundColor: 'var(--bg-primary)', border: '2px dashed #10b981', borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', color: 'var(--text-primary)' }}>
                     <Loader2 size={38} style={{ animation: 'spin 1s linear infinite', color: '#10b981' }} />
-                    <strong style={{ fontSize: '1.1rem', color: '#10b981' }}>🍿 Playing Community Sponsor Message...</strong>
+                    <strong style={{ fontSize: '1.1rem', color: '#10b981' }}>Playing Community Sponsor Message...</strong>
                     <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', maxWidth: '340px' }}>
                       Thank you for supporting generative creators on Olin Prompt List! Prompt parameters unlocking in moments...
                     </span>
@@ -419,7 +419,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                     </div>
                     <div className={styles.vaultOverlayContent}>
                       <div className={styles.lockBadgePill} style={effectiveMonetization === 'ad_supported' ? { backgroundColor: 'rgba(16, 185, 129, 0.2)', borderColor: '#10b981', color: '#10b981' } : {}}>
-                        {effectiveMonetization === 'subscribers_only' ? '🔒 Subscriber Only Vault' : '▶️ Free Ad-Supported Vault'}
+                        {effectiveMonetization === 'subscribers_only' ? 'Subscriber Only Vault' : 'Free Ad-Supported Vault'}
                       </div>
                       <h5 className={styles.lockTitle}>Protected AI Creation by @{post.creator.username}</h5>
                       <p className={styles.lockDesc}>
@@ -429,15 +429,15 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                         <button
                           className={styles.whopUnlockBtn}
                           onClick={handleSubscribeToUnlock}
-                          style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#000' }}
+                          style={{ background: 'transparent', border: '1px solid #f59e0b', color: '#f59e0b' }}
                         >
-                          🔒 Subscribe to Unlock
+                          Subscribe to Unlock
                         </button>
                       ) : (
                         <button
                           className={styles.whopUnlockBtn}
                           onClick={handleWatchAdToUnlock}
-                          style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                          style={{ background: 'transparent', border: '1px solid #10b981', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
                         >
                           <PlayCircle size={18} />
                           <span>Watch an Ad to Unlock Prompt</span>
@@ -492,9 +492,9 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                       value={newComment}
                       onChange={e => setNewComment(e.target.value)}
                       disabled={isSubmittingComment}
-                      style={{ flex: 1, padding: '0.5rem 0.85rem', borderRadius: '9999px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '0.85rem', outline: 'none' }}
+                      style={{ flex: 1, padding: '0.5rem 0.85rem', borderRadius: '0px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '0.85rem', outline: 'none' }}
                     />
-                    <button type="submit" className="btn-solid" disabled={isSubmittingComment || !newComment.trim()} style={{ padding: '0.5rem 1rem', borderRadius: '9999px' }}>
+                    <button type="submit" className="btn-outline" disabled={isSubmittingComment || !newComment.trim()} style={{ padding: '0.5rem 1rem', borderRadius: '0px' }}>
                       {isSubmittingComment ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Send size={14} />}
                     </button>
                   </form>
@@ -521,7 +521,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
               )}
 
               <div className={styles.modalCloseFooter}>
-                <button className="btn-outline" onClick={() => setIsModalOpen(false)} style={{ width: '100%', borderRadius: '9999px' }}>
+                <button className="btn-outline" onClick={() => setIsModalOpen(false)} style={{ width: '100%', borderRadius: '0px' }}>
                   Close
                 </button>
               </div>

@@ -85,11 +85,11 @@ export default function ReportModal({ post, onClose }: ReportModalProps) {
             <div className={styles.fieldGroup}>
               <label>Violation Category</label>
               <select value={reasonCategory} onChange={e => setReasonCategory(e.target.value)}>
-                <option value="Inappropriate / Sensitive Content">🚫 Inappropriate / Sensitive Content</option>
-                <option value="Copyright / Intellectual Property">©️ Copyright / Intellectual Property</option>
-                <option value="Spam / Scam / Low Quality">⚠️ Spam / Scam / Low Quality</option>
-                <option value="Hate Speech / Harassment">🛑 Hate Speech / Harassment</option>
-                <option value="Other Guidelines Violation">📌 Other Guidelines Violation</option>
+                <option value="Inappropriate / Sensitive Content">Inappropriate / Sensitive Content</option>
+                <option value="Copyright / Intellectual Property">Copyright / Intellectual Property</option>
+                <option value="Spam / Scam / Low Quality">Spam / Scam / Low Quality</option>
+                <option value="Hate Speech / Harassment">Hate Speech / Harassment</option>
+                <option value="Other Guidelines Violation">Other Guidelines Violation</option>
               </select>
             </div>
 

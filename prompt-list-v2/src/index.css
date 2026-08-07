@@ -2,21 +2,21 @@
 
 :root {
   /* Default Theme Variables (Dark Preference) - Gallery Minimalist */
-  --bg-primary: #131316;
-  --bg-secondary: #1b1b1e;
-  --bg-elevated: #1f1f22;
-  --bg-hover: #2a2a2d;
+  --bg-primary: #09090B;
+  --bg-secondary: #121212;
+  --bg-elevated: #1a1a1d;
+  --bg-hover: #1f1f22;
   
-  --text-primary: #e4e1e5;
-  --text-secondary: #c4c7c8;
-  --text-muted: #8e9192;
+  --text-primary: #F5F5F5;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
   --text-inverted: #131316;
 
-  --border-color: #353437;
-  --border-focus: #e4e1e5;
+  --border-color: #27272A;
+  --border-focus: #F5F5F5;
   
-  --accent-color: #ffffff;
-  --accent-hover: #c4c7c8;
+  --accent-color: #F5F5F5;
+  --accent-hover: #d4d4d8;
   --accent-secondary: #e4e1e5;
 
   --tag-bg: transparent;
@@ -35,11 +35,11 @@
   --shadow-hover: none;
 
   /* Gallery Radius */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 16px;
-  --radius-xl: 16px;
-  --radius-full: 9999px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-full: 0px;
 
   --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
   --transition-normal: 250ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -133,22 +133,22 @@ button:focus-visible {
 }
 
 .btn-solid {
-  background-color: var(--accent-color);
-  color: var(--text-inverted);
+  background-color: transparent;
+  color: var(--text-primary);
   font-weight: 600;
   font-size: 0.875rem;
   padding: 0.6rem 1.25rem;
-  border-radius: var(--radius-full);
+  border: 1px solid var(--text-primary);
+  border-radius: 0px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  box-shadow: var(--shadow-sm);
-  transition: transform var(--transition-fast), background-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition: transform var(--transition-fast), background-color var(--transition-fast);
 }
 
 .btn-solid:hover {
-  background-color: var(--accent-hover);
+  background-color: var(--bg-hover);
 }
 
 .btn-solid:active {
@@ -162,7 +162,7 @@ button:focus-visible {
   font-size: 0.875rem;
   padding: 0.6rem 1.25rem;
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-full);
+  border-radius: 0px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -178,7 +178,7 @@ button:focus-visible {
 .btn-icon {
   width: 40px;
   height: 40px;
-  border-radius: var(--radius-full);
+  border-radius: 0px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -198,7 +198,7 @@ input, textarea, select {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
-  border-radius: var(--radius-md); /* 0px */
+  border-radius: 0px;
   padding: 0.75rem;
   transition: border-color var(--transition-fast);
 }

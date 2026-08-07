@@ -366,7 +366,7 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
       if (isFlagged) {
         await sendNotification(
           user.uid,
-          "🛡️ Post Queued for Review",
+          "Post Queued for Review",
           `Your upload "${title.trim()}" triggered an automated safety check (${flaggedReason}) and has been moved to our Admin review queue before going live.`,
           "moderation"
         );

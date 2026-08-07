@@ -356,15 +356,15 @@ export default function PostDetailPage() {
                 <span className={styles.styleBadge}>{post.styleTag}</span>
                 {effectiveMonetization === 'subscribers_only' ? (
                   <span className={styles.premiumBadge}>
-                    💎 Subscriber Only
+                    Subscriber Only
                   </span>
                 ) : effectiveMonetization === 'ad_supported' ? (
                   <span style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1px solid #10b981', fontSize: '0.78rem', fontWeight: 800, padding: '0.25rem 0.75rem', borderRadius: '9999px' }}>
-                    ▶️ Ad-Supported
+                    Ad-Supported
                   </span>
                 ) : (
                   <span style={{ backgroundColor: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', border: '1px solid #3b82f6', fontSize: '0.78rem', fontWeight: 800, padding: '0.25rem 0.75rem', borderRadius: '9999px' }}>
-                    🟢 Free (Open)
+                    Free (Open)
                   </span>
                 )}
                 {post.categories.map(cat => (
@@ -379,7 +379,7 @@ export default function PostDetailPage() {
               {isCreator && effectiveMonetization !== 'free' && (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.35)', borderRadius: 'var(--radius-md)', padding: '0.65rem 1rem', marginBottom: '0.5rem', fontSize: '0.85rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#10b981', fontWeight: 700 }}>
-                    <span>👑 Creator Access Enabled</span>
+                    <span>Creator Access Enabled</span>
                     <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>— Users see the {effectiveMonetization === 'subscribers_only' ? 'Subscriber' : 'Ad Watch'} paywall</span>
                   </div>
                   <button
@@ -387,7 +387,7 @@ export default function PostDetailPage() {
                     onClick={() => setPreviewPaywall(!previewPaywall)}
                     style={{ background: 'transparent', border: '1px solid rgba(16, 185, 129, 0.5)', color: '#10b981', borderRadius: '6px', padding: '0.35rem 0.8rem', fontSize: '0.8rem', cursor: 'pointer', fontWeight: 700 }}
                   >
-                    {previewPaywall ? '👁️ Show Real Prompt' : '🔒 Preview Public Paywall'}
+                    {previewPaywall ? 'Show Real Prompt' : 'Preview Public Paywall'}
                   </button>
                 </div>
               )}
@@ -408,7 +408,7 @@ export default function PostDetailPage() {
               {isWatchingAd ? (
                 <div style={{ padding: '3rem 2rem', textAlign: 'center', backgroundColor: 'var(--bg-secondary)', border: '2px dashed #10b981', borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', color: 'var(--text-primary)' }}>
                   <Loader2 size={44} style={{ animation: 'spin 1s linear infinite', color: '#10b981' }} />
-                  <strong style={{ fontSize: '1.25rem', color: '#10b981' }}>🍿 Playing Community Sponsor Message...</strong>
+                  <strong style={{ fontSize: '1.25rem', color: '#10b981' }}>Playing Community Sponsor Message...</strong>
                   <span style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', maxWidth: '420px' }}>
                     Thank you for supporting generative creators on Olin Prompt List! Prompt parameters unlocking in moments...
                   </span>
@@ -422,7 +422,7 @@ export default function PostDetailPage() {
                   </div>
                   <div className={styles.vaultOverlayContent}>
                     <div className={styles.lockBadgePill} style={effectiveMonetization === 'ad_supported' ? { backgroundColor: 'rgba(16, 185, 129, 0.2)', borderColor: '#10b981', color: '#10b981' } : {}}>
-                      {effectiveMonetization === 'subscribers_only' ? '🔒 Subscriber Only Vault' : '▶️ Free Ad-Supported Vault'}
+                      {effectiveMonetization === 'subscribers_only' ? 'Subscriber Only Vault' : 'Free Ad-Supported Vault'}
                     </div>
                     <h4 className={styles.lockTitle}>Protected AI Creation by @{post.creator.username}</h4>
                     <p className={styles.lockDesc}>
@@ -434,7 +434,7 @@ export default function PostDetailPage() {
                         onClick={handleSubscribeToUnlock}
                         style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#000' }}
                       >
-                        🔒 Subscribe to Unlock
+                        Subscribe to Unlock
                       </button>
                     ) : (
                       <button

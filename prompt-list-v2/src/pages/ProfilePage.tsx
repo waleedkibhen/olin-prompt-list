@@ -300,7 +300,7 @@ export default function ProfilePage() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
           {isAdmin && (
-            <div className={styles.adminCard} style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)', padding: '1.25rem' }}>
+            <div className={styles.adminCard}>
               <div style={{ marginBottom: '1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)', fontWeight: 800, marginBottom: '0.25rem' }}>
                   <ShieldAlert size={18} />
@@ -310,7 +310,7 @@ export default function ProfilePage() {
                   Authorized identity: <strong>wisecrafts81@gmail.com</strong>
                 </span>
               </div>
-              <Link to="/admin" className="btn-solid" style={{ backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)', fontWeight: 800, textDecoration: 'none', padding: '0.5rem 1rem', borderRadius: '0px', fontSize: '0.85rem' }}>
+              <Link to="/admin" className="btn-solid" style={{ backgroundColor: 'transparent', color: 'var(--text-primary)', border: '1px solid var(--text-primary)', fontWeight: 800, textDecoration: 'none', padding: '0.5rem 1rem', borderRadius: '0px', fontSize: '0.85rem' }}>
                 Open Superadmin Console →
               </Link>
             </div>
@@ -359,7 +359,7 @@ export default function ProfilePage() {
               type="button"
               className="btn-outline"
               onClick={() => setIsSupportOpen(true)}
-              style={{ borderRadius: '9999px', padding: '0.5rem 1.1rem', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+              style={{ borderRadius: '0px', padding: '0.5rem 1.1rem', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem' }}
             >
               <MessageSquarePlus size={15} />
               <span>Contact Support / Feedback</span>

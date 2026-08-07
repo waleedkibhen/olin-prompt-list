@@ -19,12 +19,11 @@
 .modalContent {
   background-color: var(--bg-primary);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-xl);
+  border-radius: 0px;
   max-width: 760px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: var(--shadow-hover);
   display: flex;
   flex-direction: column;
 }
@@ -74,7 +73,7 @@
 }
 
 .warnIcon {
-  color: #f59e0b;
+  color: var(--text-primary);
 }
 
 .authPrompt h3 {
@@ -124,7 +123,7 @@
 
 .dropzone {
   border: 1px dashed var(--border-color);
-  border-radius: var(--radius-lg);
+  border-radius: 0px;
   background-color: var(--bg-secondary);
   padding: 2rem 1.5rem;
   text-align: center;
@@ -170,7 +169,7 @@
 .thumbCard {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  border-radius: 0px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -202,7 +201,7 @@
 }
 
 .removeBtn {
-  color: #f43f5e;
+  color: var(--text-primary);
   background: transparent;
   border: none;
   cursor: pointer;
@@ -236,7 +235,7 @@
 .fieldGroup textarea {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  border-radius: 0px;
   padding: 0.65rem 0.85rem;
   font-size: 0.9rem;
   color: var(--text-primary);
@@ -261,7 +260,7 @@
 .successAlert,
 .scanningBanner {
   padding: 0.85rem 1rem;
-  border-radius: var(--radius-md);
+  border-radius: 0px;
   display: flex;
   align-items: center;
   gap: 0.85rem;
@@ -269,15 +268,15 @@
 }
 
 .errorAlert {
-  background-color: rgba(244, 63, 94, 0.1);
-  color: #f43f5e;
-  border: 1px solid rgba(244, 63, 94, 0.3);
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--text-primary);
 }
 
 .successAlert {
-  background-color: rgba(16, 185, 129, 0.1);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--text-primary);
 }
 
 .scanningBanner {
@@ -312,7 +311,7 @@
 .pricingOptionBtn {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  border-radius: 0px;
   padding: 0.85rem 1rem;
   text-align: left;
   cursor: pointer;
@@ -328,9 +327,8 @@
 }
 
 .pricingActive {
-  border-color: #10b981 !important;
-  background-color: rgba(16, 185, 129, 0.08) !important;
-  box-shadow: 0 0 0 1px #10b981;
+  border-color: var(--text-primary) !important;
+  background-color: var(--bg-hover) !important;
 }
 
 .optionTitle {
@@ -355,7 +353,7 @@
   left: 0.85rem;
   font-size: 0.95rem;
   font-weight: 700;
-  color: #10b981;
+  color: var(--text-primary);
   pointer-events: none;
 }
 

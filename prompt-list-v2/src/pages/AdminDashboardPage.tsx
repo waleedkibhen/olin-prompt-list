@@ -104,7 +104,7 @@ export default function AdminDashboardPage() {
     return (
       <div className={styles.accessDenied}>
         <AlertTriangle size={56} style={{ color: '#f43f5e' }} />
-        <h2>🛡️ Secure Admin Access Denied</h2>
+        <h2>Secure Admin Access Denied</h2>
         <p style={{ color: 'var(--text-secondary)', maxWidth: '440px' }}>
           This console is restricted strictly to verified systems admin (wisecrafts81@gmail.com). Unauthorized access attempts are monitored and logged.
         </p>
@@ -123,7 +123,7 @@ export default function AdminDashboardPage() {
       await updateDoc(doc(db, 'posts', post.id), { isFlagged: false });
       await sendNotification(
         post.creatorId,
-        "✨ Flagged Upload Approved",
+        "Flagged Upload Approved",
         `Great news! Our admin team reviewed your post "${post.title}" and approved it. It is now published live in community feeds!`,
         "moderation"
       );
@@ -140,7 +140,7 @@ export default function AdminDashboardPage() {
       await deleteDoc(doc(db, 'posts', post.id));
       await sendNotification(
         post.creatorId,
-        "❌ Flagged Upload Rejected",
+        "Flagged Upload Rejected",
         `Your submission "${post.title}" was permanently removed by admin review. Reason: ${reason || 'Policy infraction'}`,
         "moderation"
       );
@@ -155,7 +155,7 @@ export default function AdminDashboardPage() {
       await updateDoc(doc(db, 'users', targetUser.uid), { monetizationStatus: 'approved' });
       await sendNotification(
         targetUser.uid,
-        "🎉 Premium Creator Monetization Approved!",
+        "Premium Creator Monetization Approved!",
         "Congratulations! Your application has been verified by Admin. You can now publish Premium subscription vaults and earn income on Olin Prompt List!",
         "system"
       );
@@ -172,7 +172,7 @@ export default function AdminDashboardPage() {
       await updateDoc(doc(db, 'users', targetUser.uid), { monetizationStatus: 'rejected' });
       await sendNotification(
         targetUser.uid,
-        "❌ Monetization Application Update",
+        "Monetization Application Update",
         `Your creator monetization request was not approved at this time. Admin Note: ${reason || 'Ineligible metrics'}`,
         "system"
       );
@@ -195,7 +195,7 @@ export default function AdminDashboardPage() {
       });
       await sendNotification(
         ticket.uid,
-        `📬 Admin Support Reply: "${ticket.subject}"`,
+        `Admin Support Reply: "${ticket.subject}"`,
         `Admin Team responded to your ticket: "${replyText.trim()}"`,
         "system"
       );
@@ -268,7 +268,7 @@ export default function AdminDashboardPage() {
           const visionRes = await analyzeArtworkMultimodalWithGemini(imgUrl);
           if (visionRes.error) {
             console.warn(`[Rescan Error on ${pData.title || 'Untitled'}]:`, visionRes.error);
-            setScanStatus(`⚠️ AI Fallback on "${pData.title || 'Untitled'}": ${visionRes.error}`);
+            setScanStatus(`AI Fallback on "${pData.title || 'Untitled'}": ${visionRes.error}`);
             await new Promise(r => setTimeout(r, 1200));
           }
 
@@ -298,9 +298,9 @@ export default function AdminDashboardPage() {
         }
       }
       if (blockedCount > 0) {
-        setScanStatus(`✨ indexed & tagged ${successCount} items via Multimodal AI! (Note: ${blockedCount} items used offline fallback or had errors.)`);
+        setScanStatus(`indexed & tagged ${successCount} items via Multimodal AI! (Note: ${blockedCount} items used offline fallback or had errors.)`);
       } else {
-        setScanStatus(`✨ Successfully indexed all ${successCount} catalog items with deep visual tags & perceptual human colors!`);
+        setScanStatus(`Successfully indexed all ${successCount} catalog items with deep visual tags & perceptual human colors!`);
       }
       setTimeout(() => setScanStatus(null), 15000);
     } catch (err: any) {
@@ -362,7 +362,7 @@ export default function AdminDashboardPage() {
               }}
             >
               {isDiagnosing ? <Loader2 size={18} className="animate-spin" /> : <ShieldCheck size={18} />}
-              <span>{isDiagnosing ? 'Querying Google AI Server...' : '🔍 Diagnose Gemini API & Models'}</span>
+              <span>{isDiagnosing ? 'Querying Google AI Server...' : 'Diagnose Gemini API & Models'}</span>
             </button>
             <button
               type="button"
@@ -385,7 +385,7 @@ export default function AdminDashboardPage() {
               }}
             >
               {isScanningColors ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
-              <span>{isScanningColors ? 'Running Gemini AI Indexer...' : '⚡ Gemini Multimodal Deep Rescan & Color Index'}</span>
+              <span>{isScanningColors ? 'Running Gemini AI Indexer...' : 'Gemini Multimodal Deep Rescan & Color Index'}</span>
             </button>
           </div>
         </div>
@@ -404,13 +404,13 @@ export default function AdminDashboardPage() {
                 <ShieldCheck size={20} style={{ color: '#34d399' }} />
                 <span>Google Gemini API Diagnostic Report</span>
               </strong>
-              <button onClick={() => setDiagnosticData(null)} style={{ background: '#1f2937', border: 'none', color: '#f8fafc', padding: '0.35rem 0.75rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem' }}>✕ Close</button>
+              <button onClick={() => setDiagnosticData(null)} style={{ background: '#1f2937', border: 'none', color: '#f8fafc', padding: '0.35rem 0.75rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem' }}>Close</button>
             </div>
 
             <div style={{ marginBottom: '1.25rem' }}>
               <span style={{ color: '#94a3b8', fontSize: '0.9rem', fontWeight: 600 }}>API Key Status: </span>
               <span style={{ color: diagnosticData.hasApiKey ? '#34d399' : '#f87171', fontWeight: 800, fontSize: '0.95rem', marginLeft: '0.35rem' }}>
-                {diagnosticData.hasApiKey ? `✅ Active (Key Prefix: ${diagnosticData.keyPrefix || 'Configured'})` : '❌ Missing in Cloudflare Environment Secrets!'}
+                {diagnosticData.hasApiKey ? `Active (Key Prefix: ${diagnosticData.keyPrefix || 'Configured'})` : 'Missing in Cloudflare Environment Secrets!'}
               </span>
             </div>
 
@@ -442,9 +442,9 @@ export default function AdminDashboardPage() {
 
             {diagnosticData.errors && diagnosticData.errors.length > 0 && (
               <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid #ef4444', color: '#fca5a5', padding: '0.85rem', borderRadius: '8px', marginBottom: '1rem' }}>
-                <strong style={{ display: 'block', marginBottom: '0.25rem' }}>⚠️ Errors Detected:</strong>
+                <strong style={{ display: 'block', marginBottom: '0.25rem' }}>Errors Detected:</strong>
                 {diagnosticData.errors.map((e: string, idx: number) => (
-                  <div key={idx} style={{ fontSize: '0.85rem', fontFamily: 'monospace' }}>• {e}</div>
+                  <div key={idx} style={{ fontSize: '0.85rem', fontFamily: 'monospace' }}>- {e}</div>
                 ))}
               </div>
             )}
@@ -510,11 +510,11 @@ export default function AdminDashboardPage() {
                     <h3 className={styles.cardTitle}>{post.title}</h3>
                     {post.flagSource === 'user' || String(post.flaggedReason || '').startsWith('Reported by') ? (
                       <span style={{ color: '#38bdf8', fontSize: '0.75rem', fontWeight: 800, padding: '0.25rem 0.65rem', backgroundColor: 'rgba(56, 189, 248, 0.12)', border: '1px solid #38bdf8', borderRadius: '9999px' }}>
-                        👤 Reported by User (Live in Feed)
+                        Reported by User (Live in Feed)
                       </span>
                     ) : (
                       <span style={{ color: '#f59e0b', fontSize: '0.75rem', fontWeight: 800, padding: '0.25rem 0.65rem', backgroundColor: 'rgba(245, 158, 11, 0.12)', border: '1px solid #f59e0b', borderRadius: '9999px' }}>
-                        🤖 AI Automated Filter (Hidden from Feed)
+                        AI Automated Filter (Hidden from Feed)
                       </span>
                     )}
                   </div>
@@ -676,9 +676,9 @@ export default function AdminDashboardPage() {
                   <td>{u.email}</td>
                   <td>
                     {u.monetizationStatus === 'approved' ? (
-                      <span style={{ color: '#10b981', fontWeight: 700 }}>💎 Approved Creator</span>
+                      <span style={{ color: '#10b981', fontWeight: 700 }}>Approved Creator</span>
                     ) : u.monetizationStatus === 'pending_review' ? (
-                      <span style={{ color: '#f59e0b', fontWeight: 700 }}>⏳ Pending Review</span>
+                      <span style={{ color: '#f59e0b', fontWeight: 700 }}>Pending Review</span>
                     ) : (
                       <span style={{ color: 'var(--text-secondary)' }}>Standard Free</span>
                     )}
@@ -686,10 +686,10 @@ export default function AdminDashboardPage() {
                   <td>
                     {u.isBanned ? (
                       <span style={{ backgroundColor: 'rgba(244, 63, 94, 0.15)', color: '#f43f5e', padding: '0.2rem 0.6rem', borderRadius: '9999px', fontSize: '0.78rem', fontWeight: 800 }}>
-                        🚫 BANNED
+                        BANNED
                       </span>
                     ) : (
-                      <span style={{ color: '#10b981', fontWeight: 700, fontSize: '0.85rem' }}>🟢 Active</span>
+                      <span style={{ color: '#10b981', fontWeight: 700, fontSize: '0.85rem' }}>Active</span>
                     )}
                   </td>
                   <td style={{ textAlign: 'right' }}>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './Navbar.module.css';
-import { Search, Filter, Plus, User, Bell, ChevronDown, Check } from 'lucide-react';
+import { Search, Filter, Plus, User, Bell, ChevronDown, Check, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import CreatePostModal from './CreatePostModal';
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
@@ -111,7 +111,11 @@ export default function Navbar() {
         {/* Left side: Logo & Tabs */}
         {!isSearchExpanded && (
           <div className={styles.leftSection}>
-            <Link to="/" className={styles.brandTitle}>Olin</Link>
+            <Link to="/" className={styles.brandTitle}>
+              <span className={styles.brandIcon}><Sparkles size={16} /></span>
+              <span>Olin</span>
+              <span className={styles.brandSuffix}>Prompt List</span>
+            </Link>
             
             <div className={styles.navTabs}>
               {['for_you', 'trending', 'newest', 'saved'].map(tab => (
