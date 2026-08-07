@@ -4,7 +4,7 @@ import { PromptPost } from '@/lib/mockData';
 import { useAuth } from '@/context/AuthContext';
 import { doc, updateDoc, increment, collection, onSnapshot, addDoc, serverTimestamp, query, orderBy, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Heart, Bookmark, Copy, Check, Sparkles, Share2, MessageSquare, ExternalLink, Send, Loader2, PlayCircle, ShieldCheck, Flag, ThumbsUp } from 'lucide-react';
+import { Heart, Bookmark, Copy, Check, Sparkles, Share2, MessageSquare, ExternalLink, Send, Loader2, PlayCircle, ShieldCheck, Flag, ThumbsUp, Eye } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { moderateText } from '@/lib/ai';
 import { ENABLE_MONETIZATION } from '@/lib/config';
@@ -298,6 +298,13 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                   <Heart size={24} fill={isLiked ? "currentColor" : "none"} strokeWidth={isLiked ? 0 : 2} />
                   <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#fff' }}>{likesCount}</span>
                 </button>
+                <div
+                  title={`${post.viewsCount} views`}
+                  style={{ background: 'transparent', border: 'none', color: '#fff', padding: '4px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
+                >
+                  <Eye size={24} strokeWidth={2} />
+                  <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>{post.viewsCount}</span>
+                </div>
               </div>
 
             <div className={styles.bottomOverlay}>
