@@ -62,7 +62,6 @@ export default function CreatorDashboardPage() {
           title: d.title || 'Untitled Creation',
           description: d.description || '',
           promptText: d.promptText || '',
-          negativePrompt: d.negativePrompt || null,
           imageUrls: d.imageUrls || [],
           model: d.model || 'Midjourney V6',
           styleTag: d.styleTag || 'Community',
@@ -257,39 +256,39 @@ export default function CreatorDashboardPage() {
           )}
 
           <section className={styles.kpiGrid}>
-            <div className={styles.kpiCard}>
+            <div className={styles.kpiCard} style={{ border: '1px solid var(--border-color)', borderRadius: '0px' }}>
               <div className={styles.kpiTop}>
-                <span>Total Impressions</span>
-                <Eye size={20} style={{ color: '#38bdf8' }} />
+                <span style={{ fontWeight: 600 }}>Total Impressions</span>
+                <Eye size={18} style={{ color: 'var(--text-primary)' }} />
               </div>
-              <div className={styles.kpiValue}>{totalViews.toLocaleString()}</div>
+              <div className={styles.kpiValue} style={{ color: 'var(--text-primary)' }}>{totalViews.toLocaleString()}</div>
               <div className={styles.kpiDesc}>Across {creatorPosts.length} published pieces</div>
             </div>
 
-            <div className={styles.kpiCard} style={{ borderColor: 'rgba(16, 185, 129, 0.3)' }}>
+            <div className={styles.kpiCard} style={{ border: '1px solid var(--border-color)', borderRadius: '0px' }}>
               <div className={styles.kpiTop}>
-                <span style={{ color: '#10b981' }}>Prompt Copies</span>
-                <Copy size={20} style={{ color: '#10b981' }} />
+                <span style={{ fontWeight: 600 }}>Prompt Copies</span>
+                <Copy size={18} style={{ color: 'var(--text-primary)' }} />
               </div>
-              <div className={styles.kpiValue} style={{ color: '#10b981' }}>{totalCopies.toLocaleString()}</div>
+              <div className={styles.kpiValue} style={{ color: 'var(--text-primary)' }}>{totalCopies.toLocaleString()}</div>
               <div className={styles.kpiDesc}>Times users copied your generative parameters</div>
             </div>
 
-            <div className={styles.kpiCard}>
+            <div className={styles.kpiCard} style={{ border: '1px solid var(--border-color)', borderRadius: '0px' }}>
               <div className={styles.kpiTop}>
-                <span>Saved Bookmarks</span>
-                <Bookmark size={20} style={{ color: 'var(--accent-color)' }} />
+                <span style={{ fontWeight: 600 }}>Saved Bookmarks</span>
+                <Bookmark size={18} style={{ color: 'var(--text-primary)' }} />
               </div>
-              <div className={styles.kpiValue}>{totalSaves.toLocaleString()}</div>
+              <div className={styles.kpiValue} style={{ color: 'var(--text-primary)' }}>{totalSaves.toLocaleString()}</div>
               <div className={styles.kpiDesc}>Added to user private reference libraries</div>
             </div>
 
-            <div className={styles.kpiCard}>
+            <div className={styles.kpiCard} style={{ border: '1px solid var(--border-color)', borderRadius: '0px' }}>
               <div className={styles.kpiTop}>
-                <span>Community Likes</span>
-                <Heart size={20} style={{ color: '#f43f5e' }} />
+                <span style={{ fontWeight: 600 }}>Community Likes</span>
+                <Heart size={18} style={{ color: 'var(--text-primary)' }} />
               </div>
-              <div className={styles.kpiValue}>{totalLikes.toLocaleString()}</div>
+              <div className={styles.kpiValue} style={{ color: 'var(--text-primary)' }}>{totalLikes.toLocaleString()}</div>
               <div className={styles.kpiDesc}>Positive visual engagement score</div>
             </div>
           </section>
@@ -317,7 +316,7 @@ export default function CreatorDashboardPage() {
                     <th>Model &amp; Style</th>
                     {ENABLE_MONETIZATION && <th>Pricing</th>}
                     <th>Views</th>
-                    <th style={{ color: '#10b981' }}>Copies</th>
+                    <th>Copies</th>
                     <th>Saves</th>
                     <th>Likes</th>
                     <th>Published</th>

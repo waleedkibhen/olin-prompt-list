@@ -64,7 +64,9 @@ const VAULT_OPTIONS = [
 export default function DiscoveryFeed() {
   const [searchParams, setSearchParams] = useSearchParams();
   
-  const [activeTab, setActiveTab] = useState<'for_you' | 'trending' | 'newest'>('for_you');
+  type TabType = 'for_you' | 'trending' | 'newest' | 'following' | 'saved';
+  const initialTab = (searchParams.get('tab') as TabType) || 'for_you';
+  const [activeTab, setActiveTab] = useState<TabType>(initialTab);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   // Multi-dimensional filter states
@@ -183,7 +185,6 @@ export default function DiscoveryFeed() {
           title: data.title || 'Untitled Creation',
           description: data.description || '',
           promptText: data.promptText || '',
-          negativePrompt: data.negativePrompt || null,
           imageUrls: data.imageUrls || [],
           model: data.model || 'Midjourney V6',
           styleTag: data.styleTag || 'Community',
@@ -227,7 +228,7 @@ export default function DiscoveryFeed() {
 
   const applyAllFiltersAndSearch = async (
     items: PromptPost[],
-    tab: 'for_you' | 'trending' | 'newest',
+    tab: TabType,
     search: string,
     model: string,
     color: string,
@@ -482,6 +483,13 @@ export default function DiscoveryFeed() {
         if (current.length === 0) {
           current = [...items].sort((a, b) => (b.rawTimestamp || 0) - (a.rawTimestamp || 0));
         }
+      } else if (tab === 'following') {
+        const uid = profile?.uid || 'anon';
+        const followingArr: string[] = JSON.parse(localStorage.getItem(`following_${uid}`) || '[]');
+        current = current.filter(p => followingArr.includes(p.creator.uid)).sort((a, b) => (b.rawTimestamp || 0) - (a.rawTimestamp || 0));
+      } else if (tab === 'saved') {
+        const savedArr = profile?.savedPosts || [];
+        current = current.filter(p => savedArr.includes(p.id)).sort((a, b) => (b.rawTimestamp || 0) - (a.rawTimestamp || 0));
       } else if (tab === 'for_you') {
         const likedArr = profile?.likedPosts || [];
         const savedArr = profile?.savedPosts || [];
@@ -591,8 +599,13 @@ export default function DiscoveryFeed() {
     applyAllFiltersAndSearch(dbPosts, activeTab, '', 'All Models', 'All', 'All Types', 'All Dimensions', 'All Time', 'All Artwork');
   };
 
-  const handleTabChange = (tab: 'for_you' | 'trending' | 'newest') => {
+  const handleTabChange = (tab: TabType) => {
     setActiveTab(tab);
+    setSearchParams(prev => {
+      const newParams = new URLSearchParams(prev);
+      newParams.set('tab', tab);
+      return newParams;
+    });
     applyAllFiltersAndSearch(dbPosts, tab, searchFilter, modelFilter, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter);
   };
 
@@ -638,22 +651,31 @@ export default function DiscoveryFeed() {
             className={`${styles.sortBtn} ${activeTab === 'for_you' ? styles.sortActive : ''}`}
             onClick={() => handleTabChange('for_you')}
           >
-            <Compass size={16} />
             <span>For You</span>
           </button>
           <button 
             className={`${styles.sortBtn} ${activeTab === 'trending' ? styles.sortActive : ''}`}
             onClick={() => handleTabChange('trending')}
           >
-            <Flame size={16} />
             <span>Trending</span>
           </button>
           <button 
             className={`${styles.sortBtn} ${activeTab === 'newest' ? styles.sortActive : ''}`}
             onClick={() => handleTabChange('newest')}
           >
-            <Clock size={16} />
             <span>Newest</span>
+          </button>
+          <button 
+            className={`${styles.sortBtn} ${activeTab === 'following' ? styles.sortActive : ''}`}
+            onClick={() => handleTabChange('following')}
+          >
+            <span>Following</span>
+          </button>
+          <button 
+            className={`${styles.sortBtn} ${activeTab === 'saved' ? styles.sortActive : ''}`}
+            onClick={() => handleTabChange('saved')}
+          >
+            <span>Saved</span>
           </button>
         </div>
 

@@ -60,7 +60,6 @@ export default function PostDetailPage() {
           title: d.title || 'Untitled',
           description: d.description || '',
           promptText: d.promptText || '',
-          negativePrompt: d.negativePrompt || null,
           imageUrls: d.imageUrls || [],
           model: d.model || 'Midjourney V6',
           styleTag: d.styleTag || 'Community',

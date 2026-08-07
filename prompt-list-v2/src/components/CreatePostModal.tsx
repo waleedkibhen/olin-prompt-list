@@ -338,7 +338,6 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
         title: title.trim(),
         description: description.trim(),
         promptText: promptText.trim(),
-        negativePrompt: null,
         isPaid: ENABLE_MONETIZATION ? monetizationType === 'subscribers_only' : false,
         monetizationType: ENABLE_MONETIZATION ? monetizationType : 'free',
         price: 0,
@@ -468,18 +467,37 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
               </div>
 
               {selectedFiles.length > 0 && (
-                <div className={styles.previewGrid}>
-                  {selectedFiles.map((item, idx) => (
-                    <div key={idx} className={styles.thumbCard}>
-                      <img src={item.previewUrl} alt={`Selected ${idx + 1}`} className={styles.thumbImg} />
-                      <div className={styles.thumbMeta}>
-                        <span className={styles.thumbName}>{item.file.name}</span>
-                        <button type="button" className={styles.removeBtn} onClick={() => handleRemoveFile(idx)} title="Remove">
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1rem' }}>
+                  {/* Hero Cover Image (Index 0) */}
+                  <div className={styles.thumbCard} style={{ width: '100%', height: '300px' }}>
+                    <img src={selectedFiles[0].previewUrl} alt="Hero Cover" className={styles.thumbImg} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <div className={styles.thumbMeta}>
+                      <span className={styles.thumbName}>⭐ Cover: {selectedFiles[0].file.name}</span>
+                      <button type="button" className={styles.removeBtn} onClick={() => handleRemoveFile(0)} title="Remove Hero Cover">
+                        <Trash2 size={13} />
+                      </button>
                     </div>
-                  ))}
+                  </div>
+                  
+                  {/* Supporting Images Gallery (Index 1+) */}
+                  {selectedFiles.length > 1 && (
+                    <div className={styles.previewGrid} style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))' }}>
+                      {selectedFiles.slice(1).map((item, sliceIdx) => {
+                        const originalIdx = sliceIdx + 1;
+                        return (
+                          <div key={originalIdx} className={styles.thumbCard} style={{ height: '120px' }}>
+                            <img src={item.previewUrl} alt={`Supporting ${originalIdx}`} className={styles.thumbImg} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <div className={styles.thumbMeta}>
+                              <span className={styles.thumbName}>{item.file.name}</span>
+                              <button type="button" className={styles.removeBtn} onClick={() => handleRemoveFile(originalIdx)} title="Remove">
+                                <Trash2 size={13} />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

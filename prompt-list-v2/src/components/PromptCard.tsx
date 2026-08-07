@@ -281,24 +281,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
           
           <div className={styles.overlay}>
             <div className={styles.topActions}>
-              <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                <span className={styles.modelBadge}>
-                  {post.model}
-                </span>
-                {effectiveMonetization === 'subscribers_only' ? (
-                  <span className={styles.premiumBadge}>
-                    💎 Subscriber Only
-                  </span>
-                ) : effectiveMonetization === 'ad_supported' ? (
-                  <span style={{ backgroundColor: 'rgba(16, 185, 129, 0.85)', color: '#fff', fontSize: '0.7rem', fontWeight: 800, padding: '0.2rem 0.5rem', borderRadius: '9999px' }}>
-                    ▶️ Ad-Supported
-                  </span>
-                ) : (
-                  <span style={{ backgroundColor: 'rgba(59, 130, 246, 0.85)', color: '#fff', fontSize: '0.7rem', fontWeight: 800, padding: '0.2rem 0.5rem', borderRadius: '9999px' }}>
-                    🟢 Free
-                  </span>
-                )}
-              </div>
+              <div />
               <div className={styles.actionBtns}>
                 <button 
                   className={`${styles.actionIconBtn} ${isLiked ? styles.likedBtn : ''}`}
@@ -327,7 +310,13 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
             </div>
 
             <div className={styles.bottomOverlay}>
-              <div />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', overflow: 'hidden' }}>
+                <span className={styles.captionTitle} style={{ color: '#fff' }}>{post.title}</span>
+                <div className={styles.creatorTiny} onClick={(e) => { e.stopPropagation(); navigate(`/profile?id=${post.creator.uid}`); }} style={{ cursor: 'pointer' }}>
+                  <span className={styles.creatorNameTiny} style={{ color: '#a3a3a3' }}>{post.creator.displayName}</span>
+                </div>
+              </div>
+
               {isProtected ? (
                 effectiveMonetization === 'subscribers_only' ? (
                   <button 
@@ -335,7 +324,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                     onClick={handleSubscribeToUnlock}
                     title="Subscriber Only — Click to upgrade and unlock"
                   >
-                    🔒 <span>Subscribe to Unlock</span>
+                    🔒 <span>Subscribe</span>
                   </button>
                 ) : (
                   <button 
@@ -347,7 +336,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                     title="Ad Supported — Watch brief ad to unlock"
                     style={{ background: 'linear-gradient(135deg, #10b981, #059669)', border: 'none', color: '#fff' }}
                   >
-                    ▶️ <span>Watch Ad to Unlock</span>
+                    ▶️ <span>Watch Ad</span>
                   </button>
                 )
               ) : (
@@ -357,18 +346,10 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                   title="Copy generative parameters"
                 >
                   {isCopied ? <Check size={13} className={styles.checkIcon} /> : <Copy size={13} />}
-                  <span>{isCopied ? 'Copied' : 'Copy Prompt'}</span>
+                  <span>{isCopied ? 'Copied' : 'Copy'}</span>
                 </button>
               )}
             </div>
-          </div>
-        </div>
-
-        <div className={styles.cardCaption}>
-          <span className={styles.captionTitle}>{post.title}</span>
-          <div className={styles.creatorTiny}>
-            <img src={post.creator.avatarUrl} alt={post.creator.displayName} className={styles.avatarTiny} />
-            <span className={styles.creatorNameTiny}>{post.creator.displayName}</span>
           </div>
         </div>
       </article>

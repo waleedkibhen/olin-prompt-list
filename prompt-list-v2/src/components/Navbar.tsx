@@ -147,7 +147,7 @@ export default function Navbar() {
               </Link>
             )}
 
-            <Link to="/following" className={styles.navLinkBtn} title="Followed creators hub">
+            <Link to="/?tab=following" className={styles.navLinkBtn} title="Followed creators hub">
               <Users size={16} />
               <span className={styles.btnText}>Following</span>
             </Link>
@@ -271,12 +271,12 @@ export default function Navbar() {
                           <span>Creator Dashboard</span>
                         </Link>
                         
-                        <Link to="/saved" className={styles.menuItem} onClick={() => setIsMenuOpen(false)}>
+                        <Link to="/?tab=saved" className={styles.menuItem} onClick={() => setIsMenuOpen(false)}>
                           <Bookmark size={16} />
                           <span>Saved Bookmarks</span>
                         </Link>
                         
-                        <Link to="/following" className={styles.menuItem} onClick={() => setIsMenuOpen(false)}>
+                        <Link to="/?tab=following" className={styles.menuItem} onClick={() => setIsMenuOpen(false)}>
                           <Users size={16} />
                           <span>Following Hub</span>
                         </Link>

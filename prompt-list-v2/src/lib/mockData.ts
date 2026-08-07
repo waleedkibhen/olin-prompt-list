@@ -11,9 +11,8 @@ export interface Creator {
 export interface PromptPost {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   promptText: string;
-  negativePrompt?: string | null;
   imageUrls: string[];
   model: 'Midjourney V6' | 'Flux.1' | 'DALL-E 3' | 'Stable Diffusion XL' | string;
   styleTag: string;

@@ -1,9 +1,7 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import HomePage from '@/pages/HomePage';
-import SavedPromptsPage from '@/pages/SavedPromptsPage';
-import FollowingHubPage from '@/pages/FollowingHubPage';
 import CreatorDashboardPage from '@/pages/CreatorDashboardPage';
 import PostDetailPage from '@/pages/PostDetailPage';
 import AdminDashboardPage from '@/pages/AdminDashboardPage';
@@ -20,8 +18,6 @@ export default function App() {
       <div style={{ flex: 1 }}>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/saved" element={<SavedPromptsPage />} />
-          <Route path="/following" element={<FollowingHubPage />} />
           <Route path="/dashboard" element={<CreatorDashboardPage />} />
           <Route path="/post/:id" element={<PostDetailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
