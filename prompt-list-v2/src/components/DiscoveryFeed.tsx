@@ -205,7 +205,7 @@ export default function DiscoveryFeed() {
           flaggedReason: data.flaggedReason || '',
           createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString() : 'Just now',
           rawTimestamp: data.createdAt?.toMillis ? data.createdAt.toMillis() : Date.now(),
-          aspectRatio: data.aspectRatio || 'Square',
+          aspectRatio: data.aspectRatio || '',
           embedding: data.embedding,
           colorProfile: data.colorProfile || null
         });
@@ -300,9 +300,7 @@ export default function DiscoveryFeed() {
       const selectedAspectObj = ASPECT_OPTIONS.find(a => a.value === aspect);
       if (selectedAspectObj) {
         current = current.filter(post => {
-          if (post.aspectRatio && post.aspectRatio.toLowerCase().includes(selectedAspectObj.value.toLowerCase())) return true;
-          const contentStr = `${post.title} ${post.description} ${post.promptText} ${post.categories.join(" ")}`.toLowerCase();
-          return selectedAspectObj.keywords?.some(kw => contentStr.includes(kw));
+          return post.aspectRatio && post.aspectRatio.toLowerCase().includes(selectedAspectObj.value.toLowerCase());
         });
       }
     }
