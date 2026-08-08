@@ -327,12 +327,19 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
             </button>
             
             <div className={styles.modalLeftColumn}>
-              <div className={styles.modalImageContainer}>
-                <img 
-                  src={post.imageUrls[activeImageIndex]} 
-                  alt={post.title} 
-                  className={styles.modalMainImage} 
-                />
+              <div className={styles.leftColumnContent}>
+                <h2 className={styles.leftArtworkTitle}>{post.title}</h2>
+                
+                <div className={styles.modalImageContainer}>
+                  <div 
+                    className={styles.modalImageBlurBg} 
+                    style={{ backgroundImage: `url(${post.imageUrls[activeImageIndex]})` }} 
+                  />
+                  <img 
+                    src={post.imageUrls[activeImageIndex]} 
+                    alt={post.title} 
+                    className={styles.modalMainImage} 
+                  />
                 
                 {post.imageUrls.length > 1 && (
                   <>
@@ -368,13 +375,18 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                     ))}
                   </div>
                 )}
+                </div>
+
+                {post.description && (
+                  <p className={styles.leftArtworkDesc}>{post.description}</p>
+                )}
               </div>
             </div>
 
             <div className={styles.modalRightColumn}>
               <div className={styles.modalHeader}>
                 <div className={styles.creatorProfileModal}>
-                  <img src={post.creator.avatarUrl} alt={post.creator.displayName} className={styles.avatarModal} />
+                  <img src={post.creator.avatarUrl} alt={post.creator.displayName} className={styles.avatarModal} style={{ borderRadius: '50%' }} />
                   <div className={styles.creatorInfoWrapper}>
                     <span className={styles.curatedByLabel}>Curated by</span>
                     <h4 className={styles.creatorNameModal}>{post.creator.displayName}</h4>
@@ -392,13 +404,6 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                     </button>
                   )}
                 </div>
-              </div>
-
-              <div className={styles.modalArtworkInfo}>
-                <h2 className={styles.artworkTitle}>{post.title}</h2>
-                {post.description && (
-                  <p className={styles.artworkDesc}>{post.description}</p>
-                )}
               </div>
 
               <div className={styles.modalTitleArea}>
@@ -468,7 +473,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                   </div>
                 ) : (
                   <>
-                    <div className={styles.promptTextContainer}>
+                    <div className={styles.promptTextContainer} style={{ color: 'var(--text-primary)' }}>
                       <RichTextRenderer content={post.promptText} className={styles.promptCode} />
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '1rem', marginBottom: '0.5rem' }}>
