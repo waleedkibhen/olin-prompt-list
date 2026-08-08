@@ -661,7 +661,7 @@ export default function DiscoveryFeed() {
           </button>
         </div>
       ) : (
-        <div className="masonry-grid" style={{ marginTop: '1.5rem' }}>
+        <div className="masonry-grid">
           {displayedPosts.slice(0, visibleCount).map(post => (
             <div className="masonry-item" key={post.id}>
               <PromptCard 
