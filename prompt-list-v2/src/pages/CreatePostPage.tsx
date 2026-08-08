@@ -6,7 +6,7 @@ import { sendNotification } from '@/lib/notifications';
 import { doc, setDoc, serverTimestamp, collection, query, getDocs, orderBy, limit } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
-import { UploadCloud, CheckCircle2, Loader2, Image as ImageIcon, Trash2, ShieldAlert, AlertTriangle, Info, PlusCircle } from 'lucide-react';
+import { UploadCloud, CheckCircle2, Loader2, Image as ImageIcon, Trash2, ShieldAlert, AlertTriangle, Info, PlusCircle, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { extractImagePalette } from '@/lib/colorAnalyzer';
 
@@ -24,6 +24,7 @@ export default function CreatePostPage() {
   const [description, setDescription] = useState('');
   const [promptText, setPromptText] = useState('');
   const [model, setModel] = useState<'Midjourney V6' | 'Flux.1' | 'DALL-E 3' | 'Stable Diffusion XL'>('Midjourney V6');
+  const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
   const [wasFlagged, setWasFlagged] = useState(false);
   
   const [selectedFiles, setSelectedFiles] = useState<SelectedFile[]>([]);
@@ -482,6 +483,7 @@ export default function CreatePostPage() {
         <div className={styles.rightColumn}>
           
           <div className={styles.fieldGroup}>
+            <label>Creation Title</label>
             <input 
               type="text" 
               className={styles.plainInput}
@@ -495,17 +497,33 @@ export default function CreatePostPage() {
           </div>
 
           <div className={styles.fieldGroup}>
-            <select className={styles.plainSelect} value={model} onChange={e => setModel(e.target.value as any)}>
-              <option value="Midjourney V6">Select Model Architecture...</option>
-              <option value="Midjourney V6">Midjourney V6</option>
-              <option value="Flux.1">Flux.1</option>
-              <option value="DALL-E 3">DALL-E 3</option>
-              <option value="Stable Diffusion XL">SDXL</option>
-            </select>
+            <label>Select Model</label>
+            <div className={styles.customDropdownContainer}>
+              <div 
+                className={`${styles.plainInput} ${styles.dropdownHeader}`} 
+                onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
+              >
+                <span>{model}</span>
+                <ChevronDown size={16} />
+              </div>
+              {isModelDropdownOpen && (
+                <div className={styles.dropdownList}>
+                  {['Midjourney V6', 'Flux.1', 'DALL-E 3', 'Stable Diffusion XL'].map(m => (
+                    <div 
+                      key={m} 
+                      className={`${styles.dropdownItem} ${model === m ? styles.active : ''}`}
+                      onClick={() => { setModel(m as any); setIsModelDropdownOpen(false); }}
+                    >
+                      {m}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className={styles.fieldGroup}>
-            <label>Description / Context</label>
+            <label>Description / Context <span className={styles.optionalText}>(optional)</span></label>
             <textarea 
               className={styles.plainTextarea}
               placeholder="Briefly describe the intent and aesthetic of this creation..."
