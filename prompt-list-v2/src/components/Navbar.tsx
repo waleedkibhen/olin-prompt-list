@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './Navbar.module.css';
 import { Search, Filter, Plus, User, Bell, ChevronDown, ChevronRight, Check, Sparkles, Moon, Sun } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
+import NotificationBell from './NotificationBell';
 import FeedbackModal from './FeedbackModal';
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { COLOR_OPTIONS, ASPECT_OPTIONS, TIME_OPTIONS } from '../lib/filters';
@@ -27,7 +28,6 @@ export default function Navbar() {
   const [activeFilterCategory, setActiveFilterCategory] = useState<string | null>(null);
   
   // Profile / Notification state
-  const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -271,17 +271,7 @@ export default function Navbar() {
             
             {/* Notifications */}
             {user && (
-              <div style={{ position: 'relative' }}>
-                <button className={styles.iconBtn} onClick={() => setShowNotifications(!showNotifications)} title="Notifications">
-                  <Bell size={22} strokeWidth={2} />
-                </button>
-                {showNotifications && (
-                  <div className={styles.dropdownMenu}>
-                    <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: 'var(--text-primary)' }}>Notifications</h4>
-                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>You have no new notifications.</p>
-                  </div>
-                )}
-              </div>
+              <NotificationBell />
             )}
             
             {/* Profile Menu */}
