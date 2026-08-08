@@ -383,7 +383,7 @@
   padding: 0.25rem 0.6rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 40px;
-  color: var(--text-muted);
+  color: #ffffff;
 }
 
 .creatorProfileModal {
@@ -514,10 +514,10 @@
 }
 
 .promptTextContainer {
-  background-color: var(--bg-secondary);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 4px;
-  padding: 0.85rem;
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
   max-height: 160px;
   overflow-y: auto;
   user-select: all;

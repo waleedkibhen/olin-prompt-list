@@ -474,22 +474,24 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                     </div>
                   </div>
                 ) : (
-                  <div className={styles.promptTextContainer} style={{ padding: 0 }}>
-                    <div style={{ color: 'var(--text-primary)', fontSize: '0.95rem', lineHeight: '1.6', fontWeight: 300 }}>
-                      <RichTextRenderer content={post.promptText} className={styles.promptCode} />
+                  <>
+                    <div className={styles.promptTextContainer} style={{ padding: 0 }}>
+                      <div style={{ color: 'var(--text-primary)', fontSize: '0.95rem', lineHeight: '1.6', fontWeight: 300 }}>
+                        <RichTextRenderer content={post.promptText} className={styles.promptCode} />
+                      </div>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '1rem', marginBottom: '0.5rem' }}>
                       <button 
                         onClick={handleCopyPrompt}
-                        style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', padding: '0.2rem 0', transition: 'color 0.2s ease' }}
-                        onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
-                        onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+                        style={{ background: 'var(--bg-secondary)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', padding: '0.4rem 0.75rem', borderRadius: '2px', transition: 'all 0.2s ease' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-hover)'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'; }}
                       >
                         {isCopied ? <Check size={14} /> : <Copy size={14} />}
-                        <span style={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}>{isCopied ? 'Copied' : 'Copy'}</span>
+                        <span style={{ textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>{isCopied ? 'Copied' : 'Copy'}</span>
                       </button>
                     </div>
-                  </div>
+                  </>
                 )}
               </div>
 
