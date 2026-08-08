@@ -360,7 +360,7 @@
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  border-left: 1px solid var(--border-color);
+  border-left: none;
   background-color: var(--bg-secondary);
 }
 
@@ -439,9 +439,8 @@
 
 .leftColumnTitle {
   font-size: 1.25rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-primary);
-  text-transform: uppercase;
   margin-bottom: 1rem;
 }
 
