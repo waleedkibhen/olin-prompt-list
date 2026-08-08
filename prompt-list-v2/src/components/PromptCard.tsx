@@ -4,7 +4,7 @@ import { PromptPost } from '@/lib/mockData';
 import { useAuth } from '@/context/AuthContext';
 import { doc, updateDoc, increment, collection, onSnapshot, addDoc, serverTimestamp, query, orderBy, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Heart, Bookmark, Copy, Check, Sparkles, Share2, MessageSquare, ExternalLink, Send, Loader2, PlayCircle, ShieldCheck, Flag, ThumbsUp, Eye } from 'lucide-react';
+import { Heart, Bookmark, Copy, Check, Sparkles, Share2, MessageSquare, ExternalLink, Send, Loader2, PlayCircle, ShieldCheck, Flag, ThumbsUp, Eye, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { moderateText } from '@/lib/ai';
 import { ENABLE_MONETIZATION } from '@/lib/config';
@@ -322,35 +322,51 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
       {isModalOpen && (
         <div className={styles.modalBackdrop} onClick={() => setIsModalOpen(false)}>
           <div className={styles.modalCard} onClick={e => e.stopPropagation()}>
+            <button className={styles.modalCloseBtn} onClick={() => setIsModalOpen(false)} aria-label="Close">
+              <X size={24} strokeWidth={1.5} />
+            </button>
             
-            <div className={styles.modalImageSection}>
-              <img 
-                src={post.imageUrls[activeImageIndex]} 
-                alt={post.title} 
-                className={styles.modalMainImage} 
-              />
-              {post.imageUrls.length > 1 && (
-                <div className={styles.carouselThumbs}>
-                  {post.imageUrls.map((url, idx) => (
-                    <button 
-                      key={idx} 
-                      className={`${styles.thumbBtn} ${activeImageIndex === idx ? styles.activeThumb : ''}`}
-                      onClick={() => setActiveImageIndex(idx)}
-                    >
-                      <img src={url} alt={`Thumb ${idx + 1}`} className={styles.thumbImage} />
-                    </button>
-                  ))}
+            <div className={styles.modalLeftColumn}>
+              <div className={styles.modalImageContainer}>
+                <div 
+                  className={styles.modalImageBlurBg} 
+                  style={{ backgroundImage: `url(${post.imageUrls[activeImageIndex]})` }} 
+                />
+                <img 
+                  src={post.imageUrls[activeImageIndex]} 
+                  alt={post.title} 
+                  className={styles.modalMainImage} 
+                />
+                {post.imageUrls.length > 1 && (
+                  <div className={styles.carouselThumbs}>
+                    {post.imageUrls.map((url, idx) => (
+                      <button 
+                        key={idx} 
+                        className={`${styles.thumbBtn} ${activeImageIndex === idx ? styles.activeThumb : ''}`}
+                        onClick={() => setActiveImageIndex(idx)}
+                      >
+                        <img src={url} alt={`Thumb ${idx + 1}`} className={styles.thumbImage} />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {post.description && (
+                <div className={styles.modalDescriptionSection}>
+                  <h4 className={styles.descriptionHeader}>DESCRIPTION</h4>
+                  <p className={styles.modalDesc}>{post.description}</p>
                 </div>
               )}
             </div>
 
-            <div className={styles.modalContentSection}>
+            <div className={styles.modalRightColumn}>
               <div className={styles.modalHeader}>
                 <div className={styles.creatorProfileModal}>
                   <img src={post.creator.avatarUrl} alt={post.creator.displayName} className={styles.avatarModal} />
-                  <div>
+                  <div className={styles.creatorInfoWrapper}>
+                    <span className={styles.curatedByLabel}>Curated by</span>
                     <h4 className={styles.creatorNameModal}>{post.creator.displayName}</h4>
-                    <span className={styles.creatorHandleModal}>@{post.creator.username}</span>
                   </div>
                 </div>
                 
@@ -369,8 +385,6 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
 
               <div className={styles.modalTitleArea}>
                 <h2 className={styles.modalTitle}>{post.title}</h2>
-
-                {post.description && <p className={styles.modalDesc}>{post.description}</p>}
               </div>
 
               <div className={styles.promptVaultBox}>
@@ -520,11 +534,6 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                 </div>
               )}
 
-              <div className={styles.modalCloseFooter}>
-                <button className="btn-outline" onClick={() => setIsModalOpen(false)} style={{ width: '100%', borderRadius: '0px' }}>
-                  Close
-                </button>
-              </div>
             </div>
           </div>
         </div>
