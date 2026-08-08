@@ -364,16 +364,6 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                       {isFollowing ? 'Following' : '+ Follow'}
                     </button>
                   )}
-                  <Link 
-                    to={`/post/${post.id}`} 
-                    className="btn-outline" 
-                    title="Open standalone post URL" 
-                    onClick={() => setIsModalOpen(false)}
-                    style={{ padding: '0.4rem 0.65rem', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.3rem', borderRadius: '0px', textDecoration: 'none' }}
-                  >
-                    <ExternalLink size={13} />
-                    <span>View</span>
-                  </Link>
                 </div>
               </div>
 
