@@ -617,13 +617,13 @@ export default function DiscoveryFeed() {
       )}
 
       <div className={styles.navTabs}>
-        {['for_you', 'trending', 'newest', 'saved'].map(tab => (
+        {['for_you', 'trending', 'newest', 'following', 'saved'].map(tab => (
           <button 
             key={tab}
             className={`${styles.navTab} ${activeTab === tab ? styles.navTabActive : ''}`}
             onClick={() => handleTabClick(tab)}
           >
-            {tab === 'for_you' ? 'For You' : tab === 'trending' ? 'Trending' : tab === 'newest' ? 'Newest' : 'Saved'}
+            {tab === 'for_you' ? 'For You' : tab === 'trending' ? 'Trending' : tab === 'newest' ? 'Newest' : tab === 'following' ? 'Following' : 'Saved'}
           </button>
         ))}
       </div>
@@ -671,6 +671,31 @@ export default function DiscoveryFeed() {
               <button className="btn-outline" onClick={() => handleTabClick('for_you')} style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Compass size={15} />
                 <span>Explore</span>
+              </button>
+            </div>
+          )
+        ) : activeTab === 'following' ? (
+          !user ? (
+            <div className={styles.emptyState}>
+              <Layers size={36} style={{ color: 'var(--text-secondary)', opacity: 0.5 }} />
+              <h3>Sign in to see posts from creators you follow</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '450px' }}>
+                You need to authenticate in order to follow creators and see their artwork in this section.
+              </p>
+              <button className="btn-solid" onClick={signInWithGoogle} style={{ marginTop: '0.5rem' }}>
+                Sign in or sign up
+              </button>
+            </div>
+          ) : (
+            <div className={styles.emptyState}>
+              <Layers size={36} style={{ color: 'var(--text-secondary)', opacity: 0.5 }} />
+              <h3>No posts from followed creators</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '450px' }}>
+                You either aren't following anyone yet, or the creators you follow haven't posted any artwork.
+              </p>
+              <button className="btn-outline" onClick={() => handleTabClick('for_you')} style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Compass size={15} />
+                <span>Find creators</span>
               </button>
             </div>
           )
