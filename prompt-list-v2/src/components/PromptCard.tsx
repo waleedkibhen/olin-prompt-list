@@ -374,12 +374,15 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                 )}
               </div>
 
-              {post.description && (
-                <div className={styles.modalDescriptionSection}>
-                  <h4 className={styles.descriptionHeader}>DESCRIPTION</h4>
-                  <p className={styles.modalDesc}>{post.description}</p>
-                </div>
-              )}
+              <div className={styles.modalDescriptionSection}>
+                <h4 className={styles.leftColumnTitle}>{post.title}</h4>
+                {post.description && (
+                  <>
+                    <h4 className={styles.descriptionHeader}>DESCRIPTION</h4>
+                    <p className={styles.modalDesc}>{post.description}</p>
+                  </>
+                )}
+              </div>
             </div>
 
             <div className={styles.modalRightColumn}>
@@ -406,14 +409,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
               </div>
 
               <div className={styles.modalTitleArea}>
-                <h2 className={styles.modalTitle}>{post.title}</h2>
-              </div>
-
-              <div style={{ marginBottom: '1rem' }}>
-                <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.05em', fontWeight: 500 }}>AI Model</span>
-                <div style={{ fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: 500, marginTop: '0.2rem' }}>
-                  {post.model || 'Midjourney V6'} {post.aspectRatio && post.aspectRatio !== 'Unknown' && `• AR ${post.aspectRatio}`}
-                </div>
+                <h2 className={styles.modalTitle}>THE PROMPT</h2>
               </div>
 
               <div className={styles.promptVaultBox}>
@@ -490,8 +486,24 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                   </div>
                 ) : (
                   <div className={styles.promptTextContainer} style={{ padding: 0 }}>
+                    <RichTextRenderer content={post.promptText} className={styles.promptCode} />
                   </div>
                 )}
+              </div>
+
+              <div style={{ marginBottom: '1.5rem', marginTop: '1.5rem' }}>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 500 }}>Generation Details</span>
+                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
+                  <span className={styles.genDetailPill}>{post.model || 'Midjourney V6'}</span>
+                  {post.aspectRatio && post.aspectRatio !== 'Unknown' && (
+                    <span className={styles.genDetailPill}>AR {post.aspectRatio}</span>
+                  )}
+                  {post.createdAt && (
+                    <span className={styles.genDetailPill}>
+                      {new Date(post.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div className={styles.modalActionBar}>
