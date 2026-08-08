@@ -537,11 +537,11 @@ export default function CreatePostPage() {
               className={`${styles.plainTextarea} ${styles.tall}`}
               placeholder="/imagine prompt: A highly detailed..."
               value={promptText}
-              maxLength={30000}
+              maxLength={15000}
               onChange={e => setPromptText(e.target.value)}
               required
             />
-            {getCharLimitWarning(promptText.length, 30000)}
+            {getCharLimitWarning(promptText.length, 15000)}
           </div>
 
           <button type="submit" className={styles.publishBtn} disabled={isScanning || selectedFiles.length === 0}>
