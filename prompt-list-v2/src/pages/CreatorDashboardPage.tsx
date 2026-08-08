@@ -5,8 +5,7 @@ import { collection, onSnapshot, query, where, doc, deleteDoc } from 'firebase/f
 import { db } from '@/lib/firebase';
 import { PromptPost } from '@/lib/mockData';
 import { BarChart2, Eye, Heart, Bookmark, Copy, Trash2, ExternalLink, PlusCircle, Loader2, AlertTriangle, Sparkles, CheckCircle, Award } from 'lucide-react';
-import CreatePostModal from '@/components/CreatePostModal';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ENABLE_MONETIZATION } from '@/lib/config';
 
 export default function CreatorDashboardPage() {
@@ -15,7 +14,7 @@ export default function CreatorDashboardPage() {
   const [creatorPosts, setCreatorPosts] = useState<PromptPost[]>([]);
   const [recentCopies, setRecentCopies] = useState(0);
   const [loadingDb, setLoadingDb] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const [totalViews, setTotalViews] = useState(0);
   const [totalLikes, setTotalLikes] = useState(0);
@@ -124,7 +123,7 @@ export default function CreatorDashboardPage() {
         </div>
 
         {user && (
-          <button className="btn-solid" onClick={() => setIsModalOpen(true)} style={{ padding: '0.75rem 1.5rem', fontWeight: 700 }}>
+          <button className="btn-solid" onClick={() => navigate('/create')} style={{ padding: '0.75rem 1.5rem', fontWeight: 700 }}>
             <PlusCircle size={18} />
             <span>Upload New Artwork</span>
           </button>
@@ -197,7 +196,7 @@ export default function CreatorDashboardPage() {
               <BarChart2 size={48} className={styles.emptyIcon} />
               <h3>No uploaded artwork yet</h3>
               <p>Upload your AI artwork and prompts to start tracking user engagement and prompt copy analytics!</p>
-              <button className="btn-solid" onClick={() => setIsModalOpen(true)}>
+              <button className="btn-solid" onClick={() => navigate('/create')}>
                 Share Your First Prompt
               </button>
             </div>
@@ -276,13 +275,6 @@ export default function CreatorDashboardPage() {
             </div>
           )}
         </>
-      )}
-
-      {isModalOpen && (
-        <CreatePostModal 
-          onClose={() => setIsModalOpen(false)} 
-          onSuccess={() => alert("New artwork published! Your dashboard analytics are live!")} 
-        />
       )}
     </main>
   );

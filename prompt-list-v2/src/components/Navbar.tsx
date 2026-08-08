@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import styles from './Navbar.module.css';
 import { Search, Filter, Plus, User, Bell, ChevronDown, ChevronRight, Check, Sparkles, Moon, Sun } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import CreatePostModal from './CreatePostModal';
 import FeedbackModal from './FeedbackModal';
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { COLOR_OPTIONS, ASPECT_OPTIONS, TIME_OPTIONS } from '../lib/filters';
@@ -15,7 +14,6 @@ export default function Navbar() {
   
   const activeTab = searchParams.get('tab') || 'for_you';
   
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() => localStorage.getItem('theme') !== 'light');
@@ -267,8 +265,8 @@ export default function Navbar() {
             </div>
 
             {/* Create Post */}
-            <button className={styles.iconBtn} onClick={() => setIsCreateModalOpen(true)} title="Create Artwork">
-              <Plus size={24} strokeWidth={2} />
+            <button className={styles.iconBtn} onClick={() => navigate('/create')} title="Create Artwork">
+              <Plus size={20} strokeWidth={2} />
             </button>
             
             {/* Notifications */}
@@ -329,7 +327,6 @@ export default function Navbar() {
         <div className={styles.searchBackdrop} onClick={() => setIsSearchExpanded(false)} />
       )}
 
-      {isCreateModalOpen && <CreatePostModal onClose={() => setIsCreateModalOpen(false)} />}
       {isFeedbackModalOpen && <FeedbackModal onClose={() => setIsFeedbackModalOpen(false)} />}
     </>
   );
