@@ -293,7 +293,8 @@ export default function Navbar() {
                     </div>
                   </div>
                   <div className={styles.dropdownDivider} />
-                  <Link to={`/profile?id=${user.uid}`} className={styles.dropdownItem} onClick={() => setShowProfileMenu(false)}>Creator Dashboard</Link>
+                  <Link to="/dashboard" className={styles.dropdownItem} onClick={() => setShowProfileMenu(false)}>Creator Dashboard</Link>
+                  <Link to={`/profile?id=${user.uid}`} className={styles.dropdownItem} onClick={() => setShowProfileMenu(false)}>My Profile</Link>
                   <Link to="/settings" className={styles.dropdownItem} onClick={() => setShowProfileMenu(false)}>Profile Settings</Link>
                   <button className={styles.dropdownItem} onClick={() => { setIsFeedbackModalOpen(true); setShowProfileMenu(false); }} style={{ width: '100%', textAlign: 'left', cursor: 'pointer', border: 'none', background: 'none' }}>
                     Submit Feedback
