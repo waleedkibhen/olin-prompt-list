@@ -478,7 +478,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                     <div style={{ color: 'var(--text-primary)', fontSize: '0.95rem', lineHeight: '1.6', fontWeight: 300 }}>
                       <RichTextRenderer content={post.promptText} className={styles.promptCode} />
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.75rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '1rem', marginBottom: '0.5rem' }}>
                       <button 
                         onClick={handleCopyPrompt}
                         style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', padding: '0.2rem 0', transition: 'color 0.2s ease' }}
