@@ -4,7 +4,7 @@ import { PromptPost } from '@/lib/mockData';
 import { useAuth } from '@/context/AuthContext';
 import { doc, updateDoc, increment, collection, onSnapshot, addDoc, serverTimestamp, query, orderBy, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Heart, Bookmark, Copy, Check, Sparkles, Share2, MessageSquare, ExternalLink, Send, Loader2, PlayCircle, ShieldCheck, Flag, ThumbsUp, Eye, X } from 'lucide-react';
+import { Heart, Bookmark, Copy, Check, Sparkles, Share2, MessageSquare, ExternalLink, Send, Loader2, PlayCircle, ShieldCheck, Flag, ThumbsUp, Eye, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { moderateText } from '@/lib/ai';
 import { ENABLE_MONETIZATION } from '@/lib/config';
@@ -337,6 +337,28 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                   alt={post.title} 
                   className={styles.modalMainImage} 
                 />
+                
+                {post.imageUrls.length > 1 && (
+                  <>
+                    {activeImageIndex > 0 && (
+                      <button 
+                        className={styles.navArrowLeft} 
+                        onClick={(e) => { e.stopPropagation(); setActiveImageIndex(prev => prev - 1); }}
+                      >
+                        <ChevronLeft size={32} color="#fff" />
+                      </button>
+                    )}
+                    {activeImageIndex < post.imageUrls.length - 1 && (
+                      <button 
+                        className={styles.navArrowRight} 
+                        onClick={(e) => { e.stopPropagation(); setActiveImageIndex(prev => prev + 1); }}
+                      >
+                        <ChevronRight size={32} color="#fff" />
+                      </button>
+                    )}
+                  </>
+                )}
+                
                 {post.imageUrls.length > 1 && (
                   <div className={styles.carouselThumbs}>
                     {post.imageUrls.map((url, idx) => (
@@ -385,6 +407,13 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
 
               <div className={styles.modalTitleArea}>
                 <h2 className={styles.modalTitle}>{post.title}</h2>
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.05em', fontWeight: 500 }}>AI Model</span>
+                <div style={{ fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: 500, marginTop: '0.2rem' }}>
+                  {post.model || 'Midjourney V6'} {post.aspectRatio && post.aspectRatio !== 'Unknown' && `• AR ${post.aspectRatio}`}
+                </div>
               </div>
 
               <div className={styles.promptVaultBox}>
@@ -461,7 +490,6 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                   </div>
                 ) : (
                   <div className={styles.promptTextContainer} style={{ padding: 0 }}>
-                    <RichTextRenderer content={post.promptText} className={styles.promptCode} />
                   </div>
                 )}
               </div>
@@ -477,7 +505,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                 </button>
                 <button className={`${styles.barBtn} ${showComments ? styles.barBtnActive : ''}`} onClick={() => setShowComments(!showComments)}>
                   <MessageSquare size={17} />
-                  <span>{comments.length} Comments</span>
+                  <span style={{ fontWeight: 500 }}>{comments.length} Comments</span>
                 </button>
                 <button className={styles.barBtn} onClick={handleShareLink} style={isLinkCopied ? { color: '#10b981', borderColor: '#10b981' } : {}}>
                   <Share2 size={17} />
@@ -489,50 +517,48 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                 </button>
               </div>
 
-              {showComments && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)' }}>Discussion</h5>
-                  
-                  {commentError && (
-                    <div style={{ padding: '0.5rem 0.75rem', backgroundColor: 'rgba(244,63,94,0.1)', color: '#f43f5e', borderRadius: '6px', fontSize: '0.8rem' }}>
-                      {commentError}
-                    </div>
-                  )}
-
-                  <form onSubmit={handleSubmitComment} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                    <input 
-                      type="text" 
-                      placeholder={user ? "Write a comment..." : "Sign in to comment..."} 
-                      value={newComment}
-                      onChange={e => setNewComment(e.target.value)}
-                      disabled={isSubmittingComment}
-                      style={{ flex: 1, padding: '0.5rem 0.85rem', borderRadius: '0px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '0.85rem', outline: 'none' }}
-                    />
-                    <button type="submit" className="btn-outline" disabled={isSubmittingComment || !newComment.trim()} style={{ padding: '0.5rem 1rem', borderRadius: '0px' }}>
-                      {isSubmittingComment ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Send size={14} />}
-                    </button>
-                  </form>
-
-                  <div style={{ maxHeight: '180px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                    {comments.length === 0 ? (
-                      <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>No comments yet.</span>
-                    ) : (
-                      comments.map(c => (
-                        <div key={c.id} style={{ display: 'flex', gap: '0.6rem', padding: '0.5rem', backgroundColor: 'var(--bg-primary)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                          <img src={c.authorAvatar} alt={c.authorName} style={{ width: '26px', height: '26px', borderRadius: '50%', objectFit: 'cover' }} />
-                          <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <strong style={{ fontSize: '0.8rem', color: 'var(--text-primary)' }}>{c.authorName}</strong>
-                              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{c.createdAt}</span>
-                            </div>
-                            <span style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', marginTop: '0.1rem' }}>{c.text}</span>
-                          </div>
-                        </div>
-                      ))
-                    )}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                <h5 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>Discussion</h5>
+                
+                {commentError && (
+                  <div style={{ padding: '0.5rem 0.75rem', backgroundColor: 'rgba(244,63,94,0.1)', color: '#f43f5e', borderRadius: '6px', fontSize: '0.8rem' }}>
+                    {commentError}
                   </div>
+                )}
+
+                <form onSubmit={handleSubmitComment} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <input 
+                    type="text" 
+                    placeholder={user ? "Write a comment..." : "Sign in to comment..."} 
+                    value={newComment}
+                    onChange={e => setNewComment(e.target.value)}
+                    disabled={isSubmittingComment}
+                    style={{ flex: 1, padding: '0.5rem 0.85rem', borderRadius: '0px', border: '1px solid rgba(255, 255, 255, 0.15)', backgroundColor: 'transparent', color: 'var(--text-primary)', fontSize: '0.85rem', outline: 'none', fontWeight: 500 }}
+                  />
+                  <button type="submit" className="btn-outline" disabled={isSubmittingComment || !newComment.trim()} style={{ padding: '0.5rem 1rem', borderRadius: '0px', borderColor: 'rgba(255, 255, 255, 0.15)', color: 'var(--text-secondary)' }}>
+                    {isSubmittingComment ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Send size={14} />}
+                  </button>
+                </form>
+
+                <div style={{ maxHeight: '180px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                  {comments.length === 0 ? (
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500 }}>No comments yet.</span>
+                  ) : (
+                    comments.map(c => (
+                      <div key={c.id} style={{ display: 'flex', gap: '0.6rem', padding: '0.5rem', backgroundColor: 'transparent', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                        <img src={c.authorAvatar} alt={c.authorName} style={{ width: '26px', height: '26px', borderRadius: '50%', objectFit: 'cover' }} />
+                        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <strong style={{ fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 500 }}>{c.authorName}</strong>
+                            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{c.createdAt}</span>
+                          </div>
+                          <span style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', marginTop: '0.1rem', fontWeight: 400 }}>{c.text}</span>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
-              )}
+              </div>
 
             </div>
           </div>
