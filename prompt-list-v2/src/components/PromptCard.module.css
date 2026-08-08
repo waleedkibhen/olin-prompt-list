@@ -278,7 +278,7 @@
 }
 
 .descriptionHeader {
-  font-family: var(--font-mono);
+  font-family: var(--font-geist);
   font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.05em;
@@ -388,7 +388,7 @@
 }
 
 .modalRightColumn {
-  width: 480px;
+  width: 540px;
   flex-shrink: 0;
   padding: 3rem 2.5rem;
   display: flex;
@@ -469,7 +469,7 @@
 }
 
 .modalTitle {
-  font-family: var(--font-mono);
+  font-family: var(--font-geist);
   font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.05em;
@@ -546,7 +546,7 @@
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 0px;
-  padding: 1.5rem;
+  padding: 0.85rem 1rem;
   max-height: 240px;
   overflow-y: auto;
   user-select: all;
