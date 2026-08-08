@@ -378,7 +378,10 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                 </div>
 
                 {post.description && (
-                  <p className={styles.leftArtworkDesc}>{post.description}</p>
+                  <div className={styles.descriptionSection}>
+                    <h4 className={styles.descriptionHeader}>DESCRIPTION</h4>
+                    <p className={styles.leftArtworkDesc}>{post.description}</p>
+                  </div>
                 )}
               </div>
             </div>
