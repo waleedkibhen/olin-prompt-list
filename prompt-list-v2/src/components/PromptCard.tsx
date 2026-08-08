@@ -494,7 +494,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
               </div>
 
               <div style={{ marginBottom: '1.5rem', marginTop: '1.5rem' }}>
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 500 }}>Generation Details</span>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 400 }}>Generation Details</span>
                 <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
                   <span className={styles.genDetailPill}>{post.model || 'Midjourney V6'}</span>
                   {post.aspectRatio && post.aspectRatio !== 'Unknown' && (

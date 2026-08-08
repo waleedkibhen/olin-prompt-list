@@ -379,10 +379,10 @@
 }
 
 .genDetailPill {
-  font-size: 0.75rem;
-  padding: 0;
-  border: none;
-  border-radius: 0;
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 40px;
   color: var(--text-muted);
 }
 
@@ -514,9 +514,9 @@
 }
 
 .promptTextContainer {
-  background-color: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 0px;
+  background-color: var(--bg-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
   padding: 0.85rem;
   max-height: 160px;
   overflow-y: auto;
@@ -524,9 +524,8 @@
 }
 
 .promptCode {
-  font-family: monospace;
-  font-size: 0.825rem;
-  line-height: 1.5;
+  font-size: 0.95rem;
+  line-height: 1.6;
   color: var(--text-primary);
   word-break: break-all;
 }
