@@ -480,7 +480,7 @@ export default function CreatePostPage() {
         <div className={styles.rightColumn}>
           
           <div className={styles.fieldGroup}>
-            <label><Type size={16} /> Title</label>
+            <label>Title</label>
             <input 
               type="text" 
               className={styles.plainInput}
@@ -494,7 +494,7 @@ export default function CreatePostPage() {
           </div>
 
           <div className={styles.fieldGroup}>
-            <label><Box size={16} /> Select Model</label>
+            <label>Select Model</label>
             <div className={styles.customDropdownContainer}>
               <div 
                 className={`${styles.plainInput} ${styles.dropdownHeader}`} 
@@ -520,7 +520,7 @@ export default function CreatePostPage() {
           </div>
 
           <div className={styles.fieldGroup}>
-            <label><AlignLeft size={16} /> Description <span className={styles.optionalText}>(optional)</span></label>
+            <label>Description <span className={styles.optionalText}>(optional)</span></label>
             <textarea 
               className={styles.plainTextarea}
               placeholder="Briefly describe the intent and aesthetic of this creation..."
@@ -532,7 +532,7 @@ export default function CreatePostPage() {
           </div>
 
           <div className={styles.fieldGroup}>
-            <label><Terminal size={16} /> Prompt</label>
+            <label>Prompt</label>
             <textarea 
               className={`${styles.plainTextarea} ${styles.tall}`}
               placeholder="/imagine prompt: A highly detailed..."
