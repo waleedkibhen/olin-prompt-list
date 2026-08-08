@@ -74,7 +74,7 @@ export default function DiscoveryFeed() {
   const timeFilter = searchParams.get('time') || 'All Time';
   const vaultFilter = searchParams.get('vault') || 'All Artwork';
   
-  const { profile } = useAuth();
+  const { user, profile, signInWithGoogle } = useAuth();
   
   const [dbPosts, setDbPosts] = useState<PromptPost[]>([]);
   const [displayedPosts, setDisplayedPosts] = useState<PromptPost[]>([]);
@@ -649,17 +649,44 @@ export default function DiscoveryFeed() {
           <span>{isSearching ? 'Scanning visuals and vector space...' : 'Loading AI prompt creations...'}</span>
         </div>
       ) : displayedPosts.length === 0 ? (
-        <div className={styles.emptyState}>
-          <Layers size={36} style={{ color: 'var(--text-secondary)', opacity: 0.5 }} />
-          <h3>No visual artwork matched your active filter configuration</h3>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '450px' }}>
-            We filtered out all items that didn't match your selected color palette, art medium, orientation, or timeframe. Try broadening your filter selection.
-          </p>
-          <button className="btn-outline" onClick={() => setSearchParams({})} style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <RotateCcw size={15} />
-            <span>Reset All Filters</span>
-          </button>
-        </div>
+        activeTab === 'saved' ? (
+          !user ? (
+            <div className={styles.emptyState}>
+              <Layers size={36} style={{ color: 'var(--text-secondary)', opacity: 0.5 }} />
+              <h3>Sign in to view your saved posts</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '450px' }}>
+                You need to authenticate in order to gain access to the saved post or the ability to save posts in the first place.
+              </p>
+              <button className="btn-solid" onClick={signInWithGoogle} style={{ marginTop: '0.5rem' }}>
+                Sign in or sign up
+              </button>
+            </div>
+          ) : (
+            <div className={styles.emptyState}>
+              <Layers size={36} style={{ color: 'var(--text-secondary)', opacity: 0.5 }} />
+              <h3>You have no saved posts</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '450px' }}>
+                You haven't saved any artwork yet. Browse the feed to find inspiration.
+              </p>
+              <button className="btn-outline" onClick={() => handleTabClick('for_you')} style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Compass size={15} />
+                <span>Explore</span>
+              </button>
+            </div>
+          )
+        ) : (
+          <div className={styles.emptyState}>
+            <Layers size={36} style={{ color: 'var(--text-secondary)', opacity: 0.5 }} />
+            <h3>No visual artwork matched your active filter configuration</h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '450px' }}>
+              We filtered out all items that didn't match your selected color palette, art medium, orientation, or timeframe. Try broadening your filter selection.
+            </p>
+            <button className="btn-outline" onClick={() => setSearchParams({})} style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <RotateCcw size={15} />
+              <span>Reset All Filters</span>
+            </button>
+          </div>
+        )
       ) : (
         <div className="masonry-grid">
           {displayedPosts.slice(0, visibleCount).map(post => (
