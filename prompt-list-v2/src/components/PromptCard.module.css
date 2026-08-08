@@ -189,7 +189,8 @@
 .modalBackdrop {
   position: fixed;
   inset: 0;
-  background-color: var(--bg-primary);
+  background-color: rgba(9, 9, 11, 0.98);
+  backdrop-filter: blur(12px);
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -203,7 +204,7 @@
 }
 
 .modalCard {
-  background-color: var(--bg-primary);
+  background-color: transparent;
   border: none;
   width: 100vw;
   height: 100vh;
@@ -217,20 +218,23 @@
   position: absolute;
   top: 1.5rem;
   right: 1.5rem;
-  z-index: 50;
-  background: transparent;
-  border: none;
+  z-index: 100;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 0px;
   color: var(--text-secondary);
   cursor: pointer;
-  padding: 0.5rem;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.2s;
+  transition: all 0.2s;
 }
 
 .modalCloseBtn:hover {
-  color: var(--text-primary);
+  background: var(--text-primary);
+  color: var(--bg-primary);
 }
 
 @keyframes modalScale {
@@ -255,16 +259,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background-color: var(--bg-primary);
-}
-
-.modalImageBlurBg {
-  position: absolute;
-  inset: -10%;
-  background-size: cover;
-  background-position: center;
-  filter: blur(40px) brightness(0.6);
-  z-index: 0;
+  background-color: transparent;
 }
 
 .modalMainImage {
@@ -338,14 +333,16 @@
 }
 
 .modalRightColumn {
-  width: 440px;
+  width: 480px;
   flex-shrink: 0;
-  padding: 2.5rem;
+  padding: 3rem 2.5rem;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
   border-left: 1px solid var(--border-color);
-  background-color: var(--bg-elevated);
+  background-color: var(--bg-primary);
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.4);
+  z-index: 10;
 }
 
 .modalHeader {
@@ -359,18 +356,18 @@
   display: flex;
   gap: 0.5rem;
   margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
   flex-wrap: wrap;
 }
 
 .genDetailPill {
   font-family: var(--font-mono);
   font-size: 0.75rem;
-  padding: 0.25rem 0.6rem;
+  padding: 0.4rem 0.75rem;
   border: 1px solid var(--border-color);
   border-radius: 0px;
   color: var(--text-secondary);
-  background-color: var(--bg-primary);
+  background-color: var(--bg-secondary);
 }
 
 .creatorProfileModal {
@@ -426,8 +423,9 @@
 }
 
 .modalArtworkInfo {
+  margin-top: 1.5rem;
   margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
+  padding-bottom: 2rem;
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -510,13 +508,15 @@
 }
 
 .promptTextContainer {
-  background-color: transparent;
-  border: none;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 0px;
-  padding: 0;
-  max-height: 160px;
+  padding: 1.5rem;
+  max-height: 240px;
   overflow-y: auto;
   user-select: all;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .promptCode {
@@ -550,10 +550,12 @@
 .modalActionBar {
   display: flex;
   gap: 0.5rem;
-  padding: 0.75rem 0;
+  padding: 1rem 0;
   border-top: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
   justify-content: space-between;
+  flex-wrap: wrap;
+  margin-top: 1rem;
 }
 
 .barBtn {

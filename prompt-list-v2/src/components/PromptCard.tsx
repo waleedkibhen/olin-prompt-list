@@ -328,10 +328,6 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
             
             <div className={styles.modalLeftColumn}>
               <div className={styles.modalImageContainer}>
-                <div 
-                  className={styles.modalImageBlurBg} 
-                  style={{ backgroundImage: `url(${post.imageUrls[activeImageIndex]})` }} 
-                />
                 <img 
                   src={post.imageUrls[activeImageIndex]} 
                   alt={post.title} 
@@ -472,10 +468,8 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                   </div>
                 ) : (
                   <>
-                    <div className={styles.promptTextContainer} style={{ padding: 0 }}>
-                      <div style={{ color: 'var(--text-primary)', fontSize: '0.95rem', lineHeight: '1.6', fontWeight: 300 }}>
-                        <RichTextRenderer content={post.promptText} className={styles.promptCode} />
-                      </div>
+                    <div className={styles.promptTextContainer}>
+                      <RichTextRenderer content={post.promptText} className={styles.promptCode} />
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '1rem', marginBottom: '0.5rem' }}>
                       <button 
