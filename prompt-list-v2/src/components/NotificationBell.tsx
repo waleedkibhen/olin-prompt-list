@@ -103,7 +103,7 @@ export default function NotificationBell() {
         onClick={() => setIsOpen(!isOpen)}
         title="View Notifications"
       >
-        <Bell size={17} />
+        <Bell size={22} strokeWidth={2} />
         {unreadCount > 0 && (
           <span className={styles.unreadBadge}>{unreadCount > 9 ? '9+' : unreadCount}</span>
         )}

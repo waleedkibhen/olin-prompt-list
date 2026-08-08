@@ -6,23 +6,18 @@
 
 .bellBtn {
   background: transparent;
-  border: 1px solid var(--border-color);
-  border-radius: 0px;
-  width: 36px;
-  height: 36px;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   cursor: pointer;
   position: relative;
-  transition: color var(--transition-fast), border-color var(--transition-fast), background-color var(--transition-fast);
+  transition: opacity var(--transition-fast);
 }
 
 .bellBtn:hover {
-  color: var(--text-primary);
-  border-color: var(--accent-color);
-  background-color: var(--bg-secondary);
+  opacity: 0.7;
 }
 
 .unreadBadge {
