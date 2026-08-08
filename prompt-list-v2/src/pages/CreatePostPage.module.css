@@ -129,8 +129,8 @@
 }
 
 .fieldGroup label {
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: 0.9rem;
+  font-weight: 500;
   color: var(--text-primary);
   display: flex;
   align-items: center;
