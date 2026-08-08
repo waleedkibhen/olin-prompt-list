@@ -429,18 +429,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                   </div>
                 )}
 
-                <div style={{ position: 'relative', marginTop: '1rem' }}>
-                  {!isProtected && (
-                    <button 
-                      className={`btn-outline ${styles.copyVaultBtn}`} 
-                      onClick={handleCopyPrompt}
-                      style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', zIndex: 10, padding: '0.4rem 0.8rem', borderRadius: '0px', fontSize: '0.75rem', backgroundColor: 'transparent', color: '#F5F5F5', border: '1px solid #F5F5F5', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
-                    >
-                      {isCopied ? <Check size={14} /> : <Copy size={14} />}
-                      <span>{isCopied ? 'Copied' : 'Copy'}</span>
-                    </button>
-                  )}
-                </div>
+
                 {isWatchingAd ? (
                   <div style={{ padding: '2.5rem 1.5rem', textAlign: 'center', backgroundColor: 'var(--bg-primary)', border: '2px dashed #10b981', borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', color: 'var(--text-primary)' }}>
                     <Loader2 size={38} style={{ animation: 'spin 1s linear infinite', color: '#10b981' }} />
@@ -486,7 +475,20 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                   </div>
                 ) : (
                   <div className={styles.promptTextContainer} style={{ padding: 0 }}>
-                    <RichTextRenderer content={post.promptText} className={styles.promptCode} />
+                    <div style={{ color: 'var(--text-primary)', fontSize: '0.95rem', lineHeight: '1.6', fontWeight: 300 }}>
+                      <RichTextRenderer content={post.promptText} className={styles.promptCode} />
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.75rem' }}>
+                      <button 
+                        onClick={handleCopyPrompt}
+                        style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', padding: '0.2rem 0', transition: 'color 0.2s ease' }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
+                        onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+                      >
+                        {isCopied ? <Check size={14} /> : <Copy size={14} />}
+                        <span style={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}>{isCopied ? 'Copied' : 'Copy'}</span>
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
