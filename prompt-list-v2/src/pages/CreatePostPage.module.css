@@ -1,4 +1,4 @@
-﻿.pageContainer {
+.pageContainer {
   max-width: 1300px;
   margin: 0 auto;
   padding: 2rem 2rem 5rem;
@@ -129,10 +129,8 @@
 }
 
 .fieldGroup label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: 0.95rem;
+  font-weight: 600;
   color: var(--text-primary);
   display: flex;
   align-items: center;

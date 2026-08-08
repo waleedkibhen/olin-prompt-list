@@ -6,7 +6,7 @@ import { sendNotification } from '@/lib/notifications';
 import { doc, setDoc, serverTimestamp, collection, query, getDocs, orderBy, limit } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
-import { UploadCloud, CheckCircle2, Loader2, Image as ImageIcon, Trash2, ShieldAlert, AlertTriangle, Info, PlusCircle, ChevronDown } from 'lucide-react';
+import { UploadCloud, CheckCircle2, Loader2, Image as ImageIcon, Trash2, ShieldAlert, AlertTriangle, Info, PlusCircle, ChevronDown, Type, Box, AlignLeft, Terminal } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { extractImagePalette } from '@/lib/colorAnalyzer';
 
@@ -399,9 +399,6 @@ export default function CreatePostPage() {
 
   return (
     <div className={styles.pageContainer}>
-      <div className={styles.pageHeader}>
-        <h1>Upload Prompt</h1>
-      </div>
 
       {moderationError && (
         <div className={`${styles.alertBar} ${styles.error}`}>
@@ -483,7 +480,7 @@ export default function CreatePostPage() {
         <div className={styles.rightColumn}>
           
           <div className={styles.fieldGroup}>
-            <label>Creation Title</label>
+            <label><Type size={16} /> Title</label>
             <input 
               type="text" 
               className={styles.plainInput}
@@ -497,7 +494,7 @@ export default function CreatePostPage() {
           </div>
 
           <div className={styles.fieldGroup}>
-            <label>Select Model</label>
+            <label><Box size={16} /> Select Model</label>
             <div className={styles.customDropdownContainer}>
               <div 
                 className={`${styles.plainInput} ${styles.dropdownHeader}`} 
@@ -523,7 +520,7 @@ export default function CreatePostPage() {
           </div>
 
           <div className={styles.fieldGroup}>
-            <label>Description / Context <span className={styles.optionalText}>(optional)</span></label>
+            <label><AlignLeft size={16} /> Description <span className={styles.optionalText}>(optional)</span></label>
             <textarea 
               className={styles.plainTextarea}
               placeholder="Briefly describe the intent and aesthetic of this creation..."
@@ -535,7 +532,7 @@ export default function CreatePostPage() {
           </div>
 
           <div className={styles.fieldGroup}>
-            <label>The Exact Prompt</label>
+            <label><Terminal size={16} /> Prompt</label>
             <textarea 
               className={`${styles.plainTextarea} ${styles.tall}`}
               placeholder="/imagine prompt: A highly detailed..."
