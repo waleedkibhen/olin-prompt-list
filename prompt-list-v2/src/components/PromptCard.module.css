@@ -239,22 +239,23 @@
 }
 
 .modalLeftColumn {
-  flex: 1.3;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: var(--bg-secondary);
-  overflow-y: auto;
+  background-color: var(--bg-primary);
+  overflow: hidden;
+  position: relative;
 }
 
 .modalImageContainer {
   position: relative;
   width: 100%;
-  height: 75vh;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background-color: #000;
+  background-color: var(--bg-primary);
 }
 
 .modalImageBlurBg {
@@ -312,8 +313,8 @@
   transform: translateY(-50%);
   z-index: 20;
   background: rgba(0, 0, 0, 0.4);
-  border: none;
-  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  border-radius: 0px;
   width: 48px;
   height: 48px;
   display: flex;
@@ -336,32 +337,15 @@
   right: 1.5rem;
 }
 
-.modalDescriptionSection {
-  padding: 2.5rem 3rem;
-}
-
-.descriptionHeader {
-  font-size: 0.75rem;
-  letter-spacing: 0.05em;
-  color: var(--text-secondary);
-  margin-bottom: 0.75rem;
-  font-weight: 600;
-}
-
-.modalDesc {
-  font-size: 0.95rem;
-  line-height: 1.6;
-  color: var(--text-primary);
-}
-
 .modalRightColumn {
-  flex: 0.7;
-  padding: 2.5rem 3rem;
+  width: 440px;
+  flex-shrink: 0;
+  padding: 2.5rem;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  border-left: none;
-  background-color: var(--bg-secondary);
+  border-left: 1px solid var(--border-color);
+  background-color: var(--bg-elevated);
 }
 
 .modalHeader {
@@ -374,16 +358,19 @@
 .generationDetails {
   display: flex;
   gap: 0.5rem;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
   margin-bottom: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .genDetailPill {
-  font-size: 0.85rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
   padding: 0.25rem 0.6rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 40px;
-  color: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 0px;
+  color: var(--text-secondary);
+  background-color: var(--bg-primary);
 }
 
 .creatorProfileModal {
@@ -395,7 +382,7 @@
 .avatarModal {
   width: 42px;
   height: 42px;
-  border-radius: 50%;
+  border-radius: 0px;
   object-fit: cover;
   border: 1px solid var(--border-color);
 }
@@ -426,22 +413,37 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
 }
 
 .modalTitle {
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--text-muted);
 }
 
-.leftColumnTitle {
-  font-size: 1.25rem;
+.modalArtworkInfo {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.artworkTitle {
+  font-size: 1.5rem;
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
+  font-family: var(--font-geist);
+}
+
+.artworkDesc {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  font-family: var(--font-geist);
 }
 
 .tagGroup {
@@ -473,12 +475,7 @@
 .catPill {
   font-size: 0.75rem;
   color: var(--text-muted);
-}
-
-.modalDesc {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  line-height: 1.5;
+  font-family: var(--font-mono);
 }
 
 .promptVaultBox {
@@ -515,7 +512,7 @@
 .promptTextContainer {
   background-color: transparent;
   border: none;
-  border-radius: 0;
+  border-radius: 0px;
   padding: 0;
   max-height: 160px;
   overflow-y: auto;
@@ -523,7 +520,8 @@
 }
 
 .promptCode {
-  font-size: 0.95rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
   line-height: 1.6;
   color: var(--text-primary);
   word-break: break-all;

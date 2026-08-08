@@ -1,26 +1,26 @@
-@import url('https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
   /* Default Theme Variables (Dark Preference) - Gallery Minimalist */
   --bg-primary: #09090B;
   --bg-secondary: #121212;
-  --bg-elevated: #1a1a1d;
-  --bg-hover: #1f1f22;
+  --bg-elevated: #18181b;
+  --bg-hover: #27272a;
   
-  --text-primary: #F5F5F5;
+  --text-primary: #FFFFFF;
   --text-secondary: #a1a1aa;
   --text-muted: #71717a;
-  --text-inverted: #131316;
+  --text-inverted: #18181b;
 
   --border-color: #27272A;
-  --border-focus: #F5F5F5;
+  --border-focus: #FFFFFF;
   
-  --accent-color: #F5F5F5;
+  --accent-color: #FFFFFF;
   --accent-hover: #d4d4d8;
   --accent-secondary: #e4e1e5;
 
   --tag-bg: transparent;
-  --tag-text: #c4c7c8;
+  --tag-text: #a1a1aa;
   --tag-active-bg: transparent;
   --tag-active-text: #ffffff;
 
@@ -34,7 +34,7 @@
   --shadow-lg: none;
   --shadow-hover: none;
 
-  /* Gallery Radius */
+  /* Gallery Radius - STRICTLY 0px */
   --radius-sm: 0px;
   --radius-md: 0px;
   --radius-lg: 0px;
@@ -44,7 +44,9 @@
   --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
   --transition-normal: 250ms cubic-bezier(0.16, 1, 0.3, 1);
 
-  --font-family: 'Spline Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-geist: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-family: var(--font-geist);
 }
 
 /* Explicit Light Theme override */

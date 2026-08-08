@@ -373,16 +373,6 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                   </div>
                 )}
               </div>
-
-              <div className={styles.modalDescriptionSection}>
-                <h4 className={styles.leftColumnTitle}>{post.title}</h4>
-                {post.description && (
-                  <>
-                    <h4 className={styles.descriptionHeader}>DESCRIPTION</h4>
-                    <p className={styles.modalDesc}>{post.description}</p>
-                  </>
-                )}
-              </div>
             </div>
 
             <div className={styles.modalRightColumn}>
@@ -406,6 +396,13 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                     </button>
                   )}
                 </div>
+              </div>
+
+              <div className={styles.modalArtworkInfo}>
+                <h2 className={styles.artworkTitle}>{post.title}</h2>
+                {post.description && (
+                  <p className={styles.artworkDesc}>{post.description}</p>
+                )}
               </div>
 
               <div className={styles.modalTitleArea}>
