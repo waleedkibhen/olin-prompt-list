@@ -286,10 +286,10 @@ export default function CreatePostPage() {
       
       const postPayload = {
         id: newPostRef.id,
-        authorId: user.uid,
-        authorName: profile.displayName || user.displayName || 'Anonymous Creator',
-        authorUsername: profile.username || 'unknown',
-        authorAvatar: profile.avatarUrl || user.photoURL || '',
+        creatorId: user.uid,
+        creatorDisplayName: profile.displayName || user.displayName || 'Anonymous Creator',
+        creatorUsername: profile.username || 'unknown',
+        creatorAvatarUrl: profile.avatarUrl || user.photoURL || '',
         
         title,
         description,
@@ -297,8 +297,7 @@ export default function CreatePostPage() {
         model,
         monetizationType: 'free',
         
-        images: imageUrls,
-        coverImage: imageUrls[0],
+        imageUrls: imageUrls,
         aspectRatio: calculatedAspectRatio,
         
         categories: aiResult.tags || [],
