@@ -588,8 +588,8 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                   <div className={styles.modalTitleArea}>
                     <h2 className={styles.modalTitle}>Description</h2>
                   </div>
-                  <div className={styles.promptTextContainer} style={{ color: 'var(--text-primary)' }}>
-                    <p className={styles.promptCode} style={{ whiteSpace: 'pre-wrap' }}>{post.description}</p>
+                  <div className={styles.promptTextContainer}>
+                    <p className={`${styles.promptCode} ${styles.mutedDescription}`} style={{ whiteSpace: 'pre-wrap' }}>{post.description}</p>
                   </div>
                 </div>
               )}

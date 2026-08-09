@@ -791,3 +791,15 @@
   .modalImageSection { max-height: 45vh; }
   .modalContentSection { padding: 1.25rem; max-height: 50vh; }
 }
+
+.mutedDescription {
+  color: var(--text-secondary) !important;
+  opacity: 0.8;
+  transition: all 0.3s ease;
+  cursor: default;
+}
+
+.mutedDescription:hover {
+  color: var(--text-primary) !important;
+  opacity: 1;
+}
