@@ -216,7 +216,7 @@
 
 .modalCloseBtn {
   position: absolute;
-  top: 3.1rem;
+  top: 2.75rem;
   right: 1.5rem;
   z-index: 100;
   background: var(--bg-secondary);
@@ -279,11 +279,12 @@
 
 .descriptionHeader {
   font-family: var(--font-geist);
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: 0.85rem;
+  font-weight: 600;
   letter-spacing: 0.05em;
   color: var(--text-muted);
   margin-bottom: 0.4rem;
+  text-transform: uppercase;
 }
 
 .leftArtworkDesc {
@@ -473,10 +474,11 @@
 
 .modalTitle {
   font-family: var(--font-geist);
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: 0.85rem;
+  font-weight: 600;
   letter-spacing: 0.05em;
   color: var(--text-muted);
+  text-transform: uppercase;
 }
 
 /* Removed .modalArtworkInfo since it moved to left column */
@@ -562,6 +564,7 @@
   line-height: 1.6;
   color: var(--text-primary);
   word-break: break-all;
+  padding: 0 !important;
 }
 
 .negativePromptArea {

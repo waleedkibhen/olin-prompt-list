@@ -401,7 +401,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                     <button 
                       className={isFollowing ? "btn-solid" : "btn-outline"} 
                       onClick={toggleFollow}
-                      style={{ padding: '0.35rem 0.85rem', fontSize: '0.75rem', borderRadius: '4px', alignSelf: 'flex-end', marginBottom: '0.1rem' }}
+                      style={{ padding: '0.35rem 0.85rem', fontSize: '0.75rem', borderRadius: '6px', alignSelf: 'flex-end', marginBottom: '0.1rem' }}
                     >
                       {isFollowing ? 'Following' : '+ Follow'}
                     </button>
