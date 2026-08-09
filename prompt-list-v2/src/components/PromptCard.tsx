@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styles from './PromptCard.module.css';
 import { PromptPost } from '@/lib/mockData';
 import { useAuth } from '@/context/AuthContext';
@@ -28,6 +28,24 @@ interface CommentItem {
 export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
   const { user, profile, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
+  const commentsRef = useRef<HTMLDivElement>(null);
+
+  const scrollToComments = () => {
+    setShowComments(true);
+    setTimeout(() => {
+      commentsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  };
+
+  const handleCommentsContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    scrollToComments();
+  };
+
+  const handleCommentsClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    scrollToComments();
+  };
 
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -386,7 +404,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                   <Bookmark size={17} fill={isSaved ? "currentColor" : "none"} />
                   {savesCount > 0 && <span>{savesCount}</span>}
                 </button>
-                <button className={`${styles.barBtn} ${showComments ? styles.barBtnActive : ''}`} onClick={() => setShowComments(!showComments)} title="Comments">
+                <button className={`${styles.barBtn} ${showComments ? styles.barBtnActive : ''}`} onClick={handleCommentsClick} onContextMenu={handleCommentsContextMenu} title="Comments">
                   <MessageSquare size={17} />
                   {comments.length > 0 && <span style={{ fontWeight: 500 }}>{comments.length}</span>}
                 </button>
@@ -405,7 +423,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                   </div>
                 )}
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: '1rem 2.5rem 2rem 2.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <div ref={commentsRef} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: '1rem 2.5rem 2rem 2.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
                 <h5 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>Discussion</h5>
                 
                 {commentError && (
