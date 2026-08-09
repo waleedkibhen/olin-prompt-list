@@ -329,6 +329,28 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
             <div className={styles.modalLeftColumn}>
               <div className={styles.leftColumnContent}>
                 <h2 className={styles.leftArtworkTitle}>{post.title}</h2>
+
+                <div className={styles.modalHeader} style={{ marginBottom: '1.5rem', marginTop: '1rem', paddingLeft: '2.5rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                    <div className={styles.creatorProfileModal}>
+                      <img src={post.creator.avatarUrl} alt={post.creator.displayName} className={styles.avatarModal} style={{ borderRadius: '50%' }} />
+                      <div className={styles.creatorInfoWrapper}>
+                        <span className={styles.curatedByLabel}>Curated by</span>
+                        <h4 className={styles.creatorNameModal}>{post.creator.displayName}</h4>
+                      </div>
+                    </div>
+                    
+                    {user?.uid !== post.creator.uid && (
+                      <button 
+                        className={isFollowing ? "btn-solid" : "btn-outline"} 
+                        onClick={toggleFollow}
+                        style={{ padding: '0.35rem 0.85rem', fontSize: '0.75rem', borderRadius: '6px', alignSelf: 'flex-end', marginBottom: '0.1rem' }}
+                      >
+                        {isFollowing ? 'Following' : '+ Follow'}
+                      </button>
+                    )}
+                  </div>
+                </div>
                 
                 <div className={styles.modalImageContainer}>
                   <div 
@@ -387,28 +409,6 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
             </div>
 
             <div className={styles.modalRightColumn}>
-              <div className={styles.modalHeader}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-                  <div className={styles.creatorProfileModal}>
-                    <img src={post.creator.avatarUrl} alt={post.creator.displayName} className={styles.avatarModal} style={{ borderRadius: '50%' }} />
-                    <div className={styles.creatorInfoWrapper}>
-                      <span className={styles.curatedByLabel}>Curated by</span>
-                      <h4 className={styles.creatorNameModal}>{post.creator.displayName}</h4>
-                    </div>
-                  </div>
-                  
-                  {user?.uid !== post.creator.uid && (
-                    <button 
-                      className={isFollowing ? "btn-solid" : "btn-outline"} 
-                      onClick={toggleFollow}
-                      style={{ padding: '0.35rem 0.85rem', fontSize: '0.75rem', borderRadius: '6px', alignSelf: 'flex-end', marginBottom: '0.1rem' }}
-                    >
-                      {isFollowing ? 'Following' : '+ Follow'}
-                    </button>
-                  )}
-                </div>
-              </div>
-
               <div className={styles.modalTitleArea}>
                 <h2 className={styles.modalTitle}>Prompt</h2>
               </div>
