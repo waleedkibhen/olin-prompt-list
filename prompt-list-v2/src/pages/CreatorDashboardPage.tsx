@@ -11,15 +11,10 @@ import { ENABLE_MONETIZATION } from '@/lib/config';
 export default function CreatorDashboardPage() {
   const { user, profile, updateProfileState, loading: authLoading, signInWithGoogle } = useAuth();
   
-  const [creatorPosts, setCreatorPosts] = useState<PromptPost[]>([]);
-  const [recentCopies, setRecentCopies] = useState(0);
+  const [creatorPosts, setCreatorPosts] = useState<(PromptPost & { createdAtMs: number })[]>([]);
   const [loadingDb, setLoadingDb] = useState(true);
+  const [timeFilter, setTimeFilter] = useState('30d'); // '1d', '7d', '30d', '1y', 'all'
   const navigate = useNavigate();
-
-  const [totalViews, setTotalViews] = useState(0);
-  const [totalLikes, setTotalLikes] = useState(0);
-  const [totalSaves, setTotalSaves] = useState(0);
-  const [totalCopies, setTotalCopies] = useState(0);
 
   useEffect(() => {
     if (authLoading) return;
@@ -31,7 +26,7 @@ export default function CreatorDashboardPage() {
     const q = query(collection(db, "posts"), where("creatorId", "==", user.uid));
     
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const items: PromptPost[] = [];
+      const items: (PromptPost & { createdAtMs: number })[] = [];
       let viewsSum = 0;
       let likesSum = 0;
       let savesSum = 0;
@@ -78,17 +73,13 @@ export default function CreatorDashboardPage() {
           copiesCount: copies,
           isPaid: d.isPaid || false,
           price: d.price || 0,
-          createdAt: d.createdAt?.toDate ? d.createdAt.toDate().toLocaleDateString() : 'Recently'
+          createdAt: d.createdAt?.toDate ? d.createdAt.toDate().toLocaleDateString() : 'Recently',
+          createdAtMs
         });
       });
 
       items.sort((a, b) => b.viewsCount - a.viewsCount);
       setCreatorPosts(items);
-      setTotalViews(viewsSum);
-      setTotalLikes(likesSum);
-      setTotalSaves(savesSum);
-      setTotalCopies(copiesSum);
-      setRecentCopies(recentCopiesSum);
       setLoadingDb(false);
     }, (err) => {
       console.error("Dashboard synchronization error:", err);
@@ -97,6 +88,26 @@ export default function CreatorDashboardPage() {
 
     return () => unsubscribe();
   }, [user, authLoading]);
+
+  const filteredPosts = React.useMemo(() => {
+    if (timeFilter === 'all') return creatorPosts;
+    const now = Date.now();
+    let limit = 0;
+    if (timeFilter === '1d') limit = 1 * 24 * 60 * 60 * 1000;
+    if (timeFilter === '7d') limit = 7 * 24 * 60 * 60 * 1000;
+    if (timeFilter === '30d') limit = 30 * 24 * 60 * 60 * 1000;
+    if (timeFilter === '1y') limit = 365 * 24 * 60 * 60 * 1000;
+    return creatorPosts.filter(p => (now - p.createdAtMs) <= limit);
+  }, [creatorPosts, timeFilter]);
+
+  const stats = React.useMemo(() => {
+    return filteredPosts.reduce((acc, p) => ({
+      views: acc.views + p.viewsCount,
+      likes: acc.likes + p.likesCount,
+      saves: acc.saves + p.savesCount,
+      copies: acc.copies + (p.copiesCount || 0),
+    }), { views: 0, likes: 0, saves: 0, copies: 0 });
+  }, [filteredPosts]);
 
   const handleDeletePost = async (postId: string, title: string) => {
     const confirmDelete = window.confirm(`Are you sure you want to permanently delete "${title}" from the marketplace?`);
@@ -112,22 +123,27 @@ export default function CreatorDashboardPage() {
   return (
     <main className={styles.container}>
       <header className={styles.header}>
-        <div>
-          <div className={styles.titleWrapper}>
-            <BarChart2 size={28} className={styles.icon} />
-            <h1 className={styles.title}>Creator Performance Dashboard</h1>
-          </div>
+        <div className={styles.headerTextGroup}>
+          <h1 className={styles.title}>Creator Performance Dashboard</h1>
           <p className={styles.subtitle}>
             Analyze real-time impressions, saves, likes, and generative prompt copy events across your published portfolio.
           </p>
+          {user && (
+            <div className={styles.timeFilterContainer}>
+              <select 
+                className={styles.timeSelect} 
+                value={timeFilter} 
+                onChange={(e) => setTimeFilter(e.target.value)}
+              >
+                <option value="1d">Last 24 Hours</option>
+                <option value="7d">Last 7 Days</option>
+                <option value="30d">Last 30 Days</option>
+                <option value="1y">Last Year</option>
+                <option value="all">All Time</option>
+              </select>
+            </div>
+          )}
         </div>
-
-        {user && (
-          <button className="btn-solid" onClick={() => navigate('/create')} style={{ padding: '0.75rem 1.5rem', fontWeight: 700 }}>
-            <PlusCircle size={18} />
-            <span>Upload New Artwork</span>
-          </button>
-        )}
       </header>
 
       {!user && !authLoading ? (
@@ -149,56 +165,55 @@ export default function CreatorDashboardPage() {
         <>
 
           <section className={styles.kpiGrid}>
-            <div className={styles.kpiCard} style={{ border: '1px solid var(--border-color)' }}>
+            <div className={styles.kpiCard}>
               <div className={styles.kpiTop}>
-                <span style={{ fontWeight: 600 }}>Total Impressions</span>
-                <Eye size={18} style={{ color: 'var(--text-primary)' }} />
+                <span>Total Impressions</span>
+                <Eye size={20} className={styles.kpiIcon} />
               </div>
-              <div className={styles.kpiValue} style={{ color: 'var(--text-primary)' }}>{totalViews.toLocaleString()}</div>
-              <div className={styles.kpiDesc}>Across {creatorPosts.length} published pieces</div>
+              <div className={styles.kpiValue}>{stats.views.toLocaleString()}</div>
+              <div className={styles.kpiDesc}>Across {filteredPosts.length} published pieces</div>
             </div>
 
-            <div className={styles.kpiCard} style={{ border: '1px solid var(--border-color)' }}>
+            <div className={styles.kpiCard}>
               <div className={styles.kpiTop}>
-                <span style={{ fontWeight: 600 }}>Prompt Copies</span>
-                <Copy size={18} style={{ color: 'var(--text-primary)' }} />
+                <span>Prompt Copies</span>
+                <Copy size={20} className={styles.kpiIcon} />
               </div>
-              <div className={styles.kpiValue} style={{ color: 'var(--text-primary)' }}>{totalCopies.toLocaleString()}</div>
-              <div className={styles.kpiDesc}>Times users copied your generative parameters</div>
+              <div className={styles.kpiValue}>{stats.copies.toLocaleString()}</div>
+              <div className={styles.kpiDesc}>Times users copied your parameters</div>
             </div>
 
-            <div className={styles.kpiCard} style={{ border: '1px solid var(--border-color)' }}>
+            <div className={styles.kpiCard}>
               <div className={styles.kpiTop}>
-                <span style={{ fontWeight: 600 }}>Saved Bookmarks</span>
-                <Bookmark size={18} style={{ color: 'var(--text-primary)' }} />
+                <span>Saved Bookmarks</span>
+                <Bookmark size={20} className={styles.kpiIcon} />
               </div>
-              <div className={styles.kpiValue} style={{ color: 'var(--text-primary)' }}>{totalSaves.toLocaleString()}</div>
-              <div className={styles.kpiDesc}>Added to user private reference libraries</div>
+              <div className={styles.kpiValue}>{stats.saves.toLocaleString()}</div>
+              <div className={styles.kpiDesc}>Added to private reference libraries</div>
             </div>
 
-            <div className={styles.kpiCard} style={{ border: '1px solid var(--border-color)' }}>
+            <div className={styles.kpiCard}>
               <div className={styles.kpiTop}>
-                <span style={{ fontWeight: 600 }}>Community Likes</span>
-                <Heart size={18} style={{ color: 'var(--text-primary)' }} />
+                <span>Community Likes</span>
+                <Heart size={20} className={styles.kpiIcon} />
               </div>
-              <div className={styles.kpiValue} style={{ color: 'var(--text-primary)' }}>{totalLikes.toLocaleString()}</div>
+              <div className={styles.kpiValue}>{stats.likes.toLocaleString()}</div>
               <div className={styles.kpiDesc}>Positive visual engagement score</div>
             </div>
           </section>
 
-          <h2 className={styles.sectionTitle}>
-            <Sparkles size={22} style={{ color: 'var(--accent-color)' }} />
-            <span>Published Portfolio Management ({creatorPosts.length})</span>
-          </h2>
+          <div className={styles.tableHeader}>
+            <h2 className={styles.sectionTitle}>
+              Recent Uploads ({creatorPosts.length})
+            </h2>
+            <Link to="/profile" className={styles.viewAllBtn}>View All</Link>
+          </div>
 
-          {creatorPosts.length === 0 ? (
+          {filteredPosts.length === 0 ? (
             <div className={styles.emptyState}>
               <BarChart2 size={48} className={styles.emptyIcon} />
-              <h3>No uploaded artwork yet</h3>
-              <p>Upload your AI artwork and prompts to start tracking user engagement and prompt copy analytics!</p>
-              <button className="btn-solid" onClick={() => navigate('/create')}>
-                Share Your First Prompt
-              </button>
+              <h3>No artwork found for this timeframe</h3>
+              <p>Try adjusting your time filter to see more data.</p>
             </div>
           ) : (
             <div className={styles.tableContainer}>
@@ -208,20 +223,22 @@ export default function CreatorDashboardPage() {
                     <th>Artwork &amp; Title</th>
                     <th>Model &amp; Style</th>
                     {ENABLE_MONETIZATION && <th>Pricing</th>}
-                    <th>Views</th>
-                    <th>Copies</th>
-                    <th>Saves</th>
-                    <th>Likes</th>
+                    <th className={styles.textRight}>Views</th>
+                    <th className={styles.textRight}>Copies</th>
+                    <th className={styles.textRight}>Saves</th>
+                    <th className={styles.textRight}>Likes</th>
                     <th>Published</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {creatorPosts.map(post => (
+                  {filteredPosts.map(post => (
                     <tr key={post.id}>
                       <td>
                         <div className={styles.postInfo}>
-                          <img src={post.imageUrls[0]} alt={post.title} className={styles.postThumb} />
+                          <div className={styles.postThumbWrapper}>
+                            <img src={post.imageUrls[0]} alt={post.title} className={styles.postThumb} />
+                          </div>
                           <div>
                             <span className={styles.postTitle}>{post.title}</span>
                             <span className={styles.postModel}>ID: {post.id.substring(0, 14)}...</span>
@@ -229,27 +246,27 @@ export default function CreatorDashboardPage() {
                         </div>
                       </td>
                       <td>
-                        <span className="badge-pill">{post.model}</span>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.3rem' }}>{post.styleTag}</div>
+                        <span className={styles.badgePill}>{post.model}</span>
+                        <div className={styles.styleTag}>{post.styleTag}</div>
                       </td>
                       {ENABLE_MONETIZATION && (
                         <td>
                           {post.isPaid ? (
-                            <span style={{ color: '#10b981', fontWeight: 700, backgroundColor: 'rgba(16, 185, 129, 0.15)', padding: '0.25rem 0.65rem', borderRadius: '9999px', fontSize: '0.8rem', border: '1px solid rgba(16, 185, 129, 0.35)', display: 'inline-block' }}>
+                            <span className={styles.paidBadge}>
                               ${post.price?.toLocaleString()}
                             </span>
                           ) : (
-                            <span style={{ color: 'var(--text-muted)', fontSize: '0.825rem', padding: '0.2rem 0.5rem', backgroundColor: 'var(--bg-primary)', borderRadius: '6px', border: '1px solid var(--border-color)' }}>Free</span>
+                            <span className={styles.freeBadge}>Free</span>
                           )}
                         </td>
                       )}
                       <td className={styles.metricCell}>{post.viewsCount.toLocaleString()}</td>
-                      <td className={styles.metricCell} style={{ color: '#10b981', fontWeight: 900 }}>
+                      <td className={styles.metricCell} style={{ color: '#10b981', fontWeight: 600 }}>
                         {post.copiesCount ? post.copiesCount.toLocaleString() : '0'}
                       </td>
                       <td className={styles.metricCell}>{post.savesCount.toLocaleString()}</td>
                       <td className={styles.metricCell}>{post.likesCount.toLocaleString()}</td>
-                      <td style={{ color: 'var(--text-secondary)' }}>{post.createdAt}</td>
+                      <td className={styles.publishedDate}>{post.createdAt}</td>
                       <td>
                         <div className={styles.actionsCell}>
                           <Link 
