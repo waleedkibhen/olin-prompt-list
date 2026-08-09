@@ -171,8 +171,8 @@ export default function CreatorDashboardPage() {
           <section className={styles.kpiGrid}>
             <div className={styles.kpiCard}>
               <div className={styles.kpiTop}>
+                <Eye size={18} className={styles.kpiIcon} />
                 <span>Total Impressions</span>
-                <Eye size={16} className={styles.kpiIcon} />
               </div>
               <div className={styles.kpiValue}>{stats.views.toLocaleString()}</div>
               <div className={styles.kpiDesc}>Across {filteredPosts.length} published pieces</div>
@@ -180,8 +180,8 @@ export default function CreatorDashboardPage() {
 
             <div className={styles.kpiCard}>
               <div className={styles.kpiTop}>
+                <Copy size={18} className={styles.kpiIcon} />
                 <span>Prompt Copies</span>
-                <Copy size={16} className={styles.kpiIcon} />
               </div>
               <div className={styles.kpiValue}>{stats.copies.toLocaleString()}</div>
               <div className={styles.kpiDesc}>Times users copied your parameters</div>
@@ -189,8 +189,8 @@ export default function CreatorDashboardPage() {
 
             <div className={styles.kpiCard}>
               <div className={styles.kpiTop}>
+                <Bookmark size={18} className={styles.kpiIcon} />
                 <span>Saved Bookmarks</span>
-                <Bookmark size={16} className={styles.kpiIcon} />
               </div>
               <div className={styles.kpiValue}>{stats.saves.toLocaleString()}</div>
               <div className={styles.kpiDesc}>Added to private reference libraries</div>
@@ -198,8 +198,8 @@ export default function CreatorDashboardPage() {
 
             <div className={styles.kpiCard}>
               <div className={styles.kpiTop}>
+                <Heart size={18} className={styles.kpiIcon} />
                 <span>Community Likes</span>
-                <Heart size={16} className={styles.kpiIcon} />
               </div>
               <div className={styles.kpiValue}>{stats.likes.toLocaleString()}</div>
               <div className={styles.kpiDesc}>Positive visual engagement score</div>
@@ -264,7 +264,7 @@ export default function CreatorDashboardPage() {
                         </td>
                       )}
                       <td className={styles.metricCell}>{post.viewsCount.toLocaleString()}</td>
-                      <td className={styles.metricCell} style={{ color: '#10b981', fontWeight: 600 }}>
+                      <td className={styles.metricCell}>
                         {post.copiesCount ? post.copiesCount.toLocaleString() : '0'}
                       </td>
                       <td className={styles.metricCell}>{post.savesCount.toLocaleString()}</td>
