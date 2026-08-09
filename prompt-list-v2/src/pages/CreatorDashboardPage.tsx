@@ -14,6 +14,7 @@ export default function CreatorDashboardPage() {
   const [creatorPosts, setCreatorPosts] = useState<(PromptPost & { createdAtMs: number })[]>([]);
   const [loadingDb, setLoadingDb] = useState(true);
   const [timeFilter, setTimeFilter] = useState('30d'); // '1d', '7d', '30d', '1y', 'all'
+  const [postToDelete, setPostToDelete] = useState<{ id: string, title: string } | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -109,12 +110,15 @@ export default function CreatorDashboardPage() {
     }), { views: 0, likes: 0, saves: 0, copies: 0 });
   }, [filteredPosts]);
 
-  const handleDeletePost = async (postId: string, title: string) => {
-    const confirmDelete = window.confirm(`Are you sure you want to permanently delete "${title}" from the marketplace?`);
-    if (!confirmDelete) return;
+  const handleDeletePost = (postId: string, title: string) => {
+    setPostToDelete({ id: postId, title });
+  };
 
+  const confirmDelete = async () => {
+    if (!postToDelete) return;
     try {
-      await deleteDoc(doc(db, 'posts', postId));
+      await deleteDoc(doc(db, 'posts', postToDelete.id));
+      setPostToDelete(null);
     } catch (err: any) {
       alert(`Failed to delete artwork: ${err.message}`);
     }
@@ -291,6 +295,21 @@ export default function CreatorDashboardPage() {
             </div>
           )}
         </>
+      )}
+
+      {postToDelete && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h3 className={styles.modalTitle}>Delete Artwork</h3>
+            <p className={styles.modalText}>
+              Are you sure you want to permanently delete "{postToDelete.title}"? This action cannot be undone.
+            </p>
+            <div className={styles.modalActions}>
+              <button className={styles.modalCancelBtn} onClick={() => setPostToDelete(null)}>Cancel</button>
+              <button className={styles.modalDeleteBtn} onClick={confirmDelete}>Delete</button>
+            </div>
+          </div>
+        </div>
       )}
     </main>
   );

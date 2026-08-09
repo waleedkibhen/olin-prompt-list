@@ -3,7 +3,7 @@
   background-color: var(--bg-primary);
   color: var(--text-primary);
   padding: 4rem 1.5rem 6rem;
-  max-width: 1440px;
+  max-width: 950px;
   margin: 0 auto;
   font-family: 'Spline Sans', sans-serif;
 }
@@ -88,14 +88,16 @@
 }
 
 .kpiCard {
-  background-color: transparent;
-  border: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+  border: none;
+  border-radius: 4px;
   padding: 1.5rem 2.5rem 1.5rem 1.5rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   min-height: 140px;
-  min-width: 240px;
+  min-width: 220px;
+  flex: 1;
 }
 
 .kpiTop {
@@ -332,4 +334,77 @@
 
 .emptyIcon {
   color: var(--text-muted);
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modalContent {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  padding: 2rem;
+  width: 400px;
+  max-width: 90%;
+  border-radius: 6px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.modalTitle {
+  font-size: 20px;
+  font-weight: 500;
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+}
+
+.modalText {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0 0 1.5rem 0;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.modalCancelBtn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 0.5rem 1.25rem;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.modalDeleteBtn {
+  background: #e11d48;
+  border: none;
+  color: #fff;
+  padding: 0.5rem 1.25rem;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.modalDeleteBtn:hover {
+  background: #be123c;
+}
+
+.modalCancelBtn:hover {
+  background: var(--bg-hover);
 }
