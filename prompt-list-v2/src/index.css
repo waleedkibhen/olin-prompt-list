@@ -163,7 +163,7 @@ button:focus-visible {
   font-weight: 600;
   font-size: 0.875rem;
   padding: 0.6rem 1.25rem;
-  border: 1px solid var(--border-color);
+  border: 2px solid var(--border-color);
   border-radius: 0px;
   display: inline-flex;
   align-items: center;

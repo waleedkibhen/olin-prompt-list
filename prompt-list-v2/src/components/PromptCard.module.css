@@ -220,7 +220,7 @@
   right: 1.5rem;
   z-index: 100;
   background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
+  border: 2px solid var(--border-color);
   border-radius: 6px;
   color: var(--text-secondary);
   cursor: pointer;
@@ -235,7 +235,7 @@
 .modalCloseBtn:hover {
   background: transparent;
   color: var(--text-primary);
-  border: 1px solid var(--text-primary);
+  border: 2px solid var(--text-primary);
 }
 
 @keyframes modalScale {
@@ -462,8 +462,9 @@
 }
 
 .creatorNameModal {
+  font-family: 'Inter', -apple-system, sans-serif;
   font-size: 1.1rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--text-primary);
 }
 
@@ -480,9 +481,9 @@
 }
 
 .modalTitle {
-  font-family: var(--font-geist);
+  font-family: 'Inter', -apple-system, sans-serif;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.05em;
   color: var(--text-muted);
   text-transform: uppercase;
