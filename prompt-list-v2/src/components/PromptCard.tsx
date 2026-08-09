@@ -416,15 +416,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                 </button>
               </div>
 
-                {post.description && (
-                  <div className={styles.descriptionSection}>
-                    <h4 className={styles.descriptionHeader}>Description</h4>
-                    <p className={styles.leftArtworkDesc}>{post.description}</p>
-                  </div>
-                )}
-
               <div ref={commentsRef} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: '1rem 2.5rem 2rem 2.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <h5 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>Discussion</h5>
                 
                 {commentError && (
                   <div style={{ padding: '0.5rem 0.75rem', backgroundColor: 'rgba(244,63,94,0.1)', color: '#f43f5e', borderRadius: '6px', fontSize: '0.8rem' }}>
@@ -585,11 +577,22 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                   )}
                   {post.createdAt && (
                     <span className={styles.genDetailPill}>
-                      {new Date(post.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                      {new Date(post.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) }
                     </span>
                   )}
                 </div>
               </div>
+
+              {post.description && (
+                <div style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
+                  <div className={styles.modalTitleArea}>
+                    <h2 className={styles.modalTitle}>Description</h2>
+                  </div>
+                  <div className={styles.promptTextContainer} style={{ color: 'var(--text-primary)' }}>
+                    <p className={styles.promptCode} style={{ whiteSpace: 'pre-wrap' }}>{post.description}</p>
+                  </div>
+                </div>
+              )}
 
             </div>
           </div>
