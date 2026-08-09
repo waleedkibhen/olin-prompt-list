@@ -165,7 +165,8 @@
 
 .tableContainer {
   background-color: transparent;
-  border: none;
+  border: 1px solid var(--border-color);
+  border-radius: 2px;
   overflow-x: auto;
   width: 100%;
 }
@@ -183,8 +184,7 @@
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  background-color: rgba(255, 255, 255, 0.04);
-  border: none;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .textRight {
@@ -196,8 +196,7 @@
   vertical-align: middle;
   font-size: 16px;
   font-weight: 400;
-  background-color: rgba(255, 255, 255, 0.015);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .table tr:last-child td {
