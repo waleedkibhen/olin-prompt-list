@@ -323,7 +323,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
         <div className={styles.modalBackdrop} onClick={() => setIsModalOpen(false)}>
           <div className={styles.modalCard} onClick={e => e.stopPropagation()}>
             <button className={styles.modalCloseBtn} onClick={() => setIsModalOpen(false)} aria-label="Close">
-              <X size={24} strokeWidth={1.5} />
+              <X size={18} strokeWidth={1.5} />
             </button>
             
             <div className={styles.modalLeftColumn}>
@@ -388,20 +388,20 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
 
             <div className={styles.modalRightColumn}>
               <div className={styles.modalHeader}>
-                <div className={styles.creatorProfileModal}>
-                  <img src={post.creator.avatarUrl} alt={post.creator.displayName} className={styles.avatarModal} style={{ borderRadius: '50%' }} />
-                  <div className={styles.creatorInfoWrapper}>
-                    <span className={styles.curatedByLabel}>Curated by</span>
-                    <h4 className={styles.creatorNameModal}>{post.creator.displayName}</h4>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                  <div className={styles.creatorProfileModal}>
+                    <img src={post.creator.avatarUrl} alt={post.creator.displayName} className={styles.avatarModal} style={{ borderRadius: '50%' }} />
+                    <div className={styles.creatorInfoWrapper}>
+                      <span className={styles.curatedByLabel}>Curated by</span>
+                      <h4 className={styles.creatorNameModal}>{post.creator.displayName}</h4>
+                    </div>
                   </div>
-                </div>
-                
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  
                   {user?.uid !== post.creator.uid && (
                     <button 
                       className={isFollowing ? "btn-solid" : "btn-outline"} 
                       onClick={toggleFollow}
-                      style={{ padding: '0.4rem 0.85rem', fontSize: '0.78rem', borderRadius: '0px' }}
+                      style={{ padding: '0.35rem 0.85rem', fontSize: '0.75rem', borderRadius: '0px' }}
                     >
                       {isFollowing ? 'Following' : '+ Follow'}
                     </button>
