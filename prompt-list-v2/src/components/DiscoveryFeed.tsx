@@ -4,6 +4,7 @@ import { PromptPost } from '@/lib/mockData';
 import { recordSearchTerm } from '@/lib/personalization';
 import PromptCard from './PromptCard';
 import { useAuth } from '@/context/AuthContext';
+import { useRecentSearches } from '@/hooks/useRecentSearches';
 import { 
   Compass, Flame, Clock, Layers, Loader2, Search, AlertTriangle, X, 
   SlidersHorizontal, Palette, Sparkles, Image as ImageIcon, Calendar, RotateCcw, Check 
@@ -75,6 +76,7 @@ export default function DiscoveryFeed() {
   const vaultFilter = searchParams.get('vault') || 'All Artwork';
   
   const { user, profile, signInWithGoogle } = useAuth();
+  const { addRecentSearch } = useRecentSearches();
   
   const [dbPosts, setDbPosts] = useState<PromptPost[]>([]);
   const [displayedPosts, setDisplayedPosts] = useState<PromptPost[]>([]);
@@ -606,6 +608,14 @@ export default function DiscoveryFeed() {
       return prev;
     });
   };
+
+  // Record successful recent searches
+  useEffect(() => {
+    const term = searchParams.get('search')?.trim();
+    if (term && displayedPosts.length > 0 && !isSearching) {
+      addRecentSearch(term, displayedPosts[0].imageUrls[0]);
+    }
+  }, [searchParams, displayedPosts, isSearching, addRecentSearch]);
 
   return (
     <div className={styles.feedWrapper}>

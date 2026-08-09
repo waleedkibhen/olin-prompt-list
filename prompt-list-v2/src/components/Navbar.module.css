@@ -98,7 +98,7 @@
   background-color: var(--bg-secondary);
   border-radius: 1px;
   padding: 0 1rem;
-  height: 36px;
+  height: 40px;
   width: 100%;
 }
 
@@ -159,6 +159,25 @@
   height: 32px;
   object-fit: cover;
   border-radius: 1px;
+}
+
+.removeSearchBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  margin-left: auto;
+  border-radius: 50%;
+  transition: background-color 200ms, color 200ms;
+}
+
+.removeSearchBtn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
 }
 
 .recentSearchPill:hover {

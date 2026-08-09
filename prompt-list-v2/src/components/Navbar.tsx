@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './Navbar.module.css';
-import { Search, Filter, Plus, User, Bell, ChevronDown, ChevronRight, Check, Sparkles, Moon, Sun } from 'lucide-react';
+import { Search, Filter, Plus, User, Bell, ChevronDown, ChevronRight, Check, Sparkles, Moon, Sun, X } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useRecentSearches } from '@/hooks/useRecentSearches';
 import NotificationBell from './NotificationBell';
 import FeedbackModal from './FeedbackModal';
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
@@ -12,6 +13,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { recentSearches, removeRecentSearch } = useRecentSearches();
   
   const activeTab = searchParams.get('tab') || 'for_you';
   
@@ -109,12 +111,7 @@ export default function Navbar() {
     });
   };
 
-  const RECENT_SEARCHES = [
-    { term: 'red', image: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=100&auto=format&fit=crop&q=80' },
-    { term: 'glass morphism prompt icon', image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&auto=format&fit=crop&q=80' },
-    { term: 'shaded icons', image: 'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?w=100&auto=format&fit=crop&q=80' },
-    { term: 'the odyssey', image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=100&auto=format&fit=crop&q=80' }
-  ];
+
 
   return (
     <>
@@ -149,11 +146,11 @@ export default function Navbar() {
             )}
           </form>
           
-          {isSearchExpanded && (
+          {isSearchExpanded && recentSearches.length > 0 && (
             <div className={styles.recentSearchesDropdown}>
               <h5 style={{ margin: '0 0 1rem 0', color: 'var(--text-primary)', fontSize: '0.95rem', fontWeight: 500 }}>Recent searches</h5>
               <div className={styles.recentSearchesGrid}>
-                {RECENT_SEARCHES.map(item => (
+                {recentSearches.map(item => (
                   <button 
                     key={item.term} 
                     className={styles.recentSearchPill}
@@ -163,8 +160,21 @@ export default function Navbar() {
                       setIsSearchExpanded(false);
                     }}
                   >
-                    <img src={item.image} alt={item.term} className={styles.recentSearchImage} />
+                    {item.image ? (
+                      <img src={item.image} alt={item.term} className={styles.recentSearchImage} />
+                    ) : (
+                      <div className={styles.recentSearchImage} style={{ backgroundColor: 'transparent' }} />
+                    )}
                     <span>{item.term}</span>
+                    <div 
+                      className={styles.removeSearchBtn}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeRecentSearch(item.term);
+                      }}
+                    >
+                      <X size={14} />
+                    </div>
                   </button>
                 ))}
               </div>
