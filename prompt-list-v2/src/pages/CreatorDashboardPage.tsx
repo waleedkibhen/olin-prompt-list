@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import styles from './dashboard.module.css';
 import { useAuth } from '@/context/AuthContext';
-import { collection, onSnapshot, query, where, doc, deleteDoc } from 'firebase/firestore';
+import { collection, onSnapshot, query, where, doc, deleteDoc, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { PromptPost } from '@/lib/mockData';
-import { BarChart2, Eye, Heart, Bookmark, Copy, Trash2, ExternalLink, PlusCircle, Loader2, AlertTriangle, Sparkles, CheckCircle, Award } from 'lucide-react';
+import { BarChart2, Eye, Heart, Bookmark, Copy, Trash2, ExternalLink, PlusCircle, Loader2, AlertTriangle, Sparkles, CheckCircle, Award, Users } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ENABLE_MONETIZATION } from '@/lib/config';
 
@@ -15,6 +15,7 @@ export default function CreatorDashboardPage() {
   const [loadingDb, setLoadingDb] = useState(true);
   const [timeFilter, setTimeFilter] = useState('30d'); // '1d', '7d', '30d', '1y', 'all'
   const [postToDelete, setPostToDelete] = useState<{ id: string, title: string } | null>(null);
+  const [followerCount, setFollowerCount] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,6 +24,17 @@ export default function CreatorDashboardPage() {
       setLoadingDb(false);
       return;
     }
+
+    const fetchFollowers = async () => {
+      try {
+        const q = query(collection(db, 'follows'), where('followingId', '==', user.uid));
+        const snap = await getDocs(q);
+        setFollowerCount(snap.size);
+      } catch (err) {
+        console.error("Failed to fetch followers:", err);
+      }
+    };
+    fetchFollowers();
 
     const q = query(collection(db, "posts"), where("creatorId", "==", user.uid));
     
@@ -184,7 +196,7 @@ export default function CreatorDashboardPage() {
                 <span>Prompt Copies</span>
               </div>
               <div className={styles.kpiValue}>{stats.copies.toLocaleString()}</div>
-              <div className={styles.kpiDesc}>Times users copied your parameters</div>
+              <div className={styles.kpiDesc}>users copied your prompts</div>
             </div>
 
             <div className={styles.kpiCard}>
@@ -193,7 +205,7 @@ export default function CreatorDashboardPage() {
                 <span>Saved Bookmarks</span>
               </div>
               <div className={styles.kpiValue}>{stats.saves.toLocaleString()}</div>
-              <div className={styles.kpiDesc}>Added to private reference libraries</div>
+              <div className={styles.kpiDesc}>Added to saved posts</div>
             </div>
 
             <div className={styles.kpiCard}>
@@ -202,7 +214,16 @@ export default function CreatorDashboardPage() {
                 <span>Community Likes</span>
               </div>
               <div className={styles.kpiValue}>{stats.likes.toLocaleString()}</div>
-              <div className={styles.kpiDesc}>Positive visual engagement score</div>
+              <div className={styles.kpiDesc}>Positive engagement</div>
+            </div>
+
+            <div className={styles.kpiCard}>
+              <div className={styles.kpiTop}>
+                <Users size={18} className={styles.kpiIcon} />
+                <span>Followers</span>
+              </div>
+              <div className={styles.kpiValue}>{followerCount.toLocaleString()}</div>
+              <div className={styles.kpiDesc}>Following your updates</div>
             </div>
           </section>
 

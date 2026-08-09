@@ -17,6 +17,7 @@ export default function ProfilePage() {
   const [displayName, setDisplayName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
+  const [bio, setBio] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -33,6 +34,7 @@ export default function ProfilePage() {
       setDisplayName(profile?.displayName || user?.displayName || '');
       setUsername(profile?.username || '');
       setEmail(profile?.email || user?.email || '');
+      setBio(profile?.bio || '');
       setAvatarUrl(profile?.avatarUrl || user?.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80');
     }
     const subStatus = user ? localStorage.getItem(`olin_subscription_${user.uid}`) : null;
@@ -138,7 +140,8 @@ export default function ProfilePage() {
         displayName: displayName.trim(),
         username: cleanedUsername,
         avatarUrl: newAvatarUrl,
-        email: email.trim()
+        email: email.trim(),
+        bio: bio.trim()
       });
 
       // Sync directly with Firebase Auth currentUser
@@ -294,6 +297,18 @@ export default function ProfilePage() {
               onChange={e => setEmail(e.target.value)}
               required
               placeholder="e.g. wizard@example.com"
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="bio">Creator Bio (Optional)</label>
+            <textarea 
+              id="bio"
+              className={styles.formInput} 
+              style={{ minHeight: '100px', resize: 'vertical' }}
+              value={bio}
+              onChange={e => setBio(e.target.value)}
+              placeholder="Tell the community a bit about your style, inspirations, or creative focus..."
             />
           </div>
 

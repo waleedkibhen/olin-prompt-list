@@ -9,6 +9,7 @@ export interface CreatorProfile {
   displayName: string;
   username: string;
   avatarUrl: string;
+  bio?: string;
   followerCount: number;
   followingCount: number;
   totalViews: number;
