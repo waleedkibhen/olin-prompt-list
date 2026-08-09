@@ -19,9 +19,9 @@ export default function App() {
       <div style={{ flex: 1, paddingTop: '64px' }}>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/post/:id" element={<><HomePage /><PostDetailPage /></>} />
           <Route path="/create" element={<CreatePostPage />} />
           <Route path="/dashboard" element={<CreatorDashboardPage />} />
-          <Route path="/post/:id" element={<PostDetailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/settings" element={<ProfilePage />} />
           <Route path="/admin" element={<AdminDashboardPage />} />

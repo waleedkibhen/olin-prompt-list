@@ -80,9 +80,5 @@ export default function PostDetailPage() {
     );
   }
 
-  return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 10, backgroundColor: 'var(--bg-primary)' }}>
-      <PromptCard post={post} defaultOpen={true} onCloseOverride={() => navigate('/')} />
-    </div>
-  );
+  return <PromptCard post={post} defaultOpen={true} onCloseOverride={() => navigate('/')} />;
 }
