@@ -342,7 +342,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
         <div className={styles.modalBackdrop} onClick={() => setIsModalOpen(false)}>
           <div className={styles.modalCard} onClick={e => e.stopPropagation()}>
             <button className={styles.modalCloseBtn} onClick={() => setIsModalOpen(false)} aria-label="Close">
-              <X size={18} strokeWidth={1.5} />
+              <X size={18} strokeWidth={2.5} />
             </button>
             
             <div className={styles.modalLeftColumn}>
@@ -417,7 +417,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                 </button>
               </div>
 
-              <div ref={commentsRef} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: '1rem 2.5rem 2rem 2.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <div ref={commentsRef} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: '0.25rem 2.5rem 2rem 2.5rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
                 
                 {commentError && (
                   <div style={{ padding: '0.5rem 0.75rem', backgroundColor: 'rgba(244,63,94,0.1)', color: '#f43f5e', borderRadius: '6px', fontSize: '0.8rem' }}>
@@ -476,7 +476,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                     <button 
                       className={isFollowing ? "btn-solid" : "btn-outline"} 
                       onClick={toggleFollow}
-                      style={{ padding: '0.35rem 0.85rem', fontSize: '0.75rem', borderRadius: '6px', alignSelf: 'flex-end', marginBottom: '0.1rem' }}
+                      style={{ padding: '0.35rem 0.85rem', fontSize: '0.75rem', borderRadius: '6px', alignSelf: 'flex-end', marginBottom: '0.1rem', border: 'none' }}
                     >
                       {isFollowing ? 'Following' : '+ Follow'}
                     </button>
@@ -611,7 +611,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                   </div>
                 ) : (
                   <div className={styles.promptTextContainer} style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
-                    <p className={`${styles.promptCode} ${styles.mutedDescription}`} style={{ whiteSpace: 'pre-wrap' }}>{post.description}</p>
+                    <p className={styles.promptCode} style={{ whiteSpace: 'pre-wrap' }}>{post.description}</p>
                   </div>
                 )}
               </div>
