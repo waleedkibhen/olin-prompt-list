@@ -172,6 +172,7 @@ export default function CreatorDashboardPage() {
             <div className={styles.kpiCard}>
               <div className={styles.kpiTop}>
                 <span>Total Impressions</span>
+                <Eye size={16} className={styles.kpiIcon} />
               </div>
               <div className={styles.kpiValue}>{stats.views.toLocaleString()}</div>
               <div className={styles.kpiDesc}>Across {filteredPosts.length} published pieces</div>
@@ -180,6 +181,7 @@ export default function CreatorDashboardPage() {
             <div className={styles.kpiCard}>
               <div className={styles.kpiTop}>
                 <span>Prompt Copies</span>
+                <Copy size={16} className={styles.kpiIcon} />
               </div>
               <div className={styles.kpiValue}>{stats.copies.toLocaleString()}</div>
               <div className={styles.kpiDesc}>Times users copied your parameters</div>
@@ -188,6 +190,7 @@ export default function CreatorDashboardPage() {
             <div className={styles.kpiCard}>
               <div className={styles.kpiTop}>
                 <span>Saved Bookmarks</span>
+                <Bookmark size={16} className={styles.kpiIcon} />
               </div>
               <div className={styles.kpiValue}>{stats.saves.toLocaleString()}</div>
               <div className={styles.kpiDesc}>Added to private reference libraries</div>
@@ -196,6 +199,7 @@ export default function CreatorDashboardPage() {
             <div className={styles.kpiCard}>
               <div className={styles.kpiTop}>
                 <span>Community Likes</span>
+                <Heart size={16} className={styles.kpiIcon} />
               </div>
               <div className={styles.kpiValue}>{stats.likes.toLocaleString()}</div>
               <div className={styles.kpiDesc}>Positive visual engagement score</div>
