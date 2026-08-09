@@ -330,28 +330,6 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
               <div className={styles.leftColumnContent}>
                 <h2 className={styles.leftArtworkTitle}>{post.title}</h2>
 
-                <div className={styles.modalHeader} style={{ marginBottom: '1.5rem', marginTop: '1rem', paddingLeft: '2.5rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-                    <div className={styles.creatorProfileModal}>
-                      <img src={post.creator.avatarUrl} alt={post.creator.displayName} className={styles.avatarModal} style={{ borderRadius: '50%' }} />
-                      <div className={styles.creatorInfoWrapper}>
-                        <span className={styles.curatedByLabel}>Curated by</span>
-                        <h4 className={styles.creatorNameModal}>{post.creator.displayName}</h4>
-                      </div>
-                    </div>
-                    
-                    {user?.uid !== post.creator.uid && (
-                      <button 
-                        className={isFollowing ? "btn-solid" : "btn-outline"} 
-                        onClick={toggleFollow}
-                        style={{ padding: '0.35rem 0.85rem', fontSize: '0.75rem', borderRadius: '6px', alignSelf: 'flex-end', marginBottom: '0.1rem' }}
-                      >
-                        {isFollowing ? 'Following' : '+ Follow'}
-                      </button>
-                    )}
-                  </div>
-                </div>
-                
                 <div className={styles.modalImageContainer}>
                   <div 
                     className={styles.modalImageBlurBg} 
@@ -405,12 +383,77 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                     <p className={styles.leftArtworkDesc}>{post.description}</p>
                   </div>
                 )}
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: '1rem 2.5rem 2rem 2.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                <h5 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>Discussion</h5>
+                
+                {commentError && (
+                  <div style={{ padding: '0.5rem 0.75rem', backgroundColor: 'rgba(244,63,94,0.1)', color: '#f43f5e', borderRadius: '6px', fontSize: '0.8rem' }}>
+                    {commentError}
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmitComment} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <input 
+                    type="text" 
+                    placeholder={user ? "Write a comment..." : "Sign in to comment..."} 
+                    value={newComment}
+                    onChange={e => setNewComment(e.target.value)}
+                    disabled={isSubmittingComment}
+                    style={{ flex: 1, padding: '0.5rem 0.85rem', borderRadius: '0px', border: '1px solid rgba(255, 255, 255, 0.15)', backgroundColor: 'transparent', color: 'var(--text-primary)', fontSize: '0.85rem', outline: 'none', fontWeight: 500 }}
+                  />
+                  <button type="submit" className="btn-outline" disabled={isSubmittingComment || !newComment.trim()} style={{ padding: '0.5rem 1rem', borderRadius: '0px', borderColor: 'rgba(255, 255, 255, 0.15)', color: 'var(--text-secondary)' }}>
+                    {isSubmittingComment ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Send size={14} />}
+                  </button>
+                </form>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                  {comments.length === 0 ? (
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500 }}>No comments yet.</span>
+                  ) : (
+                    comments.map(c => (
+                      <div key={c.id} style={{ display: 'flex', gap: '0.6rem', padding: '0.5rem', backgroundColor: 'transparent', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                        <img src={c.authorAvatar} alt={c.authorName} style={{ width: '26px', height: '26px', borderRadius: '50%', objectFit: 'cover' }} />
+                        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <strong style={{ fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 500 }}>{c.authorName}</strong>
+                            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{c.createdAt}</span>
+                          </div>
+                          <span style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', marginTop: '0.1rem', fontWeight: 400 }}>{c.text}</span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
               </div>
             </div>
 
             <div className={styles.modalRightColumn}>
+              <div className={styles.modalHeader}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                  <div className={styles.creatorProfileModal}>
+                    <img src={post.creator.avatarUrl} alt={post.creator.displayName} className={styles.avatarModal} style={{ borderRadius: '50%' }} />
+                    <div className={styles.creatorInfoWrapper}>
+                      <span className={styles.curatedByLabel}>Curated by</span>
+                      <h4 className={styles.creatorNameModal}>{post.creator.displayName}</h4>
+                    </div>
+                  </div>
+                  
+                  {user?.uid !== post.creator.uid && (
+                    <button 
+                      className={isFollowing ? "btn-solid" : "btn-outline"} 
+                      onClick={toggleFollow}
+                      style={{ padding: '0.35rem 0.85rem', fontSize: '0.75rem', borderRadius: '16px', alignSelf: 'flex-end', marginBottom: '0.1rem' }}
+                    >
+                      {isFollowing ? 'Following' : '+ Follow'}
+                    </button>
+                  )}
+                </div>
+              </div>
+
               <div className={styles.modalTitleArea}>
-                <h2 className={styles.modalTitle}>Prompt</h2>
+                <h2 className={styles.modalTitle}>The Prompt</h2>
               </div>
 
               <div className={styles.promptVaultBox}>
@@ -530,49 +573,6 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                   <Flag size={17} />
                   <span>Report</span>
                 </button>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: 'auto', paddingTop: '1.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <h5 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>Discussion</h5>
-                
-                {commentError && (
-                  <div style={{ padding: '0.5rem 0.75rem', backgroundColor: 'rgba(244,63,94,0.1)', color: '#f43f5e', borderRadius: '6px', fontSize: '0.8rem' }}>
-                    {commentError}
-                  </div>
-                )}
-
-                <form onSubmit={handleSubmitComment} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                  <input 
-                    type="text" 
-                    placeholder={user ? "Write a comment..." : "Sign in to comment..."} 
-                    value={newComment}
-                    onChange={e => setNewComment(e.target.value)}
-                    disabled={isSubmittingComment}
-                    style={{ flex: 1, padding: '0.5rem 0.85rem', borderRadius: '0px', border: '1px solid rgba(255, 255, 255, 0.15)', backgroundColor: 'transparent', color: 'var(--text-primary)', fontSize: '0.85rem', outline: 'none', fontWeight: 500 }}
-                  />
-                  <button type="submit" className="btn-outline" disabled={isSubmittingComment || !newComment.trim()} style={{ padding: '0.5rem 1rem', borderRadius: '0px', borderColor: 'rgba(255, 255, 255, 0.15)', color: 'var(--text-secondary)' }}>
-                    {isSubmittingComment ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Send size={14} />}
-                  </button>
-                </form>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                  {comments.length === 0 ? (
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500 }}>No comments yet.</span>
-                  ) : (
-                    comments.map(c => (
-                      <div key={c.id} style={{ display: 'flex', gap: '0.6rem', padding: '0.5rem', backgroundColor: 'transparent', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                        <img src={c.authorAvatar} alt={c.authorName} style={{ width: '26px', height: '26px', borderRadius: '50%', objectFit: 'cover' }} />
-                        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <strong style={{ fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 500 }}>{c.authorName}</strong>
-                            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{c.createdAt}</span>
-                          </div>
-                          <span style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', marginTop: '0.1rem', fontWeight: 400 }}>{c.text}</span>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
               </div>
 
             </div>

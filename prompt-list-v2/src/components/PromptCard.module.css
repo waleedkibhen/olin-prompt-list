@@ -247,7 +247,7 @@
   display: flex;
   flex-direction: column;
   background-color: var(--bg-primary);
-  overflow: hidden;
+  overflow-y: auto;
   position: relative;
 }
 
@@ -255,7 +255,8 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 100%;
+  height: max-content;
+  padding-right: 2rem;
 }
 
 .leftArtworkTitle {
@@ -298,14 +299,17 @@
 
 .modalImageContainer {
   position: relative;
-  width: 100%;
-  flex: 1;
-  min-height: 0;
+  width: 95%;
+  height: 70vh;
+  max-height: 800px;
+  min-height: 400px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   background-color: transparent;
+  border-radius: 16px;
 }
 
 .modalImageBlurBg {
@@ -323,6 +327,7 @@
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
+  border-radius: 16px;
   display: block;
 }
 
@@ -388,7 +393,7 @@
 }
 
 .modalRightColumn {
-  width: 640px;
+  width: 440px;
   flex-shrink: 0;
   padding: 3rem 2.5rem;
   display: flex;
@@ -420,13 +425,14 @@
 }
 
 .genDetailPill {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  padding: 0.4rem 0.75rem;
+  font-family: var(--font-geist);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.4rem 1rem;
   border: 1px solid var(--border-color);
-  border-radius: 0px;
-  color: var(--text-secondary);
-  background-color: var(--bg-secondary);
+  border-radius: 16px;
+  color: var(--text-primary);
+  background-color: transparent;
 }
 
 .creatorProfileModal {
@@ -559,11 +565,12 @@
 }
 
 .promptCode {
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
+  font-family: var(--font-geist);
+  font-size: 1.125rem;
+  font-weight: 400;
   line-height: 1.6;
   color: var(--text-primary);
-  word-break: break-all;
+  word-break: break-word;
   padding: 0 !important;
 }
 
@@ -605,9 +612,10 @@
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-secondary);
-  padding: 0.4rem 0.75rem;
-  border-radius: 0px;
+  padding: 0.5rem 1rem;
+  border-radius: 16px;
   background: transparent;
+  border: 1px solid var(--border-color);
   transition: all var(--transition-fast);
 }
 
