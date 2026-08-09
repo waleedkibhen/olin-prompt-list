@@ -59,6 +59,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
   const [isLinkCopied, setIsLinkCopied] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [showComments, setShowComments] = useState(false);
+  const [activeTab, setActiveTab] = useState<'prompt' | 'description'>('prompt');
   
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [previewPaywall, setPreviewPaywall] = useState(false);
@@ -483,88 +484,135 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                 </div>
               </div>
 
-              <div className={styles.modalTitleArea}>
-                <h2 className={styles.modalTitle}>The Prompt</h2>
+              <div style={{ display: 'flex', gap: '1.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', marginBottom: '1rem', marginTop: '0.5rem' }}>
+                <button
+                  onClick={() => setActiveTab('prompt')}
+                  style={{
+                    fontFamily: "'Inter', -apple-system, sans-serif",
+                    fontSize: '0.9rem',
+                    fontWeight: 500,
+                    color: activeTab === 'prompt' ? 'var(--text-primary)' : 'var(--text-muted)',
+                    borderBottom: activeTab === 'prompt' ? '2px solid var(--text-primary)' : '2px solid transparent',
+                    paddingBottom: '0.5rem',
+                    transition: 'all 0.2s ease',
+                    cursor: 'pointer',
+                    background: 'none',
+                    borderTop: 'none',
+                    borderLeft: 'none',
+                    borderRight: 'none',
+                  }}
+                >
+                  Prompt
+                </button>
+                {post.description && (
+                  <button
+                    onClick={() => setActiveTab('description')}
+                    style={{
+                      fontFamily: "'Inter', -apple-system, sans-serif",
+                      fontSize: '0.9rem',
+                      fontWeight: 500,
+                      color: activeTab === 'description' ? 'var(--text-primary)' : 'var(--text-muted)',
+                      borderBottom: activeTab === 'description' ? '2px solid var(--text-primary)' : '2px solid transparent',
+                      paddingBottom: '0.5rem',
+                      transition: 'all 0.2s ease',
+                      cursor: 'pointer',
+                      background: 'none',
+                      borderTop: 'none',
+                      borderLeft: 'none',
+                      borderRight: 'none',
+                    }}
+                  >
+                    Description
+                  </button>
+                )}
               </div>
 
-              <div className={styles.promptVaultBox}>
-                {isCreator && effectiveMonetization !== 'free' && (
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.35)', borderRadius: 'var(--radius-md)', padding: '0.6rem 0.85rem', fontSize: '0.8rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#10b981', fontWeight: 700 }}>
-                      <span>Creator Access Enabled</span>
-                      <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>— Users see the {effectiveMonetization === 'subscribers_only' ? 'Subscriber' : 'Ad Watch'} paywall</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); setPreviewPaywall(!previewPaywall); }}
-                      style={{ background: 'transparent', border: '1px solid rgba(16, 185, 129, 0.5)', color: '#10b981', borderRadius: '0px', padding: '0.3rem 0.7rem', fontSize: '0.78rem', cursor: 'pointer', fontWeight: 700 }}
-                    >
-                      {previewPaywall ? 'Show Real Prompt' : 'Preview Public Paywall'}
-                    </button>
-                  </div>
-                )}
-
-
-                {isWatchingAd ? (
-                  <div style={{ padding: '2.5rem 1.5rem', textAlign: 'center', backgroundColor: 'var(--bg-primary)', border: '2px dashed #10b981', borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', color: 'var(--text-primary)' }}>
-                    <Loader2 size={38} style={{ animation: 'spin 1s linear infinite', color: '#10b981' }} />
-                    <strong style={{ fontSize: '1.1rem', color: '#10b981' }}>Playing Community Sponsor Message...</strong>
-                    <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', maxWidth: '340px' }}>
-                      Thank you for supporting generative creators on Olin Prompt List! Prompt parameters unlocking in moments...
-                    </span>
-                  </div>
-                ) : isProtected ? (
-                  <div className={styles.blurredVaultContainer}>
-                    <div className={styles.dummyBlurBackground} aria-hidden="true">
-                      <code>
-                        /imagine prompt: [PROTECTED OLIN VAULT] cinematic photographic masterpiece, hyperdetailed textures, 8k resolution, volumetric ambiance, studio lighting, dynamic contrast, masterwork seeds [UNLOCK TO REVEAL FULL GENERATIVE PARAMETERS &amp; STYLING WEIGHTS] --v 6.0 --ar 16:9 --style raw --s 750
-                      </code>
-                    </div>
-                    <div className={styles.vaultOverlayContent}>
-                      <div className={styles.lockBadgePill} style={effectiveMonetization === 'ad_supported' ? { backgroundColor: 'rgba(16, 185, 129, 0.2)', borderColor: '#10b981', color: '#10b981' } : {}}>
-                        {effectiveMonetization === 'subscribers_only' ? 'Subscriber Only Vault' : 'Free Ad-Supported Vault'}
+              <div style={{ minHeight: '120px' }}>
+                {activeTab === 'prompt' ? (
+                  <div className={styles.promptVaultBox}>
+                    {isCreator && effectiveMonetization !== 'free' && (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.35)', borderRadius: 'var(--radius-md)', padding: '0.6rem 0.85rem', fontSize: '0.8rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#10b981', fontWeight: 700 }}>
+                          <span>Creator Access Enabled</span>
+                          <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>— Users see the {effectiveMonetization === 'subscribers_only' ? 'Subscriber' : 'Ad Watch'} paywall</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); setPreviewPaywall(!previewPaywall); }}
+                          style={{ background: 'transparent', border: '1px solid rgba(16, 185, 129, 0.5)', color: '#10b981', borderRadius: '0px', padding: '0.3rem 0.7rem', fontSize: '0.78rem', cursor: 'pointer', fontWeight: 700 }}
+                        >
+                          {previewPaywall ? 'Show Real Prompt' : 'Preview Public Paywall'}
+                        </button>
                       </div>
-                      <h5 className={styles.lockTitle}>Protected AI Creation by @{post.creator.username}</h5>
-                      <p className={styles.lockDesc}>
-                        Full generative parameters, styling seeds, and camera weights are securely blurred and protected from inspection until unlocked.
-                      </p>
-                      {effectiveMonetization === 'subscribers_only' ? (
-                        <button
-                          className={styles.whopUnlockBtn}
-                          onClick={handleSubscribeToUnlock}
-                          style={{ background: 'transparent', border: '1px solid #f59e0b', color: '#f59e0b' }}
-                        >
-                          Subscribe to Unlock
-                        </button>
-                      ) : (
-                        <button
-                          className={styles.whopUnlockBtn}
-                          onClick={handleWatchAdToUnlock}
-                          style={{ background: 'transparent', border: '1px solid #10b981', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
-                        >
-                          <PlayCircle size={18} />
-                          <span>Watch an Ad to Unlock Prompt</span>
-                        </button>
-                      )}
-                    </div>
+                    )}
+
+
+                    {isWatchingAd ? (
+                      <div style={{ padding: '2.5rem 1.5rem', textAlign: 'center', backgroundColor: 'var(--bg-primary)', border: '2px dashed #10b981', borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', color: 'var(--text-primary)' }}>
+                        <Loader2 size={38} style={{ animation: 'spin 1s linear infinite', color: '#10b981' }} />
+                        <strong style={{ fontSize: '1.1rem', color: '#10b981' }}>Playing Community Sponsor Message...</strong>
+                        <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', maxWidth: '340px' }}>
+                          Thank you for supporting generative creators on Olin Prompt List! Prompt parameters unlocking in moments...
+                        </span>
+                      </div>
+                    ) : isProtected ? (
+                      <div className={styles.blurredVaultContainer}>
+                        <div className={styles.dummyBlurBackground} aria-hidden="true">
+                          <code>
+                            /imagine prompt: [PROTECTED OLIN VAULT] cinematic photographic masterpiece, hyperdetailed textures, 8k resolution, volumetric ambiance, studio lighting, dynamic contrast, masterwork seeds [UNLOCK TO REVEAL FULL GENERATIVE PARAMETERS &amp; STYLING WEIGHTS] --v 6.0 --ar 16:9 --style raw --s 750
+                          </code>
+                        </div>
+                        <div className={styles.vaultOverlayContent}>
+                          <div className={styles.lockBadgePill} style={effectiveMonetization === 'ad_supported' ? { backgroundColor: 'rgba(16, 185, 129, 0.2)', borderColor: '#10b981', color: '#10b981' } : {}}>
+                            {effectiveMonetization === 'subscribers_only' ? 'Subscriber Only Vault' : 'Free Ad-Supported Vault'}
+                          </div>
+                          <h5 className={styles.lockTitle}>Protected AI Creation by @{post.creator.username}</h5>
+                          <p className={styles.lockDesc}>
+                            Full generative parameters, styling seeds, and camera weights are securely blurred and protected from inspection until unlocked.
+                          </p>
+                          {effectiveMonetization === 'subscribers_only' ? (
+                            <button
+                              className={styles.whopUnlockBtn}
+                              onClick={handleSubscribeToUnlock}
+                              style={{ background: 'transparent', border: '1px solid #f59e0b', color: '#f59e0b' }}
+                            >
+                              Subscribe to Unlock
+                            </button>
+                          ) : (
+                            <button
+                              className={styles.whopUnlockBtn}
+                              onClick={handleWatchAdToUnlock}
+                              style={{ background: 'transparent', border: '1px solid #10b981', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                            >
+                              <PlayCircle size={18} />
+                              <span>Watch an Ad to Unlock Prompt</span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div className={styles.promptTextContainer} style={{ color: 'var(--text-primary)' }}>
+                          <RichTextRenderer content={post.promptText} className={styles.promptCode} />
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '1rem', marginBottom: '0.5rem' }}>
+                          <button 
+                            onClick={handleCopyPrompt}
+                            style={{ background: 'var(--bg-secondary)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', padding: '0.4rem 0.75rem', borderRadius: '2px', transition: 'all 0.2s ease' }}
+                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-hover)'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'; }}
+                          >
+                            {isCopied ? <Check size={14} /> : <Copy size={14} />}
+                            <span style={{ textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>{isCopied ? 'Copied' : 'Copy'}</span>
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 ) : (
-                  <>
-                    <div className={styles.promptTextContainer} style={{ color: 'var(--text-primary)' }}>
-                      <RichTextRenderer content={post.promptText} className={styles.promptCode} />
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '1rem', marginBottom: '0.5rem' }}>
-                      <button 
-                        onClick={handleCopyPrompt}
-                        style={{ background: 'var(--bg-secondary)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', padding: '0.4rem 0.75rem', borderRadius: '2px', transition: 'all 0.2s ease' }}
-                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-hover)'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'; }}
-                      >
-                        {isCopied ? <Check size={14} /> : <Copy size={14} />}
-                        <span style={{ textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>{isCopied ? 'Copied' : 'Copy'}</span>
-                      </button>
-                    </div>
-                  </>
+                  <div className={styles.promptTextContainer} style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
+                    <p className={`${styles.promptCode} ${styles.mutedDescription}`} style={{ whiteSpace: 'pre-wrap' }}>{post.description}</p>
+                  </div>
                 )}
               </div>
 
@@ -583,16 +631,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                 </div>
               </div>
 
-              {post.description && (
-                <div style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
-                  <div className={styles.modalTitleArea}>
-                    <h2 className={styles.modalTitle}>Description</h2>
-                  </div>
-                  <div className={styles.promptTextContainer}>
-                    <p className={`${styles.promptCode} ${styles.mutedDescription}`} style={{ whiteSpace: 'pre-wrap' }}>{post.description}</p>
-                  </div>
-                </div>
-              )}
+
 
             </div>
           </div>
