@@ -216,12 +216,12 @@
 
 .modalCloseBtn {
   position: absolute;
-  top: 1.5rem;
+  top: 3.1rem;
   right: 1.5rem;
   z-index: 100;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: 0px;
+  border-radius: 6px;
   color: var(--text-secondary);
   cursor: pointer;
   width: 36px;
