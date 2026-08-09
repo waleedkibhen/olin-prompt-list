@@ -290,7 +290,7 @@
 .leftArtworkDesc {
   font-size: 0.95rem;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--text-muted);
   margin: 0;
   font-family: var(--font-geist);
   text-shadow: 0 1px 4px rgba(0,0,0,0.5);
