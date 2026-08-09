@@ -103,19 +103,12 @@
   position: relative;
 }
 
-.searchInnerWrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-}
-
 .searchInput {
   border: none;
   background: transparent;
   color: var(--text-primary);
   outline: none;
-  width: 260px;
+  width: 100%;
   font-size: 1rem;
   margin-left: 0.75rem;
 }

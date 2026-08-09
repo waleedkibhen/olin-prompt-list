@@ -129,18 +129,16 @@ export default function Navbar() {
         {/* Center: Search Bar */}
         <div className={styles.centerSection}>
           <form onSubmit={handleSearchSubmit} className={styles.searchFormExpanded}>
-            <div className={styles.searchInnerWrapper}>
-              <Search size={16} style={{ color: 'var(--text-muted)' }} />
-              <input 
-                ref={searchInputRef}
-                type="text" 
-                placeholder="Search prompts, tags, or styles..." 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => setIsSearchExpanded(true)}
-                className={styles.searchInput}
-              />
-            </div>
+            <Search size={16} style={{ color: 'var(--text-muted)' }} />
+            <input 
+              ref={searchInputRef}
+              type="text" 
+              placeholder="Search prompts, tags, or styles..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setIsSearchExpanded(true)}
+              className={styles.searchInput}
+            />
             {searchQuery && (
               <button type="button" onClick={() => setSearchQuery('')} className={styles.clearBtn}>
                 &times;
