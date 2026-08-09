@@ -109,7 +109,12 @@ export default function Navbar() {
     });
   };
 
-  const RECENT_SEARCHES = ['red', 'glass morphism prompt icon', 'shaded icons', 'the odyssey'];
+  const RECENT_SEARCHES = [
+    { term: 'red', image: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=100&auto=format&fit=crop&q=80' },
+    { term: 'glass morphism prompt icon', image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&auto=format&fit=crop&q=80' },
+    { term: 'shaded icons', image: 'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?w=100&auto=format&fit=crop&q=80' },
+    { term: 'the odyssey', image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=100&auto=format&fit=crop&q=80' }
+  ];
 
   return (
     <>
@@ -146,19 +151,20 @@ export default function Navbar() {
           
           {isSearchExpanded && (
             <div className={styles.recentSearchesDropdown}>
-              <h5 style={{ margin: '0 0 1rem 0', color: 'var(--text-primary)', fontSize: '1rem', fontWeight: 600 }}>Recent searches</h5>
+              <h5 style={{ margin: '0 0 1rem 0', color: 'var(--text-primary)', fontSize: '0.95rem', fontWeight: 500 }}>Recent searches</h5>
               <div className={styles.recentSearchesGrid}>
-                {RECENT_SEARCHES.map(term => (
+                {RECENT_SEARCHES.map(item => (
                   <button 
-                    key={term} 
+                    key={item.term} 
                     className={styles.recentSearchPill}
                     onClick={() => {
-                      setSearchQuery(term);
-                      setSearchParams(prev => { prev.set('search', term); return prev; });
+                      setSearchQuery(item.term);
+                      setSearchParams(prev => { prev.set('search', item.term); return prev; });
                       setIsSearchExpanded(false);
                     }}
                   >
-                    {term}
+                    <img src={item.image} alt={item.term} className={styles.recentSearchImage} />
+                    <span>{item.term}</span>
                   </button>
                 ))}
               </div>

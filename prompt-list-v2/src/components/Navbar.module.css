@@ -98,7 +98,7 @@
   background-color: var(--bg-secondary);
   border-radius: 1px;
   padding: 0 1rem;
-  height: 42px;
+  height: 36px;
   width: 100%;
 }
 
@@ -140,15 +140,25 @@
 }
 
 .recentSearchPill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   background-color: var(--bg-secondary);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
-  padding: 0.75rem;
-  border-radius: 0px; /* Square */
+  padding: 0.25rem 0.75rem 0.25rem 0.25rem;
+  border-radius: 1px;
   font-size: 0.9rem;
   cursor: pointer;
   text-align: left;
   transition: background-color 200ms;
+}
+
+.recentSearchImage {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 1px;
 }
 
 .recentSearchPill:hover {
