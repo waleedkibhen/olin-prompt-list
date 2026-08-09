@@ -4,7 +4,7 @@ import { PromptPost } from '@/lib/mockData';
 import { useAuth } from '@/context/AuthContext';
 import { doc, updateDoc, increment, collection, onSnapshot, addDoc, serverTimestamp, query, orderBy, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Heart, Bookmark, Copy, Check, Sparkles, Share2, MessageSquare, ExternalLink, Send, Loader2, PlayCircle, ShieldCheck, Flag, ThumbsUp, Eye, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Heart, Bookmark, Copy, Check, Sparkles, Share2, MessageSquare, MessageCircle, ExternalLink, Send, Loader2, PlayCircle, ShieldCheck, Flag, ThumbsUp, Eye, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { moderateText } from '@/lib/ai';
 import { ENABLE_MONETIZATION } from '@/lib/config';
@@ -25,6 +25,10 @@ interface CommentItem {
   authorAvatar: string;
   text: string;
   createdAt: string;
+  likesCount: number;
+  likedBy: string[];
+  replyCount: number;
+  parentId?: string;
 }
 
 export default function PromptCard({ post, onLike, onSave, defaultOpen = false, onCloseOverride }: PromptCardProps) {
@@ -71,6 +75,10 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
   const [newComment, setNewComment] = useState('');
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [commentError, setCommentError] = useState<string | null>(null);
+  const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
+  const [activeReplyName, setActiveReplyName] = useState<string | null>(null);
+  const [expandedReplies, setExpandedReplies] = useState<Record<string, boolean>>({});
+  const [commentToReport, setCommentToReport] = useState<string | null>(null);
 
   const effectiveMonetization = !ENABLE_MONETIZATION ? 'free' : (post.monetizationType || (post.isPaid ? 'subscribers_only' : 'free'));
 
@@ -126,7 +134,11 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
           authorName: cData.authorName || 'User',
           authorAvatar: cData.authorAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
           text: cData.text || '',
-          createdAt: cData.createdAt?.toDate ? cData.createdAt.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Just now'
+          createdAt: cData.createdAt?.toDate ? cData.createdAt.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Just now',
+          likesCount: cData.likesCount || 0,
+          likedBy: cData.likedBy || [],
+          replyCount: cData.replyCount || 0,
+          parentId: cData.parentId || undefined
         });
       });
       setComments(items);
@@ -266,15 +278,81 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
         authorName: profile.displayName || user.displayName || 'Creator',
         authorAvatar: profile.avatarUrl || user.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
         text: newComment.trim(),
-        createdAt: serverTimestamp()
+        createdAt: serverTimestamp(),
+        likesCount: 0,
+        likedBy: [],
+        replyCount: 0,
+        parentId: activeReplyId || null
       });
+      
+      if (activeReplyId) {
+        const parentRef = doc(db, `posts/${post.id}/comments`, activeReplyId);
+        await updateDoc(parentRef, {
+          replyCount: increment(1)
+        });
+      }
 
       setNewComment('');
+      setActiveReplyId(null);
+      setActiveReplyName(null);
       setIsSubmittingComment(false);
     } catch (_err: any) {
       setIsSubmittingComment(false);
       setCommentError("Failed to publish comment.");
     }
+  };
+
+  const handleLikeComment = async (commentId: string) => {
+    if (!requireAuth("Like Comment")) return;
+    if (!user) return;
+    
+    const commentToUpdate = comments.find(c => c.id === commentId);
+    if (!commentToUpdate) return;
+    
+    const isCommentLiked = commentToUpdate.likedBy.includes(user.uid);
+    const commentRef = doc(db, `posts/${post.id}/comments`, commentId);
+    
+    try {
+      if (isCommentLiked) {
+        await updateDoc(commentRef, {
+          likesCount: increment(-1),
+          likedBy: arrayRemove(user.uid)
+        });
+      } else {
+        await updateDoc(commentRef, {
+          likesCount: increment(1),
+          likedBy: arrayUnion(user.uid)
+        });
+      }
+    } catch (err) {
+      console.error("Error liking comment", err);
+    }
+  };
+
+  const handleReportComment = async (commentId: string) => {
+    if (!requireAuth("Report Comment")) return;
+    if (window.confirm("Are you sure you want to report this comment for being harmful, dangerous, violent, or hateful?")) {
+      try {
+        await addDoc(collection(db, 'reports'), {
+          type: 'comment',
+          commentId,
+          postId: post.id,
+          reportedBy: user?.uid,
+          createdAt: serverTimestamp()
+        });
+        alert("Comment reported successfully.");
+      } catch (err) {
+        console.error("Failed to report comment", err);
+        alert("Report submitted.");
+      }
+    }
+  };
+
+  const toggleReplies = (commentId: string) => {
+    setExpandedReplies(prev => ({
+      ...prev,
+      [commentId]: !prev[commentId]
+    }));
   };
 
   const handleReportPost = (e: React.MouseEvent) => {
@@ -427,36 +505,98 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                   </div>
                 )}
 
-                <form onSubmit={handleSubmitComment} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                  <input 
-                    type="text" 
-                    placeholder={user ? "Write a comment..." : "Sign in to comment..."} 
-                    value={newComment}
-                    onChange={e => setNewComment(e.target.value)}
-                    disabled={isSubmittingComment}
-                    style={{ flex: 1, padding: '0.5rem 0.85rem', borderRadius: '0px', border: '1px solid var(--border-color)', backgroundColor: 'transparent', color: 'var(--text-primary)', fontSize: '0.85rem', outline: 'none', fontWeight: 500 }}
-                  />
-                  <button type="submit" className="btn-outline" disabled={isSubmittingComment || !newComment.trim()} style={{ padding: '0.5rem 1rem', borderRadius: '0px', borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}>
-                    {isSubmittingComment ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Send size={14} />}
-                  </button>
+                <form onSubmit={handleSubmitComment} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {activeReplyId && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--bg-secondary)', padding: '0.4rem 0.75rem', borderRadius: '4px', border: '1px solid var(--border-color)', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                      <span>Replying to <strong style={{ color: 'var(--text-primary)' }}>{activeReplyName}</strong></span>
+                      <button type="button" onClick={() => { setActiveReplyId(null); setActiveReplyName(null); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}><X size={14} /></button>
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <input 
+                      type="text" 
+                      placeholder={user ? "Write a comment..." : "Sign in to comment..."} 
+                      value={newComment}
+                      onChange={e => setNewComment(e.target.value)}
+                      disabled={isSubmittingComment}
+                      style={{ flex: 1, padding: '0.5rem 0.85rem', borderRadius: '0px', border: '1px solid var(--border-color)', backgroundColor: 'transparent', color: 'var(--text-primary)', fontSize: '0.85rem', outline: 'none', fontWeight: 500 }}
+                    />
+                    <button type="submit" className="btn-outline" disabled={isSubmittingComment || !newComment.trim()} style={{ padding: '0.5rem 1rem', borderRadius: '0px', borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}>
+                      {isSubmittingComment ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Send size={14} />}
+                    </button>
+                  </div>
                 </form>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
                   {comments.length === 0 ? (
                     <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500 }}>No comments yet.</span>
                   ) : (
-                    comments.map(c => (
-                      <div key={c.id} style={{ display: 'flex', gap: '0.6rem', padding: '0.5rem', backgroundColor: 'transparent', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                        <img src={c.authorAvatar} alt={c.authorName} style={{ width: '26px', height: '26px', borderRadius: '50%', objectFit: 'cover' }} />
-                        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <strong style={{ fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 500 }}>{c.authorName}</strong>
-                            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{c.createdAt}</span>
+                    comments.filter(c => !c.parentId).map(c => {
+                      const replies = comments.filter(r => r.parentId === c.id);
+                      const isExpanded = expandedReplies[c.id];
+                      return (
+                        <div key={c.id} style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                          <div style={{ display: 'flex', gap: '0.6rem', padding: '0.5rem', backgroundColor: 'transparent', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                            <img src={c.authorAvatar} alt={c.authorName} style={{ width: '26px', height: '26px', borderRadius: '50%', objectFit: 'cover' }} />
+                            <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <strong style={{ fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 500 }}>{c.authorName}</strong>
+                                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{c.createdAt}</span>
+                              </div>
+                              <span style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', marginTop: '0.1rem', fontWeight: 400 }}>{c.text}</span>
+                              <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem', alignItems: 'center' }}>
+                                <button onClick={() => handleLikeComment(c.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', gap: '0.3rem', alignItems: 'center', color: c.likedBy?.includes(user?.uid || '') ? '#ef4444' : 'var(--text-muted)', fontSize: '0.75rem', padding: 0 }}>
+                                  <Heart size={12} fill={c.likedBy?.includes(user?.uid || '') ? '#ef4444' : 'none'} />
+                                  {c.likesCount > 0 && <span>{c.likesCount}</span>}
+                                </button>
+                                <button onClick={() => { setActiveReplyId(c.id); setActiveReplyName(c.authorName); }} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', gap: '0.3rem', alignItems: 'center', color: 'var(--text-muted)', fontSize: '0.75rem', padding: 0 }}>
+                                  <MessageCircle size={12} /> Reply
+                                </button>
+                                <button onClick={() => handleReportComment(c.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', gap: '0.3rem', alignItems: 'center', color: 'var(--text-muted)', fontSize: '0.75rem', padding: 0 }}>
+                                  <Flag size={12} /> Report
+                                </button>
+                              </div>
+                            </div>
                           </div>
-                          <span style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', marginTop: '0.1rem', fontWeight: 400 }}>{c.text}</span>
+
+                          {c.replyCount > 0 && (
+                            <button onClick={() => toggleReplies(c.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--text-secondary)', fontSize: '0.75rem', paddingLeft: '2.5rem', alignSelf: 'flex-start' }}>
+                              <div style={{ width: '16px', height: '1px', backgroundColor: 'var(--border-color)', marginRight: '0.5rem' }}></div>
+                              {isExpanded ? 'Hide replies' : `View ${c.replyCount} replies`}
+                            </button>
+                          )}
+
+                          {isExpanded && replies.length > 0 && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', paddingLeft: '2.5rem' }}>
+                              {replies.map(reply => (
+                                <div key={reply.id} style={{ display: 'flex', gap: '0.6rem', padding: '0.5rem', backgroundColor: 'transparent', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                                  <img src={reply.authorAvatar} alt={reply.authorName} style={{ width: '22px', height: '22px', borderRadius: '50%', objectFit: 'cover' }} />
+                                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                      <strong style={{ fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 500 }}>{reply.authorName}</strong>
+                                      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{reply.createdAt}</span>
+                                    </div>
+                                    <span style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', marginTop: '0.1rem', fontWeight: 400 }}>{reply.text}</span>
+                                    <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem', alignItems: 'center' }}>
+                                      <button onClick={() => handleLikeComment(reply.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', gap: '0.3rem', alignItems: 'center', color: reply.likedBy?.includes(user?.uid || '') ? '#ef4444' : 'var(--text-muted)', fontSize: '0.75rem', padding: 0 }}>
+                                        <Heart size={12} fill={reply.likedBy?.includes(user?.uid || '') ? '#ef4444' : 'none'} />
+                                        {reply.likesCount > 0 && <span>{reply.likesCount}</span>}
+                                      </button>
+                                      <button onClick={() => { setActiveReplyId(c.id); setActiveReplyName(reply.authorName); }} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', gap: '0.3rem', alignItems: 'center', color: 'var(--text-muted)', fontSize: '0.75rem', padding: 0 }}>
+                                        <MessageCircle size={12} /> Reply
+                                      </button>
+                                      <button onClick={() => handleReportComment(reply.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', gap: '0.3rem', alignItems: 'center', color: 'var(--text-muted)', fontSize: '0.75rem', padding: 0 }}>
+                                        <Flag size={12} /> Report
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    ))
+                      );
+                    })
                   )}
                 </div>
               </div>
