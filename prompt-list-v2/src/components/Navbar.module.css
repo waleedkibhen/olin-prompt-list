@@ -85,9 +85,10 @@
 .centerSection {
   flex: 1;
   display: flex;
+  align-items: center;
   justify-content: center;
   position: relative;
-  max-width: 500px;
+  max-width: 650px;
   margin: 0 2rem;
 }
 
@@ -96,7 +97,8 @@
   align-items: center;
   background-color: var(--bg-secondary);
   border-radius: 1px;
-  padding: 0.5rem 1rem;
+  padding: 0 1rem;
+  height: 42px;
   width: 100%;
 }
 
