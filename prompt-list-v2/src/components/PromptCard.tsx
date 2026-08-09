@@ -377,6 +377,29 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                 )}
                 </div>
 
+              <div className={styles.modalActionBar}>
+                <button className={`${styles.barBtn} ${isLiked ? styles.barBtnActive : ''}`} onClick={toggleLike}>
+                  <Heart size={17} fill={isLiked ? "currentColor" : "none"} />
+                  <span>{likesCount}</span>
+                </button>
+                <button className={`${styles.barBtn} ${isSaved ? styles.barBtnActive : ''}`} onClick={toggleSave}>
+                  <Bookmark size={17} fill={isSaved ? "currentColor" : "none"} />
+                  <span>{savesCount}</span>
+                </button>
+                <button className={`${styles.barBtn} ${showComments ? styles.barBtnActive : ''}`} onClick={() => setShowComments(!showComments)}>
+                  <MessageSquare size={17} />
+                  <span style={{ fontWeight: 500 }}>{comments.length} Comments</span>
+                </button>
+                <button className={styles.barBtn} onClick={handleShareLink} style={isLinkCopied ? { color: '#10b981', borderColor: '#10b981' } : {}}>
+                  <Share2 size={17} />
+                  <span>{isLinkCopied ? 'Copied' : 'Share'}</span>
+                </button>
+                <button className={styles.barBtn} onClick={handleReportPost} style={{ color: '#f43f5e', borderColor: 'rgba(244,63,94,0.3)' }} title="Report guidelines violation">
+                  <Flag size={17} />
+                  <span>Report</span>
+                </button>
+              </div>
+
                 {post.description && (
                   <div className={styles.descriptionSection}>
                     <h4 className={styles.descriptionHeader}>Description</h4>
@@ -550,29 +573,6 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                     </span>
                   )}
                 </div>
-              </div>
-
-              <div className={styles.modalActionBar}>
-                <button className={`${styles.barBtn} ${isLiked ? styles.barBtnActive : ''}`} onClick={toggleLike}>
-                  <Heart size={17} fill={isLiked ? "currentColor" : "none"} />
-                  <span>{likesCount}</span>
-                </button>
-                <button className={`${styles.barBtn} ${isSaved ? styles.barBtnActive : ''}`} onClick={toggleSave}>
-                  <Bookmark size={17} fill={isSaved ? "currentColor" : "none"} />
-                  <span>{savesCount}</span>
-                </button>
-                <button className={`${styles.barBtn} ${showComments ? styles.barBtnActive : ''}`} onClick={() => setShowComments(!showComments)}>
-                  <MessageSquare size={17} />
-                  <span style={{ fontWeight: 500 }}>{comments.length} Comments</span>
-                </button>
-                <button className={styles.barBtn} onClick={handleShareLink} style={isLinkCopied ? { color: '#10b981', borderColor: '#10b981' } : {}}>
-                  <Share2 size={17} />
-                  <span>{isLinkCopied ? 'Copied' : 'Share'}</span>
-                </button>
-                <button className={styles.barBtn} onClick={handleReportPost} style={{ color: '#f43f5e', borderColor: 'rgba(244,63,94,0.3)' }} title="Report guidelines violation">
-                  <Flag size={17} />
-                  <span>Report</span>
-                </button>
               </div>
 
             </div>
