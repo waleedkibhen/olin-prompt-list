@@ -15,6 +15,8 @@ interface PromptCardProps {
   post: PromptPost;
   onLike?: (id: string) => void;
   onSave?: (id: string) => void;
+  defaultOpen?: boolean;
+  onCloseOverride?: () => void;
 }
 
 interface CommentItem {
@@ -25,7 +27,7 @@ interface CommentItem {
   createdAt: string;
 }
 
-export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
+export default function PromptCard({ post, onLike, onSave, defaultOpen = false, onCloseOverride }: PromptCardProps) {
   const { user, profile, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
   const commentsRef = useRef<HTMLDivElement>(null);
@@ -53,7 +55,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
   const [likesCount, setLikesCount] = useState(post.likesCount);
   const [savesCount, setSavesCount] = useState(post.savesCount);
   
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(defaultOpen);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [isLinkCopied, setIsLinkCopied] = useState(false);
@@ -339,9 +341,9 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
       </article>
 
       {isModalOpen && (
-        <div className={styles.modalBackdrop} onClick={() => setIsModalOpen(false)}>
+        <div className={styles.modalBackdrop} onClick={() => { if(onCloseOverride) onCloseOverride(); else setIsModalOpen(false); }}>
           <div className={styles.modalCard} onClick={e => e.stopPropagation()}>
-            <button className={styles.modalCloseBtn} onClick={() => setIsModalOpen(false)} aria-label="Close">
+            <button className={styles.modalCloseBtn} onClick={() => { if(onCloseOverride) onCloseOverride(); else setIsModalOpen(false); }} aria-label="Close">
               <X size={18} strokeWidth={2.5} />
             </button>
             
