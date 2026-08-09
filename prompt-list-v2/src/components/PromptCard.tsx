@@ -378,25 +378,23 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
                 </div>
 
               <div className={styles.modalActionBar}>
-                <button className={`${styles.barBtn} ${isLiked ? styles.barBtnActive : ''}`} onClick={toggleLike}>
+                <button className={`${styles.barBtn} ${isLiked ? styles.barBtnActive : ''}`} onClick={toggleLike} title="Like">
                   <Heart size={17} fill={isLiked ? "currentColor" : "none"} />
-                  <span>{likesCount}</span>
+                  {likesCount > 0 && <span>{likesCount}</span>}
                 </button>
-                <button className={`${styles.barBtn} ${isSaved ? styles.barBtnActive : ''}`} onClick={toggleSave}>
+                <button className={`${styles.barBtn} ${isSaved ? styles.barBtnActive : ''}`} onClick={toggleSave} title="Save">
                   <Bookmark size={17} fill={isSaved ? "currentColor" : "none"} />
-                  <span>{savesCount}</span>
+                  {savesCount > 0 && <span>{savesCount}</span>}
                 </button>
-                <button className={`${styles.barBtn} ${showComments ? styles.barBtnActive : ''}`} onClick={() => setShowComments(!showComments)}>
+                <button className={`${styles.barBtn} ${showComments ? styles.barBtnActive : ''}`} onClick={() => setShowComments(!showComments)} title="Comments">
                   <MessageSquare size={17} />
-                  <span style={{ fontWeight: 500 }}>{comments.length} Comments</span>
+                  {comments.length > 0 && <span style={{ fontWeight: 500 }}>{comments.length}</span>}
                 </button>
-                <button className={styles.barBtn} onClick={handleShareLink} style={isLinkCopied ? { color: '#10b981', borderColor: '#10b981' } : {}}>
-                  <Share2 size={17} />
-                  <span>{isLinkCopied ? 'Copied' : 'Share'}</span>
+                <button className={styles.barBtn} onClick={handleShareLink} style={isLinkCopied ? { color: '#10b981', borderColor: '#10b981' } : {}} title="Share">
+                  {isLinkCopied ? <Check size={17} /> : <Share2 size={17} />}
                 </button>
-                <button className={styles.barBtn} onClick={handleReportPost} style={{ color: '#f43f5e', borderColor: 'rgba(244,63,94,0.3)' }} title="Report guidelines violation">
+                <button className={styles.barBtn} onClick={handleReportPost} style={{ color: '#f43f5e', borderColor: 'rgba(244,63,94,0.3)' }} title="Report">
                   <Flag size={17} />
-                  <span>Report</span>
                 </button>
               </div>
 
