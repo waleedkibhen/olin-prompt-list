@@ -545,14 +545,14 @@
 }
 
 .promptTextContainer {
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
+  background-color: transparent;
+  border: none;
   border-radius: 0px;
-  padding: 0.85rem 1rem;
+  padding: 0;
   max-height: 240px;
   overflow-y: auto;
   user-select: all;
-  margin-top: 0.5rem;
+  margin-top: 0;
   margin-bottom: 1rem;
 }
 
