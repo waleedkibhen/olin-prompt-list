@@ -585,6 +585,11 @@ export default function DiscoveryFeed() {
     }
 
     setDisplayedPosts(current);
+    
+    // Save successful recent searches using the actual matching results
+    if (search.trim() && current.length > 0) {
+      addRecentSearch(search.trim(), current[0].imageUrls[0]);
+    }
   };
 
 
@@ -609,13 +614,6 @@ export default function DiscoveryFeed() {
     });
   };
 
-  // Record successful recent searches
-  useEffect(() => {
-    const term = searchParams.get('search')?.trim();
-    if (term && displayedPosts.length > 0 && !isSearching) {
-      addRecentSearch(term, displayedPosts[0].imageUrls[0]);
-    }
-  }, [searchParams, displayedPosts, isSearching, addRecentSearch]);
 
   return (
     <div className={styles.feedWrapper}>

@@ -10,7 +10,7 @@ export interface RecentSearch {
 }
 
 const LOCAL_STORAGE_KEY = 'olin_recent_searches';
-const MAX_RECENT_SEARCHES = 10;
+const MAX_RECENT_SEARCHES = 6;
 
 export function useRecentSearches() {
   const { user } = useAuth();
