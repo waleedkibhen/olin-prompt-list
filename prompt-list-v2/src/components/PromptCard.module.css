@@ -268,7 +268,6 @@
   margin: 1.5rem 2.5rem 1rem 2.5rem;
   z-index: 10;
   flex-shrink: 0;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
 }
 
 .descriptionSection {
@@ -295,7 +294,6 @@
   color: var(--text-muted);
   margin: 0;
   font-family: var(--font-geist);
-  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
 }
 
 .modalImageContainer {
@@ -402,7 +400,7 @@
   overflow-y: auto;
   border-left: 1px solid var(--border-color);
   background-color: var(--bg-primary);
-  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.4);
+  box-shadow: none;
   z-index: 10;
 }
 

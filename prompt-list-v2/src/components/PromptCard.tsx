@@ -419,7 +419,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                 </button>
               </div>
 
-              <div ref={commentsRef} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: '0.25rem 2.5rem 2rem 2.5rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <div ref={commentsRef} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: '0.25rem 2.5rem 2rem 2.5rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)' }}>
                 
                 {commentError && (
                   <div style={{ padding: '0.5rem 0.75rem', backgroundColor: 'rgba(244,63,94,0.1)', color: '#f43f5e', borderRadius: '6px', fontSize: '0.8rem' }}>
@@ -434,9 +434,9 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                     value={newComment}
                     onChange={e => setNewComment(e.target.value)}
                     disabled={isSubmittingComment}
-                    style={{ flex: 1, padding: '0.5rem 0.85rem', borderRadius: '0px', border: '1px solid rgba(255, 255, 255, 0.15)', backgroundColor: 'transparent', color: 'var(--text-primary)', fontSize: '0.85rem', outline: 'none', fontWeight: 500 }}
+                    style={{ flex: 1, padding: '0.5rem 0.85rem', borderRadius: '0px', border: '1px solid var(--border-color)', backgroundColor: 'transparent', color: 'var(--text-primary)', fontSize: '0.85rem', outline: 'none', fontWeight: 500 }}
                   />
-                  <button type="submit" className="btn-outline" disabled={isSubmittingComment || !newComment.trim()} style={{ padding: '0.5rem 1rem', borderRadius: '0px', borderColor: 'rgba(255, 255, 255, 0.15)', color: 'var(--text-secondary)' }}>
+                  <button type="submit" className="btn-outline" disabled={isSubmittingComment || !newComment.trim()} style={{ padding: '0.5rem 1rem', borderRadius: '0px', borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}>
                     {isSubmittingComment ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Send size={14} />}
                   </button>
                 </form>
@@ -446,7 +446,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                     <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500 }}>No comments yet.</span>
                   ) : (
                     comments.map(c => (
-                      <div key={c.id} style={{ display: 'flex', gap: '0.6rem', padding: '0.5rem', backgroundColor: 'transparent', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                      <div key={c.id} style={{ display: 'flex', gap: '0.6rem', padding: '0.5rem', backgroundColor: 'transparent', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                         <img src={c.authorAvatar} alt={c.authorName} style={{ width: '26px', height: '26px', borderRadius: '50%', objectFit: 'cover' }} />
                         <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -486,7 +486,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '1.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', marginBottom: '1rem', marginTop: '0.5rem' }}>
+              <div style={{ display: 'flex', gap: '1.5rem', borderBottom: '1px solid var(--border-color)', marginBottom: '1rem', marginTop: '0.5rem' }}>
                 <button
                   onClick={() => setActiveTab('prompt')}
                   style={{
@@ -600,7 +600,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                         <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '1rem', marginBottom: '0.5rem' }}>
                           <button 
                             onClick={handleCopyPrompt}
-                            style={{ background: 'var(--bg-secondary)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', padding: '0.4rem 0.75rem', borderRadius: '2px', transition: 'all 0.2s ease' }}
+                            style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', padding: '0.4rem 0.75rem', borderRadius: '2px', transition: 'all 0.2s ease' }}
                             onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-hover)'; }}
                             onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'; }}
                           >
