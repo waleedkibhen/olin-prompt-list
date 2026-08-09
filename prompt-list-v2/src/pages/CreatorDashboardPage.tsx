@@ -206,7 +206,6 @@ export default function CreatorDashboardPage() {
             <h2 className={styles.sectionTitle}>
               Recent Uploads ({creatorPosts.length})
             </h2>
-            <Link to="/profile" className={styles.viewAllBtn}>View All</Link>
           </div>
 
           {filteredPosts.length === 0 ? (
