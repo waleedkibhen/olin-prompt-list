@@ -116,38 +116,35 @@ export default function Navbar() {
       <nav className={`${styles.navbarContainer} ${isHidden ? styles.navHidden : ''}`} id="top-nav">
         
         {/* Left side: Logo & Tabs */}
-        {!isSearchExpanded && (
-          <div className={styles.leftSection}>
-            <Link to="/" className={styles.brandTitle}>
-              <span className={styles.brandIcon}><Sparkles size={16} /></span>
-              <span>Olin</span>
-              <span className={styles.brandSuffix}>Prompt List</span>
-            </Link>
-            
+        <div className={styles.leftSection}>
+          <Link to="/" className={styles.brandTitle}>
+            <span className={styles.brandIcon}><Sparkles size={16} /></span>
+            <span>Olin</span>
+            <span className={styles.brandSuffix}>Prompt List</span>
+          </Link>
+        </div>
 
-          </div>
-        )}
-
-        {/* Center/Right: Search Bar */}
-        {isSearchExpanded ? (
-          <div className={styles.expandedSearchContainer}>
-            <form onSubmit={handleSearchSubmit} className={styles.searchFormExpanded}>
-              <Search size={16} style={{ color: 'var(--text-muted)' }} />
-              <input 
-                ref={searchInputRef}
-                type="text" 
-                placeholder="Search prompts, tags, or styles..." 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={styles.searchInput}
-                autoFocus
-              />
-              {searchQuery && (
-                <button type="button" onClick={() => setSearchQuery('')} className={styles.clearBtn}>
-                  &times;
-                </button>
-              )}
-            </form>
+        {/* Center: Search Bar */}
+        <div className={styles.centerSection}>
+          <form onSubmit={handleSearchSubmit} className={styles.searchFormExpanded}>
+            <Search size={16} style={{ color: 'var(--text-muted)' }} />
+            <input 
+              ref={searchInputRef}
+              type="text" 
+              placeholder="Search prompts, tags, or styles..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setIsSearchExpanded(true)}
+              className={styles.searchInput}
+            />
+            {searchQuery && (
+              <button type="button" onClick={() => setSearchQuery('')} className={styles.clearBtn}>
+                &times;
+              </button>
+            )}
+          </form>
+          
+          {isSearchExpanded && (
             <div className={styles.recentSearchesDropdown}>
               <h5 style={{ margin: '0 0 1rem 0', color: 'var(--text-primary)', fontSize: '1rem', fontWeight: 600 }}>Recent searches</h5>
               <div className={styles.recentSearchesGrid}>
@@ -166,17 +163,15 @@ export default function Navbar() {
                 ))}
               </div>
             </div>
-          </div>
-        ) : (
-          <div className={styles.actionControls}>
-            <button className={styles.iconBtn} onClick={() => { setIsSearchExpanded(true); setTimeout(() => searchInputRef.current?.focus(), 50); }} title="Search">
-              <Search size={22} strokeWidth={2} />
-            </button>
+          )}
+        </div>
 
-            {/* Theme Toggle */}
-            <button className={styles.iconBtn} onClick={() => setIsDarkMode(!isDarkMode)} title="Toggle Theme">
-              {isDarkMode ? <Sun size={22} strokeWidth={2} /> : <Moon size={22} strokeWidth={2} />}
-            </button>
+        {/* Right side: Actions */}
+        <div className={styles.actionControls}>
+          {/* Theme Toggle */}
+          <button className={styles.iconBtn} onClick={() => setIsDarkMode(!isDarkMode)} title="Toggle Theme">
+            {isDarkMode ? <Sun size={22} strokeWidth={2} /> : <Moon size={22} strokeWidth={2} />}
+          </button>
             
             {/* Filter Icon & Dropdown */}
             <div style={{ position: 'relative' }} ref={filterRef}>
@@ -310,7 +305,6 @@ export default function Navbar() {
               )}
             </div>
           </div>
-        )}
       </nav>
 
       {/* Expanded Search Backdrop */}
