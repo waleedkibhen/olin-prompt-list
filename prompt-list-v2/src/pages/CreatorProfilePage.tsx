@@ -150,30 +150,36 @@ export default function CreatorProfilePage() {
   return (
     <main className={styles.profileContainer}>
       <header className={styles.profileHeader}>
-        <div className={styles.avatarWrapper}>
-          <img 
-            src={creatorUser.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'} 
-            alt={creatorUser.displayName} 
-            className={styles.avatar} 
-          />
+        <div className={styles.topSection}>
+          <div className={styles.avatarWrapper}>
+            <img 
+              src={creatorUser.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'} 
+              alt={creatorUser.displayName} 
+              className={styles.avatar} 
+            />
+          </div>
+          
+          <div className={styles.infoCol}>
+            <h1 className={styles.name}>{creatorUser.displayName}</h1>
+            
+            {creatorUser.bio && (
+              <p className={styles.bio}>{creatorUser.bio}</p>
+            )}
+            
+            <div className={styles.actions}>
+              {user?.uid !== creatorUser.id && (
+                <button className={styles.btnFollow} onClick={toggleFollow}>
+                  {isFollowing ? 'Following' : 'Follow'}
+                </button>
+              )}
+              <button className={styles.btnShareIcon} onClick={handleShare} title="Share Profile">
+                <Share size={16} />
+              </button>
+            </div>
+          </div>
         </div>
-        
-        <h1 className={styles.name}>{creatorUser.displayName}</h1>
-        
-        {creatorUser.bio && (
-          <p className={styles.bio}>{creatorUser.bio}</p>
-        )}
-        
-        <div className={styles.actions}>
-          {user?.uid !== creatorUser.id && (
-            <button className={styles.btnFollow} onClick={toggleFollow}>
-              {isFollowing ? 'Following' : 'Follow'}
-            </button>
-          )}
-          <button className={styles.btnShareIcon} onClick={handleShare} title="Share Profile">
-            <Share size={16} />
-          </button>
-        </div>
+
+        <div className={styles.divider} />
 
         <div className={styles.statsRow}>
           <div className={styles.statMini}><strong>{followerCount >= 1000 ? (followerCount / 1000).toFixed(1) + 'k' : followerCount}</strong> Followers</div>
