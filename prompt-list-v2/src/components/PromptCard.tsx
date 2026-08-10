@@ -557,8 +557,8 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                       const replies = comments.filter(r => r.parentId === c.id);
                       const isExpanded = expandedReplies[c.id];
                       return (
-                        <div key={c.id} style={{ display: 'flex', flexDirection: 'column' }}>
-                          <div style={{ display: 'flex', gap: '0.6rem', padding: '0.8rem 0', backgroundColor: 'transparent', borderBottom: '1px solid var(--border-color)' }}>
+                        <div key={c.id} style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.8rem' }}>
+                          <div style={{ display: 'flex', gap: '0.6rem', paddingTop: '0.8rem', backgroundColor: 'transparent' }}>
                             <img src={c.authorAvatar} alt={c.authorName} style={{ width: '26px', height: '26px', borderRadius: '50%', objectFit: 'cover' }} />
                             <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -584,21 +584,16 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                           </div>
 
                           {c.replyCount > 0 && (
-                            <button onClick={() => toggleReplies(c.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--text-secondary)', fontSize: '0.75rem', paddingLeft: '2.5rem', alignSelf: 'flex-start' }}>
+                            <button onClick={() => toggleReplies(c.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--text-secondary)', fontSize: '0.75rem', paddingLeft: '3.1rem', marginTop: '0.5rem', alignSelf: 'flex-start' }}>
                               <div style={{ width: '16px', height: '1px', backgroundColor: 'var(--border-color)', marginRight: '0.5rem' }}></div>
                               {isExpanded ? 'Hide replies' : `View ${c.replyCount} replies`}
                             </button>
                           )}
 
                           {isExpanded && replies.length > 0 && (
-                            <div style={{ display: 'flex', flexDirection: 'column', paddingLeft: '2.5rem', position: 'relative' }}>
-                              {/* Thread connecting line */}
-                              <div style={{ position: 'absolute', left: '1.25rem', top: 0, bottom: 0, width: '1px', backgroundColor: 'var(--border-color)' }} />
-                              
+                            <div style={{ display: 'flex', flexDirection: 'column', paddingLeft: '3.1rem' }}>
                               {replies.map(reply => (
-                                <div key={reply.id} style={{ display: 'flex', gap: '0.6rem', padding: '0.8rem 0', backgroundColor: 'transparent', borderBottom: '1px solid var(--border-color)', position: 'relative' }}>
-                                  {/* Connector from thread line to reply avatar */}
-                                  <div style={{ position: 'absolute', left: '-1.25rem', top: '1.4rem', width: '1rem', height: '1px', backgroundColor: 'var(--border-color)' }} />
+                                <div key={reply.id} style={{ display: 'flex', gap: '0.6rem', paddingTop: '0.8rem', backgroundColor: 'transparent' }}>
                                   <img src={reply.authorAvatar} alt={reply.authorName} style={{ width: '22px', height: '22px', borderRadius: '50%', objectFit: 'cover' }} />
                                   <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
