@@ -144,12 +144,19 @@ export default function CreatorDashboardPage() {
 
   const calculateTrend = (current: number, previous: number) => {
     if (timeFilter === 'all') return null;
-    if (previous === 0) return current > 0 ? 100 : 0;
+    if (previous === 0) return null;
     return Math.round(((current - previous) / previous) * 100);
   };
 
   const TrendIndicator = ({ trend }: { trend: number | null }) => {
-    if (trend === null) return null;
+    if (trend === null) {
+      return (
+        <div className={`${styles.trendTag}`} style={{ color: 'var(--text-muted)' }}>
+          <span>—</span>
+        </div>
+      );
+    }
+    
     let trendClass = '';
     if (trend >= 50) trendClass = styles.trendExcellent;
     else if (trend >= 0) trendClass = styles.trendGood;
@@ -279,7 +286,7 @@ export default function CreatorDashboardPage() {
               </div>
               <div className={styles.kpiValueRow}>
                 <div className={styles.kpiValue}>{followerCount.toLocaleString()}</div>
-                <TrendIndicator trend={timeFilter === 'all' ? null : 12} /> {/* Mock trend for followers */}
+                <TrendIndicator trend={calculateTrend(followerCount, 0)} />
               </div>
               <div className={styles.kpiDesc}>Following your updates</div>
             </div>

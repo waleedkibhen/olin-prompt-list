@@ -87,10 +87,11 @@
 }
 
 .kpiCard {
-  background-color: var(--bg-secondary);
+  background-color: transparent;
   border: none;
-  border-radius: 12px;
-  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  border-radius: 0;
+  padding: 1.5rem 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -122,11 +123,12 @@
 }
 
 .kpiValue {
-  font-size: 48px;
-  font-weight: 500;
+  font-family: 'Bebas Neue', 'Spline Sans', sans-serif;
+  font-size: 56px;
+  font-weight: 400;
   color: var(--text-primary);
   line-height: 1;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.02em;
 }
 
 .kpiDesc {
@@ -143,7 +145,7 @@
   display: flex;
   align-items: center;
   gap: 0.15rem;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0;
   margin-bottom: 0.5rem;
