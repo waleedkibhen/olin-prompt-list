@@ -24,8 +24,8 @@
 }
 
 .avatarWrapper {
-  width: 8rem;
-  height: 8rem;
+  width: 6rem;
+  height: 6rem;
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid var(--border-color);
