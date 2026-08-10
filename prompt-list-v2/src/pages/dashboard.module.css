@@ -87,10 +87,10 @@
 }
 
 .kpiCard {
-  background-color: transparent;
-  border: none;
-  border-radius: 4px;
-  padding: 1.5rem 1rem 1.5rem 0;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -101,14 +101,14 @@
 .kpiTop {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 0.5rem;
+  justify-content: space-between;
   color: var(--text-muted);
   font-weight: 400;
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 1rem;
+  width: 100%;
 }
 
 .kpiIcon {
@@ -131,6 +131,27 @@
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+.trendTag {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.trendPositive {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.trendNegative {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
 }
 
 .tableHeader {

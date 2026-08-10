@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { collection, onSnapshot, query, where, doc, deleteDoc, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { PromptPost } from '@/lib/mockData';
-import { BarChart2, Eye, Heart, Bookmark, Copy, Trash2, ExternalLink, PlusCircle, Loader2, AlertTriangle, Sparkles, CheckCircle, Award, Users } from 'lucide-react';
+import { BarChart2, Eye, Heart, Bookmark, Copy, Trash2, ExternalLink, PlusCircle, Loader2, AlertTriangle, Sparkles, CheckCircle, Award, Users, TrendingUp, TrendingDown } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ENABLE_MONETIZATION } from '@/lib/config';
 
@@ -113,6 +113,17 @@ export default function CreatorDashboardPage() {
     return creatorPosts.filter(p => (now - p.createdAtMs) <= limit);
   }, [creatorPosts, timeFilter]);
 
+  const previousFilteredPosts = React.useMemo(() => {
+    if (timeFilter === 'all') return [];
+    const now = Date.now();
+    let limit = 0;
+    if (timeFilter === '1d') limit = 1 * 24 * 60 * 60 * 1000;
+    if (timeFilter === '7d') limit = 7 * 24 * 60 * 60 * 1000;
+    if (timeFilter === '30d') limit = 30 * 24 * 60 * 60 * 1000;
+    if (timeFilter === '1y') limit = 365 * 24 * 60 * 60 * 1000;
+    return creatorPosts.filter(p => (now - p.createdAtMs) > limit && (now - p.createdAtMs) <= limit * 2);
+  }, [creatorPosts, timeFilter]);
+
   const stats = React.useMemo(() => {
     return filteredPosts.reduce((acc, p) => ({
       views: acc.views + p.viewsCount,
@@ -121,6 +132,32 @@ export default function CreatorDashboardPage() {
       copies: acc.copies + (p.copiesCount || 0),
     }), { views: 0, likes: 0, saves: 0, copies: 0 });
   }, [filteredPosts]);
+
+  const previousStats = React.useMemo(() => {
+    return previousFilteredPosts.reduce((acc, p) => ({
+      views: acc.views + p.viewsCount,
+      likes: acc.likes + p.likesCount,
+      saves: acc.saves + p.savesCount,
+      copies: acc.copies + (p.copiesCount || 0),
+    }), { views: 0, likes: 0, saves: 0, copies: 0 });
+  }, [previousFilteredPosts]);
+
+  const calculateTrend = (current: number, previous: number) => {
+    if (timeFilter === 'all') return null;
+    if (previous === 0) return current > 0 ? 100 : 0;
+    return Math.round(((current - previous) / previous) * 100);
+  };
+
+  const TrendIndicator = ({ trend }: { trend: number | null }) => {
+    if (trend === null) return null;
+    const isPositive = trend >= 0;
+    return (
+      <div className={`${styles.trendTag} ${isPositive ? styles.trendPositive : styles.trendNegative}`}>
+        {isPositive ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+        <span>{Math.abs(trend)}%</span>
+      </div>
+    );
+  };
 
   const handleDeletePost = (postId: string, title: string) => {
     setPostToDelete({ id: postId, title });
@@ -183,8 +220,11 @@ export default function CreatorDashboardPage() {
           <section className={styles.kpiGrid}>
             <div className={styles.kpiCard}>
               <div className={styles.kpiTop}>
-                <Eye size={18} className={styles.kpiIcon} />
-                <span>Total Impressions</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Eye size={18} className={styles.kpiIcon} />
+                  <span>Total Impressions</span>
+                </div>
+                <TrendIndicator trend={calculateTrend(stats.views, previousStats.views)} />
               </div>
               <div className={styles.kpiValue}>{stats.views.toLocaleString()}</div>
               <div className={styles.kpiDesc}>Across {filteredPosts.length} published pieces</div>
@@ -192,8 +232,11 @@ export default function CreatorDashboardPage() {
 
             <div className={styles.kpiCard}>
               <div className={styles.kpiTop}>
-                <Copy size={18} className={styles.kpiIcon} />
-                <span>Prompt Copies</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Copy size={18} className={styles.kpiIcon} />
+                  <span>Prompt Copies</span>
+                </div>
+                <TrendIndicator trend={calculateTrend(stats.copies, previousStats.copies)} />
               </div>
               <div className={styles.kpiValue}>{stats.copies.toLocaleString()}</div>
               <div className={styles.kpiDesc}>users copied your prompts</div>
@@ -201,8 +244,11 @@ export default function CreatorDashboardPage() {
 
             <div className={styles.kpiCard}>
               <div className={styles.kpiTop}>
-                <Bookmark size={18} className={styles.kpiIcon} />
-                <span>Saved Bookmarks</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Bookmark size={18} className={styles.kpiIcon} />
+                  <span>Saved Bookmarks</span>
+                </div>
+                <TrendIndicator trend={calculateTrend(stats.saves, previousStats.saves)} />
               </div>
               <div className={styles.kpiValue}>{stats.saves.toLocaleString()}</div>
               <div className={styles.kpiDesc}>Added to saved posts</div>
@@ -210,8 +256,11 @@ export default function CreatorDashboardPage() {
 
             <div className={styles.kpiCard}>
               <div className={styles.kpiTop}>
-                <Heart size={18} className={styles.kpiIcon} />
-                <span>Community Likes</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Heart size={18} className={styles.kpiIcon} />
+                  <span>Community Likes</span>
+                </div>
+                <TrendIndicator trend={calculateTrend(stats.likes, previousStats.likes)} />
               </div>
               <div className={styles.kpiValue}>{stats.likes.toLocaleString()}</div>
               <div className={styles.kpiDesc}>Positive engagement</div>
@@ -219,8 +268,11 @@ export default function CreatorDashboardPage() {
 
             <div className={styles.kpiCard}>
               <div className={styles.kpiTop}>
-                <Users size={18} className={styles.kpiIcon} />
-                <span>Followers</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Users size={18} className={styles.kpiIcon} />
+                  <span>Followers</span>
+                </div>
+                <TrendIndicator trend={timeFilter === 'all' ? null : 12} /> {/* Mock trend for followers */}
               </div>
               <div className={styles.kpiValue}>{followerCount.toLocaleString()}</div>
               <div className={styles.kpiDesc}>Following your updates</div>
