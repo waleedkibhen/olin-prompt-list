@@ -30,10 +30,16 @@ export default function CreatorProfilePage() {
       setLoading(true);
       setError(null);
       try {
-        // 1. Fetch user by username
+        // 1. Fetch user by username or displayName
         const usersRef = collection(db, 'users');
-        const userQuery = query(usersRef, where('username', '==', username.toLowerCase()));
-        const userSnap = await getDocs(userQuery);
+        let userQuery = query(usersRef, where('username', '==', username.toLowerCase()));
+        let userSnap = await getDocs(userQuery);
+
+        if (userSnap.empty) {
+          // Fallback to displayName
+          userQuery = query(usersRef, where('displayName', '==', username));
+          userSnap = await getDocs(userQuery);
+        }
 
         if (userSnap.empty) {
           setError("Creator not found");
@@ -44,9 +50,9 @@ export default function CreatorProfilePage() {
         const userData = { id: userSnap.docs[0].id, ...userSnap.docs[0].data() } as any;
         setCreatorUser(userData);
 
-        // 2. Fetch posts by this creator
+        // 2. Fetch posts by this creator using their exact ID
         const postsRef = collection(db, 'posts');
-        const postsQuery = query(postsRef, where('creatorUsername', '==', username.toLowerCase()));
+        const postsQuery = query(postsRef, where('creatorId', '==', userData.id));
         const postsSnap = await getDocs(postsQuery);
         
         const items: PromptPost[] = [];
