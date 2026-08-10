@@ -17,6 +17,8 @@ export default function CreatorProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [followerCount, setFollowerCount] = useState(0);
+  const [totalViews, setTotalViews] = useState(0);
+  const [totalLikes, setTotalLikes] = useState(0);
 
   // Follow states (localStorage mock logic to match PromptCard)
   const [isFollowing, setIsFollowing] = useState(false);
@@ -77,6 +79,15 @@ export default function CreatorProfilePage() {
         });
         
         setCreatorPosts(items.sort((a, b) => b.likesCount - a.likesCount));
+        
+        let views = 0;
+        let likes = 0;
+        items.forEach(p => {
+          views += p.viewsCount || 0;
+          likes += p.likesCount || 0;
+        });
+        setTotalViews(views);
+        setTotalLikes(likes);
 
         // 3. Fetch real follower count from follows collection
         const followsQuery = query(collection(db, 'follows'), where('followingId', '==', userData.id));
@@ -147,35 +158,28 @@ export default function CreatorProfilePage() {
           />
         </div>
         
-        <div className={styles.infoCol}>
-          <h1 className={styles.name}>{creatorUser.displayName}</h1>
-          {creatorUser.bio && (
-            <p className={styles.bio}>{creatorUser.bio}</p>
-          )}
-          
-          <div className={styles.actions}>
-            {user?.uid !== creatorUser.id && (
-              <button className={styles.btnFollow} onClick={toggleFollow}>
-                {isFollowing ? 'Following' : 'Follow'}
-              </button>
-            )}
-            <button className={styles.btnShare} onClick={handleShare}>
-              Share
+        <h1 className={styles.name}>{creatorUser.displayName}</h1>
+        
+        {creatorUser.bio && (
+          <p className={styles.bio}>{creatorUser.bio}</p>
+        )}
+        
+        <div className={styles.actions}>
+          {user?.uid !== creatorUser.id && (
+            <button className={styles.btnFollow} onClick={toggleFollow}>
+              {isFollowing ? 'Following' : 'Follow'}
             </button>
-          </div>
+          )}
+          <button className={styles.btnShareIcon} onClick={handleShare} title="Share Profile">
+            <Share size={16} />
+          </button>
         </div>
 
-        <div className={styles.statsCol}>
-          <div className={styles.statItem}>
-            <span className={styles.statValue}>{creatorPosts.length}</span>
-            <span className={styles.statLabel}>Works</span>
-          </div>
-          <div className={styles.statItem}>
-            <span className={styles.statValue}>
-              {followerCount >= 1000 ? (followerCount / 1000).toFixed(1) + 'k' : followerCount}
-            </span>
-            <span className={styles.statLabel}>Followers</span>
-          </div>
+        <div className={styles.statsRow}>
+          <div className={styles.statMini}><strong>{followerCount >= 1000 ? (followerCount / 1000).toFixed(1) + 'k' : followerCount}</strong> Followers</div>
+          <div className={styles.statMini}><strong>{creatorPosts.length}</strong> Posts</div>
+          <div className={styles.statMini}><strong>{totalViews >= 1000 ? (totalViews / 1000).toFixed(1) + 'k' : totalViews}</strong> Views</div>
+          <div className={styles.statMini}><strong>{totalLikes >= 1000 ? (totalLikes / 1000).toFixed(1) + 'k' : totalLikes}</strong> Likes</div>
         </div>
       </header>
 
