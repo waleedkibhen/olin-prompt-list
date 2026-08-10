@@ -75,22 +75,41 @@
 }
 
 .btnFollow {
-  padding: 0.5rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
   border: 1px solid var(--text-primary);
   color: var(--text-primary);
   background: transparent;
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-radius: 16px;
+  border-radius: 50%;
   cursor: pointer;
   transition: all 0.2s ease;
+  padding: 0;
 }
 
 .btnFollow:hover {
-  background: var(--text-primary);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btnFollowing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--text-primary);
   color: var(--bg-primary);
+  background: var(--text-primary);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.btnFollowing:hover {
+  opacity: 0.9;
 }
 
 .btnShareIcon {
@@ -101,7 +120,7 @@
   height: 32px;
   color: var(--text-secondary);
   background: transparent;
-  border: 1px solid var(--border-color);
+  border: 2px solid var(--border-color);
   border-radius: 50%;
   cursor: pointer;
   transition: all 0.2s ease;

@@ -5,7 +5,7 @@ import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs, setDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { PromptPost } from '@/lib/mockData';
 import PromptCard from '@/components/PromptCard';
-import { Loader2, AlertTriangle, Share } from 'lucide-react';
+import { Loader2, AlertTriangle, Share, Plus, Check } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 export default function CreatorProfilePage() {
@@ -184,8 +184,12 @@ export default function CreatorProfilePage() {
             
             <div className={styles.actions}>
               {user?.uid !== creatorUser.id && (
-                <button className={styles.btnFollow} onClick={toggleFollow}>
-                  {isFollowing ? 'Following' : 'Follow'}
+                <button 
+                  className={isFollowing ? styles.btnFollowing : styles.btnFollow} 
+                  onClick={toggleFollow}
+                  title={isFollowing ? "Unfollow" : "Follow"}
+                >
+                  {isFollowing ? <Check size={16} strokeWidth={2.5} /> : <Plus size={16} strokeWidth={2.5} />}
                 </button>
               )}
               <button className={styles.btnShareIcon} onClick={handleShare} title="Share Profile">

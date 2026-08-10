@@ -813,4 +813,40 @@
   .modalContentSection { padding: 1.25rem; max-height: 50vh; }
 }
 
+.btnFollowIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--text-primary);
+  color: var(--text-primary);
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
 
+.btnFollowIcon:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btnFollowingIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--text-primary);
+  color: var(--bg-primary);
+  background: var(--text-primary);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.btnFollowingIcon:hover {
+  opacity: 0.9;
+}

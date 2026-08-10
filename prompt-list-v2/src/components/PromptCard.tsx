@@ -4,7 +4,7 @@ import { PromptPost } from '@/lib/mockData';
 import { useAuth } from '@/context/AuthContext';
 import { doc, updateDoc, increment, collection, onSnapshot, addDoc, serverTimestamp, query, orderBy, arrayUnion, arrayRemove, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Heart, Bookmark, Copy, Check, Sparkles, Share2, MessageSquare, MessageCircle, ExternalLink, Send, Loader2, PlayCircle, ShieldCheck, Flag, ThumbsUp, Eye, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Heart, Bookmark, Copy, Check, Sparkles, Share2, MessageSquare, MessageCircle, ExternalLink, Send, Loader2, PlayCircle, ShieldCheck, Flag, ThumbsUp, Eye, X, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { moderateText } from '@/lib/ai';
 import { ENABLE_MONETIZATION } from '@/lib/config';
@@ -635,11 +635,12 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                   
                   {user?.uid !== post.creator.uid && (
                     <button 
-                      className={isFollowing ? "btn-solid" : "btn-outline"} 
+                      className={isFollowing ? styles.btnFollowingIcon : styles.btnFollowIcon} 
                       onClick={toggleFollow}
-                      style={{ padding: '0.35rem 0.85rem', fontSize: '0.75rem', borderRadius: '6px', alignSelf: 'flex-end', marginBottom: '0.1rem', border: 'none' }}
+                      style={{ alignSelf: 'flex-end', marginBottom: '0.1rem' }}
+                      title={isFollowing ? "Unfollow" : "Follow"}
                     >
-                      {isFollowing ? 'Following' : '+ Follow'}
+                      {isFollowing ? <Check size={16} strokeWidth={2.5} /> : <Plus size={16} strokeWidth={2.5} />}
                     </button>
                   )}
                 </div>
