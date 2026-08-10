@@ -532,11 +532,18 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                       type="text" 
                       placeholder={user ? "Write a comment..." : "Sign in to comment..."} 
                       value={newComment}
-                      onChange={e => setNewComment(e.target.value)}
+                      onChange={e => {
+                        const words = e.target.value.trim().split(/\s+/);
+                        if (words.length <= 100 || e.target.value === '') {
+                          setNewComment(e.target.value);
+                        }
+                      }}
                       disabled={isSubmittingComment}
-                      style={{ flex: 1, padding: '0.5rem 0.85rem', borderRadius: '0px', border: '1px solid var(--border-color)', backgroundColor: 'transparent', color: 'var(--text-primary)', fontSize: '0.85rem', outline: 'none', fontWeight: 500 }}
+                      style={{ flex: 1, padding: '0.5rem 0.2rem', borderRadius: '0px', border: 'none', borderBottom: '1px solid var(--border-color)', backgroundColor: 'transparent', color: 'var(--text-primary)', fontSize: '0.85rem', outline: 'none', fontWeight: 500, transition: 'border-color 0.2s' }}
+                      onFocus={(e) => e.currentTarget.style.borderBottomColor = 'var(--text-primary)'}
+                      onBlur={(e) => e.currentTarget.style.borderBottomColor = 'var(--border-color)'}
                     />
-                    <button type="submit" className="btn-outline" disabled={isSubmittingComment || !newComment.trim()} style={{ padding: '0.5rem 1rem', borderRadius: '0px', borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}>
+                    <button type="submit" className="btn-outline" disabled={isSubmittingComment || !newComment.trim()} style={{ padding: '0.5rem 1rem', borderRadius: '0px', border: 'none', color: 'var(--text-secondary)' }}>
                       {isSubmittingComment ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Send size={14} />}
                     </button>
                   </div>
@@ -550,8 +557,8 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                       const replies = comments.filter(r => r.parentId === c.id);
                       const isExpanded = expandedReplies[c.id];
                       return (
-                        <div key={c.id} style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                          <div style={{ display: 'flex', gap: '0.6rem', padding: '0.5rem', backgroundColor: 'transparent', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                        <div key={c.id} style={{ display: 'flex', flexDirection: 'column' }}>
+                          <div style={{ display: 'flex', gap: '0.6rem', padding: '0.8rem 0', backgroundColor: 'transparent', borderBottom: '1px solid var(--border-color)' }}>
                             <img src={c.authorAvatar} alt={c.authorName} style={{ width: '26px', height: '26px', borderRadius: '50%', objectFit: 'cover' }} />
                             <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -584,9 +591,14 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                           )}
 
                           {isExpanded && replies.length > 0 && (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', paddingLeft: '2.5rem' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', paddingLeft: '2.5rem', position: 'relative' }}>
+                              {/* Thread connecting line */}
+                              <div style={{ position: 'absolute', left: '1.25rem', top: 0, bottom: 0, width: '1px', backgroundColor: 'var(--border-color)' }} />
+                              
                               {replies.map(reply => (
-                                <div key={reply.id} style={{ display: 'flex', gap: '0.6rem', padding: '0.5rem', backgroundColor: 'transparent', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                                <div key={reply.id} style={{ display: 'flex', gap: '0.6rem', padding: '0.8rem 0', backgroundColor: 'transparent', borderBottom: '1px solid var(--border-color)', position: 'relative' }}>
+                                  {/* Connector from thread line to reply avatar */}
+                                  <div style={{ position: 'absolute', left: '-1.25rem', top: '1.4rem', width: '1rem', height: '1px', backgroundColor: 'var(--border-color)' }} />
                                   <img src={reply.authorAvatar} alt={reply.authorName} style={{ width: '22px', height: '22px', borderRadius: '50%', objectFit: 'cover' }} />
                                   <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
