@@ -26,31 +26,29 @@
 
 .brandTitle {
   font-family: var(--font-family);
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 22px;
+  font-weight: 300;
   letter-spacing: -0.02em;
   color: var(--text-primary);
   text-decoration: none;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
-.brandIcon {
+.brandImage {
   width: 28px;
   height: 28px;
-  background-color: var(--text-primary);
-  color: var(--bg-primary);
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  object-fit: contain;
 }
 
 .brandSuffix {
-  font-weight: 400;
+  font-weight: 500;
   color: var(--text-muted);
-  font-size: 18px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
 }
 
 

@@ -120,9 +120,11 @@ export default function Navbar() {
         {/* Left side: Logo & Tabs */}
         <div className={styles.leftSection}>
           <Link to="/" className={styles.brandTitle}>
-            <span className={styles.brandIcon}><Sparkles size={16} /></span>
-            <span>Olin</span>
-            <span className={styles.brandSuffix}>Prompt List</span>
+            <img src="/logo.png" alt="Olin Logo" className={styles.brandImage} />
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px' }}>
+              <span>Olin</span>
+              <span className={styles.brandSuffix}>Prompt List</span>
+            </div>
           </Link>
         </div>
 
