@@ -88,7 +88,7 @@
 
 .kpiCard {
   background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
+  border: none;
   border-radius: 12px;
   padding: 1.5rem;
   display: flex;
@@ -101,25 +101,31 @@
 .kpiTop {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 0.5rem;
   color: var(--text-muted);
   font-weight: 400;
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 1rem;
-  width: 100%;
 }
 
 .kpiIcon {
   color: var(--text-muted);
 }
 
+.kpiValueRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
 .kpiValue {
   font-size: 48px;
   font-weight: 500;
   color: var(--text-primary);
-  line-height: 1.1;
+  line-height: 1;
   letter-spacing: -0.02em;
 }
 
@@ -136,21 +142,26 @@
 .trendTag {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 12px;
-  font-size: 11px;
+  gap: 0.15rem;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 0;
+  margin-bottom: 0.5rem;
 }
 
-.trendPositive {
-  background-color: rgba(16, 185, 129, 0.15);
+.trendExcellent {
   color: #10b981;
 }
 
-.trendNegative {
-  background-color: rgba(239, 68, 68, 0.15);
+.trendGood {
+  color: #eab308;
+}
+
+.trendBad {
+  color: #f97316;
+}
+
+.trendTerrible {
   color: #ef4444;
 }
 

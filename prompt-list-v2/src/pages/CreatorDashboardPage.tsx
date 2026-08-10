@@ -150,9 +150,15 @@ export default function CreatorDashboardPage() {
 
   const TrendIndicator = ({ trend }: { trend: number | null }) => {
     if (trend === null) return null;
+    let trendClass = '';
+    if (trend >= 50) trendClass = styles.trendExcellent;
+    else if (trend >= 0) trendClass = styles.trendGood;
+    else if (trend >= -50) trendClass = styles.trendBad;
+    else trendClass = styles.trendTerrible;
+    
     const isPositive = trend >= 0;
     return (
-      <div className={`${styles.trendTag} ${isPositive ? styles.trendPositive : styles.trendNegative}`}>
+      <div className={`${styles.trendTag} ${trendClass}`}>
         {isPositive ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
         <span>{Math.abs(trend)}%</span>
       </div>
@@ -220,61 +226,61 @@ export default function CreatorDashboardPage() {
           <section className={styles.kpiGrid}>
             <div className={styles.kpiCard}>
               <div className={styles.kpiTop}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Eye size={18} className={styles.kpiIcon} />
-                  <span>Total Impressions</span>
-                </div>
+                <Eye size={18} className={styles.kpiIcon} />
+                <span>Total Impressions</span>
+              </div>
+              <div className={styles.kpiValueRow}>
+                <div className={styles.kpiValue}>{stats.views.toLocaleString()}</div>
                 <TrendIndicator trend={calculateTrend(stats.views, previousStats.views)} />
               </div>
-              <div className={styles.kpiValue}>{stats.views.toLocaleString()}</div>
               <div className={styles.kpiDesc}>Across {filteredPosts.length} published pieces</div>
             </div>
 
             <div className={styles.kpiCard}>
               <div className={styles.kpiTop}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Copy size={18} className={styles.kpiIcon} />
-                  <span>Prompt Copies</span>
-                </div>
+                <Copy size={18} className={styles.kpiIcon} />
+                <span>Prompt Copies</span>
+              </div>
+              <div className={styles.kpiValueRow}>
+                <div className={styles.kpiValue}>{stats.copies.toLocaleString()}</div>
                 <TrendIndicator trend={calculateTrend(stats.copies, previousStats.copies)} />
               </div>
-              <div className={styles.kpiValue}>{stats.copies.toLocaleString()}</div>
               <div className={styles.kpiDesc}>users copied your prompts</div>
             </div>
 
             <div className={styles.kpiCard}>
               <div className={styles.kpiTop}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Bookmark size={18} className={styles.kpiIcon} />
-                  <span>Saved Bookmarks</span>
-                </div>
+                <Bookmark size={18} className={styles.kpiIcon} />
+                <span>Saved Bookmarks</span>
+              </div>
+              <div className={styles.kpiValueRow}>
+                <div className={styles.kpiValue}>{stats.saves.toLocaleString()}</div>
                 <TrendIndicator trend={calculateTrend(stats.saves, previousStats.saves)} />
               </div>
-              <div className={styles.kpiValue}>{stats.saves.toLocaleString()}</div>
               <div className={styles.kpiDesc}>Added to saved posts</div>
             </div>
 
             <div className={styles.kpiCard}>
               <div className={styles.kpiTop}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Heart size={18} className={styles.kpiIcon} />
-                  <span>Community Likes</span>
-                </div>
+                <Heart size={18} className={styles.kpiIcon} />
+                <span>Community Likes</span>
+              </div>
+              <div className={styles.kpiValueRow}>
+                <div className={styles.kpiValue}>{stats.likes.toLocaleString()}</div>
                 <TrendIndicator trend={calculateTrend(stats.likes, previousStats.likes)} />
               </div>
-              <div className={styles.kpiValue}>{stats.likes.toLocaleString()}</div>
               <div className={styles.kpiDesc}>Positive engagement</div>
             </div>
 
             <div className={styles.kpiCard}>
               <div className={styles.kpiTop}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Users size={18} className={styles.kpiIcon} />
-                  <span>Followers</span>
-                </div>
+                <Users size={18} className={styles.kpiIcon} />
+                <span>Followers</span>
+              </div>
+              <div className={styles.kpiValueRow}>
+                <div className={styles.kpiValue}>{followerCount.toLocaleString()}</div>
                 <TrendIndicator trend={timeFilter === 'all' ? null : 12} /> {/* Mock trend for followers */}
               </div>
-              <div className={styles.kpiValue}>{followerCount.toLocaleString()}</div>
               <div className={styles.kpiDesc}>Following your updates</div>
             </div>
           </section>
