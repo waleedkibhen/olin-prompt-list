@@ -30,16 +30,10 @@ export default function CreatorProfilePage() {
       setLoading(true);
       setError(null);
       try {
-        // 1. Fetch user by username or displayName
+        // 1. Fetch user by username ONLY
         const usersRef = collection(db, 'users');
-        let userQuery = query(usersRef, where('username', '==', username.toLowerCase()));
-        let userSnap = await getDocs(userQuery);
-
-        if (userSnap.empty) {
-          // Fallback to displayName
-          userQuery = query(usersRef, where('displayName', '==', username));
-          userSnap = await getDocs(userQuery);
-        }
+        const userQuery = query(usersRef, where('username', '==', username.toLowerCase()));
+        const userSnap = await getDocs(userQuery);
 
         if (userSnap.empty) {
           setError("Creator not found");
@@ -69,7 +63,7 @@ export default function CreatorProfilePage() {
             creator: {
               uid: d.creatorId,
               displayName: d.creatorDisplayName || 'Creator',
-              username: d.creatorUsername,
+              username: d.creatorUsername || 'creator',
               avatarUrl: d.creatorAvatarUrl,
               followerCount: 0
             },
@@ -182,7 +176,7 @@ export default function CreatorProfilePage() {
           </div>
           
           <div className={styles.infoCol}>
-            <h1 className={styles.name}>{creatorUser.displayName}</h1>
+            <h1 className={styles.name}>{creatorUser.username}</h1>
             
             {creatorUser.bio && (
               <p className={styles.bio}>{creatorUser.bio}</p>

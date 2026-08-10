@@ -290,7 +290,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
       const commentsRef = collection(db, `posts/${post.id}/comments`);
       await addDoc(commentsRef, {
         uid: user.uid,
-        authorName: profile.displayName || user.displayName || 'Creator',
+        authorName: profile.username || profile.displayName || user.displayName || 'Creator',
         authorAvatar: profile.avatarUrl || user.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
         text: newComment.trim(),
         createdAt: serverTimestamp(),
@@ -425,7 +425,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', overflow: 'hidden' }}>
                 <span className={styles.captionTitle} style={{ color: '#fff', fontSize: '1rem', fontWeight: 600 }}>{post.title}</span>
                 <div className={styles.creatorTiny} onClick={(e) => { e.stopPropagation(); navigate(`/creator/${post.creator.username}`); }} style={{ cursor: 'pointer' }}>
-                  <span className={styles.creatorNameTiny} style={{ color: 'rgba(255,255,255,0.8)' }}>@{post.creator.displayName}</span>
+                  <span className={styles.creatorNameTiny} style={{ color: 'rgba(255,255,255,0.8)' }}>@{post.creator.username}</span>
                 </div>
               </div>
             </div>
@@ -625,11 +625,11 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
             <div className={styles.modalRightColumn}>
               <div className={styles.modalHeader}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-                  <Link to={`/creator/${post.creator.displayName}`} className={styles.creatorProfileModalLink}>
-                    <img src={post.creator.avatarUrl} alt={post.creator.displayName} className={styles.avatarModal} style={{ borderRadius: '50%' }} />
+                  <Link to={`/creator/${post.creator.username}`} className={styles.creatorProfileModalLink}>
+                    <img src={post.creator.avatarUrl} alt={post.creator.username} className={styles.avatarModal} style={{ borderRadius: '50%' }} />
                     <div className={styles.creatorInfoWrapper}>
                       <span className={styles.curatedByLabel}>Curated by</span>
-                      <h4 className={styles.creatorNameModal}>{post.creator.displayName}</h4>
+                      <h4 className={styles.creatorNameModal}>{post.creator.username}</h4>
                     </div>
                   </Link>
                   
