@@ -26,7 +26,7 @@
 
 .brandTitle {
   font-family: var(--font-family);
-  font-size: 26px;
+  font-size: 22px;
   font-weight: 300;
   letter-spacing: -0.02em;
   color: var(--text-primary);
@@ -37,8 +37,8 @@
 }
 
 .brandImage {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   object-fit: contain;
 }
 
