@@ -264,14 +264,14 @@ export default function ProfilePage() {
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="username">Username Handle (Unique ID)</label>
+            <label htmlFor="username">Username</label>
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-              <span style={{ position: 'absolute', left: '1rem', color: 'var(--text-secondary)', fontWeight: 700 }}>@</span>
+              <span style={{ position: 'absolute', left: '0', color: 'var(--text-secondary)', fontWeight: 400 }}>@</span>
               <input 
                 id="username"
                 type="text" 
                 className={styles.formInput} 
-                style={{ paddingLeft: '2.4rem', width: '100%' }}
+                style={{ paddingLeft: '1.2rem', width: '100%' }}
                 value={username}
                 onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
                 required
