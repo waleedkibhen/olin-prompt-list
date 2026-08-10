@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import styles from './CreatorProfilePage.module.css';
 import { db } from '@/lib/firebase';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, setDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { PromptPost } from '@/lib/mockData';
 import PromptCard from '@/components/PromptCard';
 import { Loader2, AlertTriangle, Share } from 'lucide-react';
@@ -110,7 +110,7 @@ export default function CreatorProfilePage() {
     fetchProfile();
   }, [username, user]);
 
-  const toggleFollow = () => {
+  const toggleFollow = async () => {
     if (!user || !creatorUser) return;
     const nextVal = !isFollowing;
     setIsFollowing(nextVal);
@@ -122,6 +122,22 @@ export default function CreatorProfilePage() {
 
     // Optional: Optimistically update visual follower count
     setFollowerCount(prev => nextVal ? prev + 1 : Math.max(0, prev - 1));
+
+    // Update Firestore
+    const followDocId = `${user.uid}_${creatorUser.id}`;
+    try {
+      if (nextVal) {
+        await setDoc(doc(db, 'follows', followDocId), {
+          followerId: user.uid,
+          followingId: creatorUser.id,
+          timestamp: serverTimestamp()
+        });
+      } else {
+        await deleteDoc(doc(db, 'follows', followDocId));
+      }
+    } catch (err) {
+      console.error("Failed to update follow status in Firestore", err);
+    }
   };
 
   const handleShare = () => {

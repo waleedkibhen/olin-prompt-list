@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styles from './PromptCard.module.css';
 import { PromptPost } from '@/lib/mockData';
 import { useAuth } from '@/context/AuthContext';
-import { doc, updateDoc, increment, collection, onSnapshot, addDoc, serverTimestamp, query, orderBy, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { doc, updateDoc, increment, collection, onSnapshot, addDoc, serverTimestamp, query, orderBy, arrayUnion, arrayRemove, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Heart, Bookmark, Copy, Check, Sparkles, Share2, MessageSquare, MessageCircle, ExternalLink, Send, Loader2, PlayCircle, ShieldCheck, Flag, ThumbsUp, Eye, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -202,7 +202,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
     await Promise.all([postUpdate, userUpdate]).catch(() => {});
   };
 
-  const toggleFollow = (e: React.MouseEvent) => {
+  const toggleFollow = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!requireAuth("Follow")) return;
     if (!user || !post.creator?.uid) return;
@@ -214,6 +214,21 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
     const followedArr = JSON.parse(localStorage.getItem(`following_${user.uid}`) || '[]');
     const nextArr = nextVal ? [...followedArr, creatorUid] : followedArr.filter((item: string) => item !== creatorUid);
     localStorage.setItem(`following_${user.uid}`, JSON.stringify(nextArr));
+    
+    const followDocId = `${user.uid}_${creatorUid}`;
+    try {
+      if (nextVal) {
+        await setDoc(doc(db, 'follows', followDocId), {
+          followerId: user.uid,
+          followingId: creatorUid,
+          timestamp: serverTimestamp()
+        });
+      } else {
+        await deleteDoc(doc(db, 'follows', followDocId));
+      }
+    } catch (err) {
+      console.error("Failed to update follow status in Firestore", err);
+    }
   };
 
   const handleCopyPrompt = async (e?: React.MouseEvent) => {
