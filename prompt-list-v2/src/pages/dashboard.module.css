@@ -89,7 +89,7 @@
 .kpiCard {
   background-color: transparent;
   border: none;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 0;
   padding: 1.5rem 0;
   display: flex;
@@ -123,12 +123,11 @@
 }
 
 .kpiValue {
-  font-family: 'Bebas Neue', 'Spline Sans', sans-serif;
-  font-size: 56px;
-  font-weight: 400;
+  font-size: 48px;
+  font-weight: 500;
   color: var(--text-primary);
   line-height: 1;
-  letter-spacing: 0.02em;
+  letter-spacing: -0.02em;
 }
 
 .kpiDesc {

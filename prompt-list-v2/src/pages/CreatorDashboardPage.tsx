@@ -143,8 +143,10 @@ export default function CreatorDashboardPage() {
   }, [previousFilteredPosts]);
 
   const calculateTrend = (current: number, previous: number) => {
-    if (timeFilter === 'all') return null;
-    if (previous === 0) return null;
+    if (timeFilter === 'all') {
+      return current > 0 ? 100 : null;
+    }
+    if (previous === 0) return current > 0 ? 100 : null;
     return Math.round(((current - previous) / previous) * 100);
   };
 
