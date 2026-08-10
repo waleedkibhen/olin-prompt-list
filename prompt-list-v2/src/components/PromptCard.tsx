@@ -555,7 +555,9 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                             <img src={c.authorAvatar} alt={c.authorName} style={{ width: '26px', height: '26px', borderRadius: '50%', objectFit: 'cover' }} />
                             <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <strong style={{ fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 500 }}>{c.authorName}</strong>
+                                <Link to={`/creator/${c.authorName}`} className={styles.profileLink}>
+                                  <strong style={{ fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 500 }}>{c.authorName}</strong>
+                                </Link>
                                 <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{c.createdAt}</span>
                               </div>
                               <span style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', marginTop: '0.1rem', fontWeight: 400 }}>{c.text}</span>
@@ -588,7 +590,9 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                                   <img src={reply.authorAvatar} alt={reply.authorName} style={{ width: '22px', height: '22px', borderRadius: '50%', objectFit: 'cover' }} />
                                   <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                      <strong style={{ fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 500 }}>{reply.authorName}</strong>
+                                      <Link to={`/creator/${reply.authorName}`} className={styles.profileLink}>
+                                        <strong style={{ fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 500 }}>{reply.authorName}</strong>
+                                      </Link>
                                       <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{reply.createdAt}</span>
                                     </div>
                                     <span style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', marginTop: '0.1rem', fontWeight: 400 }}>{reply.text}</span>
@@ -621,13 +625,13 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
             <div className={styles.modalRightColumn}>
               <div className={styles.modalHeader}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-                  <div className={styles.creatorProfileModal}>
+                  <Link to={`/creator/${post.creator.displayName}`} className={styles.creatorProfileModalLink}>
                     <img src={post.creator.avatarUrl} alt={post.creator.displayName} className={styles.avatarModal} style={{ borderRadius: '50%' }} />
                     <div className={styles.creatorInfoWrapper}>
                       <span className={styles.curatedByLabel}>Curated by</span>
                       <h4 className={styles.creatorNameModal}>{post.creator.displayName}</h4>
                     </div>
-                  </div>
+                  </Link>
                   
                   {user?.uid !== post.creator.uid && (
                     <button 
