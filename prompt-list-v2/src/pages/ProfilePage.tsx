@@ -205,22 +205,15 @@ export default function ProfilePage() {
     <div className={styles.container}>
       <header className={styles.pageHeader}>
         <div className={styles.headerTitleArea}>
-          <div className={styles.iconWrapper}>
-            <User size={24} />
-          </div>
           <div>
-            <h1>Account Profile &amp; Settings</h1>
-            <p>Manage your public creator identity, subscription plan, and support inquiries.</p>
+            <h1 style={{ fontWeight: 400, fontSize: '1.5rem' }}>Settings</h1>
           </div>
         </div>
       </header>
 
       <div className={styles.gridSection}>
         <form className={styles.card} onSubmit={handleSaveProfile}>
-          <h2 className={styles.cardTitle}>
-            <User size={18} />
-            <span>Creator Profile Identity</span>
-          </h2>
+          {/* Removed Creator Profile Identity Header */}
 
           {errorMsg && (
             <div style={{ padding: '0.75rem 1rem', backgroundColor: 'rgba(244, 63, 94, 0.1)', color: '#f43f5e', borderRadius: '8px', fontSize: '0.88rem', border: '1px solid #f43f5e' }}>
@@ -317,74 +310,7 @@ export default function ProfilePage() {
           </button>
         </form>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
-          {isAdmin && (
-            <div className={styles.adminCard}>
-              <div style={{ marginBottom: '1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)', fontWeight: 800, marginBottom: '0.25rem' }}>
-                  <ShieldAlert size={18} />
-                  <span>Verified Superadmin Access</span>
-                </div>
-                <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                  Authorized identity: <strong>wisecrafts81@gmail.com</strong>
-                </span>
-              </div>
-              <Link to="/admin" className="btn-solid" style={{ backgroundColor: 'transparent', color: 'var(--text-primary)', border: '1px solid var(--text-primary)', fontWeight: 800, textDecoration: 'none', padding: '0.5rem 1rem', borderRadius: '0px', fontSize: '0.85rem' }}>
-                Open Superadmin Console →
-              </Link>
-            </div>
-          )}
-
-          {ENABLE_MONETIZATION && (
-            <div className={styles.card}>
-              <h2 className={styles.cardTitle}>
-                <Sparkles size={18} />
-                <span>Subscription &amp; Plans</span>
-              </h2>
-
-              <div>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.4rem' }}>Current Membership Status</span>
-                <div className={`${styles.planBadge} ${isSubscriber ? styles.planActive : styles.planFree}`}>
-                  <span>{isSubscriber ? 'Olin Premium Subscriber (No Ads)' : 'Free Community Plan (Ad-Supported)'}</span>
-                </div>
-              </div>
-
-              <div className={styles.planBox}>
-                <strong style={{ fontSize: '0.95rem', color: 'var(--text-primary)' }}>
-                  {isSubscriber ? 'Premium Subscriber Tier' : 'Ad-Supported Tier'}
-                </strong>
-                <p>
-                  {isSubscriber 
-                    ? 'You currently enjoy subscriber-only unlock privileges on premium creator prompts without commercial sponsor interruptions.'
-                    : 'You are on the standard Free plan. Prompts can be immediately unlocked anytime by watching brief community sponsor advertisements.'}
-                </p>
-                <button 
-                  type="button"
-                  className={isSubscriber ? styles.btnCancelPlan : styles.btnUpgradePlan}
-                  onClick={handleToggleSubscription}
-                >
-                  {isSubscriber ? 'Manage / Cancel Plan on Whop ↗' : 'Upgrade to Subscriber Plan →'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          <div className={styles.supportCard}>
-            <div>
-              <strong style={{ display: 'block', color: 'var(--text-primary)', fontSize: '1rem' }}>Need Assistance or Have Feedback?</strong>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Submit bug reports, feature ideas, or appeal moderation flags.</span>
-            </div>
-            <button 
-              type="button"
-              className="btn-outline"
-              onClick={() => setIsSupportOpen(true)}
-              style={{ borderRadius: '0px', padding: '0.5rem 1.1rem', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem' }}
-            >
-              <MessageSquarePlus size={15} />
-              <span>Contact Support / Feedback</span>
-            </button>
-          </div>
-        </div>
+        {/* Removed Admin, Subscription, and Support cards */}
       </div>
 
       {isSupportOpen && (
