@@ -819,8 +819,8 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  border: 1px solid var(--text-primary);
-  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+  color: var(--text-secondary);
   background: transparent;
   border-radius: 50%;
   cursor: pointer;
@@ -829,7 +829,9 @@
 }
 
 .btnFollowIcon:hover {
-  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .btnFollowingIcon {

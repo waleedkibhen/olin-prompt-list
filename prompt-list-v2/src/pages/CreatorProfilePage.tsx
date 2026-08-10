@@ -193,7 +193,7 @@ export default function CreatorProfilePage() {
                 </button>
               )}
               <button className={styles.btnShareIcon} onClick={handleShare} title="Share Profile">
-                <Share size={16} />
+                <Share size={16} strokeWidth={2.5} />
               </button>
             </div>
           </div>
