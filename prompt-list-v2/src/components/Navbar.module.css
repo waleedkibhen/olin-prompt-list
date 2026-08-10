@@ -33,12 +33,12 @@
   text-decoration: none;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
 }
 
 .brandImage {
-  width: 28px;
-  height: 28px;
+  width: 18px;
+  height: 18px;
   object-fit: contain;
 }
 
@@ -46,9 +46,8 @@
   font-weight: 500;
   color: var(--text-muted);
   font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 4px;
+  letter-spacing: 0.02em;
+  margin-bottom: 3px;
 }
 
 
