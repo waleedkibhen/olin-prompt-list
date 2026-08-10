@@ -121,7 +121,7 @@ export default function Navbar() {
         <div className={styles.leftSection}>
           <Link to="/" className={styles.brandTitle}>
             <img src="/logo.svg" alt="Olin Logo" className={styles.brandImage} />
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '5px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px' }}>
               <span>Olin</span>
               <span className={styles.brandSuffix}>Prompt List</span>
             </div>
