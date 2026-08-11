@@ -868,7 +868,7 @@
   
   .leftArtworkTitle { 
     order: 1; 
-    margin: 4.5rem 1rem 1rem 1rem; /* push below close button */
+    margin: 3rem 1rem 1rem 1rem; /* push below close button but not too far */
   }
   .modalHeader { 
     order: 2; 

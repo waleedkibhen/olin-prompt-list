@@ -357,6 +357,22 @@
     display: none;
   }
   .mobileSearchBtn {
+    display: flex;
+  }
+  .filterSubMenu {
+    position: static;
+    width: 100%;
+    min-width: unset;
+    border: none;
+    border-left: 2px solid var(--border-color);
+    margin-left: 1rem;
+    padding-left: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  .filterCategoryItem {
+    flex-wrap: wrap;
+  }
+  .mobileSearchBtn {
     display: flex !important;
   }
   .actionControls {
