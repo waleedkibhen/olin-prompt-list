@@ -52,10 +52,10 @@ export default function ReportModal({ post, onClose }: ReportModalProps) {
     <div className={styles.modalBackdrop} onClick={onClose} style={{ zIndex: 9999 }}>
       <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
         <header className={styles.header}>
-          <h3>
-            <Flag size={20} style={{ color: '#f43f5e' }} />
-            <span>Report Community Violation</span>
-          </h3>
+          <h2 style={{ fontSize: '1.15rem', fontWeight: 500, margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', letterSpacing: 'normal', color: 'var(--text-primary)' }}>
+            <Flag size={20} />
+            Report Community Violation
+          </h2>
           <button className={styles.closeBtn} onClick={onClose}>
             <X size={20} />
           </button>
@@ -78,7 +78,7 @@ export default function ReportModal({ post, onClose }: ReportModalProps) {
           </div>
         ) : (
           <form className={styles.formBody} onSubmit={handleSubmit}>
-            <div style={{ background: 'var(--bg-tertiary)', padding: '0.75rem 1rem', borderRadius: '8px', fontSize: '0.825rem', color: 'var(--text-secondary)', marginBottom: '1rem', borderLeft: '3px solid #f43f5e' }}>
+            <div style={{ background: 'var(--bg-tertiary)', padding: '0.75rem 1rem', borderRadius: '4px', fontSize: '0.825rem', color: 'var(--text-secondary)', marginBottom: '1rem', border: '1px solid var(--border-color)' }}>
               Reporting artwork: <strong style={{ color: 'var(--text-primary)' }}>"{post.title}"</strong> by @{post.creator.username}
             </div>
 
@@ -107,9 +107,12 @@ export default function ReportModal({ post, onClose }: ReportModalProps) {
               )}
             </div>
 
-            <button type="submit" className={`btn-solid ${styles.submitBtn}`} disabled={isSubmitting} style={{ background: '#f43f5e', color: '#fff', border: 'none' }}>
-              {isSubmitting ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> : <Flag size={18} />}
-              <span>Submit Report to Admin</span>
+            <button type="submit" className={`btn-solid ${styles.submitBtn}`} disabled={isSubmitting} style={{ background: '#dc2626', color: '#fff', border: 'none' }}>
+              {isSubmitting ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : (
+                <>
+                  <Flag size={16} /> Submit Report to Admin
+                </>
+              )}
             </button>
           </form>
         )}

@@ -834,6 +834,12 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
+.reportBtn:hover {
+  color: #f43f5e;
+  border-color: rgba(244, 63, 94, 0.3);
+  background-color: rgba(244, 63, 94, 0.05);
+}
+
 .btnFollowingIcon {
   display: flex;
   align-items: center;

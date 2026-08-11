@@ -33,12 +33,13 @@
 
 .header h3 {
   font-size: 1.15rem;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--text-primary);
   display: flex;
   align-items: center;
   gap: 0.5rem;
   margin: 0;
+  letter-spacing: normal;
 }
 
 .closeBtn {
