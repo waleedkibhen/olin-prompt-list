@@ -23,7 +23,8 @@ export default function CreatePostPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [promptText, setPromptText] = useState('');
-  const [model, setModel] = useState<'Midjourney V6' | 'Flux.1' | 'DALL-E 3' | 'Stable Diffusion XL'>('Midjourney V6');
+  const [model, setModel] = useState('Midjourney');
+  const [customModel, setCustomModel] = useState('');
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
   const [wasFlagged, setWasFlagged] = useState(false);
   
@@ -206,7 +207,7 @@ export default function CreatePostPage() {
 
     try {
       setStatusText('Scanning text for safety violations...');
-      const textAnalysis = await moderateText(`${title}\n${description}\n${promptText}`);
+      const textAnalysis = await moderateText(`${title}\n${description}\n${promptText}\n${model === 'Other' ? customModel : ''}`);
       if (!textAnalysis.approved) {
         throw new Error(`Content blocked: ${textAnalysis.reason}. Your account has been flagged.`);
       }
@@ -294,7 +295,7 @@ export default function CreatePostPage() {
         title,
         description,
         promptText,
-        model,
+        model: model === 'Other' ? customModel.trim() || 'Unknown' : model,
         monetizationType: 'free',
         
         imageUrls: imageUrls,
@@ -504,11 +505,11 @@ export default function CreatePostPage() {
               </div>
               {isModelDropdownOpen && (
                 <div className={styles.dropdownList}>
-                  {['Midjourney V6', 'Flux.1', 'DALL-E 3', 'Stable Diffusion XL'].map(m => (
+                  {['GPT Image', 'Nano Banana', 'Midjourney', 'Flux', 'Stable Diffusion XL', 'Other'].map(m => (
                     <div 
                       key={m} 
                       className={`${styles.dropdownItem} ${model === m ? styles.active : ''}`}
-                      onClick={() => { setModel(m as any); setIsModelDropdownOpen(false); }}
+                      onClick={() => { setModel(m); setIsModelDropdownOpen(false); }}
                     >
                       {m}
                     </div>
@@ -516,6 +517,19 @@ export default function CreatePostPage() {
                 </div>
               )}
             </div>
+            {model === 'Other' && (
+              <div style={{ marginTop: '0.75rem' }}>
+                <input
+                  type="text"
+                  className={styles.plainInput}
+                  placeholder="Enter model name..."
+                  value={customModel}
+                  maxLength={17}
+                  onChange={e => setCustomModel(e.target.value)}
+                />
+                {getCharLimitWarning(customModel.length, 17)}
+              </div>
+            )}
           </div>
 
           <div className={styles.fieldGroup}>
