@@ -5,6 +5,7 @@ import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Flag, X, Loader2, CheckCircle2 } from 'lucide-react';
 import { PromptPost } from '@/lib/mockData';
+import toast from 'react-hot-toast';
 
 interface ReportModalProps {
   post: PromptPost;
@@ -21,7 +22,7 @@ export default function ReportModal({ post, onClose }: ReportModalProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
-      alert("Please log in to submit community reports.");
+      toast.error("Please sign in to submit community reports.");
       return;
     }
 
@@ -43,7 +44,7 @@ export default function ReportModal({ post, onClose }: ReportModalProps) {
         onClose();
       }, 1600);
     } catch (err: any) {
-      alert(`Error submitting report: ${err.message}`);
+      toast.error(`Error submitting report: ${err.message}`);
       setIsSubmitting(false);
     }
   };

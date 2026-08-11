@@ -4,6 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { MessageSquarePlus, X, Send, Loader2, CheckCircle2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 interface FeedbackModalProps {
   onClose: () => void;
@@ -19,7 +20,7 @@ export default function FeedbackModal({ onClose }: FeedbackModalProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
-      alert("Please log in to submit support requests.");
+      toast.error("Please sign in to submit support requests.");
       return;
     }
     if (!description.trim()) return;
@@ -41,7 +42,7 @@ export default function FeedbackModal({ onClose }: FeedbackModalProps) {
         onClose();
       }, 1500);
     } catch (err: any) {
-      alert(`Error submitting feedback: ${err.message}`);
+      toast.error(`Error submitting feedback: ${err.message}`);
       setIsSubmitting(false);
     }
   };

@@ -7,6 +7,7 @@ import { PromptPost } from '@/lib/mockData';
 import PromptCard from '@/components/PromptCard';
 import { Loader2, AlertTriangle, Share, Plus, Check } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import toast from 'react-hot-toast';
 
 export default function CreatorProfilePage() {
   const { username } = useParams<{ username: string }>();
@@ -142,7 +143,7 @@ export default function CreatorProfilePage() {
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
-    alert('Profile link copied to clipboard!');
+    toast.success('Profile link copied to clipboard!');
   };
 
   if (loading) {

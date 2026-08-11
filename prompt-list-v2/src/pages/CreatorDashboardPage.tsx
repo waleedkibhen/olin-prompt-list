@@ -7,6 +7,7 @@ import { PromptPost } from '@/lib/mockData';
 import { BarChart2, Eye, Heart, Bookmark, Copy, Trash2, ExternalLink, PlusCircle, Loader2, AlertTriangle, Sparkles, CheckCircle, Award, Users, TrendingUp, TrendingDown } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ENABLE_MONETIZATION } from '@/lib/config';
+import toast from 'react-hot-toast';
 
 export default function CreatorDashboardPage() {
   const { user, profile, updateProfileState, loading: authLoading, signInWithGoogle } = useAuth();
@@ -184,7 +185,7 @@ export default function CreatorDashboardPage() {
       await deleteDoc(doc(db, 'posts', postToDelete.id));
       setPostToDelete(null);
     } catch (err: any) {
-      alert(`Failed to delete artwork: ${err.message}`);
+      toast.error(`Failed to delete artwork: ${err.message}`);
     }
   };
 

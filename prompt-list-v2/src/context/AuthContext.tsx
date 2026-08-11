@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged, User } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
+import toast from 'react-hot-toast';
 
 export interface CreatorProfile {
   uid: string;
@@ -130,7 +131,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (docSnap.exists()) {
             const data = docSnap.data() as CreatorProfile;
             if (data.isBanned) {
-              alert("Your account has been suspended by an administrator due to policy violations.");
+              toast.error("Your account has been suspended by an administrator due to policy violations.");
               fbSignOut(auth);
               setUser(null);
               setProfile(null);
@@ -177,7 +178,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error: any) {
       console.error("Google sign-in error:", error);
       if (error.code !== 'auth/popup-closed-by-user') {
-        alert(`Authentication failed: ${error.message || 'Unknown error'}`);
+        toast.error(`Sign-in failed: ${error.message || 'Unknown error'}`);
       }
     }
   };

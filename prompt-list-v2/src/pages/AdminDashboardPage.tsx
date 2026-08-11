@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import RichTextRenderer from '@/components/RichTextRenderer';
 import { extractImagePalette } from '@/lib/colorAnalyzer';
 import { analyzeArtworkMultimodalWithGemini, diagnoseGeminiApi } from '@/lib/ai';
+import toast from 'react-hot-toast';
 
 interface AdminPost {
   id: string;
@@ -127,14 +128,14 @@ export default function AdminDashboardPage() {
         `Great news! Our admin team reviewed your post "${post.title}" and approved it. It is now published live in community feeds!`,
         "moderation"
       );
-      alert(`Approved "${post.title}"!`);
+      toast.success(`Approved "${post.title}"!`);
     } catch (e: any) {
-      alert(`Error approving: ${e.message}`);
+      toast.error(`Error approving: ${e.message}`);
     }
   };
 
   const handleRejectPost = async (post: AdminPost) => {
-    const reason = prompt(`Optional feedback message for rejecting "${post.title}":`, "Did not meet community safety standards.");
+    const reason = window.prompt(`Optional feedback message for rejecting "${post.title}":`, "Did not meet community safety standards.");
     if (reason === null) return;
     try {
       await deleteDoc(doc(db, 'posts', post.id));
@@ -144,9 +145,9 @@ export default function AdminDashboardPage() {
         `Your submission "${post.title}" was permanently removed by admin review. Reason: ${reason || 'Policy infraction'}`,
         "moderation"
       );
-      alert(`Deleted "${post.title}".`);
+      toast.success(`Deleted "${post.title}".`);
     } catch (e: any) {
-      alert(`Error deleting: ${e.message}`);
+      toast.error(`Error deleting: ${e.message}`);
     }
   };
 
@@ -159,9 +160,9 @@ export default function AdminDashboardPage() {
         "Congratulations! Your application has been verified by Admin. You can now publish Premium subscription vaults and earn income on Olin Prompt List!",
         "system"
       );
-      alert(`Approved monetization for @${targetUser.username}!`);
+      toast.success(`Approved monetization for @${targetUser.username}!`);
     } catch (e: any) {
-      alert(`Error: ${e.message}`);
+      toast.error(`Error: ${e.message}`);
     }
   };
 
@@ -176,16 +177,16 @@ export default function AdminDashboardPage() {
         `Your creator monetization request was not approved at this time. Admin Note: ${reason || 'Ineligible metrics'}`,
         "system"
       );
-      alert(`Rejected application for @${targetUser.username}.`);
+      toast.success(`Rejected application for @${targetUser.username}.`);
     } catch (e: any) {
-      alert(`Error: ${e.message}`);
+      toast.error(`Error: ${e.message}`);
     }
   };
 
   const handleReplyTicket = async (ticket: SupportTicket) => {
     const replyText = replyTextMap[ticket.id];
     if (!replyText || !replyText.trim()) {
-      alert("Please enter a reply message.");
+      toast.error("Please enter a reply message.");
       return;
     }
     try {
@@ -200,9 +201,9 @@ export default function AdminDashboardPage() {
         "system"
       );
       setReplyTextMap(prev => ({ ...prev, [ticket.id]: '' }));
-      alert("Reply sent directly to user Notification Bell!");
+      toast.success("Reply sent to user Notification Bell!");
     } catch (e: any) {
-      alert(`Error responding: ${e.message}`);
+      toast.error(`Error responding: ${e.message}`);
     }
   };
 
@@ -216,9 +217,9 @@ export default function AdminDashboardPage() {
 
     try {
       await updateDoc(doc(db, 'users', targetUser.uid), { isBanned: newStatus });
-      alert(`@${targetUser.username} is now ${newStatus ? 'BANNED' : 'UNBANNED'}.`);
+      toast.success(`@${targetUser.username} is now ${newStatus ? 'BANNED' : 'UNBANNED'}.`);
     } catch (e: any) {
-      alert(`Error updating user status: ${e.message}`);
+      toast.error(`Error updating user status: ${e.message}`);
     }
   };
 
@@ -304,7 +305,7 @@ export default function AdminDashboardPage() {
       }
       setTimeout(() => setScanStatus(null), 15000);
     } catch (err: any) {
-      alert(`Scan failed: ${err.message}`);
+      toast.error(`Scan failed: ${err.message}`);
       setScanStatus(null);
     } finally {
       setIsScanningColors(false);

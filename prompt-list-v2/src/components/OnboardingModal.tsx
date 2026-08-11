@@ -6,6 +6,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
 import { sendNotification } from '@/lib/notifications';
 import { Sparkles, Camera, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function OnboardingModal() {
   const { user, profile, updateProfileState } = useAuth();
@@ -79,7 +80,7 @@ export default function OnboardingModal() {
     if (!e.target.files || !e.target.files[0] || !user) return;
     const file = e.target.files[0];
     if (!file.type.startsWith('image/')) {
-      alert("Please select a supported image format (JPG/PNG/WEBP).");
+      toast.error("Please select a supported image format (JPG/PNG/WEBP).");
       return;
     }
 
@@ -90,7 +91,7 @@ export default function OnboardingModal() {
       const downloadUrl = await getDownloadURL(storageRef);
       setAvatarUrl(downloadUrl);
     } catch (err: any) {
-      alert(`Failed to upload avatar photo: ${err.message}`);
+      toast.error(`Failed to upload avatar: ${err.message}`);
     } finally {
       setUploadingAvatar(false);
     }
@@ -99,11 +100,11 @@ export default function OnboardingModal() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!displayName.trim()) {
-      alert("Please enter a valid Display Name.");
+      toast.error("Please enter a valid Display Name.");
       return;
     }
     if (!isUsernameAvailable || isCheckingUsername) {
-      alert("Please select a valid, available username before proceeding.");
+      toast.error("Please select a valid, available username before proceeding.");
       return;
     }
 
@@ -125,7 +126,7 @@ export default function OnboardingModal() {
         "system"
       );
     } catch (err: any) {
-      alert(`Failed to complete onboarding: ${err.message}`);
+      toast.error(`Failed to complete onboarding: ${err.message}`);
       setIsSubmitting(false);
     }
   };

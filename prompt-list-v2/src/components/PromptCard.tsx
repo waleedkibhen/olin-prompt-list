@@ -10,6 +10,7 @@ import { moderateText } from '@/lib/ai';
 import { ENABLE_MONETIZATION } from '@/lib/config';
 import ReportModal from '@/components/ReportModal';
 import RichTextRenderer, { copyRichPrompt } from '@/components/RichTextRenderer';
+import toast from 'react-hot-toast';
 
 interface PromptCardProps {
   post: PromptPost;
@@ -149,7 +150,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
 
   const requireAuth = (_actionName: string): boolean => {
     if (!user) {
-      alert(`Sign in to perform this action!`);
+      toast.error('Sign in to perform this action.');
       signInWithGoogle();
       return false;
     }
@@ -346,21 +347,44 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
 
   const handleReportComment = async (commentId: string) => {
     if (!requireAuth("Report Comment")) return;
-    if (window.confirm("Are you sure you want to report this comment for being harmful, dangerous, violent, or hateful?")) {
-      try {
-        await addDoc(collection(db, 'reports'), {
-          type: 'comment',
-          commentId,
-          postId: post.id,
-          reportedBy: user?.uid,
-          createdAt: serverTimestamp()
-        });
-        alert("Comment reported successfully.");
-      } catch (err) {
-        console.error("Failed to report comment", err);
-        alert("Report submitted.");
-      }
-    }
+    toast(
+      (t) => (
+        <span style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <span style={{ fontWeight: 500 }}>Report this comment?</span>
+          <span style={{ fontSize: '0.8rem', opacity: 0.75 }}>Flag as harmful, hateful, or dangerous content.</span>
+          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem' }}>
+            <button
+              onClick={async () => {
+                toast.dismiss(t.id);
+                try {
+                  await addDoc(collection(db, 'reports'), {
+                    type: 'comment',
+                    commentId,
+                    postId: post.id,
+                    reportedBy: user?.uid,
+                    createdAt: serverTimestamp()
+                  });
+                  toast.success('Comment reported successfully.');
+                } catch (err) {
+                  console.error('Failed to report comment', err);
+                  toast.success('Report submitted.');
+                }
+              }}
+              style={{ padding: '0.3rem 0.75rem', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '0.8rem' }}
+            >
+              Report
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              style={{ padding: '0.3rem 0.75rem', background: 'transparent', color: 'inherit', border: '1px solid var(--border-color)', borderRadius: '3px', cursor: 'pointer', fontSize: '0.8rem' }}
+            >
+              Cancel
+            </button>
+          </div>
+        </span>
+      ),
+      { duration: Infinity }
+    );
   };
 
   const toggleReplies = (commentId: string) => {
@@ -373,7 +397,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
   const handleReportPost = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!user) {
-      alert("Please sign in with your Google account to report community guideline violations.");
+      toast.error('Please sign in to report community guideline violations.');
       return;
     }
     setIsReportModalOpen(true);
