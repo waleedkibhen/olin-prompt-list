@@ -6,7 +6,7 @@ import { sendNotification } from '@/lib/notifications';
 import { doc, setDoc, serverTimestamp, collection, query, getDocs, orderBy, limit } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
-import { UploadCloud, CheckCircle2, Loader2, Image as ImageIcon, Trash2, ShieldAlert, AlertTriangle, Info, PlusCircle, ChevronDown, Type, Box, AlignLeft, Terminal } from 'lucide-react';
+import { UploadCloud, CheckCircle2, Loader2, Image as ImageIcon, Trash2, ShieldAlert, AlertTriangle, Info, PlusCircle, ChevronDown, Type, Box, AlignLeft, Terminal, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { extractImagePalette } from '@/lib/colorAnalyzer';
 
