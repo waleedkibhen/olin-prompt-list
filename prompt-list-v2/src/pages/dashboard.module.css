@@ -456,3 +456,14 @@
 .modalCancelBtn:hover {
   background: var(--bg-hover);
 }
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 2rem 1rem 4rem;
+  }
+  .tableContainer {
+    width: calc(100vw - 2rem);
+    overflow-x: auto;
+  }
+}

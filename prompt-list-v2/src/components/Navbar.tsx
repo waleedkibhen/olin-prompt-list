@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './Navbar.module.css';
-import { Search, Filter, Plus, User, Bell, ChevronDown, ChevronRight, Check, Sparkles, Moon, Sun, X } from 'lucide-react';
+import { Search, Filter, Plus, User, Bell, ChevronDown, ChevronRight, Check, Sparkles, Moon, Sun, X, ChevronLeft } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useRecentSearches } from '@/hooks/useRecentSearches';
 import NotificationBell from './NotificationBell';
@@ -23,6 +23,7 @@ export default function Navbar() {
 
   // Search state
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   
   // Filter state
@@ -91,6 +92,7 @@ export default function Navbar() {
       });
       setIsSearchExpanded(false);
     }
+    setIsMobileSearchOpen(false);
   };
 
   const handleTabClick = (tab: string) => {
@@ -160,6 +162,7 @@ export default function Navbar() {
                       setSearchQuery(item.term);
                       setSearchParams(prev => { prev.set('search', item.term); return prev; });
                       setIsSearchExpanded(false);
+                      setIsMobileSearchOpen(false);
                     }}
                   >
                     {item.image ? (
@@ -184,8 +187,68 @@ export default function Navbar() {
           )}
         </div>
 
+        {/* Mobile Search Overlay */}
+        {isMobileSearchOpen && (
+          <div className={styles.mobileSearchOverlay}>
+            <div className={styles.mobileSearchHeader}>
+              <button className={styles.iconBtn} onClick={() => setIsMobileSearchOpen(false)}>
+                <ChevronLeft size={24} />
+              </button>
+              <form onSubmit={handleSearchSubmit} style={{ flex: 1, display: 'flex' }}>
+                <input
+                  type="text"
+                  placeholder="Search prompts..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={styles.mobileSearchInput}
+                  autoFocus
+                />
+              </form>
+            </div>
+            {recentSearches.length > 0 && (
+              <div style={{ marginTop: '1rem' }}>
+                <h5 style={{ margin: '0 0 1rem 0', color: 'var(--text-primary)', fontSize: '0.95rem', fontWeight: 500 }}>Recent searches</h5>
+                <div className={styles.recentSearchesGrid}>
+                  {recentSearches.map(item => (
+                    <button 
+                      key={item.term} 
+                      className={styles.recentSearchPill}
+                      onClick={() => {
+                        setSearchQuery(item.term);
+                        setSearchParams(prev => { prev.set('search', item.term); return prev; });
+                        setIsMobileSearchOpen(false);
+                      }}
+                    >
+                      {item.image ? (
+                        <img src={item.image} alt={item.term} className={styles.recentSearchImage} />
+                      ) : (
+                        <div className={styles.recentSearchImage} style={{ backgroundColor: 'transparent' }} />
+                      )}
+                      <span>{item.term}</span>
+                      <div 
+                        className={styles.removeSearchBtn}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeRecentSearch(item.term);
+                        }}
+                      >
+                        <X size={14} />
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Right side: Actions */}
         <div className={styles.actionControls}>
+          {/* Mobile Search Toggle */}
+          <button className={`${styles.iconBtn} ${styles.mobileSearchBtn}`} onClick={() => setIsMobileSearchOpen(true)} title="Search">
+            <Search size={22} strokeWidth={2} />
+          </button>
+
           {/* Theme Toggle */}
           <button className={styles.iconBtn} onClick={() => setIsDarkMode(!isDarkMode)} title="Toggle Theme">
             {isDarkMode ? <Sun size={22} strokeWidth={2} /> : <Moon size={22} strokeWidth={2} />}

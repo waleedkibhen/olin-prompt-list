@@ -512,7 +512,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                 </button>
               </div>
 
-              <div ref={commentsRef} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: '0.25rem 2.5rem 2rem 2.5rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)' }}>
+              <div ref={commentsRef} className={styles.mobileCommentsArea} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: '0.25rem 2.5rem 2rem 2.5rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)' }}>
                 
                 {commentError && (
                   <div style={{ padding: '0.5rem 0.75rem', backgroundColor: 'rgba(244,63,94,0.1)', color: '#f43f5e', borderRadius: '6px', fontSize: '0.8rem' }}>
@@ -653,6 +653,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                 </div>
               </div>
 
+              <div className={styles.mobilePromptArea}>
               <div style={{ display: 'flex', gap: '1.5rem', borderBottom: '1px solid var(--border-color)', marginBottom: '1rem', marginTop: '0.5rem' }}>
                 <button
                   onClick={() => setActiveTab('prompt')}
@@ -800,8 +801,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                 </div>
               </div>
 
-
-
+              </div>
             </div>
           </div>
         </div>
