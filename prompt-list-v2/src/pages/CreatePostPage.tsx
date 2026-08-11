@@ -132,8 +132,8 @@ export default function CreatePostPage() {
         setModerationError('Only image files are allowed.');
         continue;
       }
-      if (file.size > 5 * 1024 * 1024) {
-        setModerationError('One or more images exceed the 5MB limit.');
+      if (file.size > 10 * 1024 * 1024) {
+        setModerationError('One or more images exceed the 10MB limit.');
         continue;
       }
       
