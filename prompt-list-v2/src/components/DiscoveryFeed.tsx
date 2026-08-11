@@ -3,6 +3,7 @@ import styles from './DiscoveryFeed.module.css';
 import { PromptPost } from '@/lib/mockData';
 import { recordSearchTerm } from '@/lib/personalization';
 import PromptCard from './PromptCard';
+import SkeletonGrid from './SkeletonCard';
 import { useAuth } from '@/context/AuthContext';
 import { useRecentSearches } from '@/hooks/useRecentSearches';
 import { 
@@ -651,10 +652,12 @@ export default function DiscoveryFeed() {
 
 
       {/* Feed Content Area */}
-      {isLoadingDb || isSearching ? (
+      {isLoadingDb ? (
+        <SkeletonGrid count={12} />
+      ) : isSearching ? (
         <div className={styles.emptyState}>
-          <Loader2 size={32} className={styles.spinner} />
-          <span>{isSearching ? 'Scanning visuals and vector space...' : 'Loading AI prompt creations...'}</span>
+          <Loader2 size={28} className={styles.spinner} />
+          <span>Scanning visuals and vector space...</span>
         </div>
       ) : displayedPosts.length === 0 ? (
         activeTab === 'saved' ? (
