@@ -1,5 +1,5 @@
-﻿import React from ''react'';
-import styles from ''./SkeletonCard.module.css'';
+import React from 'react';
+import styles from './SkeletonCard.module.css';
 
 interface SkeletonCardProps {
   height?: number;
