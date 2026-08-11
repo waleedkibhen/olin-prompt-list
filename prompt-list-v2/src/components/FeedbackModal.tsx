@@ -92,8 +92,12 @@ export default function FeedbackModal({ onClose }: FeedbackModalProps) {
                 placeholder="Please describe the issue or suggestion in detail..."
                 value={description}
                 onChange={e => setDescription(e.target.value)}
+                maxLength={1000}
                 required
               />
+              {description.length >= 1000 && (
+                <span style={{ fontSize: '0.75rem', color: '#f43f5e', marginTop: '0.25rem', display: 'block' }}>Character limit reached (1000/1000)</span>
+              )}
             </div>
 
             <button type="submit" className={`btn-solid ${styles.submitBtn}`} disabled={isSubmitting || !description.trim()}>

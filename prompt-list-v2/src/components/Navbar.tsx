@@ -142,6 +142,7 @@ export default function Navbar() {
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setIsSearchExpanded(true)}
               className={styles.searchInput}
+              maxLength={100}
             />
             {searchQuery && (
               <button type="button" onClick={() => setSearchQuery('')} className={styles.clearBtn}>
@@ -202,6 +203,7 @@ export default function Navbar() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className={styles.mobileSearchInput}
                   autoFocus
+                  maxLength={100}
                 />
               </form>
             </div>

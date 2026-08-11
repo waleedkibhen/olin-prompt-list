@@ -527,25 +527,26 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                       <button type="button" onClick={() => { setActiveReplyId(null); setActiveReplyName(null); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}><X size={14} /></button>
                     </div>
                   )}
-                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                    <input 
-                      type="text" 
-                      placeholder={user ? "Write a comment..." : "Sign in to comment..."} 
-                      value={newComment}
-                      onChange={e => {
-                        const words = e.target.value.trim().split(/\s+/);
-                        if (words.length <= 100 || e.target.value === '') {
-                          setNewComment(e.target.value);
-                        }
-                      }}
-                      disabled={isSubmittingComment}
-                      style={{ flex: 1, padding: '0.5rem 0.2rem', borderRadius: '0px', border: 'none', borderBottom: '1px solid var(--border-color)', backgroundColor: 'transparent', color: 'var(--text-primary)', fontSize: '0.85rem', outline: 'none', fontWeight: 500, transition: 'border-color 0.2s' }}
-                      onFocus={(e) => e.currentTarget.style.borderBottomColor = 'var(--text-primary)'}
-                      onBlur={(e) => e.currentTarget.style.borderBottomColor = 'var(--border-color)'}
-                    />
-                    <button type="submit" className="btn-outline" disabled={isSubmittingComment || !newComment.trim()} style={{ padding: '0.5rem 1rem', borderRadius: '0px', border: 'none', color: 'var(--text-secondary)' }}>
-                      {isSubmittingComment ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Send size={14} />}
-                    </button>
+                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <input 
+                        type="text" 
+                        placeholder={user ? "Write a comment..." : "Sign in to comment..."} 
+                        value={newComment}
+                        onChange={e => setNewComment(e.target.value)}
+                        disabled={isSubmittingComment}
+                        maxLength={280}
+                        style={{ flex: 1, padding: '0.5rem 0.2rem', borderRadius: '0px', border: 'none', borderBottom: '1px solid var(--border-color)', backgroundColor: 'transparent', color: 'var(--text-primary)', fontSize: '0.85rem', outline: 'none', fontWeight: 500, transition: 'border-color 0.2s' }}
+                        onFocus={(e) => e.currentTarget.style.borderBottomColor = 'var(--text-primary)'}
+                        onBlur={(e) => e.currentTarget.style.borderBottomColor = 'var(--border-color)'}
+                      />
+                      <button type="submit" className="btn-outline" disabled={isSubmittingComment || !newComment.trim()} style={{ padding: '0.5rem 1rem', borderRadius: '0px', border: 'none', color: 'var(--text-secondary)' }}>
+                        {isSubmittingComment ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Send size={14} />}
+                      </button>
+                    </div>
+                    {newComment.length >= 280 && (
+                      <span style={{ fontSize: '0.75rem', color: '#f43f5e', marginTop: '0.25rem' }}>Character limit reached (280/280)</span>
+                    )}
                   </div>
                 </form>
 

@@ -167,8 +167,12 @@ export default function OnboardingModal() {
               placeholder="Your professional artistic name" 
               value={displayName}
               onChange={e => setDisplayName(e.target.value)}
+              maxLength={30}
               required 
             />
+            {displayName.length >= 30 && (
+              <span style={{ fontSize: '0.75rem', color: '#f43f5e', marginTop: '0.25rem' }}>Character limit reached (30/30)</span>
+            )}
           </div>
 
           <div className={styles.fieldGroup}>
@@ -180,9 +184,13 @@ export default function OnboardingModal() {
                 placeholder="alphanumeric_username" 
                 value={username}
                 onChange={e => setUsername(e.target.value)}
+                maxLength={15}
                 required 
               />
             </div>
+            {username.length >= 15 && (
+              <span style={{ fontSize: '0.75rem', color: '#f43f5e', marginTop: '0.25rem' }}>Character limit reached (15/15)</span>
+            )}
             {isCheckingUsername ? (
               <span className={styles.validationHint} style={{ color: 'var(--text-secondary)' }}>
                 <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />

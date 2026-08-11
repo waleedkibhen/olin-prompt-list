@@ -100,7 +100,11 @@ export default function ReportModal({ post, onClose }: ReportModalProps) {
                 placeholder="Please describe why this post violates community standards..."
                 value={description}
                 onChange={e => setDescription(e.target.value)}
+                maxLength={500}
               />
+              {description.length >= 500 && (
+                <span style={{ fontSize: '0.75rem', color: '#f43f5e', marginTop: '0.25rem', display: 'block' }}>Character limit reached (500/500)</span>
+              )}
             </div>
 
             <button type="submit" className={`btn-solid ${styles.submitBtn}`} disabled={isSubmitting} style={{ background: '#f43f5e', color: '#fff', border: 'none' }}>

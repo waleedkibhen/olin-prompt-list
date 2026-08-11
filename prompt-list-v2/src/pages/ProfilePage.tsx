@@ -258,9 +258,13 @@ export default function ProfilePage() {
               className={styles.formInput} 
               value={displayName}
               onChange={e => setDisplayName(e.target.value)}
+              maxLength={30}
               required
               placeholder="e.g. AI Wizard"
             />
+            {displayName.length >= 30 && (
+              <span style={{ fontSize: '0.75rem', color: '#f43f5e', marginTop: '0.25rem' }}>Character limit reached (30/30)</span>
+            )}
           </div>
 
           <div className={styles.formGroup}>
@@ -274,10 +278,14 @@ export default function ProfilePage() {
                 style={{ paddingLeft: '1.2rem', width: '100%' }}
                 value={username}
                 onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                maxLength={15}
                 required
                 placeholder="username_handle"
               />
             </div>
+            {username.length >= 15 && (
+              <span style={{ fontSize: '0.75rem', color: '#f43f5e', marginTop: '0.25rem' }}>Character limit reached (15/15)</span>
+            )}
           </div>
 
           <div className={styles.formGroup}>
@@ -301,8 +309,12 @@ export default function ProfilePage() {
               style={{ minHeight: '100px', resize: 'vertical' }}
               value={bio}
               onChange={e => setBio(e.target.value)}
+              maxLength={160}
               placeholder="Tell the community a bit about your style, inspirations, or creative focus..."
             />
+            {bio.length >= 160 && (
+              <span style={{ fontSize: '0.75rem', color: '#f43f5e', marginTop: '0.25rem' }}>Character limit reached (160/160)</span>
+            )}
           </div>
 
           <button type="submit" className={styles.btnSave} disabled={isSubmitting}>
