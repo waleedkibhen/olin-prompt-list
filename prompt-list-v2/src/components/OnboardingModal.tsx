@@ -122,7 +122,7 @@ export default function OnboardingModal() {
       await sendNotification(
         user.uid,
         "Welcome to Olin Prompt List!",
-        "Your creator profile is set up. Start uploading prompts and reach 50 copy milestones to apply for monetization!",
+        "Your creator profile is set up! You can now discover, save, and share amazing prompts with the community.",
         "system"
       );
     } catch (err: any) {
