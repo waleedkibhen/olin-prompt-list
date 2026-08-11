@@ -135,10 +135,7 @@ export default function OnboardingModal() {
     <div className={styles.modalBackdrop} onClick={e => e.stopPropagation()}>
       <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
         <header className={styles.header}>
-          <h2>
-            <Sparkles size={22} style={{ color: 'var(--accent-color)' }} />
-            <span>Complete Your Creator Profile</span>
-          </h2>
+          <h2>Complete your creator profile</h2>
           <p>Before entering the community marketplace, customize your public creator identity and avatar.</p>
         </header>
 
@@ -162,7 +159,7 @@ export default function OnboardingModal() {
           </div>
 
           <div className={styles.fieldGroup}>
-            <label>Display Name</label>
+            <label>Display name</label>
             <input 
               type="text" 
               placeholder="Your professional artistic name" 
@@ -177,7 +174,7 @@ export default function OnboardingModal() {
           </div>
 
           <div className={styles.fieldGroup}>
-            <label>Unique Username</label>
+            <label>Unique username</label>
             <div className={styles.usernameInputRow}>
               <span className={styles.atSymbol}>@</span>
               <input 
@@ -212,11 +209,11 @@ export default function OnboardingModal() {
 
           <button 
             type="submit" 
-            className={`btn-solid ${styles.submitBtn}`}
+            className={styles.submitBtn}
             disabled={isSubmitting || isCheckingUsername || !isUsernameAvailable || !displayName.trim()}
           >
-            {isSubmitting ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> : <CheckCircle2 size={18} />}
-            <span>Save &amp; Enter Marketplace</span>
+            {isSubmitting ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> : null}
+            <span>Save and Enter</span>
           </button>
         </form>
       </div>

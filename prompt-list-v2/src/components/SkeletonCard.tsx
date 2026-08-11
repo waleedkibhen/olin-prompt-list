@@ -1,5 +1,5 @@
-import React from 'react';
-import styles from './SkeletonCard.module.css';
+﻿import React from ''react'';
+import styles from ''./SkeletonCard.module.css'';
 
 interface SkeletonCardProps {
   height?: number;
@@ -7,20 +7,12 @@ interface SkeletonCardProps {
 
 export function SkeletonCard({ height = 280 }: SkeletonCardProps) {
   return (
-    <div className={styles.card} style={{ height }}>
-      <div className={styles.shimmer} />
-      <div className={styles.meta}>
-        <div className={styles.avatar} />
-        <div className={styles.lines}>
-          <div className={styles.line} style={{ width: '60%' }} />
-          <div className={styles.line} style={{ width: '40%', opacity: 0.6 }} />
-        </div>
-      </div>
-    </div>
+    <div className={styles.card} style={{ height }} />
   );
 }
 
-const HEIGHTS = [260, 340, 220, 300, 380, 250, 320, 290, 240, 360, 200, 310];
+// Varied heights that mimic real portrait / landscape / square post shapes
+const HEIGHTS = [320, 420, 260, 370, 460, 300, 350, 290, 400, 440, 270, 330];
 
 export default function SkeletonGrid({ count = 12 }: { count?: number }) {
   return (

@@ -27,18 +27,15 @@
 .header {
   padding: 1.5rem 1.75rem 1rem;
   border-bottom: 1px solid var(--border-color);
-  text-align: center;
+  text-align: left;
 }
 
 .header h2 {
-  font-size: 1.35rem;
-  font-weight: 800;
+  font-size: 1.2rem;
+  font-weight: 500;
   color: var(--text-primary);
   margin-bottom: 0.35rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+  letter-spacing: normal;
 }
 
 .header p {
@@ -67,7 +64,7 @@
   height: 96px;
   border-radius: 50%;
   overflow: hidden;
-  border: 3px solid var(--accent-color);
+  border: none;
   cursor: pointer;
   background-color: var(--bg-secondary);
 }
@@ -105,10 +102,10 @@
 
 .fieldGroup label {
   font-size: 0.825rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: normal;
+  text-transform: none;
 }
 
 .fieldGroup input {
@@ -164,12 +161,29 @@
 .submitBtn {
   width: 100%;
   padding: 0.85rem;
-  font-size: 1rem;
-  font-weight: 700;
-  border-radius: 0px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: 2px;
+  border: none;
+  outline: none;
+  background-color: var(--text-primary);
+  color: var(--bg-primary);
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   margin-top: 0.5rem;
+  transition: opacity 150ms ease;
+  font-family: var(--font-family);
+  letter-spacing: normal;
+}
+
+.submitBtn:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.submitBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
