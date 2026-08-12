@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import styles from './ProfilePage.module.css';
 import { useAuth } from '@/context/AuthContext';
 import { db, storage, auth } from '@/lib/firebase';
-import { doc, updateDoc, collection, query, where, getDocs, writeBatch } from 'firebase/firestore';
+import { doc, updateDoc, collection, query, where, getDocs, writeBatch, deleteDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { updateProfile } from 'firebase/auth';
-import { User, ShieldAlert, Sparkles, Upload, Box, MessageSquarePlus, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { updateProfile, deleteUser } from 'firebase/auth';
+import { User, ShieldAlert, Sparkles, Upload, Box, MessageSquarePlus, CheckCircle2, AlertTriangle, Trash2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import FeedbackModal from '@/components/FeedbackModal';
 import { Link, useNavigate } from 'react-router-dom';
 import { ENABLE_MONETIZATION } from '@/lib/config';
@@ -23,6 +24,7 @@ export default function ProfilePage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
@@ -320,6 +322,49 @@ export default function ProfilePage() {
             {isSubmitting ? <Box size={16} className="global-box-spin" /> : 'Save Profile Changes'}
           </button>
         </form>
+
+        <div className={styles.dangerZone}>
+          <div className={styles.dangerHeader}>
+            <Trash2 size={20} className={styles.dangerIcon} />
+            <div>
+              <h3 className={styles.dangerTitle}>Danger Zone</h3>
+              <p className={styles.dangerSubtitle}>Permanently delete your account and all associated data.</p>
+            </div>
+          </div>
+          <div className={styles.dangerBody}>
+            <p>Once you delete your account, there is no going back. All of your prompts, images, saved items, and profile data will be permanently wiped from our servers.</p>
+            <button 
+              className={styles.btnDelete} 
+              disabled={isDeleting}
+              onClick={async () => {
+                if (!window.confirm("Are you absolutely sure you want to delete your account? This will permanently delete your profile, prompts, and all associated data. This action cannot be undone.")) {
+                  return;
+                }
+                
+                setIsDeleting(true);
+                try {
+                  if (user) {
+                    await deleteDoc(doc(db, 'users', user.uid));
+                    await deleteUser(user);
+                    toast.success("Account successfully deleted. All data has been wiped.");
+                    navigate('/');
+                  }
+                } catch (err: any) {
+                  console.error("Error deleting account:", err);
+                  if (err.code === 'auth/requires-recent-login') {
+                    toast.error("Security requirement: Please sign out and sign back in to verify your identity before deleting your account.");
+                  } else {
+                    toast.error("Failed to delete account. Please try again later.");
+                  }
+                } finally {
+                  setIsDeleting(false);
+                }
+              }}
+            >
+              {isDeleting ? <Box size={16} className="global-box-spin" /> : 'Delete Account and Data'}
+            </button>
+          </div>
+        </div>
 
         {/* Removed Admin, Subscription, and Support cards */}
       </div>

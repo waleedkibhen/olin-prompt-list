@@ -274,3 +274,72 @@
   gap: 1rem;
   flex-wrap: wrap;
 }
+
+.dangerZone {
+  margin-top: 3rem;
+  padding: 1.5rem;
+  border: 1px solid #ef4444;
+  background-color: rgba(239, 68, 68, 0.05);
+}
+
+.dangerHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 1rem;
+}
+
+.dangerIcon {
+  color: #ef4444;
+}
+
+.dangerTitle {
+  color: #ef4444;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.dangerSubtitle {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.dangerBody {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.dangerBody p {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.btnDelete {
+  align-self: flex-start;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: opacity 0.2s;
+}
+
+.btnDelete:hover {
+  opacity: 0.9;
+}
+
+.btnDelete:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+

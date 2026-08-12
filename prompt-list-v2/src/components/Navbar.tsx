@@ -121,13 +121,18 @@ export default function Navbar() {
         
         {/* Left side: Logo & Tabs */}
         <div className={styles.leftSection}>
-          <Link to="/" className={styles.brandTitle}>
-            <img src="/logo.svg" alt="Olin Logo" className={styles.brandImage} />
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px' }}>
-              <span>Olin</span>
-              <span className={styles.brandSuffix}>Prompt List</span>
-            </div>
-          </Link>
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <Link to="/" className={styles.brandTitle}>
+              <img src="/logo.svg" alt="Olin Logo" className={styles.brandImage} />
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px' }}>
+                <span>Olin's</span>
+                <span className={styles.brandSuffix}>Prompt List</span>
+              </div>
+            </Link>
+            <span style={{ fontSize: '10px', color: 'var(--text-muted)', marginLeft: '33px', marginTop: '1px', letterSpacing: '0.01em', whiteSpace: 'nowrap' }} className="hide-on-mobile">
+              A curated marketplace and gallery to discover, copy, and share AI art prompts.
+            </span>
+          </div>
         </div>
 
         {/* Center: Search Bar */}
