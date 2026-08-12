@@ -639,6 +639,16 @@ export default function DiscoveryFeed() {
         </div>
       )}
 
+      {/* Hero Description */}
+      <div style={{ textAlign: 'center', padding: '2rem 1rem 1rem 1rem', maxWidth: '600px', margin: '0 auto' }}>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 0.5rem 0', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+          Olin's Prompt List
+        </h1>
+        <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.5 }}>
+          A curated marketplace and gallery for creators to discover, copy, and share AI art prompts.
+        </p>
+      </div>
+
       <div className={styles.navTabs}>
         {['for_you', 'trending', 'newest', 'following', 'saved'].map(tab => (
           <button 

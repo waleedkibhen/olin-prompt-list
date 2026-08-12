@@ -12,7 +12,6 @@ import CreatePostPage from '@/pages/CreatePostPage';
 import CreatorProfilePage from '@/pages/CreatorProfilePage';
 import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage';
 import TermsPage from '@/pages/TermsPage';
-import VerificationHomepage from '@/pages/VerificationHomepage';
 import OnboardingModal from '@/components/OnboardingModal';
 import './index.css';
 
@@ -53,7 +52,6 @@ export default function App() {
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/privacy" element={<PrivacyPolicyPage />} />
           <Route path="/terms" element={<TermsPage />} />
-          <Route path="/homepage" element={<VerificationHomepage />} />
         </Routes>
       </div>
     </div>

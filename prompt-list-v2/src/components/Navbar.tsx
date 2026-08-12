@@ -129,9 +129,6 @@ export default function Navbar() {
                 <span className={styles.brandSuffix}>Prompt List</span>
               </div>
             </Link>
-            <span className="sr-only">
-              A curated marketplace and gallery to discover, copy, and share AI art prompts.
-            </span>
           </div>
         </div>
 
