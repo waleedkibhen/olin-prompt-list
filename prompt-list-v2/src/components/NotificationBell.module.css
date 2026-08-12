@@ -62,9 +62,13 @@
 
 @media (max-width: 640px) {
   .dropdownPanel {
-    right: -10px;
-    width: calc(100vw - 20px);
-    max-width: 340px;
+    position: fixed;
+    top: 65px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90vw;
+    max-width: 320px;
+    right: auto;
   }
 }
 
