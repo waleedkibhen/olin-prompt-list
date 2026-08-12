@@ -320,3 +320,37 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 0;
+  margin-top: 2rem;
+  border-top: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.footerLinks {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.footerLink {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.footerLink:hover {
+  color: var(--text-primary);
+}
+
+.footerIcons {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
