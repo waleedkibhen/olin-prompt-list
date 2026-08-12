@@ -9,6 +9,7 @@ import { db, storage } from '@/lib/firebase';
 import { UploadCloud, CheckCircle2, Loader2, Image as ImageIcon, Trash2, ShieldAlert, AlertTriangle, Info, PlusCircle, ChevronDown, Type, Box, AlignLeft, Terminal, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { extractImagePalette } from '@/lib/colorAnalyzer';
+import { toast } from 'react-hot-toast';
 
 interface SelectedFile {
   file: File;
@@ -34,7 +35,7 @@ export default function CreatePostPage() {
   const [isScanning, setIsScanning] = useState(false);
   const [statusText, setStatusText] = useState('');
   const [moderationError, setModerationError] = useState<string | null>(null);
-  const [successMsg, setSuccessMsg] = useState(false);
+
 
   const getCompressedBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -206,13 +207,13 @@ export default function CreatePostPage() {
     setModerationError(null);
 
     try {
-      setStatusText('We are evaluating your creation...');
+      setStatusText('We are evaluating your creation');
       const textAnalysis = await moderateText(`${title}\n${description}\n${promptText}\n${model === 'Other' ? customModel : ''}`);
       if (!textAnalysis.approved) {
         throw new Error(`Content blocked: ${textAnalysis.reason}. Your account has been flagged.`);
       }
 
-      setStatusText('We are evaluating your creation...');
+      setStatusText('We are evaluating your creation');
       const coverBase64 = await getCompressedBase64(selectedFiles[0].file);
       
       const imageAnalysis = await moderateSingleImage(coverBase64, 1);
@@ -220,7 +221,7 @@ export default function CreatePostPage() {
         throw new Error(`Image blocked: ${imageAnalysis.reason}. Account flagged.`);
       }
 
-      setStatusText('We are processing it right now...');
+      setStatusText('We are processing it right now');
       
       let aiResult;
       try {
@@ -236,7 +237,7 @@ export default function CreatePostPage() {
         };
       }
       
-      setStatusText('We are processing it right now...');
+      setStatusText('We are processing it right now');
       let embedding: number[] = [];
       try {
         const textToEmbed = `${title}. ${description}. ${aiResult.tags.join(" ")}. ${promptText.substring(0, 1000)}`;
@@ -246,7 +247,7 @@ export default function CreatePostPage() {
         embedding = []; 
       }
 
-      setStatusText('We are processing it right now...');
+      setStatusText('We are processing it right now');
       
       const imageUrls: string[] = [];
       
@@ -281,7 +282,7 @@ export default function CreatePostPage() {
         calculatedAspectRatio = 'Portrait';
       }
 
-      setStatusText('Placing it on the feed...');
+      setStatusText('Placing it on the feed');
       
       const newPostRef = doc(collection(db, 'posts'));
       
@@ -345,10 +346,8 @@ export default function CreatePostPage() {
         console.error("Failed to fan-out notifications:", e);
       }
 
-      setSuccessMsg(true);
-      setTimeout(() => {
-        navigate('/?tab=newest');
-      }, 2000);
+      toast.success('Post successfully uploaded!');
+      navigate('/?tab=newest');
 
     } catch (err: any) {
       console.error(err);
@@ -385,17 +384,7 @@ export default function CreatePostPage() {
     );
   }
 
-  if (successMsg) {
-    return (
-      <div className={styles.pageContainer} style={{ justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-        <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-          <CheckCircle2 size={64} style={{ color: '#10b981' }} />
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>Creation Published Successfully!</h2>
-          <p style={{ color: 'var(--text-secondary)' }}>Redirecting you to your dashboard...</p>
-        </div>
-      </div>
-    );
-  }
+
 
   return (
     <div className={styles.pageContainer}>
@@ -572,8 +561,10 @@ export default function CreatePostPage() {
 
       {isScanning && (
         <div className={styles.loadingOverlay}>
-          <Sparkles size={40} style={{ color: 'var(--text-primary)', animation: 'pulse 1.5s infinite' }} />
-          <p style={{ fontWeight: 600, marginTop: '1rem' }}>{statusText}</p>
+          <Box size={40} className={styles.boxSpin} style={{ color: 'var(--text-primary)' }} />
+          <p style={{ fontWeight: 600, marginTop: '1rem' }}>
+            {statusText}<span className={styles.loadingDots}></span>
+          </p>
         </div>
       )}
     </div>
