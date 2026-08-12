@@ -129,7 +129,7 @@ export default function Navbar() {
                 <span className={styles.brandSuffix}>Prompt List</span>
               </div>
             </Link>
-            <span style={{ fontSize: '10px', color: 'var(--text-muted)', marginLeft: '33px', marginTop: '1px', letterSpacing: '0.01em', whiteSpace: 'nowrap' }} className="hide-on-mobile">
+            <span className="sr-only">
               A curated marketplace and gallery to discover, copy, and share AI art prompts.
             </span>
           </div>
