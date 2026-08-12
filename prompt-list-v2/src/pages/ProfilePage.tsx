@@ -317,7 +317,7 @@ export default function ProfilePage() {
           </div>
 
           <button type="submit" className={styles.btnSave} disabled={isSubmitting}>
-            {isSubmitting ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : 'Save Profile Changes'}
+            {isSubmitting ? <Box size={16} className="global-box-spin" /> : 'Save Profile Changes'}
           </button>
         </form>
 
