@@ -3,7 +3,7 @@ import styles from './CreatePostPage.module.css';
 import { useAuth } from '@/context/AuthContext';
 import { moderateText, moderateSingleImage, generateLiveEmbedding, analyzeArtworkMultimodalWithGemini } from '@/lib/ai';
 import { sendNotification } from '@/lib/notifications';
-import { doc, setDoc, serverTimestamp, collection, query, getDocs, orderBy, limit } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp, collection, query, getDocs, orderBy, limit, where } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
 import { UploadCloud, CheckCircle2, Loader2, Image as ImageIcon, Trash2, ShieldAlert, AlertTriangle, Info, PlusCircle, ChevronDown, Type, Box, AlignLeft, Terminal, Sparkles } from 'lucide-react';
@@ -16,6 +16,13 @@ interface SelectedFile {
   previewUrl: string;
   base64?: string;
 }
+
+const calculateFileHash = async (file: File): Promise<string> => {
+  const buffer = await file.arrayBuffer();
+  const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+};
 
 export default function CreatePostPage() {
   const { user, profile, signInWithGoogle } = useAuth();
@@ -208,6 +215,14 @@ export default function CreatePostPage() {
 
     try {
       setStatusText('We are evaluating your creation');
+      
+      const fileHash = await calculateFileHash(selectedFiles[0].file);
+      const duplicateQuery = query(collection(db, 'posts'), where('imageHash', '==', fileHash), limit(1));
+      const duplicateSnap = await getDocs(duplicateQuery);
+      if (!duplicateSnap.empty) {
+        throw new Error("This exact image has already been published on the platform.");
+      }
+
       const textAnalysis = await moderateText(`${title}\n${description}\n${promptText}\n${model === 'Other' ? customModel : ''}`);
       if (!textAnalysis.approved) {
         throw new Error(`Content blocked: ${textAnalysis.reason}. Your account has been flagged.`);
@@ -300,6 +315,7 @@ export default function CreatePostPage() {
         monetizationType: 'free',
         
         imageUrls: imageUrls,
+        imageHash: fileHash,
         aspectRatio: calculatedAspectRatio,
         
         categories: aiResult.tags || [],
