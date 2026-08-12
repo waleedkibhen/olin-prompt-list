@@ -5,7 +5,7 @@ import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs, setDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { PromptPost } from '@/lib/mockData';
 import PromptCard from '@/components/PromptCard';
-import { Loader2, AlertTriangle, Share, Plus, Check } from 'lucide-react';
+import { Box, AlertTriangle, Share, Plus, Check } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -148,9 +148,9 @@ export default function CreatorProfilePage() {
 
   if (loading) {
     return (
-      <div className={styles.loading}>
-        <Loader2 size={32} style={{ animation: 'spin 1s linear infinite' }} />
-        <p>Loading creator profile...</p>
+      <div className={styles.loadingContainer}>
+        <Box size={32} className="global-box-spin" style={{ color: 'var(--text-primary)' }} />
+        <span>Loading creator profile...</span>
       </div>
     );
   }

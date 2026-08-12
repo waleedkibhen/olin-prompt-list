@@ -3,11 +3,11 @@ import styles from './DiscoveryFeed.module.css';
 import { PromptPost } from '@/lib/mockData';
 import { recordSearchTerm } from '@/lib/personalization';
 import PromptCard from './PromptCard';
-import SkeletonGrid from './SkeletonCard';
+
 import { useAuth } from '@/context/AuthContext';
 import { useRecentSearches } from '@/hooks/useRecentSearches';
 import { 
-  Compass, Flame, Clock, Layers, Loader2, Search, AlertTriangle, X, 
+  Compass, Flame, Clock, Layers, Box, Search, AlertTriangle, X, 
   SlidersHorizontal, Palette, Sparkles, Image as ImageIcon, Calendar, RotateCcw, Check 
 } from 'lucide-react';
 import { calculateCosineSimilarity } from '@/lib/vector';
@@ -653,11 +653,14 @@ export default function DiscoveryFeed() {
 
       {/* Feed Content Area */}
       {isLoadingDb ? (
-        <SkeletonGrid count={12} />
+        <div className={styles.emptyState}>
+          <Box size={40} className="global-box-spin" style={{ color: 'var(--text-primary)' }} />
+          <span style={{ marginTop: '1rem', fontWeight: 600 }}>Loading feed...</span>
+        </div>
       ) : isSearching ? (
         <div className={styles.emptyState}>
-          <Loader2 size={28} className={styles.spinner} />
-          <span>Scanning visuals and vector space...</span>
+          <Box size={40} className="global-box-spin" style={{ color: 'var(--text-primary)' }} />
+          <span style={{ marginTop: '1rem', fontWeight: 600 }}>Scanning visuals and vector space...</span>
         </div>
       ) : displayedPosts.length === 0 ? (
         activeTab === 'saved' ? (

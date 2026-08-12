@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { doc, getDoc, updateDoc, increment } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { PromptPost } from '@/lib/mockData';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Box, AlertCircle } from 'lucide-react';
 import PromptCard from '@/components/PromptCard';
 
 export default function PostDetailPage() {
@@ -64,7 +64,7 @@ export default function PostDetailPage() {
   if (loading) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', gap: '1rem', color: 'var(--text-secondary)' }}>
-        <Loader2 size={36} style={{ animation: 'spin 1s linear infinite' }} />
+        <Box size={36} className="global-box-spin" style={{ color: 'var(--text-primary)' }} />
         <span>Loading artwork...</span>
       </div>
     );

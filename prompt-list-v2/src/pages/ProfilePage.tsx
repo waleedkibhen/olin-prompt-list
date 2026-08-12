@@ -5,7 +5,7 @@ import { db, storage, auth } from '@/lib/firebase';
 import { doc, updateDoc, collection, query, where, getDocs, writeBatch } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { updateProfile } from 'firebase/auth';
-import { User, ShieldAlert, Sparkles, Upload, Loader2, MessageSquarePlus, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { User, ShieldAlert, Sparkles, Upload, Box, MessageSquarePlus, CheckCircle2, AlertTriangle } from 'lucide-react';
 import FeedbackModal from '@/components/FeedbackModal';
 import { Link, useNavigate } from 'react-router-dom';
 import { ENABLE_MONETIZATION } from '@/lib/config';
@@ -48,9 +48,8 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', color: 'var(--text-secondary)' }}>
-        <Loader2 size={26} style={{ animation: 'spin 1s linear infinite' }} />
-        <span>Loading account details...</span>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <Box size={26} className="global-box-spin" style={{ color: 'var(--text-primary)' }} />
       </div>
     );
   }

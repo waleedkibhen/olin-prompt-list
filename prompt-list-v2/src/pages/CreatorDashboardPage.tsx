@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { collection, onSnapshot, query, where, doc, deleteDoc, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { PromptPost } from '@/lib/mockData';
-import { BarChart2, Eye, Heart, Bookmark, Copy, Trash2, ExternalLink, PlusCircle, Loader2, AlertTriangle, Sparkles, CheckCircle, Award, Users, TrendingUp, TrendingDown } from 'lucide-react';
+import { BarChart2, Eye, Heart, Bookmark, Copy, Trash2, ExternalLink, PlusCircle, Box, AlertTriangle, Sparkles, CheckCircle, Award, Users, TrendingUp, TrendingDown } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ENABLE_MONETIZATION } from '@/lib/config';
 import toast from 'react-hot-toast';
@@ -225,10 +225,9 @@ export default function CreatorDashboardPage() {
           </button>
         </div>
       ) : loadingDb || authLoading ? (
-        <div className={styles.emptyState}>
-          <Loader2 size={40} style={{ animation: 'spin 1s linear infinite' }} />
-          <h3>Calculating portfolio analytics...</h3>
-          <p>Aggregating views, likes, and copy events from live Firestore database.</p>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: '1rem' }}>
+          <Box size={40} className="global-box-spin" style={{ color: 'var(--text-primary)' }} />
+          <span style={{ fontWeight: 600 }}>Loading dashboard data...</span>
         </div>
       ) : (
         <>
