@@ -14,7 +14,7 @@ import { calculateCosineSimilarity } from '@/lib/vector';
 import { generateLiveEmbedding } from '@/lib/ai';
 import { collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { ENABLE_MONETIZATION } from '@/lib/config';
 import { matchesColorFilter } from '@/lib/colorAnalyzer';
 
@@ -759,8 +759,8 @@ export default function DiscoveryFeed() {
         <footer className={styles.footer}>
           <div>© 2026 Olin</div>
           <div className={styles.footerLinks}>
-            <a href="#" className={styles.footerLink}>Terms</a>
-            <a href="#" className={styles.footerLink}>Privacy</a>
+            <Link to="/terms" className={styles.footerLink}>Terms</Link>
+            <Link to="/privacy" className={styles.footerLink}>Privacy</Link>
           </div>
           <div className={styles.footerIcons}>
             <a href="#" className={styles.footerLink} aria-label="Instagram">

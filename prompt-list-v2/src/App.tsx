@@ -10,6 +10,7 @@ import ProfilePage from '@/pages/ProfilePage';
 import PricingPage from '@/pages/PricingPage';
 import CreatePostPage from '@/pages/CreatePostPage';
 import CreatorProfilePage from '@/pages/CreatorProfilePage';
+import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage';
 import OnboardingModal from '@/components/OnboardingModal';
 import './index.css';
 
@@ -48,6 +49,7 @@ export default function App() {
           <Route path="/settings" element={<ProfilePage />} />
           <Route path="/admin" element={<AdminDashboardPage />} />
           <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
         </Routes>
       </div>
     </div>
