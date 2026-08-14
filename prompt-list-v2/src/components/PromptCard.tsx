@@ -66,7 +66,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
   const [isLinkCopied, setIsLinkCopied] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [showComments, setShowComments] = useState(false);
-  const [activeTab, setActiveTab] = useState<'prompt' | 'description'>('prompt');
+  const [activeTab, setActiveTab] = useState<string>('prompt-0');
   const [activeVariantIndex, setActiveVariantIndex] = useState(0);
   
   const [isUnlocked, setIsUnlocked] = useState(false);
@@ -235,7 +235,8 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
 
   const handleCopyPrompt = async (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    const promptToCopy = post.prompts && post.prompts.length > 0 ? post.prompts[activeVariantIndex] : post.promptText;
+    const activeIdx = parseInt(activeTab.split('-')[1] || '0');
+    const promptToCopy = post.prompts && post.prompts.length > 0 ? post.prompts[activeIdx] : post.promptText;
     await copyRichPrompt(promptToCopy);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2500);
@@ -681,26 +682,52 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
               </div>
 
               <div className={styles.mobilePromptArea}>
-              <div style={{ display: 'flex', gap: '1.5rem', borderBottom: '1px solid var(--border-color)', marginBottom: '1rem', marginTop: '0.5rem' }}>
-                <button
-                  onClick={() => setActiveTab('prompt')}
-                  style={{
-                    fontFamily: "'Inter', -apple-system, sans-serif",
-                    fontSize: '0.9rem',
-                    fontWeight: 500,
-                    color: activeTab === 'prompt' ? 'var(--text-primary)' : 'var(--text-muted)',
-                    borderBottom: activeTab === 'prompt' ? '2px solid var(--text-primary)' : '2px solid transparent',
-                    paddingBottom: '0.5rem',
-                    transition: 'all 0.2s ease',
-                    cursor: 'pointer',
-                    background: 'none',
-                    borderTop: 'none',
-                    borderLeft: 'none',
-                    borderRight: 'none',
-                  }}
-                >
-                  Prompt
-                </button>
+              <div style={{ display: 'flex', gap: '1.5rem', borderBottom: '1px solid var(--border-color)', marginBottom: '1rem', marginTop: '0.5rem', overflowX: 'auto', whiteSpace: 'nowrap' }}>
+                {post.prompts && post.prompts.length > 1 ? (
+                  post.prompts.map((_, idx) => (
+                    <button
+                      key={`prompt-${idx}`}
+                      onClick={() => setActiveTab(`prompt-${idx}`)}
+                      style={{
+                        fontFamily: "'Inter', -apple-system, sans-serif",
+                        fontSize: '0.9rem',
+                        fontWeight: 500,
+                        color: activeTab === `prompt-${idx}` ? 'var(--text-primary)' : 'var(--text-muted)',
+                        borderBottom: activeTab === `prompt-${idx}` ? '2px solid var(--text-primary)' : '2px solid transparent',
+                        paddingBottom: '0.5rem',
+                        transition: 'all 0.2s ease',
+                        cursor: 'pointer',
+                        background: 'none',
+                        borderTop: 'none',
+                        borderLeft: 'none',
+                        borderRight: 'none',
+                      }}
+                    >
+                      Prompt {idx + 1}
+                    </button>
+                  ))
+                ) : (
+                  <button
+                    onClick={() => setActiveTab('prompt-0')}
+                    style={{
+                      fontFamily: "'Inter', -apple-system, sans-serif",
+                      fontSize: '0.9rem',
+                      fontWeight: 500,
+                      color: activeTab === 'prompt-0' ? 'var(--text-primary)' : 'var(--text-muted)',
+                      borderBottom: activeTab === 'prompt-0' ? '2px solid var(--text-primary)' : '2px solid transparent',
+                      paddingBottom: '0.5rem',
+                      transition: 'all 0.2s ease',
+                      cursor: 'pointer',
+                      background: 'none',
+                      borderTop: 'none',
+                      borderLeft: 'none',
+                      borderRight: 'none',
+                    }}
+                  >
+                    Prompt
+                  </button>
+                )}
+
                 {post.description && (
                   <button
                     onClick={() => setActiveTab('description')}
@@ -725,7 +752,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
               </div>
 
               <div style={{ minHeight: '120px' }}>
-                {activeTab === 'prompt' ? (
+                {activeTab.startsWith('prompt') ? (
                   <div className={styles.promptVaultBox}>
                     {isCreator && effectiveMonetization !== 'free' && (
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.35)', borderRadius: 'var(--radius-md)', padding: '0.6rem 0.85rem', fontSize: '0.8rem', flexWrap: 'wrap', gap: '0.5rem' }}>
@@ -790,30 +817,14 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                     ) : (
                       <>
                         <div className={styles.promptTextContainer} style={{ color: 'var(--text-primary)' }}>
-                          {post.prompts && post.prompts.length > 1 && (
-                            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', overflowX: 'auto' }}>
-                              {post.prompts.map((_, idx) => (
-                                <button
-                                  key={idx}
-                                  onClick={() => setActiveVariantIndex(idx)}
-                                  style={{
-                                    padding: '0.2rem 0.6rem',
-                                    fontSize: '0.75rem',
-                                    fontWeight: activeVariantIndex === idx ? 600 : 400,
-                                    color: activeVariantIndex === idx ? 'var(--text-primary)' : 'var(--text-secondary)',
-                                    border: `1px solid ${activeVariantIndex === idx ? 'var(--text-primary)' : 'var(--border-color)'}`,
-                                    background: activeVariantIndex === idx ? 'rgba(255,255,255,0.05)' : 'transparent',
-                                    cursor: 'pointer',
-                                    borderRadius: '2px',
-                                    whiteSpace: 'nowrap'
-                                  }}
-                                >
-                                  Variant {idx + 1}
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                          <RichTextRenderer content={post.prompts && post.prompts.length > 0 ? post.prompts[activeVariantIndex] : post.promptText} className={styles.promptCode} />
+                          <RichTextRenderer 
+                            content={
+                              post.prompts && post.prompts.length > 0 
+                                ? post.prompts[parseInt(activeTab.split('-')[1] || '0')] 
+                                : post.promptText
+                            } 
+                            className={styles.promptCode} 
+                          />
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '1rem', marginBottom: '0.5rem' }}>
                           <button 
