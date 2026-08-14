@@ -32,5 +32,11 @@
     "typescript": "~6.0.2",
     "vite": "^8.1.1",
     "wrangler": "^4.118.0"
+  },
+  "overrides": {
+    "react-quill": {
+      "react": "^19.2.7",
+      "react-dom": "^19.2.7"
+    }
   }
 }
