@@ -76,30 +76,21 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
     if (post.promptText) {
       // Legacy compatibility: Parse manually typed variants like "V1 -" or "Variant 2 -"
       if (/V1\s*-/i.test(post.promptText) && /V2\s*-/i.test(post.promptText)) {
-        // Try parsing HTML TipTap formatted text
-        const matches = [...post.promptText.matchAll(/(<p>(?:<[^>]+>)*(?:V|Variant)\s*\d+\s*-)/gi)];
+        const matches = [...post.promptText.matchAll(/(?:^|<p>|<br>|\n)(?:<[^>]+>)*(?:V|Variant)\s*\d+\s*-/gi)];
         if (matches.length > 1 && matches[0].index !== undefined) {
           const result = [];
           for (let i = 0; i < matches.length; i++) {
             const start = matches[i].index as number;
             const end = i + 1 < matches.length ? (matches[i + 1].index as number) : post.promptText.length;
-            result.push(post.promptText.substring(start, end));
+            
+            // Clean up the prefix tag if it accidentally grabbed the starting paragraph tag
+            let chunk = post.promptText.substring(start, end);
+            if (i > 0 && chunk.startsWith('<p>')) {
+               // keep the formatting intact but we're splitting it cleanly
+            }
+            result.push(chunk);
           }
           return result;
-        }
-        
-        // Try parsing plain text formatted text (older posts)
-        if (!post.promptText.includes('<p>')) {
-          const plainMatches = [...post.promptText.matchAll(/(?:^|\n)((?:V|Variant)\s*\d+\s*-)/gi)];
-          if (plainMatches.length > 1 && plainMatches[0].index !== undefined) {
-            const result = [];
-            for (let i = 0; i < plainMatches.length; i++) {
-              const start = plainMatches[i].index as number;
-              const end = i + 1 < plainMatches.length ? (plainMatches[i + 1].index as number) : post.promptText.length;
-              result.push(post.promptText.substring(start, end).trim());
-            }
-            return result;
-          }
         }
       }
     }
