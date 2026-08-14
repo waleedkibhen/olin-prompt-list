@@ -6,7 +6,7 @@ import { sendNotification } from '@/lib/notifications';
 import { doc, setDoc, serverTimestamp, collection, query, getDocs, orderBy, limit, where } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
-import { UploadCloud, CheckCircle2, Loader2, Image as ImageIcon, Trash2, ShieldAlert, AlertTriangle, Info, PlusCircle, ChevronDown, Type, Box, AlignLeft, Terminal, Sparkles } from 'lucide-react';
+import { UploadCloud, CheckCircle2, Loader2, Image as ImageIcon, Trash2, ShieldAlert, AlertTriangle, Info, PlusCircle, ChevronDown, Type, Box, AlignLeft, Terminal, Sparkles, X } from 'lucide-react';
 import { extractImagePalette } from '@/lib/colorAnalyzer';
 import { toast } from 'react-hot-toast';
 import TipTapEditor from '@/components/TipTapEditor';
@@ -586,10 +586,29 @@ export default function CreatePostPage() {
                       border: `1px solid ${activePromptIndex === idx ? 'var(--text-primary)' : 'var(--border-color)'}`,
                       background: activePromptIndex === idx ? 'rgba(255,255,255,0.05)' : 'transparent',
                       cursor: 'pointer',
-                      whiteSpace: 'nowrap'
+                      whiteSpace: 'nowrap',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.35rem'
                     }}
                   >
                     Variant {idx + 1}
+                    <X 
+                      size={12} 
+                      onClick={(e: React.MouseEvent) => {
+                        e.stopPropagation();
+                        const newPrompts = prompts.filter((_, i) => i !== idx);
+                        setPrompts(newPrompts);
+                        if (activePromptIndex === idx) {
+                          setActivePromptIndex(Math.max(0, idx - 1));
+                        } else if (activePromptIndex > idx) {
+                          setActivePromptIndex(activePromptIndex - 1);
+                        }
+                      }}
+                      style={{ opacity: 0.6, cursor: 'pointer' }}
+                      onMouseEnter={(e: React.MouseEvent<SVGSVGElement>) => (e.currentTarget.style.opacity = '1')}
+                      onMouseLeave={(e: React.MouseEvent<SVGSVGElement>) => (e.currentTarget.style.opacity = '0.6')}
+                    />
                   </button>
                 ))}
               </div>
