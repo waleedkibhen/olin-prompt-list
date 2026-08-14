@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import styles from './PromptCard.module.css';
 import { PromptPost } from '@/lib/mockData';
 import { useAuth } from '@/context/AuthContext';
@@ -67,6 +67,45 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [showComments, setShowComments] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('prompt-0');
+  
+  const effectivePrompts = useMemo(() => {
+    if (post.prompts && post.prompts.length > 1) {
+      return post.prompts;
+    }
+    
+    if (post.promptText) {
+      // Legacy compatibility: Parse manually typed variants like "V1 -" or "Variant 2 -"
+      if (/V1\s*-/i.test(post.promptText) && /V2\s*-/i.test(post.promptText)) {
+        // Try parsing HTML TipTap formatted text
+        const matches = [...post.promptText.matchAll(/(<p>(?:<[^>]+>)*(?:V|Variant)\s*\d+\s*-)/gi)];
+        if (matches.length > 1 && matches[0].index !== undefined) {
+          const result = [];
+          for (let i = 0; i < matches.length; i++) {
+            const start = matches[i].index as number;
+            const end = i + 1 < matches.length ? (matches[i + 1].index as number) : post.promptText.length;
+            result.push(post.promptText.substring(start, end));
+          }
+          return result;
+        }
+        
+        // Try parsing plain text formatted text (older posts)
+        if (!post.promptText.includes('<p>')) {
+          const plainMatches = [...post.promptText.matchAll(/(?:^|\n)((?:V|Variant)\s*\d+\s*-)/gi)];
+          if (plainMatches.length > 1 && plainMatches[0].index !== undefined) {
+            const result = [];
+            for (let i = 0; i < plainMatches.length; i++) {
+              const start = plainMatches[i].index as number;
+              const end = i + 1 < plainMatches.length ? (plainMatches[i + 1].index as number) : post.promptText.length;
+              result.push(post.promptText.substring(start, end).trim());
+            }
+            return result;
+          }
+        }
+      }
+    }
+    
+    return [post.promptText || ''];
+  }, [post.prompts, post.promptText]);
   const [activeVariantIndex, setActiveVariantIndex] = useState(0);
   
   const [isUnlocked, setIsUnlocked] = useState(false);
@@ -236,7 +275,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
   const handleCopyPrompt = async (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     const activeIdx = parseInt(activeTab.split('-')[1] || '0');
-    const promptToCopy = post.prompts && post.prompts.length > 0 ? post.prompts[activeIdx] : post.promptText;
+    const promptToCopy = effectivePrompts[activeIdx] || post.promptText;
     await copyRichPrompt(promptToCopy);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2500);
@@ -683,8 +722,8 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
 
               <div className={styles.mobilePromptArea}>
               <div style={{ display: 'flex', gap: '1.5rem', borderBottom: '1px solid var(--border-color)', marginBottom: '1rem', marginTop: '0.5rem', overflowX: 'auto', whiteSpace: 'nowrap' }}>
-                {post.prompts && post.prompts.length > 1 ? (
-                  post.prompts.map((_, idx) => (
+                {effectivePrompts.length > 1 ? (
+                  effectivePrompts.map((_: string, idx: number) => (
                     <button
                       key={`prompt-${idx}`}
                       onClick={() => setActiveTab(`prompt-${idx}`)}
@@ -818,11 +857,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                       <>
                         <div className={styles.promptTextContainer} style={{ color: 'var(--text-primary)' }}>
                           <RichTextRenderer 
-                            content={
-                              post.prompts && post.prompts.length > 0 
-                                ? post.prompts[parseInt(activeTab.split('-')[1] || '0')] 
-                                : post.promptText
-                            } 
+                            content={effectivePrompts[parseInt(activeTab.split('-')[1] || '0')]} 
                             className={styles.promptCode} 
                           />
                         </div>
