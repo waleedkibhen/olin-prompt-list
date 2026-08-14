@@ -75,7 +75,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
     
     if (post.promptText) {
       // Legacy compatibility: Parse manually typed variants like "V1 -" or "Variant 2 -"
-      if (/V1\s*-/i.test(post.promptText) && /V2\s*-/i.test(post.promptText)) {
+      if (/(?:V|Variant)\s*1\s*-/i.test(post.promptText) && /(?:V|Variant)\s*2\s*-/i.test(post.promptText)) {
         const matches = [...post.promptText.matchAll(/(?:^|<p>|<br>|\n)(?:<[^>]+>)*(?:V|Variant)\s*\d+\s*-/gi)];
         if (matches.length > 1 && matches[0].index !== undefined) {
           const result = [];
