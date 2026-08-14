@@ -7,11 +7,10 @@ import { doc, setDoc, serverTimestamp, collection, query, getDocs, orderBy, limi
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
 import { UploadCloud, CheckCircle2, Loader2, Image as ImageIcon, Trash2, ShieldAlert, AlertTriangle, Info, PlusCircle, ChevronDown, Type, Box, AlignLeft, Terminal, Sparkles } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { extractImagePalette } from '@/lib/colorAnalyzer';
 import { toast } from 'react-hot-toast';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import TipTapEditor from '@/components/TipTapEditor';
+import { useNavigate } from 'react-router-dom';
 
 interface SelectedFile {
   file: File;
@@ -38,13 +37,6 @@ export default function CreatePostPage() {
   const [customModel, setCustomModel] = useState('');
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
   const [wasFlagged, setWasFlagged] = useState(false);
-
-  const quillModules = {
-    toolbar: [
-      ['bold', 'italic', 'underline'],
-      [{ 'list': 'bullet' }]
-    ],
-  };
   
   const [selectedFiles, setSelectedFiles] = useState<SelectedFile[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -558,15 +550,10 @@ export default function CreatePostPage() {
 
           <div className={styles.fieldGroup}>
             <label>Description <span className={styles.optionalText}>(optional)</span></label>
-            <div className="quill-wrapper">
-              <ReactQuill 
-                theme="snow" 
-                value={description} 
-                onChange={setDescription} 
-                modules={quillModules}
-                placeholder="Briefly describe the intent and aesthetic of this creation..."
-              />
-            </div>
+            <TipTapEditor 
+              content={description}
+              onChange={setDescription}
+            />
             {getCharLimitWarning(description.replace(/(<([^>]+)>)/gi, "").length, 1000)}
           </div>
 
@@ -608,19 +595,15 @@ export default function CreatePostPage() {
               </div>
             )}
 
-            <div className="quill-wrapper tall">
-              <ReactQuill 
-                theme="snow" 
-                value={prompts[activePromptIndex]} 
-                onChange={(content) => {
-                  const newPrompts = [...prompts];
-                  newPrompts[activePromptIndex] = content;
-                  setPrompts(newPrompts);
-                }} 
-                modules={quillModules}
-                placeholder="/imagine prompt: A highly detailed..."
-              />
-            </div>
+            <TipTapEditor 
+              content={prompts[activePromptIndex]}
+              onChange={(content) => {
+                const newPrompts = [...prompts];
+                newPrompts[activePromptIndex] = content;
+                setPrompts(newPrompts);
+              }}
+              tall={true}
+            />
             {getCharLimitWarning(prompts[activePromptIndex].replace(/(<([^>]+)>)/gi, "").length, 15000)}
           </div>
 

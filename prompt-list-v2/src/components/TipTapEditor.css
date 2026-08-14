@@ -1,0 +1,75 @@
+.tiptap-wrapper {
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.tiptap-toolbar {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
+  align-items: center;
+}
+
+.tiptap-toolbar button {
+  background: transparent;
+  border: none;
+  padding: 0.25rem;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.tiptap-toolbar button:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+
+.tiptap-toolbar button.is-active {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.tiptap-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--border-color);
+  margin: 0 0.25rem;
+}
+
+.tiptap-content {
+  padding: 0.75rem;
+  min-height: 120px;
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.tiptap-content.tall {
+  min-height: 250px;
+}
+
+.tiptap-content p {
+  margin: 0;
+  margin-bottom: 0.5rem;
+}
+
+.tiptap-content p:last-child {
+  margin-bottom: 0;
+}
+
+.tiptap-content ul {
+  margin: 0;
+  padding-left: 1.5rem;
+  margin-bottom: 0.5rem;
+}
