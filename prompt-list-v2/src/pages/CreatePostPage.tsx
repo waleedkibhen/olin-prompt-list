@@ -321,7 +321,7 @@ export default function CreatePostPage() {
         title,
         description,
         promptText: prompts[0],
-        prompts: prompts.filter(p => p.replace(/(<([^>]+)>)/gi, "").trim() !== ''),
+        prompts: prompts,
         model: model === 'Other' ? customModel.trim() || 'Unknown' : model,
         monetizationType: 'free',
         
