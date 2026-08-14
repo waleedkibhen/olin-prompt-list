@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getAuth, Auth, initializeAuth, browserLocalPersistence } from 'firebase/auth';
+import { getAuth, Auth, setPersistence, browserLocalPersistence } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
 
@@ -16,9 +16,9 @@ const firebaseConfig = {
 
 const app: FirebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-const auth: Auth = initializeAuth(app, {
-  persistence: browserLocalPersistence
-});
+const auth: Auth = getAuth(app);
+// Force local persistence to bypass Safari ITP IndexedDB blocks
+setPersistence(auth, browserLocalPersistence).catch(console.error);
 const db: Firestore = getFirestore(app);
 const storage: FirebaseStorage = getStorage(app);
 
