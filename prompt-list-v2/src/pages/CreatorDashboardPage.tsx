@@ -70,6 +70,7 @@ export default function CreatorDashboardPage() {
           title: d.title || 'Untitled Creation',
           description: d.description || '',
           promptText: d.promptText || '',
+          prompts: d.prompts || undefined,
           imageUrls: d.imageUrls || [],
           model: d.model || 'Midjourney V6',
           styleTag: d.styleTag || 'Community',

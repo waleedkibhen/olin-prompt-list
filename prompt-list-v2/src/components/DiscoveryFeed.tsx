@@ -200,6 +200,7 @@ export default function DiscoveryFeed() {
           title: data.title || 'Untitled Creation',
           description: data.description || '',
           promptText: data.promptText || '',
+          prompts: data.prompts || undefined,
           imageUrls: data.imageUrls || [],
           model: data.model || 'Midjourney V6',
           styleTag: data.styleTag || 'Community',

@@ -57,6 +57,7 @@ export default function CreatorProfilePage() {
             id: docSnap.id,
             title: d.title || 'Untitled',
             promptText: d.promptText || '',
+            prompts: d.prompts || undefined,
             imageUrls: d.imageUrls || [],
             model: d.model || 'Midjourney V6',
             styleTag: d.styleTag || 'Community',
