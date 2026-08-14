@@ -210,8 +210,11 @@ export default function CreatePostPage() {
     }
     
     const plainTextPrompts = prompts.map(p => p.replace(/(<([^>]+)>)/gi, "").trim());
-    if (plainTextPrompts.every(p => !p)) {
-      setModerationError("You must provide at least one prompt variant.");
+    const emptyVariantIndex = plainTextPrompts.findIndex(p => !p);
+    if (emptyVariantIndex !== -1) {
+      setModerationError(prompts.length > 1 
+        ? `Variant ${emptyVariantIndex + 1} cannot be empty. Please fill it out or remove it.` 
+        : "You must provide a prompt.");
       return;
     }
 

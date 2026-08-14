@@ -56,6 +56,11 @@ const MenuBar = ({ editor }: { editor: any }) => {
 };
 
 export default function TipTapEditor({ content, onChange, tall = false }: TipTapEditorProps) {
+  const onChangeRef = React.useRef(onChange);
+  React.useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -63,7 +68,7 @@ export default function TipTapEditor({ content, onChange, tall = false }: TipTap
     ],
     content: content,
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
+      onChangeRef.current(editor.getHTML());
     },
     editorProps: {
       attributes: {
