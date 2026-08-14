@@ -10,6 +10,8 @@ import { UploadCloud, CheckCircle2, Loader2, Image as ImageIcon, Trash2, ShieldA
 import { useNavigate } from 'react-router-dom';
 import { extractImagePalette } from '@/lib/colorAnalyzer';
 import { toast } from 'react-hot-toast';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 interface SelectedFile {
   file: File;
@@ -30,11 +32,19 @@ export default function CreatePostPage() {
   
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [promptText, setPromptText] = useState('');
+  const [prompts, setPrompts] = useState<string[]>(['']);
+  const [activePromptIndex, setActivePromptIndex] = useState(0);
   const [model, setModel] = useState('Midjourney');
   const [customModel, setCustomModel] = useState('');
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
   const [wasFlagged, setWasFlagged] = useState(false);
+
+  const quillModules = {
+    toolbar: [
+      ['bold', 'italic', 'underline'],
+      [{ 'list': 'bullet' }]
+    ],
+  };
   
   const [selectedFiles, setSelectedFiles] = useState<SelectedFile[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -196,12 +206,20 @@ export default function CreatePostPage() {
       setModerationError("Title cannot exceed 75 characters.");
       return;
     }
-    if (description.length > 1000) {
+    const plainTextDescription = description.replace(/(<([^>]+)>)/gi, "");
+    if (plainTextDescription.length > 1000) {
       setModerationError("Description cannot exceed 1000 characters.");
       return;
     }
-    if (promptText.length > 30000) {
-      setModerationError("Prompt cannot exceed 30000 characters.");
+    
+    if (prompts.some(p => p.replace(/(<([^>]+)>)/gi, "").length > 30000)) {
+      setModerationError("One of your prompt variants exceeds 30000 characters.");
+      return;
+    }
+    
+    const plainTextPrompts = prompts.map(p => p.replace(/(<([^>]+)>)/gi, "").trim());
+    if (plainTextPrompts.every(p => !p)) {
+      setModerationError("You must provide at least one prompt variant.");
       return;
     }
 
@@ -223,7 +241,7 @@ export default function CreatePostPage() {
         throw new Error("This exact image has already been published on the platform.");
       }
 
-      const textAnalysis = await moderateText(`${title}\n${description}\n${promptText}\n${model === 'Other' ? customModel : ''}`);
+      const textAnalysis = await moderateText(`${title}\n${description}\n${prompts.join('\n')}\n${model === 'Other' ? customModel : ''}`);
       if (!textAnalysis.approved) {
         throw new Error(`Content blocked: ${textAnalysis.reason}. Your account has been flagged.`);
       }
@@ -255,7 +273,7 @@ export default function CreatePostPage() {
       setStatusText('We are processing it right now');
       let embedding: number[] = [];
       try {
-        const textToEmbed = `${title}. ${description}. ${aiResult.tags.join(" ")}. ${promptText.substring(0, 1000)}`;
+        const textToEmbed = `${title}. ${description.replace(/(<([^>]+)>)/gi, "")}. ${aiResult.tags.join(" ")}. ${prompts[0].replace(/(<([^>]+)>)/gi, "").substring(0, 1000)}`;
         embedding = await generateLiveEmbedding(textToEmbed);
       } catch (embedErr) {
         console.error("Failed to generate embeddings:", embedErr);
@@ -310,7 +328,8 @@ export default function CreatePostPage() {
         
         title,
         description,
-        promptText,
+        promptText: prompts[0],
+        prompts: prompts.filter(p => p.replace(/(<([^>]+)>)/gi, "").trim() !== ''),
         model: model === 'Other' ? customModel.trim() || 'Unknown' : model,
         monetizationType: 'free',
         
@@ -539,27 +558,70 @@ export default function CreatePostPage() {
 
           <div className={styles.fieldGroup}>
             <label>Description <span className={styles.optionalText}>(optional)</span></label>
-            <textarea 
-              className={styles.plainTextarea}
-              placeholder="Briefly describe the intent and aesthetic of this creation..."
-              value={description}
-              maxLength={1000}
-              onChange={e => setDescription(e.target.value)}
-            />
-            {getCharLimitWarning(description.length, 1000)}
+            <div className="quill-wrapper">
+              <ReactQuill 
+                theme="snow" 
+                value={description} 
+                onChange={setDescription} 
+                modules={quillModules}
+                placeholder="Briefly describe the intent and aesthetic of this creation..."
+              />
+            </div>
+            {getCharLimitWarning(description.replace(/(<([^>]+)>)/gi, "").length, 1000)}
           </div>
 
           <div className={styles.fieldGroup}>
-            <label>Prompt</label>
-            <textarea 
-              className={`${styles.plainTextarea} ${styles.tall}`}
-              placeholder="/imagine prompt: A highly detailed..."
-              value={promptText}
-              maxLength={15000}
-              onChange={e => setPromptText(e.target.value)}
-              required
-            />
-            {getCharLimitWarning(promptText.length, 15000)}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <label style={{ margin: 0 }}>Prompt Variants <span className={styles.optionalText}>({prompts.length}/5)</span></label>
+              {prompts.length < 5 && (
+                <button 
+                  type="button" 
+                  onClick={() => { setPrompts([...prompts, '']); setActivePromptIndex(prompts.length); }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', color: 'var(--text-secondary)', background: 'transparent', border: '1px solid var(--border-color)', padding: '0.25rem 0.5rem', cursor: 'pointer' }}
+                >
+                  <PlusCircle size={12} /> Add Variant
+                </button>
+              )}
+            </div>
+            
+            {prompts.length > 1 && (
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', overflowX: 'auto', paddingBottom: '0.25rem' }}>
+                {prompts.map((_, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setActivePromptIndex(idx)}
+                    style={{
+                      padding: '0.25rem 0.75rem',
+                      fontSize: '0.75rem',
+                      fontWeight: activePromptIndex === idx ? 600 : 400,
+                      color: activePromptIndex === idx ? 'var(--text-primary)' : 'var(--text-secondary)',
+                      border: `1px solid ${activePromptIndex === idx ? 'var(--text-primary)' : 'var(--border-color)'}`,
+                      background: activePromptIndex === idx ? 'rgba(255,255,255,0.05)' : 'transparent',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    Variant {idx + 1}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="quill-wrapper tall">
+              <ReactQuill 
+                theme="snow" 
+                value={prompts[activePromptIndex]} 
+                onChange={(content) => {
+                  const newPrompts = [...prompts];
+                  newPrompts[activePromptIndex] = content;
+                  setPrompts(newPrompts);
+                }} 
+                modules={quillModules}
+                placeholder="/imagine prompt: A highly detailed..."
+              />
+            </div>
+            {getCharLimitWarning(prompts[activePromptIndex].replace(/(<([^>]+)>)/gi, "").length, 15000)}
           </div>
 
           <button type="submit" className={styles.publishBtn} disabled={isScanning || selectedFiles.length === 0}>

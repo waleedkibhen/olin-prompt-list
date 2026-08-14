@@ -13,6 +13,7 @@ export interface PromptPost {
   title: string;
   description?: string;
   promptText: string;
+  prompts?: string[];
   imageUrls: string[];
   model: 'Midjourney V6' | 'Flux.1' | 'DALL-E 3' | 'Stable Diffusion XL' | string;
   styleTag: string;

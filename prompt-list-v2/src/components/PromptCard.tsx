@@ -67,6 +67,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [showComments, setShowComments] = useState(false);
   const [activeTab, setActiveTab] = useState<'prompt' | 'description'>('prompt');
+  const [activeVariantIndex, setActiveVariantIndex] = useState(0);
   
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [previewPaywall, setPreviewPaywall] = useState(false);
@@ -234,7 +235,8 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
 
   const handleCopyPrompt = async (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    await copyRichPrompt(post.promptText);
+    const promptToCopy = post.prompts && post.prompts.length > 0 ? post.prompts[activeVariantIndex] : post.promptText;
+    await copyRichPrompt(promptToCopy);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2500);
 
@@ -788,7 +790,30 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                     ) : (
                       <>
                         <div className={styles.promptTextContainer} style={{ color: 'var(--text-primary)' }}>
-                          <RichTextRenderer content={post.promptText} className={styles.promptCode} />
+                          {post.prompts && post.prompts.length > 1 && (
+                            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', overflowX: 'auto' }}>
+                              {post.prompts.map((_, idx) => (
+                                <button
+                                  key={idx}
+                                  onClick={() => setActiveVariantIndex(idx)}
+                                  style={{
+                                    padding: '0.2rem 0.6rem',
+                                    fontSize: '0.75rem',
+                                    fontWeight: activeVariantIndex === idx ? 600 : 400,
+                                    color: activeVariantIndex === idx ? 'var(--text-primary)' : 'var(--text-secondary)',
+                                    border: `1px solid ${activeVariantIndex === idx ? 'var(--text-primary)' : 'var(--border-color)'}`,
+                                    background: activeVariantIndex === idx ? 'rgba(255,255,255,0.05)' : 'transparent',
+                                    cursor: 'pointer',
+                                    borderRadius: '2px',
+                                    whiteSpace: 'nowrap'
+                                  }}
+                                >
+                                  Variant {idx + 1}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                          <RichTextRenderer content={post.prompts && post.prompts.length > 0 ? post.prompts[activeVariantIndex] : post.promptText} className={styles.promptCode} />
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '1rem', marginBottom: '0.5rem' }}>
                           <button 
@@ -806,7 +831,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                   </div>
                 ) : (
                   <div className={styles.promptTextContainer} style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
-                    <p className={styles.promptCode} style={{ whiteSpace: 'pre-wrap' }}>{post.description}</p>
+                    <RichTextRenderer content={post.description || ''} className={styles.promptCode} />
                   </div>
                 )}
               </div>

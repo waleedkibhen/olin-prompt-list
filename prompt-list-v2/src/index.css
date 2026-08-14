@@ -256,3 +256,48 @@ input:focus, textarea:focus, select:focus {
   border-width: 0;
 }
 
+/* Quill Editor Overrides */
+.quill-wrapper .ql-toolbar {
+  border: 1px solid var(--border-color) !important;
+  border-bottom: none !important;
+  background: var(--bg-primary) !important;
+  border-radius: 0px !important;
+}
+
+.quill-wrapper .ql-container {
+  border: 1px solid var(--border-color) !important;
+  border-radius: 0px !important;
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  font-family: var(--font-family) !important;
+  font-size: 0.85rem !important;
+  min-height: 120px;
+}
+
+.quill-wrapper.tall .ql-container {
+  min-height: 250px;
+}
+
+.quill-wrapper .ql-stroke {
+  stroke: var(--text-secondary) !important;
+}
+.quill-wrapper .ql-fill {
+  fill: var(--text-secondary) !important;
+}
+.quill-wrapper button:hover .ql-stroke {
+  stroke: var(--text-primary) !important;
+}
+.quill-wrapper button:hover .ql-fill {
+  fill: var(--text-primary) !important;
+}
+.quill-wrapper .ql-picker-label {
+  color: var(--text-primary) !important;
+}
+.quill-wrapper .ql-picker-options {
+  background: var(--bg-primary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+.quill-wrapper .ql-editor {
+  padding: 0.75rem !important;
+}
+
