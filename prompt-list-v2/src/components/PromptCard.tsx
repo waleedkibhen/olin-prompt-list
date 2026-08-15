@@ -660,6 +660,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                               <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem', alignItems: 'center' }}>
                                 <button onClick={() => handleLikeComment(c.id)} className={`${styles.commentActionBtn} ${styles.commentLikeBtn}`} style={{ color: c.likedBy?.includes(user?.uid || '') ? '#ef4444' : undefined }} title="Like">
                                   <Heart size={14} fill={c.likedBy?.includes(user?.uid || '') ? '#ef4444' : 'none'} />
+                                  {c.likesCount > 0 && <span>{c.likesCount}</span>}
                                 </button>
                                 <button onClick={() => { setActiveReplyId(c.id); setActiveReplyName(c.authorName); }} className={`${styles.commentActionBtn} ${styles.commentReplyBtn}`} title="Reply">
                                   <MessageCircle size={14} />
@@ -699,6 +700,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                                     <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem', alignItems: 'center' }}>
                                       <button onClick={() => handleLikeComment(reply.id)} className={`${styles.commentActionBtn} ${styles.commentLikeBtn}`} style={{ color: reply.likedBy?.includes(user?.uid || '') ? '#ef4444' : undefined }} title="Like">
                                         <Heart size={14} fill={reply.likedBy?.includes(user?.uid || '') ? '#ef4444' : 'none'} />
+                                        {reply.likesCount > 0 && <span>{reply.likesCount}</span>}
                                       </button>
                                       <button onClick={() => { setActiveReplyId(c.id); setActiveReplyName(reply.authorName); }} className={`${styles.commentActionBtn} ${styles.commentReplyBtn}`} title="Reply">
                                         <MessageCircle size={14} />
