@@ -222,15 +222,11 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
           const compressedBlob = await compressImageForStorage(item.file);
           const storagePath = `prompts_images/${user.uid}/${Date.now()}_${Math.random().toString(36).substring(2, 6)}.jpg`;
           const imageRef = ref(storage, storagePath);
-          await uploadWithTimeout(imageRef, compressedBlob, 12000);
+          await uploadWithTimeout(imageRef, compressedBlob, 30000);
           const downloadUrl = await getDownloadURL(imageRef);
           uploadedImageUrls.push(downloadUrl);
         } catch (storageError: any) {
-          if (item.base64) {
-            uploadedImageUrls.push(item.base64);
-          } else {
-            throw new Error(`Upload failed on image ${i + 1}`);
-          }
+          throw new Error(`Upload failed on image ${i + 1}. Please try again.`);
         }
       }
 

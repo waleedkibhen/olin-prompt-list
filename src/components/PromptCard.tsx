@@ -174,7 +174,7 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
 
       const commentsRef = collection(db, `posts/${post.id}/comments`);
       await addDoc(commentsRef, {
-        uid: user.uid,
+        userId: user.uid,
         authorName: profile.displayName || user.displayName || 'Creator',
         authorAvatar: profile.avatarUrl || user.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
         text: newComment.trim(),
@@ -185,7 +185,11 @@ export default function PromptCard({ post, onLike, onSave }: PromptCardProps) {
       setIsSubmittingComment(false);
     } catch (err: any) {
       setIsSubmittingComment(false);
-      setCommentError("Failed to publish comment.");
+      if (err?.code === 'permission-denied') {
+        setCommentError("Permission denied: Check your account verification or rules.");
+      } else {
+        setCommentError(`Failed to publish comment: ${err.message}`);
+      }
     }
   };
 
