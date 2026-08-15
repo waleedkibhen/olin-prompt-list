@@ -8,8 +8,10 @@ service cloud.firestore {
     }
     
     function isAdmin() {
-      // Hardcoded superadmin email check
-      return isAuthenticated() && request.auth.token.email == 'wisecrafts81@gmail.com';
+      // Added email verification check to prevent spoofed unverified accounts
+      return isAuthenticated() 
+        && request.auth.token.email == 'wisecrafts81@gmail.com'
+        && request.auth.token.email_verified == true;
     }
     
     function isOwner(userId) {
@@ -18,46 +20,44 @@ service cloud.firestore {
 
     // --- 1. Users Collection ---
     match /users/{userId} {
-      // Anyone can read profiles
       allow read: if true;
-      // Users can only create/update/delete their own profiles, admins can do anything
       allow write: if isOwner(userId) || isAdmin();
-    }
-    
-    // 1b. User Notifications Subcollection
-    match /users/{userId}/notifications/{notificationId} {
-      // Users can read/update/delete their own notifications
-      allow read, update, delete: if isOwner(userId) || isAdmin();
-      // Anyone authenticated can create a notification for someone else (e.g. liking a post)
-      allow create: if isAuthenticated();
+      
+      // 1b. User Notifications Subcollection
+      match /notifications/{notificationId} {
+        allow read, update, delete: if isOwner(userId) || isAdmin();
+        
+        // Prevent spoofing by enforcing that the sender ID matches the authenticated user
+        allow create: if isAuthenticated() 
+          && request.resource.data.senderId == request.auth.uid;
+      }
     }
 
     // --- 2. Posts Collection ---
     match /posts/{postId} {
-      // Anyone can read posts
       allow read: if true;
-      
-      // Creating a post: must be authenticated and the creatorId must match their UID
       allow create: if isAuthenticated() && request.resource.data.creatorId == request.auth.uid;
       
-      // Updating a post: 
-      // Option A: The user is the creator (or admin)
-      // Option B: The user is just liking/saving/viewing/copying (only updating metrics)
-      allow update: if (isAuthenticated() && resource.data.creatorId == request.auth.uid) 
+      // Updating a post requires owner/admin status, OR restricts metric changes.
+      // (Added check to prevent the creatorId from being changed during an update)
+      allow update: if (isAuthenticated() && resource.data.creatorId == request.auth.uid && request.resource.data.creatorId == resource.data.creatorId) 
                     || isAdmin()
-                    || (isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likesCount', 'savesCount', 'viewsCount', 'copiesCount']));
+                    || (isAuthenticated() 
+                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likesCount', 'savesCount', 'viewsCount', 'copiesCount'])
+                    );
       
-      // Deleting a post: only the creator or admin
       allow delete: if (isAuthenticated() && resource.data.creatorId == request.auth.uid) || isAdmin();
       
       // 2b. Comments Subcollection
       match /comments/{commentId} {
         allow read: if true;
-        // User must attach their own UID to the comment
         allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
-        allow update: if (isAuthenticated() && resource.data.userId == request.auth.uid)
+        
+        // ALLOWING ANY AUTHENTICATED USER TO UPDATE LIKES & REPLIES
+        allow update: if (isAuthenticated() && resource.data.userId == request.auth.uid && request.resource.data.userId == resource.data.userId)
                       || isAdmin()
                       || (isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likesCount', 'likedBy', 'replyCount']));
+                      
         allow delete: if (isAuthenticated() && resource.data.userId == request.auth.uid) || isAdmin();
       }
     }
@@ -65,24 +65,23 @@ service cloud.firestore {
     // --- 3. Follows Collection ---
     match /follows/{followId} {
       allow read: if true;
-      // User must attach their own UID as the follower
       allow create: if isAuthenticated() && request.resource.data.followerId == request.auth.uid;
       allow delete: if isAuthenticated() && resource.data.followerId == request.auth.uid;
     }
 
     // --- 4. Support Tickets ---
     match /support_tickets/{ticketId} {
-      // Anyone authenticated can submit a ticket
-      allow create: if isAuthenticated();
-      // Only admins can read, update, delete tickets
-      allow read, update, delete: if isAdmin();
+      // Enforce that the submitter is attaching their own ID to the ticket
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      // Allow users to read their own tickets to check status
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      allow update, delete: if isAdmin();
     }
 
     // --- 5. Reports ---
     match /reports/{reportId} {
-      // Anyone authenticated can submit a report
-      allow create: if isAuthenticated();
-      // Only admins can read, update, delete reports
+      // Enforce that the submitter is attaching their own ID to the report
+      allow create: if isAuthenticated() && request.resource.data.reporterId == request.auth.uid;
       allow read, update, delete: if isAdmin();
     }
   }
