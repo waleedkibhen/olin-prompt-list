@@ -54,9 +54,9 @@ service cloud.firestore {
         allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
         
         // ALLOWING ANY AUTHENTICATED USER TO UPDATE LIKES & REPLIES
-        allow update: if (isAuthenticated() && resource.data.userId == request.auth.uid && request.resource.data.userId == resource.data.userId)
-                      || isAdmin()
-                      || (isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likesCount', 'likedBy', 'replyCount']));
+        allow update: if (isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likesCount', 'likedBy', 'replyCount']))
+                      || (isAuthenticated() && resource.data.userId == request.auth.uid && request.resource.data.userId == resource.data.userId)
+                      || isAdmin();
                       
         allow delete: if (isAuthenticated() && resource.data.userId == request.auth.uid) || isAdmin();
       }
