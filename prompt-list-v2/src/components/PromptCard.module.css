@@ -910,3 +910,32 @@
     display: none;
   }
 }
+
+.commentActionBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.commentLikeBtn:hover {
+  color: #ef4444;
+}
+
+.commentReplyBtn:hover {
+  color: #3b82f6;
+}
+
+.commentReportBtn:hover {
+  color: #ef4444;
+}
+
+.commentDeleteBtn:hover {
+  color: #ef4444;
+}

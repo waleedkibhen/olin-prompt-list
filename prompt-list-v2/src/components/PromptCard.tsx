@@ -658,19 +658,18 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                               </div>
                               <span style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', marginTop: '0.1rem', fontWeight: 400 }}>{c.text}</span>
                               <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem', alignItems: 'center' }}>
-                                <button onClick={() => handleLikeComment(c.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', gap: '0.3rem', alignItems: 'center', color: c.likedBy?.includes(user?.uid || '') ? '#ef4444' : 'var(--text-muted)', fontSize: '0.75rem', padding: 0 }}>
-                                  <Heart size={12} fill={c.likedBy?.includes(user?.uid || '') ? '#ef4444' : 'none'} />
-                                  {c.likesCount > 0 && <span>{c.likesCount}</span>}
+                                <button onClick={() => handleLikeComment(c.id)} className={`${styles.commentActionBtn} ${styles.commentLikeBtn}`} style={{ color: c.likedBy?.includes(user?.uid || '') ? '#ef4444' : undefined }} title="Like">
+                                  <Heart size={14} fill={c.likedBy?.includes(user?.uid || '') ? '#ef4444' : 'none'} />
                                 </button>
-                                <button onClick={() => { setActiveReplyId(c.id); setActiveReplyName(c.authorName); }} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', gap: '0.3rem', alignItems: 'center', color: 'var(--text-muted)', fontSize: '0.75rem', padding: 0 }}>
-                                  <MessageCircle size={12} /> Reply
+                                <button onClick={() => { setActiveReplyId(c.id); setActiveReplyName(c.authorName); }} className={`${styles.commentActionBtn} ${styles.commentReplyBtn}`} title="Reply">
+                                  <MessageCircle size={14} />
                                 </button>
-                                <button onClick={() => handleReportComment(c.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', gap: '0.3rem', alignItems: 'center', color: 'var(--text-muted)', fontSize: '0.75rem', padding: 0 }}>
-                                  <Flag size={12} /> Report
+                                <button onClick={() => handleReportComment(c.id)} className={`${styles.commentActionBtn} ${styles.commentReportBtn}`} title="Report">
+                                  <Flag size={14} />
                                 </button>
                                 {c.userId && user?.uid === c.userId && (
-                                  <button onClick={() => handleDeleteComment(c.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', gap: '0.3rem', alignItems: 'center', color: '#ef4444', fontSize: '0.75rem', padding: 0 }}>
-                                    <Trash2 size={12} /> Delete
+                                  <button onClick={() => handleDeleteComment(c.id)} className={`${styles.commentActionBtn} ${styles.commentDeleteBtn}`} title="Delete">
+                                    <Trash2 size={14} />
                                   </button>
                                 )}
                               </div>
@@ -698,19 +697,18 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                                     </div>
                                     <span style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', marginTop: '0.1rem', fontWeight: 400 }}>{reply.text}</span>
                                     <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem', alignItems: 'center' }}>
-                                      <button onClick={() => handleLikeComment(reply.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', gap: '0.3rem', alignItems: 'center', color: reply.likedBy?.includes(user?.uid || '') ? '#ef4444' : 'var(--text-muted)', fontSize: '0.75rem', padding: 0 }}>
-                                        <Heart size={12} fill={reply.likedBy?.includes(user?.uid || '') ? '#ef4444' : 'none'} />
-                                        {reply.likesCount > 0 && <span>{reply.likesCount}</span>}
+                                      <button onClick={() => handleLikeComment(reply.id)} className={`${styles.commentActionBtn} ${styles.commentLikeBtn}`} style={{ color: reply.likedBy?.includes(user?.uid || '') ? '#ef4444' : undefined }} title="Like">
+                                        <Heart size={14} fill={reply.likedBy?.includes(user?.uid || '') ? '#ef4444' : 'none'} />
                                       </button>
-                                      <button onClick={() => { setActiveReplyId(c.id); setActiveReplyName(reply.authorName); }} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', gap: '0.3rem', alignItems: 'center', color: 'var(--text-muted)', fontSize: '0.75rem', padding: 0 }}>
-                                        <MessageCircle size={12} /> Reply
+                                      <button onClick={() => { setActiveReplyId(c.id); setActiveReplyName(reply.authorName); }} className={`${styles.commentActionBtn} ${styles.commentReplyBtn}`} title="Reply">
+                                        <MessageCircle size={14} />
                                       </button>
-                                      <button onClick={() => handleReportComment(reply.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', gap: '0.3rem', alignItems: 'center', color: 'var(--text-muted)', fontSize: '0.75rem', padding: 0 }}>
-                                        <Flag size={12} /> Report
+                                      <button onClick={() => handleReportComment(reply.id)} className={`${styles.commentActionBtn} ${styles.commentReportBtn}`} title="Report">
+                                        <Flag size={14} />
                                       </button>
                                       {reply.userId && user?.uid === reply.userId && (
-                                        <button onClick={() => handleDeleteComment(reply.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', gap: '0.3rem', alignItems: 'center', color: '#ef4444', fontSize: '0.75rem', padding: 0 }}>
-                                          <Trash2 size={12} /> Delete
+                                        <button onClick={() => handleDeleteComment(reply.id)} className={`${styles.commentActionBtn} ${styles.commentDeleteBtn}`} title="Delete">
+                                          <Trash2 size={14} />
                                         </button>
                                       )}
                                     </div>
