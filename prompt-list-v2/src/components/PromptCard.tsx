@@ -30,6 +30,7 @@ interface CommentItem {
   likedBy: string[];
   replyCount: number;
   parentId?: string;
+  userId?: string;
 }
 
 export default function PromptCard({ post, onLike, onSave, defaultOpen = false, onCloseOverride }: PromptCardProps) {
@@ -170,7 +171,8 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
           likesCount: cData.likesCount || 0,
           likedBy: cData.likedBy || [],
           replyCount: cData.replyCount || 0,
-          parentId: cData.parentId || undefined
+          parentId: cData.parentId || undefined,
+          userId: cData.userId || cData.uid || ''
         });
       });
       setComments(items);
@@ -438,6 +440,17 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
     );
   };
 
+  const handleDeleteComment = async (commentId: string) => {
+    if (!requireAuth("Delete Comment")) return;
+    try {
+      await deleteDoc(doc(db, `posts/${post.id}/comments`, commentId));
+      toast.success('Comment deleted.');
+    } catch (err) {
+      console.error('Failed to delete comment', err);
+      toast.error('Failed to delete comment.');
+    }
+  };
+
   const toggleReplies = (commentId: string) => {
     setExpandedReplies(prev => ({
       ...prev,
@@ -655,6 +668,11 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                                 <button onClick={() => handleReportComment(c.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', gap: '0.3rem', alignItems: 'center', color: 'var(--text-muted)', fontSize: '0.75rem', padding: 0 }}>
                                   <Flag size={12} /> Report
                                 </button>
+                                {c.userId && user?.uid === c.userId && (
+                                  <button onClick={() => handleDeleteComment(c.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', gap: '0.3rem', alignItems: 'center', color: '#ef4444', fontSize: '0.75rem', padding: 0 }}>
+                                    <Trash2 size={12} /> Delete
+                                  </button>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -690,6 +708,11 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                                       <button onClick={() => handleReportComment(reply.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', gap: '0.3rem', alignItems: 'center', color: 'var(--text-muted)', fontSize: '0.75rem', padding: 0 }}>
                                         <Flag size={12} /> Report
                                       </button>
+                                      {reply.userId && user?.uid === reply.userId && (
+                                        <button onClick={() => handleDeleteComment(reply.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', gap: '0.3rem', alignItems: 'center', color: '#ef4444', fontSize: '0.75rem', padding: 0 }}>
+                                          <Trash2 size={12} /> Delete
+                                        </button>
+                                      )}
                                     </div>
                                   </div>
                                 </div>
