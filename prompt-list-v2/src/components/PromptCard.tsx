@@ -179,6 +179,20 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
     return () => unsubscribe();
   }, [isModalOpen, post.id]);
 
+  useEffect(() => {
+    if (isModalOpen && user) {
+      const incrementView = async () => {
+        try {
+          const postRef = doc(db, 'posts', post.id);
+          await updateDoc(postRef, { viewsCount: increment(1) });
+        } catch (err) {
+          console.error("Failed to increment view count:", err);
+        }
+      };
+      incrementView();
+    }
+  }, [isModalOpen, user, post.id]);
+
   const requireAuth = (_actionName: string): boolean => {
     if (!user) {
       toast.error('Sign in to perform this action.');
@@ -323,7 +337,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
 
       const commentsRef = collection(db, `posts/${post.id}/comments`);
       await addDoc(commentsRef, {
-        uid: user.uid,
+        userId: user.uid,
         authorName: profile.username || profile.displayName || user.displayName || 'Creator',
         authorAvatar: profile.avatarUrl || user.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
         text: newComment.trim(),
@@ -345,9 +359,13 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
       setActiveReplyId(null);
       setActiveReplyName(null);
       setIsSubmittingComment(false);
-    } catch (_err: any) {
+    } catch (err: any) {
       setIsSubmittingComment(false);
-      setCommentError("Failed to publish comment.");
+      if (err?.code === 'permission-denied') {
+        setCommentError("Permission denied: Check your account verification or rules.");
+      } else {
+        setCommentError(`Failed to publish comment: ${err.message}`);
+      }
     }
   };
 
