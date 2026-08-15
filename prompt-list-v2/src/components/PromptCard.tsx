@@ -659,7 +659,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                       return (
                         <div key={c.id} style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.8rem' }}>
                           <div style={{ display: 'flex', gap: '0.6rem', paddingTop: '0.8rem', backgroundColor: 'transparent' }}>
-                            <img src={c.userId === user?.uid ? (profile?.avatarUrl || user?.photoURL || c.authorAvatar) : c.authorAvatar} alt={c.authorName} style={{ width: '26px', height: '26px', borderRadius: '50%', objectFit: 'cover' }} />
+                            <img src={(c.userId === user?.uid || c.authorName === profile?.username || c.authorName === profile?.displayName) ? (profile?.avatarUrl || user?.photoURL || c.authorAvatar) : c.authorAvatar} alt={c.authorName} style={{ width: '26px', height: '26px', borderRadius: '50%', objectFit: 'cover' }} />
                             <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <Link to={`/creator/${c.authorName}`} className={styles.profileLink}>
@@ -699,7 +699,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                             <div style={{ display: 'flex', flexDirection: 'column', paddingLeft: '3.1rem' }}>
                               {replies.map(reply => (
                                 <div key={reply.id} style={{ display: 'flex', gap: '0.6rem', paddingTop: '0.8rem', backgroundColor: 'transparent' }}>
-                                  <img src={reply.userId === user?.uid ? (profile?.avatarUrl || user?.photoURL || reply.authorAvatar) : reply.authorAvatar} alt={reply.authorName} style={{ width: '22px', height: '22px', borderRadius: '50%', objectFit: 'cover' }} />
+                                  <img src={(reply.userId === user?.uid || reply.authorName === profile?.username || reply.authorName === profile?.displayName) ? (profile?.avatarUrl || user?.photoURL || reply.authorAvatar) : reply.authorAvatar} alt={reply.authorName} style={{ width: '22px', height: '22px', borderRadius: '50%', objectFit: 'cover' }} />
                                   <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                       <Link to={`/creator/${reply.authorName}`} className={styles.profileLink}>
