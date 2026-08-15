@@ -23,6 +23,7 @@ export interface PromptPost {
   savesCount: number;
   viewsCount: number;
   copiesCount?: number;
+  commentCount?: number;
   createdAt: string;
   rawTimestamp?: number;
   aspectRatio?: string;

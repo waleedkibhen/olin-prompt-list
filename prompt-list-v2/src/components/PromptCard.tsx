@@ -31,6 +31,7 @@ interface CommentItem {
   replyCount: number;
   parentId?: string;
   userId?: string;
+  rawTimestamp?: number;
 }
 
 export default function PromptCard({ post, onLike, onSave, defaultOpen = false, onCloseOverride }: PromptCardProps) {
@@ -172,9 +173,19 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
           likedBy: cData.likedBy || [],
           replyCount: cData.replyCount || 0,
           parentId: cData.parentId || undefined,
-          userId: cData.userId || cData.uid || ''
+          userId: cData.userId || cData.uid || '',
+          rawTimestamp: cData.createdAt?.toMillis ? cData.createdAt.toMillis() : Date.now()
         });
       });
+      
+      // Sort comments: Most liked first, then newest first
+      items.sort((a, b) => {
+        if (b.likesCount !== a.likesCount) {
+          return b.likesCount - a.likesCount; // Highest likes first
+        }
+        return (b.rawTimestamp || 0) - (a.rawTimestamp || 0); // Newest first for ties
+      });
+      
       setComments(items);
     }, () => {});
 

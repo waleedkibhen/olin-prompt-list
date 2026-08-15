@@ -216,6 +216,7 @@ export default function DiscoveryFeed() {
           savesCount: data.savesCount || 0,
           viewsCount: data.viewsCount || 1,
           copiesCount: data.copiesCount || 0,
+          commentCount: data.commentCount || data.commentsCount || 0,
           isPaid: data.isPaid || false,
           price: data.price || 0,
           monetizationType: data.monetizationType || (data.isPaid ? 'subscribers_only' : 'free'),
@@ -484,14 +485,18 @@ export default function DiscoveryFeed() {
         // Strict chronological sort
         current.sort((a, b) => (b.rawTimestamp || 0) - (a.rawTimestamp || 0));
       } else if (tab === 'trending') {
-        // Viral Velocity Rank: Likes * 3 + Saves * 4 + Copies * 2 + Views
+        // Hacker News inspired gravity algorithm: (Base Score) / (Age in Hours + 2)^1.5
         const now = Date.now();
-        current = current.filter(p => {
-          const ageInDays = (now - (p.rawTimestamp || 0)) / (1000 * 60 * 60 * 24);
-          return ageInDays <= 14; // Fallback to 14 days to ensure candidates exist
-        }).sort((a, b) => {
-          const scoreA = (a.likesCount * 3) + (a.savesCount * 4) + ((a.copiesCount || 0) * 2) + (a.viewsCount);
-          const scoreB = (b.likesCount * 3) + (b.savesCount * 4) + ((b.copiesCount || 0) * 2) + (b.viewsCount);
+        current = current.sort((a, b) => {
+          const ageHoursA = (now - (a.rawTimestamp || now)) / (1000 * 60 * 60);
+          const ageHoursB = (now - (b.rawTimestamp || now)) / (1000 * 60 * 60);
+          
+          const baseScoreA = (a.likesCount * 5) + (a.savesCount * 4) + ((a.commentCount || 0) * 3) + ((a.copiesCount || 0) * 2) + (a.viewsCount * 1);
+          const baseScoreB = (b.likesCount * 5) + (b.savesCount * 4) + ((b.commentCount || 0) * 3) + ((b.copiesCount || 0) * 2) + (b.viewsCount * 1);
+          
+          const scoreA = baseScoreA / Math.pow(Math.max(0, ageHoursA) + 2, 1.5);
+          const scoreB = baseScoreB / Math.pow(Math.max(0, ageHoursB) + 2, 1.5);
+          
           return scoreB - scoreA;
         });
         
