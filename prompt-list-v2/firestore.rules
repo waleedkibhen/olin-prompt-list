@@ -62,6 +62,11 @@ service cloud.firestore {
       }
     }
 
+    // Allow collection-group queries on comments
+    match /{path=**}/comments/{commentId} {
+      allow read: if true;
+    }
+
     // --- 3. Follows Collection ---
     match /follows/{followId} {
       allow read: if true;

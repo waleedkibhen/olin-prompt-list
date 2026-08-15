@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styles from './ProfilePage.module.css';
 import { useAuth } from '@/context/AuthContext';
 import { db, storage, auth } from '@/lib/firebase';
-import { doc, updateDoc, collection, query, where, getDocs, writeBatch, deleteDoc } from 'firebase/firestore';
+import { doc, updateDoc, collection, collectionGroup, query, where, getDocs, writeBatch, deleteDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { updateProfile, deleteUser } from 'firebase/auth';
 import { User, ShieldAlert, Sparkles, Upload, Box, MessageSquarePlus, CheckCircle2, AlertTriangle, Trash2 } from 'lucide-react';
@@ -175,8 +175,24 @@ export default function ProfilePage() {
           await batch.commit();
           console.log(`Propagated identity update to ${userPostsSnap.size} historical posts.`);
         }
+        
+        // Propagate profile identity across all existing comments authored by this creator
+        const commentsQuery = query(collectionGroup(db, 'comments'), where('userId', '==', user.uid));
+        const userCommentsSnap = await getDocs(commentsQuery);
+        
+        if (!userCommentsSnap.empty) {
+          const batch = writeBatch(db);
+          userCommentsSnap.forEach((commentDoc) => {
+            batch.update(commentDoc.ref, {
+              authorName: displayName.trim(),
+              authorAvatar: newAvatarUrl
+            });
+          });
+          await batch.commit();
+          console.log(`Propagated identity update to ${userCommentsSnap.size} historical comments.`);
+        }
       } catch (propErr) {
-        console.error("Error propagating identity to historical posts:", propErr);
+        console.error("Error propagating identity to historical posts/comments:", propErr);
       }
 
       setAvatarUrl(newAvatarUrl);
