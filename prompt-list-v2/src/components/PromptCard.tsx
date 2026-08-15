@@ -659,10 +659,10 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                             </div>
                           </div>
 
-                          {c.replyCount > 0 && (
+                          {replies.length > 0 && (
                             <button onClick={() => toggleReplies(c.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--text-secondary)', fontSize: '0.75rem', paddingLeft: '3.1rem', marginTop: '0.5rem', alignSelf: 'flex-start' }}>
                               <div style={{ width: '16px', height: '1px', backgroundColor: 'var(--border-color)', marginRight: '0.5rem' }}></div>
-                              {isExpanded ? 'Hide replies' : `View ${c.replyCount} replies`}
+                              {isExpanded ? 'Hide replies' : `View ${replies.length} replies`}
                             </button>
                           )}
 
