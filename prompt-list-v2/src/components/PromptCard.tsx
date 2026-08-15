@@ -352,7 +352,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
         const parentRef = doc(db, `posts/${post.id}/comments`, activeReplyId);
         await updateDoc(parentRef, {
           replyCount: increment(1)
-        });
+        }).catch((e) => console.warn("Could not increment replyCount due to rules:", e));
       }
 
       setNewComment('');
