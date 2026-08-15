@@ -485,19 +485,26 @@ export default function DiscoveryFeed() {
         // Strict chronological sort
         current.sort((a, b) => (b.rawTimestamp || 0) - (a.rawTimestamp || 0));
       } else if (tab === 'trending') {
-        // Hacker News inspired gravity algorithm: (Base Score) / (Age in Hours + 2)^1.5
+        // 48-Hour Viral Window algorithm
         const now = Date.now();
         current = current.sort((a, b) => {
-          const ageHoursA = (now - (a.rawTimestamp || now)) / (1000 * 60 * 60);
-          const ageHoursB = (now - (b.rawTimestamp || now)) / (1000 * 60 * 60);
+          const ageHoursA = Math.max(0, (now - (a.rawTimestamp || now)) / (1000 * 60 * 60));
+          const ageHoursB = Math.max(0, (now - (b.rawTimestamp || now)) / (1000 * 60 * 60));
           
-          const baseScoreA = (a.likesCount * 5) + (a.savesCount * 4) + ((a.commentCount || 0) * 3) + ((a.copiesCount || 0) * 2) + (a.viewsCount * 1);
-          const baseScoreB = (b.likesCount * 5) + (b.savesCount * 4) + ((b.commentCount || 0) * 3) + ((b.copiesCount || 0) * 2) + (b.viewsCount * 1);
+          const baseScoreA = (a.viewsCount * 1) + (a.likesCount * 5) + (a.savesCount * 4) + ((a.commentCount || 0) * 3) + ((a.copiesCount || 0) * 2);
+          const baseScoreB = (b.viewsCount * 1) + (b.likesCount * 5) + (b.savesCount * 4) + ((b.commentCount || 0) * 3) + ((b.copiesCount || 0) * 2);
           
-          const scoreA = baseScoreA / Math.pow(Math.max(0, ageHoursA) + 2, 1.5);
-          const scoreB = baseScoreB / Math.pow(Math.max(0, ageHoursB) + 2, 1.5);
+          // Posts within 48 hours compete on raw base score. After 48 hours, they are heavily decayed.
+          const scoreA = ageHoursA <= 48 ? baseScoreA : (baseScoreA * 0.01) / ageHoursA;
+          const scoreB = ageHoursB <= 48 ? baseScoreB : (baseScoreB * 0.01) / ageHoursB;
           
-          return scoreB - scoreA;
+          // Primary sort: highest score
+          if (scoreB !== scoreA) {
+            return scoreB - scoreA;
+          }
+          
+          // Secondary sort: newest first
+          return ageHoursA - ageHoursB;
         });
         
         // If trending pool is totally empty (e.g. brand new db), fallback to newest
