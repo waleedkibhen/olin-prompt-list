@@ -6,6 +6,7 @@ import { PromptPost } from '@/lib/mockData';
 import { Box, AlertCircle } from 'lucide-react';
 import PromptCard from '@/components/PromptCard';
 import { hasViewedRecently, recordView } from '@/lib/viewTracker';
+import { updateSEOTags, resetSEOTags } from '@/lib/seo';
 
 export default function PostDetailPage() {
   const params = useParams();
@@ -69,10 +70,13 @@ export default function PostDetailPage() {
   }, [id]);
 
   useEffect(() => {
-    if (post?.title) {
-      document.title = `${post.title} - Olin's Prompt List`;
+    if (post) {
+      updateSEOTags(`https://getolin.xyz/post/${post.id}`, post.promptText || post.description || '', post.title);
     }
-  }, [post?.title]);
+    
+    // Cleanup when leaving the dedicated page
+    return () => resetSEOTags();
+  }, [post]);
 
   if (loading) {
     return (

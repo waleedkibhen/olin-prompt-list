@@ -12,6 +12,7 @@ import ReportModal from '@/components/ReportModal';
 import RichTextRenderer, { copyRichPrompt } from '@/components/RichTextRenderer';
 import toast from 'react-hot-toast';
 import { hasViewedRecently, recordView } from '@/lib/viewTracker';
+import { updateSEOTags, resetSEOTags } from '@/lib/seo';
 
 interface PromptCardProps {
   post: PromptPost;
@@ -166,10 +167,12 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
       if (isModalOpen) {
         // Push state so URL changes to the post's URL, without triggering a full reload
         window.history.pushState({ modalId: post.id }, '', `/post/${post.id}`);
+        updateSEOTags(`https://getolin.xyz/post/${post.id}`, post.promptText || post.description || '', post.title);
       } else {
         // If modal is closed but we're still on the post URL, revert to feed URL
         if (window.location.pathname === `/post/${post.id}`) {
           window.history.replaceState(null, '', '/');
+          resetSEOTags();
         }
       }
     }
