@@ -1,19 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Navbar from '@/components/Navbar';
 import HomePage from '@/pages/HomePage';
-import CreatorDashboardPage from '@/pages/CreatorDashboardPage';
-import PostDetailPage from '@/pages/PostDetailPage';
-import AdminDashboardPage from '@/pages/AdminDashboardPage';
-import ProfilePage from '@/pages/ProfilePage';
-import PricingPage from '@/pages/PricingPage';
-import CreatePostPage from '@/pages/CreatePostPage';
-import CreatorProfilePage from '@/pages/CreatorProfilePage';
-import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage';
-import TermsPage from '@/pages/TermsPage';
 import OnboardingModal from '@/components/OnboardingModal';
 import './index.css';
+
+// Lazy load non-critical routes for massive performance boost
+const CreatorDashboardPage = lazy(() => import('@/pages/CreatorDashboardPage'));
+const PostDetailPage = lazy(() => import('@/pages/PostDetailPage'));
+const AdminDashboardPage = lazy(() => import('@/pages/AdminDashboardPage'));
+const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
+const PricingPage = lazy(() => import('@/pages/PricingPage'));
+const CreatePostPage = lazy(() => import('@/pages/CreatePostPage'));
+const CreatorProfilePage = lazy(() => import('@/pages/CreatorProfilePage'));
+const PrivacyPolicyPage = lazy(() => import('@/pages/PrivacyPolicyPage'));
+const TermsPage = lazy(() => import('@/pages/TermsPage'));
 
 export default function App() {
   return (
@@ -40,19 +42,21 @@ export default function App() {
       <Navbar />
       <OnboardingModal />
       <div style={{ flex: 1, paddingTop: '64px' }}>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/post/:id" element={<><HomePage /><PostDetailPage /></>} />
-          <Route path="/create" element={<CreatePostPage />} />
-          <Route path="/dashboard" element={<CreatorDashboardPage />} />
-          <Route path="/creator/:username" element={<CreatorProfilePage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/settings" element={<ProfilePage />} />
-          <Route path="/admin" element={<AdminDashboardPage />} />
-          <Route path="/pricing" element={<PricingPage />} />
-          <Route path="/privacy" element={<PrivacyPolicyPage />} />
-          <Route path="/terms" element={<TermsPage />} />
-        </Routes>
+        <Suspense fallback={<div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading...</div>}>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/post/:id" element={<><HomePage /><PostDetailPage /></>} />
+            <Route path="/create" element={<CreatePostPage />} />
+            <Route path="/dashboard" element={<CreatorDashboardPage />} />
+            <Route path="/creator/:username" element={<CreatorProfilePage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/settings" element={<ProfilePage />} />
+            <Route path="/admin" element={<AdminDashboardPage />} />
+            <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/privacy" element={<PrivacyPolicyPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+          </Routes>
+        </Suspense>
       </div>
     </div>
   );

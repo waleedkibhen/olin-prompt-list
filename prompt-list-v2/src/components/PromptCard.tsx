@@ -13,6 +13,7 @@ import RichTextRenderer, { copyRichPrompt } from '@/components/RichTextRenderer'
 import toast from 'react-hot-toast';
 import { hasViewedRecently, recordView } from '@/lib/viewTracker';
 import { updateSEOTags, resetSEOTags } from '@/lib/seo';
+import { getOptimizedImageUrl } from '@/lib/imageOptimization';
 
 interface PromptCardProps {
   post: PromptPost;
@@ -567,10 +568,11 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
       <article className={styles.cardContainer} onClick={() => setIsModalOpen(true)}>
         <div className={styles.imageWrapper}>
           <img 
-            src={post.imageUrls[0]} 
+            src={getOptimizedImageUrl(post.imageUrls[0], 600)} 
             alt={post.title}
             className={styles.postImage}
             loading="lazy"
+            decoding="async"
           />
           
           <div className={styles.overlay}>
@@ -632,12 +634,14 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                 >
                   <div 
                     className={styles.modalImageBlurBg} 
-                    style={{ backgroundImage: `url(${post.imageUrls[activeImageIndex]})` }} 
+                    style={{ backgroundImage: `url(${getOptimizedImageUrl(post.imageUrls[activeImageIndex], 1200)})` }} 
                   />
                   <img 
-                    src={post.imageUrls[activeImageIndex]} 
+                    src={getOptimizedImageUrl(post.imageUrls[activeImageIndex], 1200)} 
                     alt={post.title} 
-                    className={styles.modalMainImage} 
+                    className={styles.modalMainImage}
+                    loading="lazy"
+                    decoding="async"
                   />
                 
                 {post.imageUrls.length > 1 && (
@@ -669,7 +673,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                         className={`${styles.thumbBtn} ${activeImageIndex === idx ? styles.activeThumb : ''}`}
                         onClick={(e) => { e.stopPropagation(); setActiveImageIndex(idx); }}
                       >
-                        <img src={url} alt={`Thumb ${idx + 1}`} className={styles.thumbImage} />
+                        <img src={getOptimizedImageUrl(url, 200)} alt={`Thumb ${idx + 1}`} className={styles.thumbImage} loading="lazy" decoding="async" />
                       </button>
                     ))}
                   </div>
