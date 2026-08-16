@@ -69,7 +69,19 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [showComments, setShowComments] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('prompt-0');
-  
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [touchEndX, setTouchEndX] = useState<number | null>(null);
+
+  const minSwipeDistance = 50;
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEndX(null);
+    setTouchStartX(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEndX(e.targetTouches[0].clientX);
+  };
   const effectivePrompts = useMemo(() => {
     if (post.prompts && post.prompts.length > 1) {
       return post.prompts;
@@ -98,7 +110,39 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
     }
     
     return [post.promptText || ''];
-  }, [post.prompts, post.promptText]);
+  }, [post.promptText, post.prompts]);
+
+  const handleImageTouchEnd = () => {
+    if (touchStartX === null || touchEndX === null) return;
+    const distance = touchStartX - touchEndX;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    if (isLeftSwipe && post.imageUrls && activeImageIndex < post.imageUrls.length - 1) {
+      setActiveImageIndex(prev => prev + 1);
+    }
+    if (isRightSwipe && activeImageIndex > 0) {
+      setActiveImageIndex(prev => prev - 1);
+    }
+  };
+
+  const handleTabTouchEnd = () => {
+    if (touchStartX === null || touchEndX === null) return;
+    const distance = touchStartX - touchEndX;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    const availableTabs = effectivePrompts.map((_, i) => `prompt-${i}`);
+    if (post.description) availableTabs.push('description');
+    
+    const currentIndex = availableTabs.indexOf(activeTab);
+    
+    if (isLeftSwipe && currentIndex < availableTabs.length - 1) {
+      setActiveTab(availableTabs[currentIndex + 1]);
+    }
+    if (isRightSwipe && currentIndex > 0) {
+      setActiveTab(availableTabs[currentIndex - 1]);
+    }
+  };
   const [activeVariantIndex, setActiveVariantIndex] = useState(0);
   
   const [isUnlocked, setIsUnlocked] = useState(false);
@@ -543,7 +587,12 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
               <div className={styles.leftColumnContent}>
                 <h2 className={styles.leftArtworkTitle}>{post.title}</h2>
 
-                <div className={styles.modalImageContainer}>
+                <div 
+                  className={styles.modalImageContainer}
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleImageTouchEnd}
+                >
                   <div 
                     className={styles.modalImageBlurBg} 
                     style={{ backgroundImage: `url(${post.imageUrls[activeImageIndex]})` }} 
@@ -581,7 +630,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                       <button 
                         key={idx} 
                         className={`${styles.thumbBtn} ${activeImageIndex === idx ? styles.activeThumb : ''}`}
-                        onClick={() => setActiveImageIndex(idx)}
+                        onClick={(e) => { e.stopPropagation(); setActiveImageIndex(idx); }}
                       >
                         <img src={url} alt={`Thumb ${idx + 1}`} className={styles.thumbImage} />
                       </button>
@@ -833,7 +882,12 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                 )}
               </div>
 
-              <div style={{ minHeight: '120px' }}>
+              <div 
+                style={{ minHeight: '120px' }}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTabTouchEnd}
+              >
                 {activeTab.startsWith('prompt') ? (
                   <div className={styles.promptVaultBox}>
                     {isCreator && effectiveMonetization !== 'free' && (
