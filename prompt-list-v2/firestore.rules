@@ -8,7 +8,6 @@ service cloud.firestore {
     }
     
     function isAdmin() {
-      // Added email verification check to prevent spoofed unverified accounts
       return isAuthenticated() 
         && request.auth.token.email == 'wisecrafts81@gmail.com'
         && request.auth.token.email_verified == true;
@@ -26,8 +25,6 @@ service cloud.firestore {
       // 1b. User Notifications Subcollection
       match /notifications/{notificationId} {
         allow read, update, delete: if isOwner(userId) || isAdmin();
-        
-        // Prevent spoofing by enforcing that the sender ID matches the authenticated user
         allow create: if isAuthenticated() 
           && request.resource.data.senderId == request.auth.uid;
       }
@@ -38,12 +35,24 @@ service cloud.firestore {
       allow read: if true;
       allow create: if isAuthenticated() && request.resource.data.creatorId == request.auth.uid;
       
-      // Updating a post requires owner/admin status, OR restricts metric changes.
-      // (Added check to prevent the creatorId from being changed during an update)
+      // Allow creator/admin, or authenticated users updating interaction metrics & user arrays
       allow update: if (isAuthenticated() && resource.data.creatorId == request.auth.uid && request.resource.data.creatorId == resource.data.creatorId) 
                     || isAdmin()
                     || (isAuthenticated() 
-                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likesCount', 'savesCount', 'viewsCount', 'copiesCount'])
+                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+                          'likesCount', 
+                          'savesCount', 
+                          'viewsCount', 
+                          'copiesCount', 
+                          'commentCount', 
+                          'commentsCount',
+                          'likedBy',
+                          'savedBy'
+                        ])
+                    )
+                    // ALLOW UNAUTHENTICATED USERS TO INCREMENT VIEWS ONLY
+                    || (!isAuthenticated() 
+                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['viewsCount'])
                     );
       
       allow delete: if (isAuthenticated() && resource.data.creatorId == request.auth.uid) || isAdmin();
@@ -53,18 +62,12 @@ service cloud.firestore {
         allow read: if true;
         allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
         
-        // ALLOWING ANY AUTHENTICATED USER TO UPDATE LIKES & REPLIES
-        allow update: if (isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likesCount', 'likedBy', 'replyCount']))
-                      || (isAuthenticated() && resource.data.userId == request.auth.uid && request.resource.data.userId == resource.data.userId)
-                      || isAdmin();
+        allow update: if (isAuthenticated() && resource.data.userId == request.auth.uid && request.resource.data.userId == resource.data.userId)
+                      || isAdmin()
+                      || (isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likesCount', 'likedBy', 'replyCount']));
                       
         allow delete: if (isAuthenticated() && resource.data.userId == request.auth.uid) || isAdmin();
       }
-    }
-
-    // Allow collection-group queries on comments
-    match /{path=**}/comments/{commentId} {
-      allow read: if true;
     }
 
     // --- 3. Follows Collection ---
@@ -76,16 +79,13 @@ service cloud.firestore {
 
     // --- 4. Support Tickets ---
     match /support_tickets/{ticketId} {
-      // Enforce that the submitter is attaching their own ID to the ticket
       allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
-      // Allow users to read their own tickets to check status
       allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
       allow update, delete: if isAdmin();
     }
 
     // --- 5. Reports ---
     match /reports/{reportId} {
-      // Enforce that the submitter is attaching their own ID to the report
       allow create: if isAuthenticated() && request.resource.data.reporterId == request.auth.uid;
       allow read, update, delete: if isAdmin();
     }
