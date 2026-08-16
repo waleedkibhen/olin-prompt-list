@@ -62,6 +62,12 @@ export default function PostDetailPage() {
     fetchPost();
   }, [id]);
 
+  useEffect(() => {
+    if (post?.title) {
+      document.title = `${post.title} - Olin's Prompt List`;
+    }
+  }, [post?.title]);
+
   if (loading) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', gap: '1rem', color: 'var(--text-secondary)' }}>
@@ -74,12 +80,24 @@ export default function PostDetailPage() {
   if (!post) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', gap: '1rem', color: 'var(--text-secondary)' }}>
-        <AlertCircle size={48} style={{ color: '#f43f5e' }} />
-        <h3>Post Not Found</h3>
-        <button className="btn-solid" onClick={() => navigate('/')}>Return to Home Feed</button>
+        <AlertCircle size={48} color="var(--text-muted)" />
+        <h2>Post not found</h2>
+        <button onClick={() => navigate('/')} style={{ padding: '0.5rem 1rem', background: 'var(--bg-accent)', border: 'none', borderRadius: 'var(--radius-md)', color: 'var(--text-primary)', cursor: 'pointer' }}>
+          Return Home
+        </button>
       </div>
     );
   }
 
-  return <PromptCard post={post} defaultOpen={true} onCloseOverride={() => navigate('/')} />;
+  return (
+    <>
+      <PromptCard 
+        post={post} 
+        defaultOpen={true} 
+        onCloseOverride={() => {
+          navigate('/');
+        }}
+      />
+    </>
+  );
 }

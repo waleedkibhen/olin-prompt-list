@@ -6,23 +6,45 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://getolin.xyz/?tab=trending</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
+    <loc>https://getolin.xyz/post/0NRxUwjeVvQUdXoLgk7a</loc>
+    <lastmod>2026-08-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getolin.xyz/?tab=newest</loc>
-    <changefreq>hourly</changefreq>
-    <priority>0.9</priority>
+    <loc>https://getolin.xyz/post/CF2ZKT9vq3rhTwN3VScm</loc>
+    <lastmod>2026-08-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getolin.xyz/privacy</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <loc>https://getolin.xyz/post/FQHvOSMpKDRk5gH4r6r6</loc>
+    <lastmod>2026-08-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getolin.xyz/terms</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <loc>https://getolin.xyz/post/JEIyiPK3SD7TYk8GAugb</loc>
+    <lastmod>2026-08-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://getolin.xyz/post/Rdf44xJapx6a3aoQxzxQ</loc>
+    <lastmod>2026-08-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://getolin.xyz/post/Wn4G49AyYjYgNBEjB2Pc</loc>
+    <lastmod>2026-08-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://getolin.xyz/post/z3gFwKrfv6P8FbsbclBq</loc>
+    <lastmod>2026-08-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
 </urlset>

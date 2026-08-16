@@ -158,6 +158,36 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
   const [expandedReplies, setExpandedReplies] = useState<Record<string, boolean>>({});
   const [commentToReport, setCommentToReport] = useState<string | null>(null);
 
+  // Modal URL Synchronization
+  useEffect(() => {
+    // Only handle URL sync if the modal wasn't opened via a direct link (defaultOpen)
+    if (!defaultOpen) {
+      if (isModalOpen) {
+        // Push state so URL changes to the post's URL, without triggering a full reload
+        window.history.pushState({ modalId: post.id }, '', `/post/${post.id}`);
+      } else {
+        // If modal is closed but we're still on the post URL, revert to feed URL
+        if (window.location.pathname === `/post/${post.id}`) {
+          window.history.replaceState(null, '', '/');
+        }
+      }
+    }
+    
+    // Handle the browser back button
+    const handlePopState = (event: PopStateEvent) => {
+      // If we are no longer on the post URL, ensure the modal is closed
+      if (!window.location.pathname.startsWith(`/post/${post.id}`)) {
+        if (!defaultOpen && isModalOpen) {
+          if (onCloseOverride) onCloseOverride();
+          else setIsModalOpen(false);
+        }
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [isModalOpen, post.id, defaultOpen, onCloseOverride]);
+
   const effectiveMonetization = !ENABLE_MONETIZATION ? 'free' : (post.monetizationType || (post.isPaid ? 'subscribers_only' : 'free'));
 
   useEffect(() => {
