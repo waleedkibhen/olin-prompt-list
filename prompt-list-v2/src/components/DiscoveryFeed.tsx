@@ -776,10 +776,10 @@ export default function DiscoveryFeed() {
             <Link to="/privacy" className={styles.footerLink}>Privacy</Link>
           </div>
           <div className={styles.footerIcons}>
-            <a href="#" className={styles.footerLink} aria-label="Instagram">
+            <a href="https://www.instagram.com/olinspromptlist?igsh=aGRsdm4zdTllMmd4" target="_blank" rel="noopener noreferrer" className={styles.footerLink} aria-label="Instagram">
               <InstagramIcon size={18} />
             </a>
-            <a href="#" className={styles.footerLink} aria-label="Pinterest">
+            <a href="https://pin.it/3a9ohEMV7" target="_blank" rel="noopener noreferrer" className={styles.footerLink} aria-label="Pinterest">
               <PinterestIcon size={18} />
             </a>
           </div>
