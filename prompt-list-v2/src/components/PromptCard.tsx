@@ -11,6 +11,7 @@ import { ENABLE_MONETIZATION } from '@/lib/config';
 import ReportModal from '@/components/ReportModal';
 import RichTextRenderer, { copyRichPrompt } from '@/components/RichTextRenderer';
 import toast from 'react-hot-toast';
+import { hasViewedRecently, recordView } from '@/lib/viewTracker';
 
 interface PromptCardProps {
   post: PromptPost;
@@ -267,18 +268,21 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
   }, [isModalOpen, post.id]);
 
   useEffect(() => {
-    if (isModalOpen && user) {
+    if (isModalOpen) {
       const incrementView = async () => {
         try {
-          const postRef = doc(db, 'posts', post.id);
-          await updateDoc(postRef, { viewsCount: increment(1) });
+          if (!hasViewedRecently(post.id)) {
+            const postRef = doc(db, 'posts', post.id);
+            await updateDoc(postRef, { viewsCount: increment(1) });
+            recordView(post.id);
+          }
         } catch (err) {
           console.error("Failed to increment view count:", err);
         }
       };
       incrementView();
     }
-  }, [isModalOpen, user, post.id]);
+  }, [isModalOpen, post.id]);
 
   const requireAuth = (_actionName: string): boolean => {
     if (!user) {

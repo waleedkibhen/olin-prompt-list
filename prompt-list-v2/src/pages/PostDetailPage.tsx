@@ -5,6 +5,7 @@ import { db } from '@/lib/firebase';
 import { PromptPost } from '@/lib/mockData';
 import { Box, AlertCircle } from 'lucide-react';
 import PromptCard from '@/components/PromptCard';
+import { hasViewedRecently, recordView } from '@/lib/viewTracker';
 
 export default function PostDetailPage() {
   const params = useParams();
@@ -17,15 +18,20 @@ export default function PostDetailPage() {
   useEffect(() => {
     if (!id) return;
     
-    // Increment view count in the background
     const postRef = doc(db, 'posts', id);
-    updateDoc(postRef, { viewsCount: increment(1) }).catch(() => {});
+    
+    // Increment view count in the background if not viewed recently
+    if (!hasViewedRecently(id)) {
+      updateDoc(postRef, { viewsCount: increment(1) })
+        .then(() => recordView(id))
+        .catch(() => {});
+    }
 
     const fetchPost = async () => {
       try {
         const snap = await getDoc(postRef);
         if (snap.exists()) {
-          const d = snap.data();
+          const d = snap.data() as any;
           setPost({
             id: snap.id,
             title: d.title || 'Untitled',
