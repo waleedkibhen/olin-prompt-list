@@ -21,12 +21,8 @@ export default function PostDetailPage() {
     
     const postRef = doc(db, 'posts', id);
     
-    // Increment view count in the background if not viewed recently
-    if (!hasViewedRecently(id)) {
-      updateDoc(postRef, { viewsCount: increment(1) })
-        .then(() => recordView(id))
-        .catch(() => {});
-    }
+    // View incrementing is now handled exclusively by PromptCard.tsx 
+    // to prevent double-counting on direct URL visits.
 
     const fetchPost = async () => {
       try {
