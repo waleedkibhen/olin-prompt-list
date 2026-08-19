@@ -72,16 +72,12 @@ export default function AboutPage() {
       </div>
 
       <div style={{ marginTop: '5rem', paddingTop: '2rem', borderTop: '1px solid var(--border-color)', textAlign: 'center' }}>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-          Have questions, suggestions, or want to collaborate?
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '1.1rem' }}>
+          Have questions, suggestions, or want to collaborate? Email us at:
         </p>
-        <a 
-          href="mailto:contact@getolin.xyz" 
-          className="btn-solid" 
-          style={{ display: 'inline-flex', padding: '0.75rem 2rem', textDecoration: 'none', borderRadius: 'var(--radius-lg)' }}
-        >
-          Contact Us
-        </a>
+        <p style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+          contact@getolin.xyz
+        </p>
       </div>
     </div>
   );
