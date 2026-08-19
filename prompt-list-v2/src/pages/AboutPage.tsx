@@ -76,7 +76,7 @@ export default function AboutPage() {
           Have questions, suggestions, or want to collaborate?
         </p>
         <a 
-          href="mailto:wisecrafts81@gmail.com" 
+          href="mailto:contact@getolin.xyz" 
           className="btn-solid" 
           style={{ display: 'inline-flex', padding: '0.75rem 2rem', textDecoration: 'none', borderRadius: 'var(--radius-lg)' }}
         >

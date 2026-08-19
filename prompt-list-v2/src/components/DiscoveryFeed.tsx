@@ -772,7 +772,7 @@ export default function DiscoveryFeed() {
             <Link to="/about" className={styles.footerLink}>About</Link>
             <Link to="/terms" className={styles.footerLink}>Terms</Link>
             <Link to="/privacy" className={styles.footerLink}>Privacy</Link>
-            <a href="mailto:wisecrafts81@gmail.com" className={styles.footerLink}>Contact</a>
+            <a href="mailto:contact@getolin.xyz" className={styles.footerLink}>Contact</a>
           </div>
           <div className={styles.footerIcons}>
             <a href="https://www.instagram.com/olinspromptlist?igsh=aGRsdm4zdTllMmd4" target="_blank" rel="noopener noreferrer" className={styles.footerLink} aria-label="Instagram">
