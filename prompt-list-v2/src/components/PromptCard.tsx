@@ -565,11 +565,21 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
 
   return (
     <>
-      <article className={styles.cardContainer} onClick={() => setIsModalOpen(true)}>
+      <Link 
+        to={`/post/${post.id}`} 
+        className={styles.cardContainer} 
+        onClick={(e) => {
+          if (!e.ctrlKey && !e.metaKey && !e.shiftKey && e.button === 0) {
+            e.preventDefault();
+            setIsModalOpen(true);
+          }
+        }}
+        style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}
+      >
         <div className={styles.imageWrapper}>
           <img 
             src={getOptimizedImageUrl(post.imageUrls[0], 600)} 
-            alt={post.title}
+            alt={post.title || 'Prompt artwork'}
             className={styles.postImage}
             loading="lazy"
             decoding="async"
@@ -613,7 +623,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
             </div>
           </div>
         </div>
-      </article>
+      </Link>
 
       {isModalOpen && (
         <div className={styles.modalBackdrop} onClick={() => { if(onCloseOverride) onCloseOverride(); else setIsModalOpen(false); }}>
