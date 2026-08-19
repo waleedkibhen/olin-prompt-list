@@ -97,13 +97,11 @@ export default function DiscoveryFeed() {
   const [displayedPosts, setDisplayedPosts] = useState<PromptPost[]>([]);
   const [isLoadingDb, setIsLoadingDb] = useState(true);
   const [permissionError, setPermissionError] = useState(false);
-
   const [searchFilter, setSearchFilter] = useState('');
   const [modelFilter, setModelFilter] = useState('All Models');
   const [isSearching, setIsSearching] = useState(false);
-  
   const [activeVector, setActiveVector] = useState<number[] | null>(null);
-  const [visibleCount, setVisibleCount] = useState(24);
+  const [visibleCount, setVisibleCount] = useState(12);
 
   const activeFilterCount = [
     colorFilter !== 'All',
@@ -137,27 +135,12 @@ export default function DiscoveryFeed() {
         }));
       } else {
         // Full recalculation and resort for filter/tab/auth changes
-        setVisibleCount(24); // Reset visible items on new layout
+        setVisibleCount(12); // Reset visible items on new layout
         applyAllFiltersAndSearch(dbPosts, activeTab, queryParam, modelParam, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter, activeVector);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, activeTab, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter, dbPosts, profile, activeVector]);
-
-  // Infinite Scroll Observer
-  useEffect(() => {
-    const handleScroll = () => {
-      if (
-        window.innerHeight + document.documentElement.scrollTop + 800 >= 
-        document.documentElement.offsetHeight
-      ) {
-        setVisibleCount(prev => Math.min(prev + 24, displayedPosts.length));
-      }
-    };
-    
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [displayedPosts.length]);
 
   useEffect(() => {
     const fetchEmbedding = async () => {
@@ -185,8 +168,9 @@ export default function DiscoveryFeed() {
   }, [searchParams]);
 
   useEffect(() => {
-    // Limit to newest 200 posts to create the local candidate pool (prevents catastrophic db read costs)
-    const postsQuery = query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(200));
+    // Limit to newest 60 posts to create the local candidate pool 
+    // (60 is the perfect balance: keeps reading costs extremely low while providing enough data for AI sorting)
+    const postsQuery = query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(60));
     
     const unsubscribe = onSnapshot(postsQuery, (snapshot) => {
       setPermissionError(false);
@@ -764,6 +748,19 @@ export default function DiscoveryFeed() {
               />
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Load More Button */}
+      {!isLoadingDb && !isSearching && displayedPosts.length > visibleCount && (
+        <div style={{ display: 'flex', justifyContent: 'center', margin: '2rem 0 1rem 0' }}>
+          <button 
+            className="btn-outline" 
+            onClick={() => setVisibleCount(prev => Math.min(prev + 12, displayedPosts.length))}
+            style={{ padding: '0.75rem 2rem', fontSize: '0.95rem', borderRadius: 'var(--radius-lg)' }}
+          >
+            Load More Posts
+          </button>
         </div>
       )}
 
