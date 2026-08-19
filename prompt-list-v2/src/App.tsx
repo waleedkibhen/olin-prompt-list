@@ -16,6 +16,7 @@ const CreatePostPage = lazy(() => import('@/pages/CreatePostPage'));
 const CreatorProfilePage = lazy(() => import('@/pages/CreatorProfilePage'));
 const PrivacyPolicyPage = lazy(() => import('@/pages/PrivacyPolicyPage'));
 const TermsPage = lazy(() => import('@/pages/TermsPage'));
+const AboutPage = lazy(() => import('@/pages/AboutPage'));
 
 export default function App() {
   return (
@@ -55,6 +56,7 @@ export default function App() {
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/privacy" element={<PrivacyPolicyPage />} />
             <Route path="/terms" element={<TermsPage />} />
+            <Route path="/about" element={<AboutPage />} />
           </Routes>
         </Suspense>
       </div>
