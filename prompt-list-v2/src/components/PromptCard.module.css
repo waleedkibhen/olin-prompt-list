@@ -628,6 +628,7 @@
 }
 
 .barBtn {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -1035,7 +1036,7 @@
   .modalImageContainer { 
     order: 3; 
   }
-  .modalActionBar { order: 4; padding: 0 1rem !important; margin: 1rem 1rem 0.5rem 1rem !important; flex-wrap: nowrap !important; overflow-x: auto; gap: 1rem !important; }
+  .modalActionBar { order: 4; display: flex !important; min-height: 40px; flex-shrink: 0; width: 100%; padding: 0 1rem !important; margin: 1rem 0 0.5rem 0 !important; flex-wrap: nowrap !important; overflow-x: auto; gap: 1rem !important; box-sizing: border-box; }
   .mobilePromptArea { 
     order: 5; 
     padding: 0 1rem; 
