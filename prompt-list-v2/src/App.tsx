@@ -17,6 +17,7 @@ const CreatorProfilePage = lazy(() => import('@/pages/CreatorProfilePage'));
 const PrivacyPolicyPage = lazy(() => import('@/pages/PrivacyPolicyPage'));
 const TermsPage = lazy(() => import('@/pages/TermsPage'));
 const AboutPage = lazy(() => import('@/pages/AboutPage'));
+const AdTestPage = lazy(() => import('@/pages/AdTestPage'));
 
 export default function App() {
   return (
@@ -57,6 +58,7 @@ export default function App() {
             <Route path="/privacy" element={<PrivacyPolicyPage />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/about" element={<AboutPage />} />
+              <Route path="/ad-test" element={<AdTestPage />} />
           </Routes>
         </Suspense>
       </div>
