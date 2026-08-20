@@ -693,7 +693,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                 </div>
 
               
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginTop: '1.5rem', marginLeft: '2.5rem', marginBottom: '0.5rem' }}>
+                <div className={styles.mobileCreatorRow} style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginTop: '1.5rem', marginLeft: '2.5rem', marginBottom: '0.5rem' }}>
                   <Link to={`/creator/${post.creator.username}`} className={styles.creatorProfileModalLink}>
                     <img src={post.creator.avatarUrl} alt={post.creator.username} className={styles.avatarModal} style={{ borderRadius: '50%' }} />
                     <div className={styles.creatorInfoWrapper}>
@@ -908,7 +908,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                 )}
               </div>
 
-              <div style={{ marginBottom: '1.5rem', marginTop: '1.5rem' }}>
+              <div className={styles.mobileGenDetails} style={{ marginBottom: '1.5rem', marginTop: '1.5rem' }}>
                 <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 400 }}>Generation Details</span>
                 <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
                   <span className={styles.genDetailPill}>{post.model || 'Midjourney V6'}</span>
@@ -1078,5 +1078,6 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
     </>
   );
 }
+
 
 
