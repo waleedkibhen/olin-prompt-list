@@ -213,22 +213,22 @@ export default function CreatorProfilePage() {
             
             <div className={styles.actions}>
               {creatorUser.socialLinks?.instagram && (
-                <a href={`https://instagram.com/${creatorUser.socialLinks.instagram}`} target="_blank" rel="noopener noreferrer" className={styles.btnShareIcon} title="Instagram">
+                <a href={creatorUser.socialLinks.instagram.startsWith('http') ? creatorUser.socialLinks.instagram : `https://${creatorUser.socialLinks.instagram}`} target="_blank" rel="noopener noreferrer" className={styles.btnShareIcon} title="Instagram">
                   <InstagramIcon size={16} />
                 </a>
               )}
               {creatorUser.socialLinks?.twitter && (
-                <a href={`https://twitter.com/${creatorUser.socialLinks.twitter}`} target="_blank" rel="noopener noreferrer" className={styles.btnShareIcon} title="Twitter / X">
+                <a href={creatorUser.socialLinks.twitter.startsWith('http') ? creatorUser.socialLinks.twitter : `https://${creatorUser.socialLinks.twitter}`} target="_blank" rel="noopener noreferrer" className={styles.btnShareIcon} title="Twitter / X">
                   <TwitterIcon size={16} />
                 </a>
               )}
               {creatorUser.socialLinks?.pinterest && (
-                <a href={`https://pinterest.com/${creatorUser.socialLinks.pinterest}`} target="_blank" rel="noopener noreferrer" className={styles.btnShareIcon} title="Pinterest">
+                <a href={creatorUser.socialLinks.pinterest.startsWith('http') ? creatorUser.socialLinks.pinterest : `https://${creatorUser.socialLinks.pinterest}`} target="_blank" rel="noopener noreferrer" className={styles.btnShareIcon} title="Pinterest">
                   <PinterestIcon size={16} />
                 </a>
               )}
               {creatorUser.socialLinks?.youtube && (
-                <a href={`https://youtube.com/@${creatorUser.socialLinks.youtube}`} target="_blank" rel="noopener noreferrer" className={styles.btnShareIcon} title="YouTube">
+                <a href={creatorUser.socialLinks.youtube.startsWith('http') ? creatorUser.socialLinks.youtube : `https://${creatorUser.socialLinks.youtube}`} target="_blank" rel="noopener noreferrer" className={styles.btnShareIcon} title="YouTube">
                   <YoutubeIcon size={16} />
                 </a>
               )}

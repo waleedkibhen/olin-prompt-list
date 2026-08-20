@@ -347,50 +347,52 @@ export default function ProfilePage() {
             )}
           </div>
 
-          <div className={styles.formGroup} style={{ marginTop: '1rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '1rem' }}>Social Links (Optional)</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div>
-                <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Instagram Username</label>
-                <input 
-                  type="text" 
-                  className={styles.formInput} 
-                  value={socials.instagram}
-                  onChange={e => setSocials(prev => ({ ...prev, instagram: e.target.value.replace('@', '') }))}
-                  placeholder="username (without @)"
-                />
-              </div>
-              <div>
-                <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Twitter / X Username</label>
-                <input 
-                  type="text" 
-                  className={styles.formInput} 
-                  value={socials.twitter}
-                  onChange={e => setSocials(prev => ({ ...prev, twitter: e.target.value.replace('@', '') }))}
-                  placeholder="username (without @)"
-                />
-              </div>
-              <div>
-                <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Pinterest Username</label>
-                <input 
-                  type="text" 
-                  className={styles.formInput} 
-                  value={socials.pinterest}
-                  onChange={e => setSocials(prev => ({ ...prev, pinterest: e.target.value.replace('@', '') }))}
-                  placeholder="username (without @)"
-                />
-              </div>
-              <div>
-                <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>YouTube Channel Handle</label>
-                <input 
-                  type="text" 
-                  className={styles.formInput} 
-                  value={socials.youtube}
-                  onChange={e => setSocials(prev => ({ ...prev, youtube: e.target.value.replace('@', '') }))}
-                  placeholder="channel handle (without @)"
-                />
-              </div>
-            </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="instagram">Instagram Profile Link (Optional)</label>
+            <input 
+              id="instagram"
+              type="url" 
+              className={styles.formInput} 
+              value={socials.instagram}
+              onChange={e => setSocials(prev => ({ ...prev, instagram: e.target.value.trim() }))}
+              placeholder="https://instagram.com/wisedev"
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="twitter">Twitter / X Profile Link (Optional)</label>
+            <input 
+              id="twitter"
+              type="url" 
+              className={styles.formInput} 
+              value={socials.twitter}
+              onChange={e => setSocials(prev => ({ ...prev, twitter: e.target.value.trim() }))}
+              placeholder="https://x.com/vvisedev"
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="pinterest">Pinterest Profile Link (Optional)</label>
+            <input 
+              id="pinterest"
+              type="url" 
+              className={styles.formInput} 
+              value={socials.pinterest}
+              onChange={e => setSocials(prev => ({ ...prev, pinterest: e.target.value.trim() }))}
+              placeholder="https://pin.it/6hgKLJ7wT"
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="youtube">YouTube Channel Link (Optional)</label>
+            <input 
+              id="youtube"
+              type="url" 
+              className={styles.formInput} 
+              value={socials.youtube}
+              onChange={e => setSocials(prev => ({ ...prev, youtube: e.target.value.trim() }))}
+              placeholder="https://youtube.com/@wisedev"
+            />
           </div>
 
           <button type="submit" className={styles.btnSave} disabled={isSubmitting}>
