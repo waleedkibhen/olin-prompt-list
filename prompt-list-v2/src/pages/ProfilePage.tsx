@@ -58,9 +58,6 @@ export default function ProfilePage() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
-
   const [isSubscriber, setIsSubscriber] = useState(false);
   const [isSupportOpen, setIsSupportOpen] = useState(false);
 
@@ -162,30 +159,28 @@ export default function ProfilePage() {
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMsg(null);
-    setSuccessMsg(null);
     if (!user) return;
 
     const cleanedUsername = username.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
     if (!cleanedUsername || cleanedUsername.length < 3) {
-      setErrorMsg("Username must be at least 3 characters alphanumeric.");
+      toast.error("Username must be at least 3 characters alphanumeric.");
       return;
     }
 
     if (socials.instagram && !validateSocialLink(socials.instagram, 'instagram')) {
-      setErrorMsg("Please provide a valid Instagram profile link.");
+      toast.error("Please provide a valid Instagram profile link.");
       return;
     }
     if (socials.twitter && !validateSocialLink(socials.twitter, 'twitter')) {
-      setErrorMsg("Please provide a valid Twitter / X profile link.");
+      toast.error("Please provide a valid Twitter / X profile link.");
       return;
     }
     if (socials.pinterest && !validateSocialLink(socials.pinterest, 'pinterest')) {
-      setErrorMsg("Please provide a valid Pinterest profile link.");
+      toast.error("Please provide a valid Pinterest profile link.");
       return;
     }
     if (socials.youtube && !validateSocialLink(socials.youtube, 'youtube')) {
-      setErrorMsg("Please provide a valid YouTube channel link.");
+      toast.error("Please provide a valid YouTube channel link.");
       return;
     }
 
@@ -196,7 +191,7 @@ export default function ProfilePage() {
         const q = query(usersRef, where('username', '==', cleanedUsername));
         const querySnapshot = await getDocs(q);
         if (!querySnapshot.empty) {
-          setErrorMsg(`The username @${cleanedUsername} is already taken by another creator.`);
+          toast.error(`The username @${cleanedUsername} is already taken by another creator.`);
           setIsSubmitting(false);
           return;
         }
@@ -273,11 +268,11 @@ export default function ProfilePage() {
       setAvatarUrl(newAvatarUrl);
       setSelectedFile(null);
       setPreviewUrl(null);
-      setSuccessMsg("Profile settings and identity successfully updated!");
+      toast.success("Profile settings and identity successfully updated!");
       setIsSubmitting(false);
     } catch (err: any) {
       console.error("Error updating profile:", err);
-      setErrorMsg("Failed to update profile details. Please try again.");
+      toast.error("Failed to update profile details. Please try again.");
       setIsSubmitting(false);
     }
   };
@@ -307,18 +302,7 @@ export default function ProfilePage() {
         <form className={styles.card} onSubmit={handleSaveProfile}>
           {/* Removed Creator Profile Identity Header */}
 
-          {errorMsg && (
-            <div style={{ padding: '0.75rem 1rem', backgroundColor: 'rgba(244, 63, 94, 0.1)', color: '#f43f5e', borderRadius: '8px', fontSize: '0.88rem', border: '1px solid #f43f5e' }}>
-              <strong>Error:</strong> {errorMsg}
-            </div>
-          )}
 
-          {successMsg && (
-            <div style={{ padding: '0.75rem 1rem', backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10b981', borderRadius: '8px', fontSize: '0.88rem', border: '1px solid #10b981', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <CheckCircle2 size={18} />
-              <span>{successMsg}</span>
-            </div>
-          )}
 
           <div className={styles.avatarSection}>
             <img 
