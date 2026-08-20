@@ -739,7 +739,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
 
                 {isOwner && (
                   <div className={styles.creatorShareBox}>
-                    <p className={styles.creatorShareTitle}>Share your creations with others</p>
+                    <p className={styles.creatorShareTitle}>Share your creations with others :)</p>
                     <div className={styles.creatorShareInputRow}>
                       <input type="text" readOnly value={`https://getolin.xyz/post/${post.id}`} className={styles.creatorShareInput} />
                       <button onClick={handleShareLink} className={styles.creatorShareCopyBtn}>
