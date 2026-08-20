@@ -61,7 +61,7 @@ export default function DiscoverMore({ currentPostId }: { currentPostId: string 
   if (posts.length === 0) return null;
 
   return (
-    <div style={{ marginTop: '4rem', paddingTop: '3rem', borderTop: '1px solid var(--border-color)', width: '100%' }}>
+    <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)', width: '100%' }}>
       <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>Explore More</h3>
       <div className={styles.feedGrid}>
         {posts.map(p => (
@@ -71,6 +71,7 @@ export default function DiscoverMore({ currentPostId }: { currentPostId: string 
     </div>
   );
 }
+
 
 
 
