@@ -1062,7 +1062,7 @@
 
 
 .creatorShareBox {
-  margin: 0.5rem 2.5rem 1.5rem 2.5rem;
+  margin: 1.75rem 2.5rem 1.5rem 2.5rem;
   padding: 0;
   background-color: transparent;
   border: none;
@@ -1118,7 +1118,7 @@
 
 @media (max-width: 768px) {
   .creatorShareBox {
-    margin: 0.5rem 1rem 1rem 1rem;
+    margin: 1.25rem 1rem 1rem 1rem;
     order: 5;
     max-width: 100%;
   }
