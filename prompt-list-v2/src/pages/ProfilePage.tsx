@@ -375,9 +375,9 @@ export default function ProfilePage() {
           </div>
 
           <div style={{ marginTop: '2.5rem', marginBottom: '1.5rem' }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+            <div style={{ fontSize: '0.95rem', color: 'var(--text-primary)', fontWeight: 500, letterSpacing: '1px' }}>
               Social Links <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}>(Optional)</span>
-            </h3>
+            </div>
           </div>
 
           <div className={styles.formGroup}>
