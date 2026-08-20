@@ -24,6 +24,12 @@ export interface CreatorProfile {
   subscriptionTier?: 'monthly' | 'yearly' | string;
   likedPosts?: string[];
   savedPosts?: string[];
+  socialLinks?: {
+    pinterest?: string;
+    youtube?: string;
+    twitter?: string;
+    instagram?: string;
+  };
 }
 
 interface AuthContextType {

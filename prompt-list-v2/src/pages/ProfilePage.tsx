@@ -20,6 +20,12 @@ export default function ProfilePage() {
   const [email, setEmail] = useState('');
   const [bio, setBio] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
+  const [socials, setSocials] = useState({
+    pinterest: '',
+    youtube: '',
+    twitter: '',
+    instagram: ''
+  });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   
@@ -38,6 +44,12 @@ export default function ProfilePage() {
       setEmail(profile?.email || user?.email || '');
       setBio(profile?.bio || '');
       setAvatarUrl(profile?.avatarUrl || user?.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80');
+      setSocials({
+        pinterest: profile?.socialLinks?.pinterest || '',
+        youtube: profile?.socialLinks?.youtube || '',
+        twitter: profile?.socialLinks?.twitter || '',
+        instagram: profile?.socialLinks?.instagram || ''
+      });
     }
     const subStatus = user ? localStorage.getItem(`olin_subscription_${user.uid}`) : null;
     setIsSubscriber(
@@ -142,7 +154,8 @@ export default function ProfilePage() {
         username: cleanedUsername,
         avatarUrl: newAvatarUrl,
         email: email.trim(),
-        bio: bio.trim()
+        bio: bio.trim(),
+        socialLinks: socials
       });
 
       // Sync directly with Firebase Auth currentUser
@@ -332,6 +345,52 @@ export default function ProfilePage() {
             {bio.length >= 160 && (
               <span style={{ fontSize: '0.75rem', color: '#f43f5e', marginTop: '0.25rem' }}>Character limit reached (160/160)</span>
             )}
+          </div>
+
+          <div className={styles.formGroup} style={{ marginTop: '1rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '1rem' }}>Social Links (Optional)</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Instagram Username</label>
+                <input 
+                  type="text" 
+                  className={styles.formInput} 
+                  value={socials.instagram}
+                  onChange={e => setSocials(prev => ({ ...prev, instagram: e.target.value.replace('@', '') }))}
+                  placeholder="username (without @)"
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Twitter / X Username</label>
+                <input 
+                  type="text" 
+                  className={styles.formInput} 
+                  value={socials.twitter}
+                  onChange={e => setSocials(prev => ({ ...prev, twitter: e.target.value.replace('@', '') }))}
+                  placeholder="username (without @)"
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Pinterest Username</label>
+                <input 
+                  type="text" 
+                  className={styles.formInput} 
+                  value={socials.pinterest}
+                  onChange={e => setSocials(prev => ({ ...prev, pinterest: e.target.value.replace('@', '') }))}
+                  placeholder="username (without @)"
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>YouTube Channel Handle</label>
+                <input 
+                  type="text" 
+                  className={styles.formInput} 
+                  value={socials.youtube}
+                  onChange={e => setSocials(prev => ({ ...prev, youtube: e.target.value.replace('@', '') }))}
+                  placeholder="channel handle (without @)"
+                />
+              </div>
+            </div>
           </div>
 
           <button type="submit" className={styles.btnSave} disabled={isSubmitting}>

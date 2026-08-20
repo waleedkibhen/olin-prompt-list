@@ -4,10 +4,37 @@ import styles from './CreatorProfilePage.module.css';
 import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs, setDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { PromptPost } from '@/lib/mockData';
-import PromptCard from '@/components/PromptCard';
-import { Box, AlertTriangle, Share, Plus, Check } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { Share, AlertTriangle, Plus, Check, Box } from 'lucide-react';
+import PromptCard from '@/components/PromptCard';
 import toast from 'react-hot-toast';
+
+const PinterestIcon = ({ size = 18 }: { size?: number }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.951-7.252 4.168 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.607 0 11.985-5.365 11.985-11.987C23.97 5.367 18.608 0 12.017 0z"/>
+  </svg>
+);
+
+const InstagramIcon = ({ size = 18 }: { size?: number }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+  </svg>
+);
+
+const TwitterIcon = ({ size = 18 }: { size?: number }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path>
+  </svg>
+);
+
+const YoutubeIcon = ({ size = 18 }: { size?: number }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path>
+    <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon>
+  </svg>
+);
 
 export default function CreatorProfilePage() {
   const { username } = useParams<{ username: string }>();
@@ -185,6 +212,27 @@ export default function CreatorProfilePage() {
             )}
             
             <div className={styles.actions}>
+              {creatorUser.socialLinks?.instagram && (
+                <a href={`https://instagram.com/${creatorUser.socialLinks.instagram}`} target="_blank" rel="noopener noreferrer" className={styles.btnShareIcon} title="Instagram">
+                  <InstagramIcon size={16} />
+                </a>
+              )}
+              {creatorUser.socialLinks?.twitter && (
+                <a href={`https://twitter.com/${creatorUser.socialLinks.twitter}`} target="_blank" rel="noopener noreferrer" className={styles.btnShareIcon} title="Twitter / X">
+                  <TwitterIcon size={16} />
+                </a>
+              )}
+              {creatorUser.socialLinks?.pinterest && (
+                <a href={`https://pinterest.com/${creatorUser.socialLinks.pinterest}`} target="_blank" rel="noopener noreferrer" className={styles.btnShareIcon} title="Pinterest">
+                  <PinterestIcon size={16} />
+                </a>
+              )}
+              {creatorUser.socialLinks?.youtube && (
+                <a href={`https://youtube.com/@${creatorUser.socialLinks.youtube}`} target="_blank" rel="noopener noreferrer" className={styles.btnShareIcon} title="YouTube">
+                  <YoutubeIcon size={16} />
+                </a>
+              )}
+              
               {user?.uid !== creatorUser.id && (
                 <button 
                   className={isFollowing ? styles.btnFollowing : styles.btnFollow} 
