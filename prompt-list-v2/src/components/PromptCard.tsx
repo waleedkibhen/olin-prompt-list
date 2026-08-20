@@ -692,6 +692,27 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                 )}
                 </div>
 
+              
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginTop: '2rem', marginLeft: '2.5rem', marginBottom: '0rem' }}>
+                  <Link to={`/creator/${post.creator.username}`} className={styles.creatorProfileModalLink}>
+                    <img src={post.creator.avatarUrl} alt={post.creator.username} className={styles.avatarModal} style={{ borderRadius: '50%' }} />
+                    <div className={styles.creatorInfoWrapper}>
+                      <span className={styles.curatedByLabel}>Curated by</span>
+                      <h4 className={styles.creatorNameModal}>{post.creator.username}</h4>
+                    </div>
+                  </Link>
+                  {user?.uid !== post.creator.uid && (
+                    <button 
+                      className={isFollowing ? styles.btnFollowingIcon : styles.btnFollowIcon} 
+                      onClick={toggleFollow}
+                      style={{ alignSelf: 'flex-end', marginBottom: '0.1rem' }}
+                      title={isFollowing ? "Unfollow" : "Follow"}
+                    >
+                      {isFollowing ? <Check size={16} strokeWidth={2.5} /> : <Plus size={16} strokeWidth={2.5} />}
+                    </button>
+                  )}
+                </div>
+  
               <div className={styles.modalActionBar}>
                 <button className={`${styles.barBtn} ${isLiked ? styles.barBtnActive : ''}`} onClick={toggleLike} title="Like">
                   <Heart size={17} fill={isLiked ? "currentColor" : "none"} />
@@ -718,31 +739,10 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
             </div>
 
             <div className={styles.modalRightColumn}>
-              <div className={styles.modalHeader}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-                  <Link to={`/creator/${post.creator.username}`} className={styles.creatorProfileModalLink}>
-                    <img src={post.creator.avatarUrl} alt={post.creator.username} className={styles.avatarModal} style={{ borderRadius: '50%' }} />
-                    <div className={styles.creatorInfoWrapper}>
-                      <span className={styles.curatedByLabel}>Curated by</span>
-                      <h4 className={styles.creatorNameModal}>{post.creator.username}</h4>
-                    </div>
-                  </Link>
-                  
-                  {user?.uid !== post.creator.uid && (
-                    <button 
-                      className={isFollowing ? styles.btnFollowingIcon : styles.btnFollowIcon} 
-                      onClick={toggleFollow}
-                      style={{ alignSelf: 'flex-end', marginBottom: '0.1rem' }}
-                      title={isFollowing ? "Unfollow" : "Follow"}
-                    >
-                      {isFollowing ? <Check size={16} strokeWidth={2.5} /> : <Plus size={16} strokeWidth={2.5} />}
-                    </button>
-                  )}
-                </div>
-              </div>
+              
 
               <div className={styles.mobilePromptArea}>
-              <div style={{ display: 'flex', gap: '1.5rem', borderBottom: '1px solid var(--border-color)', marginBottom: '1rem', marginTop: '0.5rem', overflowX: 'auto', whiteSpace: 'nowrap' }}>
+              <div style={{ display: 'flex', gap: '1.5rem', borderBottom: 'none', marginBottom: '1rem', marginTop: '0.5rem', overflowX: 'auto', whiteSpace: 'nowrap' }}>
                 {effectivePrompts.length > 1 ? (
                   effectivePrompts.map((_: string, idx: number) => (
                     <button
@@ -967,7 +967,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                         onChange={e => setNewComment(e.target.value)}
                         disabled={isSubmittingComment}
                         maxLength={280}
-                        style={{ flex: 1, padding: '0.5rem 0.2rem', borderRadius: '0px', border: 'none', borderBottom: '1px solid var(--border-color)', backgroundColor: 'transparent', color: 'var(--text-primary)', fontSize: '0.85rem', outline: 'none', fontWeight: 500, transition: 'border-color 0.2s' }}
+                        style={{ flex: 1, padding: '0.5rem 0.2rem', borderRadius: '0px', border: 'none', borderBottom: 'none', backgroundColor: 'transparent', color: 'var(--text-primary)', fontSize: '0.85rem', outline: 'none', fontWeight: 500, transition: 'border-color 0.2s' }}
                         onFocus={(e) => e.currentTarget.style.borderBottomColor = 'var(--text-primary)'}
                         onBlur={(e) => e.currentTarget.style.borderBottomColor = 'var(--border-color)'}
                       />
@@ -989,7 +989,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                       const replies = comments.filter(r => r.parentId === c.id);
                       const isExpanded = expandedReplies[c.id];
                       return (
-                        <div key={c.id} style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.8rem' }}>
+                        <div key={c.id} style={{ display: 'flex', flexDirection: 'column', borderBottom: 'none', paddingBottom: '0.8rem' }}>
                           <div style={{ display: 'flex', gap: '0.6rem', paddingTop: '0.8rem', backgroundColor: 'transparent' }}>
                             <img src={(c.userId === user?.uid || c.authorName === profile?.username || c.authorName === profile?.displayName) ? (profile?.avatarUrl || user?.photoURL || c.authorAvatar) : c.authorAvatar} alt={c.authorName} style={{ width: '26px', height: '26px', borderRadius: '50%', objectFit: 'cover' }} />
                             <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
