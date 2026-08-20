@@ -979,6 +979,8 @@
 
 .discoverMoreArea {
   width: 100%;
+  max-width: 1350px;
+  margin: 0 auto;
   padding: 0 2.5rem 3rem 2.5rem;
   background-color: var(--bg-primary);
   flex: 0 0 auto;
@@ -1049,6 +1051,7 @@
   flex-direction: column;
   gap: 1rem;
 }
+
 
 
 
