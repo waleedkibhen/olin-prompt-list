@@ -142,6 +142,24 @@ export default function ProfilePage() {
     });
   };
 
+  const validateSocialLink = (url: string, platform: 'instagram' | 'twitter' | 'pinterest' | 'youtube') => {
+    if (!url) return true;
+    try {
+      const urlObj = new URL(url.startsWith('http') ? url : `https://${url}`);
+      const hostname = urlObj.hostname.toLowerCase();
+      
+      switch (platform) {
+        case 'instagram': return hostname.includes('instagram.com');
+        case 'twitter': return hostname.includes('twitter.com') || hostname.includes('x.com');
+        case 'pinterest': return hostname.includes('pinterest.com') || hostname.includes('pin.it');
+        case 'youtube': return hostname.includes('youtube.com') || hostname.includes('youtu.be');
+        default: return false;
+      }
+    } catch {
+      return false;
+    }
+  };
+
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
@@ -151,6 +169,23 @@ export default function ProfilePage() {
     const cleanedUsername = username.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
     if (!cleanedUsername || cleanedUsername.length < 3) {
       setErrorMsg("Username must be at least 3 characters alphanumeric.");
+      return;
+    }
+
+    if (socials.instagram && !validateSocialLink(socials.instagram, 'instagram')) {
+      setErrorMsg("Please provide a valid Instagram profile link.");
+      return;
+    }
+    if (socials.twitter && !validateSocialLink(socials.twitter, 'twitter')) {
+      setErrorMsg("Please provide a valid Twitter / X profile link.");
+      return;
+    }
+    if (socials.pinterest && !validateSocialLink(socials.pinterest, 'pinterest')) {
+      setErrorMsg("Please provide a valid Pinterest profile link.");
+      return;
+    }
+    if (socials.youtube && !validateSocialLink(socials.youtube, 'youtube')) {
+      setErrorMsg("Please provide a valid YouTube channel link.");
       return;
     }
 
@@ -390,7 +425,7 @@ export default function ProfilePage() {
               className={styles.formInput} 
               value={socials.instagram}
               onChange={e => setSocials(prev => ({ ...prev, instagram: e.target.value.trim() }))}
-              placeholder="https://instagram.com/wisedev"
+              placeholder="https://instagram.com/username"
             />
           </div>
 
@@ -404,7 +439,7 @@ export default function ProfilePage() {
               className={styles.formInput} 
               value={socials.twitter}
               onChange={e => setSocials(prev => ({ ...prev, twitter: e.target.value.trim() }))}
-              placeholder="https://x.com/vvisedev"
+              placeholder="https://x.com/username"
             />
           </div>
 
@@ -432,7 +467,7 @@ export default function ProfilePage() {
               className={styles.formInput} 
               value={socials.youtube}
               onChange={e => setSocials(prev => ({ ...prev, youtube: e.target.value.trim() }))}
-              placeholder="https://youtube.com/@wisedev"
+              placeholder="https://youtube.com/@username"
             />
           </div>
 
