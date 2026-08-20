@@ -1035,10 +1035,7 @@
   .modalImageContainer { 
     order: 3; 
   }
-  .modalActionBar { 
-    order: 4; 
-    padding: 1rem; 
-  }
+  .modalActionBar { order: 4; padding: 0 1rem !important; margin: 1rem 1rem 0.5rem 1rem !important; flex-wrap: nowrap !important; overflow-x: auto; gap: 1rem !important; }
   .mobilePromptArea { 
     order: 5; 
     padding: 0 1rem; 
@@ -1061,3 +1058,4 @@
     display: none;
   }
 }
+
