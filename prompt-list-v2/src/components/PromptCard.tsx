@@ -41,6 +41,7 @@ interface CommentItem {
 export default function PromptCard({ post, onLike, onSave, defaultOpen = false, onCloseOverride }: PromptCardProps) {
   const { user, profile, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
+  const isOwner = Boolean(user && (user.uid === post.creator?.uid));
   const commentsRef = useRef<HTMLDivElement>(null);
 
   const scrollToComments = () => {
@@ -199,7 +200,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
   useEffect(() => {
     const storageKey = user ? `unlocked_${user.uid}` : 'unlocked_guest';
     const unlockedArr = JSON.parse(localStorage.getItem(storageKey) || '[]');
-    const isOwner = Boolean(user && user.uid === post.creator?.uid);
+    
     const isFree = effectiveMonetization === 'free';
     
     let subUnlocked = false;
@@ -726,19 +727,32 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                   <MessageSquare size={17} />
                   {comments.length > 0 && <span style={{ fontWeight: 500 }}>{comments.length}</span>}
                 </button>
-                <button className={styles.barBtn} onClick={handleShareLink} style={isLinkCopied ? { color: '#10b981', borderColor: '#10b981' } : {}} title="Share">
-                  {isLinkCopied ? <Check size={17} /> : <Share2 size={17} />}
-                </button>
+                {!isOwner && (
+                  <button className={styles.barBtn} onClick={handleShareLink} style={isLinkCopied ? { color: '#10b981', borderColor: '#10b981' } : {}} title="Share">
+                    {isLinkCopied ? <Check size={17} /> : <Share2 size={17} />}
+                  </button>
+                )}
                 <button className={`${styles.barBtn} ${styles.reportBtn}`} onClick={handleReportPost} title="Report">
                   <Flag size={17} />
                 </button>
               </div>
 
-              
+                {isOwner && (
+                  <div className={styles.creatorShareBox}>
+                    <p className={styles.creatorShareTitle}>Share your creations with others</p>
+                    <div className={styles.creatorShareInputRow}>
+                      <input type="text" readOnly value={`https://getolin.xyz/post/${post.id}`} className={styles.creatorShareInput} />
+                      <button onClick={handleShareLink} className={styles.creatorShareCopyBtn}>
+                        {isLinkCopied ? 'Copied!' : 'Copy'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+                
+                </div>
               </div>
-            </div>
 
-            <div className={styles.modalRightColumn}>
+              <div className={styles.modalRightColumn}>
               
 
               <div className={styles.mobilePromptArea}>
