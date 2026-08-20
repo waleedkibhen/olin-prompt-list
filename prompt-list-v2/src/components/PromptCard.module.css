@@ -872,65 +872,6 @@
 }
 
 /* Mobile Adjustments */
-@media (max-width: 768px) {
-  .mobileCreatorRow { order: 3; margin: 1.5rem 1rem 0.5rem 1rem !important; }
-  .mobileGenDetails { order: 6; margin: 1.5rem 1rem !important; }
-  .modalTopRow { display: contents; }
-  .discoverMoreArea { padding: 0 1rem 2rem 1rem; order: 7; }
-  .modalCard {
-  background-color: var(--bg-primary);
-  border: none;
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow-y: auto;
-  overflow-x: hidden;
-  animation: modalScale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-  .modalLeftColumn, .modalRightColumn, .leftColumnContent {
-    display: contents;
-  }
-  
-  .leftArtworkTitle { 
-    order: 1; 
-    margin: 3rem 1rem 1rem 1rem; /* push below close button but not too far */
-  }
-  .modalHeader { 
-    order: 2; 
-    padding: 0 1rem; 
-    margin-bottom: 1rem; 
-  }
-  .modalImageContainer { 
-    order: 3; 
-  }
-  .modalActionBar { 
-    order: 4; 
-    padding: 1rem; 
-  }
-  .mobilePromptArea { 
-    order: 5; 
-    padding: 0 1rem; 
-  }
-  .mobileCommentsArea { 
-    order: 6; 
-    margin: 1rem 1rem 2rem 1rem !important; 
-    padding: 1rem 0 !important;
-  }
-  
-  .modalCloseBtn {
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    z-index: 9999;
-  }
-  .navArrowLeft, .navArrowRight {
-    display: none;
-  }
-}
 
 .commentActionBtn {
   background: none;
@@ -1061,3 +1002,62 @@
 
 
 
+@media (max-width: 768px) {
+  .mobileCreatorRow { order: 3; margin: 1.5rem 1rem 0.5rem 1rem !important; }
+  .mobileGenDetails { order: 6; margin: 1.5rem 1rem !important; }
+  .modalTopRow { display: contents; }
+  .discoverMoreArea { padding: 0 1rem 2rem 1rem; order: 7; }
+  .modalCard {
+  background-color: var(--bg-primary);
+  border: none;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  animation: modalScale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+  .modalLeftColumn, .modalRightColumn, .leftColumnContent {
+    display: contents;
+  }
+  
+  .leftArtworkTitle { 
+    order: 1; 
+    margin: 3rem 1rem 1rem 1rem; /* push below close button but not too far */
+  }
+  .modalHeader { 
+    order: 2; 
+    padding: 0 1rem; 
+    margin-bottom: 1rem; 
+  }
+  .modalImageContainer { 
+    order: 3; 
+  }
+  .modalActionBar { 
+    order: 4; 
+    padding: 1rem; 
+  }
+  .mobilePromptArea { 
+    order: 5; 
+    padding: 0 1rem; 
+  }
+  .mobileCommentsArea { 
+    order: 6; 
+    margin: 1rem 1rem 2rem 1rem !important; 
+    padding: 1rem 0 !important;
+  }
+  
+  .modalCloseBtn {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    z-index: 9999;
+  }
+  .navArrowLeft, .navArrowRight {
+    display: none;
+  }
+}
