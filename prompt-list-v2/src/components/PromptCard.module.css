@@ -204,13 +204,15 @@
 }
 
 .modalCard {
-  background-color: transparent;
+  background-color: var(--bg-primary);
   border: none;
   width: 100vw;
   height: 100vh;
   display: flex;
+  flex-direction: column;
   position: relative;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   animation: modalScale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -248,7 +250,6 @@
   display: flex;
   flex-direction: column;
   background-color: var(--bg-primary);
-  overflow-y: auto;
   position: relative;
 }
 
@@ -397,7 +398,6 @@
   padding: 3rem 2.5rem;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
   border-left: 1px solid var(--border-color);
   background-color: var(--bg-primary);
   box-shadow: none;
@@ -808,7 +808,18 @@
 }
 
 @media (max-width: 850px) {
-  .modalCard { flex-direction: column; max-height: 95vh; }
+  .modalCard {
+  background-color: var(--bg-primary);
+  border: none;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  animation: modalScale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
   .modalImageSection { max-height: 45vh; }
   .modalContentSection { padding: 1.25rem; max-height: 50vh; }
 }
@@ -861,13 +872,20 @@
 
 /* Mobile Adjustments */
 @media (max-width: 768px) {
+  .modalTopRow { display: contents; }
+  .discoverMoreArea { padding: 0 1rem 2rem 1rem; order: 7; }
   .modalCard {
-    flex-direction: column;
-    overflow-y: auto;
-    height: 100vh;
-    border-radius: 0;
-    display: flex;
-  }
+  background-color: var(--bg-primary);
+  border: none;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  animation: modalScale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
   .modalLeftColumn, .modalRightColumn, .leftColumnContent {
     display: contents;
   }
@@ -939,3 +957,85 @@
 .commentDeleteBtn:hover {
   color: #ef4444;
 }
+
+.modalTopRow {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  flex: 0 0 auto;
+}
+
+.discoverMoreArea {
+  width: 100%;
+  padding: 0 2.5rem 3rem 2.5rem;
+  background-color: var(--bg-primary);
+  flex: 0 0 auto;
+}
+
+.commentsModalOverlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(9, 9, 11, 0.8);
+  backdrop-filter: blur(4px);
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.commentsModalContainer {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.commentsModalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.commentsModalHeader h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.commentsModalHeader button {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.commentsModalHeader button:hover {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.commentsModalBody {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+
