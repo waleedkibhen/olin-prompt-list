@@ -693,7 +693,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                 </div>
 
               
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginTop: '2rem', marginLeft: '2.5rem', marginBottom: '0rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginTop: '1.5rem', marginLeft: '2.5rem', marginBottom: '0.5rem' }}>
                   <Link to={`/creator/${post.creator.username}`} className={styles.creatorProfileModalLink}>
                     <img src={post.creator.avatarUrl} alt={post.creator.username} className={styles.avatarModal} style={{ borderRadius: '50%' }} />
                     <div className={styles.creatorInfoWrapper}>
@@ -1078,4 +1078,5 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
     </>
   );
 }
+
 

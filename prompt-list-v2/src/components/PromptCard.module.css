@@ -398,7 +398,7 @@
   padding: 3rem 2.5rem;
   display: flex;
   flex-direction: column;
-  border-left: 1px solid var(--border-color);
+  border-left: none;
   background-color: var(--bg-primary);
   box-shadow: none;
   z-index: 10;
@@ -1037,6 +1037,7 @@
   flex-direction: column;
   gap: 1rem;
 }
+
 
 
 

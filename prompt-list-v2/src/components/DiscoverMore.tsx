@@ -62,7 +62,7 @@ export default function DiscoverMore({ currentPostId }: { currentPostId: string 
 
   return (
     <div style={{ marginTop: '4rem', paddingTop: '3rem', borderTop: '1px solid var(--border-color)', width: '100%' }}>
-      <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontWeight: 600, color: 'var(--text-primary)' }}>Explore More</h3>
+      <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>Explore More</h3>
       <div className={styles.feedGrid}>
         {posts.map(p => (
           <PromptCard key={p.id} post={p} defaultOpen={false} />
@@ -71,4 +71,7 @@ export default function DiscoverMore({ currentPostId }: { currentPostId: string 
     </div>
   );
 }
+
+
+
 
