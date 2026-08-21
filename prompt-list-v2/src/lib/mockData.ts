@@ -30,7 +30,7 @@ export interface PromptPost {
   embedding?: number[];
   isPaid?: boolean;
   price?: number;
-  monetizationType?: 'free' | 'ad_supported' | 'subscribers_only';
+  monetizationType?: 'free' | 'ad_supported' | 'subscribers_only' | 'charge';
   isFlagged?: boolean;
   flaggedReason?: string;
   colorProfile?: ColorProfile;

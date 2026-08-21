@@ -10,4 +10,4 @@
  * 
  * To activate the full Whop subscription monetization engine when ready, simply change this flag to true!
  */
-export const ENABLE_MONETIZATION = false;
+export const ENABLE_MONETIZATION = true;
