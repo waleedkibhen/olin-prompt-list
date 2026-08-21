@@ -392,16 +392,15 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
   const handleWatchAdToUnlock = (e: React.MouseEvent) => {
     e.stopPropagation();
     
-    // Inject the ad script directly into the page so it triggers on their click/next click
-    const script = document.createElement('script');
-    script.src = '//pl30941411.effectivecpmnetwork.com/d0/cd/78/d0cd78e0f7daecfe6effe9409b414efc.js';
-    script.type = 'text/javascript';
-    document.head.appendChild(script);
+    // IDEAL SOLUTION: DIRECT LINK
+    // Replace this URL with your Adsterra Direct Link URL
+    const DIRECT_LINK_URL = 'https://google.com'; // PLACEHOLDER
     
-    // Also simulate a click on the body just in case the popunder requires an immediate interaction event
-    setTimeout(() => {
-        document.body.click();
-    }, 100);
+    if (DIRECT_LINK_URL && DIRECT_LINK_URL !== 'https://google.com') {
+        window.open(DIRECT_LINK_URL, '_blank');
+    } else {
+        alert("Developer Note: Please provide your Adsterra Direct Link URL to instantly open the ad.");
+    }
 
     // Show unlocking state
     setIsWatchingAd(true);
