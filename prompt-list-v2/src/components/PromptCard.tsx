@@ -150,6 +150,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
   };
   const [activeVariantIndex, setActiveVariantIndex] = useState(0);
   
+  const [previewPaywall, setPreviewPaywall] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [isWatchingAd, setIsWatchingAd] = useState(false);
 
@@ -553,7 +554,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
   };
 
   const isCreator = Boolean(user && user.uid === post.creator.uid);
-  const isProtected = Boolean(effectiveMonetization !== 'free' && !isUnlocked);
+  const isProtected = Boolean(effectiveMonetization !== 'free' && (!isUnlocked || (isCreator && previewPaywall)));
 
   return (
     <>
@@ -841,23 +842,27 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                             /imagine prompt: [PROTECTED OLIN VAULT] cinematic photographic masterpiece, hyperdetailed textures, 8k resolution, volumetric ambiance, studio lighting, dynamic contrast, masterwork seeds [UNLOCK TO REVEAL FULL GENERATIVE PARAMETERS &amp; STYLING WEIGHTS] --v 6.0 --ar 16:9 --style raw --s 750
                           </code>
                         </div>
+                        {isCreator && previewPaywall && (
+                          <div style={{ position: 'absolute', top: '1rem', right: '1rem', zIndex: 10 }}>
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); setPreviewPaywall(false); }}
+                              style={{ background: '#1E50FF', border: 'none', color: '#fff', borderRadius: '4px', padding: '0.4rem 0.8rem', fontSize: '0.78rem', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                            >
+                              <X size={14} color="#fff" /> Stop Preview
+                            </button>
+                          </div>
+                        )}
                         <div className={styles.vaultOverlayContent} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '0 1rem' }}>
-                          <div style={{ flex: 1, padding: '1.5rem', border: `1px solid ${effectiveMonetization === 'charge' ? '#3b82f6' : 'rgba(16, 185, 129, 0.3)'}`, borderRadius: '0px', width: '100%', maxWidth: '350px', textAlign: 'center' }}>
+                          <div style={{ flex: 1, padding: '1.5rem', width: '100%', maxWidth: '350px', textAlign: 'center' }}>
                             <div style={{ fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)', fontSize: '1.1rem' }}>
-                                {effectiveMonetization === 'subscribers_only' ? 'Subscriber Vault' : effectiveMonetization === 'charge' ? 'Premium Vault' : 'Watch an ad to unlock'}
+                                {effectiveMonetization === 'subscribers_only' ? 'Subscriber Vault' : effectiveMonetization === 'charge' ? 'Premium Vault' : 'Watch an Ad to unlock'}
                             </div>
                             <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
-                                {effectiveMonetization === 'ad_supported' ? 'Watch an ad to unlock the prompt and support your favorite creators.' : 'Unlock to reveal full generative parameters, styling seeds, and camera weights.'}
+                                {effectiveMonetization === 'ad_supported' ? 'The creator has chosen to monetize their prompts through ads. Click the button below to view a quick sponsor message or click the button below to watch an ad to reveal the prompt.' : 'Unlock to reveal full generative parameters, styling seeds, and camera weights.'}
                             </div>
                             
-                            {isCreator ? (
-                              <button
-                                onClick={(e) => { e.stopPropagation(); setIsUnlocked(true); }}
-                                style={{ width: '100%', padding: '0.75rem', backgroundColor: 'transparent', color: '#10b981', border: '1px solid #10b981', borderRadius: '0px', fontWeight: 600, cursor: 'pointer' }}
-                              >
-                                View Your Prompt (Creator)
-                              </button>
-                            ) : effectiveMonetization === 'subscribers_only' ? (
+                            {effectiveMonetization === 'subscribers_only' ? (
                               <button
                                 onClick={handleSubscribeToUnlock}
                                 style={{ width: '100%', padding: '0.75rem', backgroundColor: '#f59e0b', color: '#000', border: 'none', borderRadius: '0px', fontWeight: 600, cursor: 'pointer' }}
@@ -874,7 +879,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                             ) : (
                               <button
                                 onClick={handleWatchAdToUnlock}
-                                style={{ width: '100%', padding: '0.75rem', backgroundColor: '#10b981', color: '#fff', border: 'none', borderRadius: '0px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                                style={{ width: '100%', padding: '0.75rem', backgroundColor: '#1E50FF', color: '#fff', border: 'none', borderRadius: '2px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
                               >
                                 <PlayCircle size={18} /> Watch Ad
                               </button>
@@ -890,6 +895,17 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                             className={styles.promptCode} 
                           />
                         </div>
+                        {isCreator && effectiveMonetization !== 'free' && (
+                          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); setPreviewPaywall(true); }}
+                              style={{ background: '#1E50FF', border: 'none', color: '#fff', borderRadius: '4px', padding: '0.4rem 0.8rem', fontSize: '0.78rem', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                            >
+                              <Eye size={14} color="#fff" /> Preview Paywall
+                            </button>
+                          </div>
+                        )}
                         <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '1rem', marginBottom: '0.5rem' }}>
                           <button 
                             onClick={handleCopyPrompt}

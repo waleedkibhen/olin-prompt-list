@@ -716,8 +716,8 @@
 .blurredVaultContainer {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(16, 185, 129, 0.45);
-  border-radius: 0px;
+  border: 2px solid #1E50FF;
+  border-radius: 2px;
   background-color: var(--bg-primary);
   min-height: 200px;
   display: flex;
@@ -742,7 +742,7 @@
   font-size: 0.85rem;
   line-height: 1.6;
   color: var(--text-primary);
-  background: radial-gradient(circle at center, rgba(16, 185, 129, 0.08), transparent 70%);
+  background: radial-gradient(circle at center, rgba(30, 80, 255, 0.08), transparent 70%);
 }
 
 .vaultOverlayContent {
