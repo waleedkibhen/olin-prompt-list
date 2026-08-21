@@ -17,7 +17,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     }
 
     const apiKey = context.env.WHOP_API_KEY || DEFAULT_WHOP_API_KEY;
-    const companyId = context.env.WHOP_COMPANY_ID || "biz_YOUR_COMPANY_ID";
+    const companyId = context.env.WHOP_COMPANY_ID || "biz_Cl76q9At9iiox0";
 
     const whopRes = await fetch("https://api.whop.com/api/v2/checkout_configurations", {
       method: "POST",
