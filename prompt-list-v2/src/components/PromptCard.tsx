@@ -829,7 +829,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                           <button
                             type="button"
                             onClick={(e) => { e.stopPropagation(); setPreviewPaywall(!previewPaywall); }}
-                            style={{ background: '#1754D8', border: 'none', color: '#fff', borderRadius: '4px', padding: '0.35rem 0.6rem', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                            style={{ background: '#0572F6', border: 'none', color: '#fff', borderRadius: '6px', padding: '0.35rem 0.6rem', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem' }}
                           >
                             {previewPaywall ? (
                               <><X size={12} color="#fff" /> Stop Preview</>
@@ -884,7 +884,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                             ) : (
                               <button
                                 onClick={handleWatchAdToUnlock}
-                                style={{ width: '100%', padding: '0.75rem', backgroundColor: '#1754D8', color: '#fff', border: 'none', borderRadius: '2px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                                style={{ width: '100%', padding: '0.75rem', backgroundColor: '#0572F6', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
                               >
                                 <PlayCircle size={18} /> Watch Ad
                               </button>
@@ -904,7 +904,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                         <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '1rem', marginBottom: '0.5rem' }}>
                           <button 
                             onClick={handleCopyPrompt}
-                            style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', padding: '0.4rem 0.75rem', borderRadius: '2px', transition: 'all 0.2s ease' }}
+                            style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', padding: '0.4rem 0.75rem', borderRadius: '8px', transition: 'all 0.2s ease' }}
                             onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-hover)'; }}
                             onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'; }}
                           >
@@ -967,7 +967,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
 
                 <form onSubmit={handleSubmitComment} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   {activeReplyId && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--bg-secondary)', padding: '0.4rem 0.75rem', borderRadius: '4px', border: '1px solid var(--border-color)', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--bg-secondary)', padding: '0.4rem 0.75rem', borderRadius: '6px', border: '1px solid var(--border-color)', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
                       <span>Replying to <strong style={{ color: 'var(--text-primary)' }}>{activeReplyName}</strong></span>
                       <button type="button" onClick={() => { setActiveReplyId(null); setActiveReplyName(null); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}><X size={14} /></button>
                     </div>
