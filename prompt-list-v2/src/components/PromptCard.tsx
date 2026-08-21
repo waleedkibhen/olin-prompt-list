@@ -151,7 +151,6 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
   const [activeVariantIndex, setActiveVariantIndex] = useState(0);
   
   const [isUnlocked, setIsUnlocked] = useState(false);
-  const [previewPaywall, setPreviewPaywall] = useState(false);
   const [isWatchingAd, setIsWatchingAd] = useState(false);
 
   const [comments, setComments] = useState<CommentItem[]>([]);
@@ -391,30 +390,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
 
   const handleWatchAdToUnlock = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsWatchingAd(true);
-    
-    // Dynamically inject the ad script provided by the user
-    const script = document.createElement('script');
-    script.src = "https://pl30941411.effectivecpmnetwork.com/d0/cd/78/d0cd78e0f7daecfe6effe9409b414efc.js";
-    script.async = true;
-    document.head.appendChild(script);
-
-    setTimeout(() => {
-      setIsWatchingAd(false);
-      const storageKey = user ? `unlocked_${user.uid}` : 'unlocked_guest';
-      const unlockedArr = JSON.parse(localStorage.getItem(storageKey) || '[]');
-      localStorage.setItem(storageKey, JSON.stringify([...unlockedArr, post.id]));
-      setIsUnlocked(true);
-      setPreviewPaywall(false);
-      handleCopyPrompt();
-      
-      // Clean up the script after the ad sequence
-      try {
-        if (script.parentNode) {
-          script.parentNode.removeChild(script);
-        }
-      } catch (err) {}
-    }, 2800);
+    navigate(`/unlock/${post.id}`);
   };
 
   const handleSubscribeToUnlock = (e?: React.MouseEvent) => {
@@ -577,7 +553,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
   };
 
   const isCreator = Boolean(user && user.uid === post.creator.uid);
-  const isProtected = Boolean(effectiveMonetization !== 'free' && (!isUnlocked || (isCreator && previewPaywall)));
+  const isProtected = Boolean(effectiveMonetization !== 'free' && !isUnlocked && !isCreator);
 
   return (
     <>
@@ -847,21 +823,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
               >
                 {activeTab.startsWith('prompt') ? (
                   <div className={styles.promptVaultBox}>
-                    {isCreator && effectiveMonetization !== 'free' && (
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.35)', borderRadius: 'var(--radius-md)', padding: '0.6rem 0.85rem', fontSize: '0.8rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#10b981', fontWeight: 700 }}>
-                          <span>Creator Access Enabled</span>
-                          <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>— Users see the {effectiveMonetization === 'subscribers_only' ? 'Subscriber' : 'Ad Watch'} paywall</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={(e) => { e.stopPropagation(); setPreviewPaywall(!previewPaywall); }}
-                          style={{ background: 'transparent', border: '1px solid rgba(16, 185, 129, 0.5)', color: '#10b981', borderRadius: '0px', padding: '0.3rem 0.7rem', fontSize: '0.78rem', cursor: 'pointer', fontWeight: 700 }}
-                        >
-                          {previewPaywall ? 'Show Real Prompt' : 'Preview Public Paywall'}
-                        </button>
-                      </div>
-                    )}
+                    
 
 
                     {isWatchingAd ? (
@@ -879,40 +841,38 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                             /imagine prompt: [PROTECTED OLIN VAULT] cinematic photographic masterpiece, hyperdetailed textures, 8k resolution, volumetric ambiance, studio lighting, dynamic contrast, masterwork seeds [UNLOCK TO REVEAL FULL GENERATIVE PARAMETERS &amp; STYLING WEIGHTS] --v 6.0 --ar 16:9 --style raw --s 750
                           </code>
                         </div>
-                        <div className={styles.vaultOverlayContent}>
-                          <div className={styles.lockBadgePill} style={effectiveMonetization === 'ad_supported' ? { backgroundColor: 'rgba(16, 185, 129, 0.2)', borderColor: '#10b981', color: '#10b981' } : effectiveMonetization === 'charge' ? { backgroundColor: 'rgba(59, 130, 246, 0.2)', borderColor: '#3b82f6', color: '#3b82f6' } : {}}>
-                              {effectiveMonetization === 'subscribers_only' ? 'Subscriber Only Vault' : effectiveMonetization === 'charge' ? 'Premium Vault' : 'Free Ad-Supported Vault'}
+                        <div className={styles.vaultOverlayContent} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '0 1rem' }}>
+                          <div style={{ flex: 1, padding: '1.5rem', border: `2px solid ${effectiveMonetization === 'charge' ? '#3b82f6' : '#10b981'}`, borderRadius: '8px', backgroundColor: effectiveMonetization === 'charge' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(16, 185, 129, 0.1)', width: '100%', maxWidth: '350px', textAlign: 'center' }}>
+                            <div style={{ fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)', fontSize: '1.1rem' }}>
+                                {effectiveMonetization === 'subscribers_only' ? 'Subscriber Vault' : effectiveMonetization === 'charge' ? 'Premium Vault' : 'Ad-Supported Vault'}
                             </div>
-                          <h5 className={styles.lockTitle}>Protected AI Creation by @{post.creator.username}</h5>
-                          <p className={styles.lockDesc}>
-                            Full generative parameters, styling seeds, and camera weights are securely blurred and protected from inspection until unlocked.
-                          </p>
-                          {effectiveMonetization === 'subscribers_only' ? (
+                            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
+                                Unlock to reveal full generative parameters, styling seeds, and camera weights.
+                            </div>
+                            
+                            {effectiveMonetization === 'subscribers_only' ? (
                               <button
-                                className={styles.whopUnlockBtn}
                                 onClick={handleSubscribeToUnlock}
-                                style={{ background: 'transparent', border: '1px solid #f59e0b', color: '#f59e0b' }}
+                                style={{ width: '100%', padding: '0.75rem', backgroundColor: '#f59e0b', color: '#000', border: 'none', borderRadius: '4px', fontWeight: 600, cursor: 'pointer' }}
                               >
                                 Subscribe to Unlock
                               </button>
                             ) : effectiveMonetization === 'charge' ? (
                               <button
-                                className={styles.whopUnlockBtn}
                                 onClick={(e) => { e.stopPropagation(); alert('Payment infrastructure coming soon!'); handleWatchAdToUnlock(e); }}
-                                style={{ background: 'transparent', border: '1px solid #3b82f6', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                                style={{ width: '100%', padding: '0.75rem', backgroundColor: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 600, cursor: 'pointer' }}
                               >
-                                <span>Pay ${post.price || '1.99'} to Unlock Prompt</span>
+                                Pay $${post.price || '1.99'} to Unlock
                               </button>
                             ) : (
                               <button
-                                className={styles.whopUnlockBtn}
                                 onClick={handleWatchAdToUnlock}
-                                style={{ background: 'transparent', border: '1px solid #10b981', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                                style={{ width: '100%', padding: '0.75rem', backgroundColor: '#10b981', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
                               >
-                                <PlayCircle size={18} />
-                                <span>Watch an Ad to Unlock Prompt</span>
+                                <PlayCircle size={18} /> Watch Ad to Unlock
                               </button>
                             )}
+                          </div>
                         </div>
                       </div>
                     ) : (

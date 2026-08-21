@@ -1,0 +1,62 @@
+.creatorShareBox {
+  margin: 0.5rem 2.5rem 1.5rem 2.5rem;
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 360px;
+}
+
+.creatorShareTitle {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.creatorShareInputRow {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.creatorShareInput {
+  flex: 1;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.creatorShareInput:focus {
+  border-color: #ef4444;
+}
+
+.creatorShareCopyBtn {
+  background-color: white;
+  color: black;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.creatorShareCopyBtn:hover {
+  opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+  .creatorShareBox {
+    margin: 0.5rem 1rem 1rem 1rem;
+    order: 5;
+    max-width: 100%;
+  }
+}
