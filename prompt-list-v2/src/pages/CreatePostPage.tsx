@@ -654,7 +654,7 @@ export default function CreatePostPage() {
                 style={{ flex: 1, padding: '1rem', border: `2px solid ${monetizationType === 'paid' ? '#10b981' : 'var(--border-color)'}`, borderRadius: '8px', cursor: 'pointer', backgroundColor: monetizationType === 'paid' ? 'rgba(16, 185, 129, 0.1)' : 'transparent' }}
                 onClick={() => setMonetizationType('paid')}
               >
-                <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Paid / Protected</div>
+                <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Paid</div>
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Require users to unlock your prompt</div>
               </div>
             </div>
