@@ -392,9 +392,17 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
   const handleWatchAdToUnlock = (e: React.MouseEvent) => {
     e.stopPropagation();
     
-    // Open the ad script in a new tab
-    window.open('/ad-sponsor.html', '_blank');
+    // Inject the ad script directly into the page so it triggers on their click/next click
+    const script = document.createElement('script');
+    script.src = '//pl30941411.effectivecpmnetwork.com/d0/cd/78/d0cd78e0f7daecfe6effe9409b414efc.js';
+    script.type = 'text/javascript';
+    document.head.appendChild(script);
     
+    // Also simulate a click on the body just in case the popunder requires an immediate interaction event
+    setTimeout(() => {
+        document.body.click();
+    }, 100);
+
     // Show unlocking state
     setIsWatchingAd(true);
     setTimeout(() => {
