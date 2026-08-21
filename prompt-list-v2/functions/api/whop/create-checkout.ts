@@ -19,7 +19,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const apiKey = context.env.WHOP_API_KEY || DEFAULT_WHOP_API_KEY;
     const companyId = context.env.WHOP_COMPANY_ID || "biz_Cl76q9At9iiox0";
 
-    const whopRes = await fetch("https://api.whop.com/api/v2/checkout_configurations", {
+    const whopRes = await fetch("https://api.whop.com/api/v1/checkout_configurations", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,
@@ -27,10 +27,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         "Accept": "application/json"
       },
       body: JSON.stringify({
-        company_id: companyId,
         mode: "payment",
-        currency: "usd",
         plan: {
+          company_id: companyId,
+          currency: "usd",
           initial_price: price,
           plan_type: "one_time"
         },
