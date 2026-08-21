@@ -392,6 +392,13 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
   const handleWatchAdToUnlock = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsWatchingAd(true);
+    
+    // Dynamically inject the ad script provided by the user
+    const script = document.createElement('script');
+    script.src = "https://pl30941411.effectivecpmnetwork.com/d0/cd/78/d0cd78e0f7daecfe6effe9409b414efc.js";
+    script.async = true;
+    document.body.appendChild(script);
+
     setTimeout(() => {
       setIsWatchingAd(false);
       const storageKey = user ? `unlocked_${user.uid}` : 'unlocked_guest';
@@ -400,6 +407,13 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
       setIsUnlocked(true);
       setPreviewPaywall(false);
       handleCopyPrompt();
+      
+      // Clean up the script after the ad sequence
+      try {
+        if (script.parentNode) {
+          script.parentNode.removeChild(script);
+        }
+      } catch (err) {}
     }, 2800);
   };
 
