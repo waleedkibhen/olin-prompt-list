@@ -315,7 +315,37 @@ export default function CreatePostPage() {
 
       setStatusText('Placing it on the feed');
       
+      
       const newPostRef = doc(collection(db, 'posts'));
+      
+      let whopPlanId = undefined;
+      if (monetizationType === 'paid' && paidUnlockMethod === 'charge') {
+        const pVal = parseFloat(price) || 0;
+        if (pVal > 0) {
+          try {
+            const whopRes = await fetch('/api/whop/create-checkout', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                title: title,
+                price: pVal,
+                promptId: newPostRef.id
+              })
+            });
+            const whopData = await whopRes.json();
+            if (whopData.success && whopData.checkoutId) {
+              whopPlanId = whopData.checkoutId;
+            } else {
+              throw new Error(whopData.error || whopData.reason || 'Failed to create checkout configuration');
+            }
+          } catch (err: any) {
+            setModerationError("Payment Gateway Error: " + err.message);
+            setIsSubmitting(false);
+            return;
+          }
+        }
+      }
+
       
       const postPayload = {
         id: newPostRef.id,
@@ -330,6 +360,7 @@ export default function CreatePostPage() {
         prompts: prompts,
         model: model === 'Other' ? customModel.trim() || 'Unknown' : model,
         monetizationType: monetizationType === 'free' ? 'free' : (paidUnlockMethod === 'ad' ? 'ad_supported' : 'charge'),
+        whopPlanId: whopPlanId,
           price: monetizationType === 'paid' && paidUnlockMethod === 'charge' ? parseFloat(price) || 0 : 0,
         
         imageUrls: imageUrls,

@@ -9,15 +9,39 @@ if (!code.includes("import WhopCheckoutModal")) {
     );
 }
 
-const stateInsert = "const [isWatchingAd, setIsWatchingAd] = useState(false);";
 if (!code.includes("const [showCheckout, setShowCheckout] = useState(false);")) {
     code = code.replace(
-        stateInsert,
+        "const [isWatchingAd, setIsWatchingAd] = useState(false);",
         "const [isWatchingAd, setIsWatchingAd] = useState(false);\n  const [showCheckout, setShowCheckout] = useState(false);"
     );
 }
 
-const handlePaymentSuccess = `
+const targetButtonStr = "onClick={(e) => { e.stopPropagation(); alert('Payment infrastructure coming soon!'); handleWatchAdToUnlock(e); }}";
+const replaceButtonStr = "onClick={(e) => { e.stopPropagation(); if (post.whopPlanId) { setShowCheckout(true); } else { alert('Creator has not setup a valid checkout for this item yet.'); } }}";
+if (code.includes(targetButtonStr)) {
+    code = code.replace(targetButtonStr, replaceButtonStr);
+}
+
+const modalRender = `
+      {showCheckout && post.whopPlanId && (
+        <WhopCheckoutModal 
+          planId={post.whopPlanId}
+          onSuccess={handlePaymentSuccess}
+          onClose={() => setShowCheckout(false)}
+        />
+      )}
+`;
+
+if (!code.includes("<WhopCheckoutModal")) {
+    // find {isReportModalOpen && ...} and insert above
+    code = code.replace(
+        "{isReportModalOpen && <ReportModal",
+        modalRender + "\n      {isReportModalOpen && <ReportModal"
+    );
+}
+
+if (!code.includes("const handlePaymentSuccess = () => {")) {
+  const handlePaymentSuccess = `
   const handlePaymentSuccess = () => {
     setShowCheckout(false);
     setIsUnlocked(true);
@@ -31,36 +55,11 @@ const handlePaymentSuccess = `
     } catch (e) {}
   };
 `;
-if (!code.includes("handlePaymentSuccess")) {
-    code = code.replace(
-        "const handleWatchAdToUnlock = (e: React.MouseEvent) => {",
-        `${handlePaymentSuccess}\n  const handleWatchAdToUnlock = (e: React.MouseEvent) => {`
-    );
-}
-
-const targetButtonStr = "onClick={(e) => { e.stopPropagation(); alert('Payment infrastructure coming soon!'); handleWatchAdToUnlock(e); }}";
-const replaceButtonStr = "onClick={(e) => { e.stopPropagation(); if (post.whopPlanId) { setShowCheckout(true); } else { alert('Creator has not setup a valid checkout for this item yet.'); } }}";
-code = code.replace(targetButtonStr, replaceButtonStr);
-
-const modalRender = `
-      {showCheckout && post.whopPlanId && (
-        <WhopCheckoutModal 
-          planId={post.whopPlanId}
-          onSuccess={handlePaymentSuccess}
-          onClose={() => setShowCheckout(false)}
-        />
-      )}
-`;
-if (!code.includes("<WhopCheckoutModal")) {
-    code = code.replace(
-        "return (",
-        `return (\n    <>`
-    );
-    code = code.replace(
-        / {2}\);\n}\n$/,
-        `      ${modalRender}\n    </>\n  );\n}`
-    );
+  code = code.replace(
+      "const handleWatchAdToUnlock = (e: React.MouseEvent) => {",
+      `${handlePaymentSuccess}\n  const handleWatchAdToUnlock = (e: React.MouseEvent) => {`
+  );
 }
 
 fs.writeFileSync(p, code);
-console.log('updated prompt card');
+console.log('updated prompt card 2');

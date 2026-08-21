@@ -153,6 +153,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
   const [previewPaywall, setPreviewPaywall] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [isWatchingAd, setIsWatchingAd] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
 
   const [comments, setComments] = useState<CommentItem[]>([]);
   const [newComment, setNewComment] = useState('');
@@ -387,6 +388,20 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
     } catch (err) {
       console.error("Failed to increment copy count:", err);
     }
+  };
+
+  
+  const handlePaymentSuccess = () => {
+    setShowCheckout(false);
+    setIsUnlocked(true);
+    try {
+      const unlockedRaw = localStorage.getItem('unlockedPrompts');
+      const unlocked = unlockedRaw ? JSON.parse(unlockedRaw) : [];
+      if (!unlocked.includes(post.id)) {
+        unlocked.push(post.id);
+        localStorage.setItem('unlockedPrompts', JSON.stringify(unlocked));
+      }
+    } catch (e) {}
   };
 
   const handleWatchAdToUnlock = (e: React.MouseEvent) => {
@@ -901,7 +916,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                               </button>
                             ) : effectiveMonetization === 'charge' ? (
                               <button
-                                onClick={(e) => { e.stopPropagation(); alert('Payment infrastructure coming soon!'); handleWatchAdToUnlock(e); }}
+                                onClick={(e) => { e.stopPropagation(); if (post.whopPlanId) { setShowCheckout(true); } else { alert('Creator has not setup a valid checkout for this item yet.'); } }}
                                 style={{ width: '100%', padding: '0.75rem', backgroundColor: '#3b82f6', color: '#fff', border: 'none', borderRadius: '0px', fontWeight: 600, cursor: 'pointer' }}
                               >
                                 Pay ${post.price || '1.99'} to Unlock
@@ -1113,6 +1128,15 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
         </div>
       )}
     
+      
+      {showCheckout && post.whopPlanId && (
+        <WhopCheckoutModal 
+          planId={post.whopPlanId}
+          onSuccess={handlePaymentSuccess}
+          onClose={() => setShowCheckout(false)}
+        />
+      )}
+
       {isReportModalOpen && <ReportModal post={post} onClose={() => setIsReportModalOpen(false)} />}
     </>
   );

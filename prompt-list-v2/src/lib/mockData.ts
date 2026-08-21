@@ -30,6 +30,7 @@ export interface PromptPost {
   embedding?: number[];
   isPaid?: boolean;
   price?: number;
+  whopPlanId?: string;
   monetizationType?: 'free' | 'ad_supported' | 'subscribers_only' | 'charge';
   isFlagged?: boolean;
   flaggedReason?: string;
