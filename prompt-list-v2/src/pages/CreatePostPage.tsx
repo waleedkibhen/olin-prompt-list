@@ -340,7 +340,7 @@ export default function CreatePostPage() {
             }
           } catch (err: any) {
             setModerationError("Payment Gateway Error: " + err.message);
-            setIsSubmitting(false);
+            setIsScanning(false);
             return;
           }
         }
