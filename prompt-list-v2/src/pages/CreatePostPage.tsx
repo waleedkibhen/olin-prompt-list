@@ -498,6 +498,18 @@ export default function CreatePostPage() {
             style={{ display: 'none' }}
             disabled={selectedFiles.length >= 5 || isScanning}
           />
+        
+            <div style={{ marginTop: "1.5rem" }}>
+              <div className={styles.fieldGroup} style={{ margin: 0 }}>
+            <label>Description <span className={styles.optionalText}>(optional)</span></label>
+            <TipTapEditor 
+              content={description}
+              onChange={setDescription}
+            />
+            {getCharLimitWarning(description.replace(/(<([^>]+)>)/gi, "").length, 1000)}
+          </div>
+            </div>
+
         </div>
 
         <div className={styles.rightColumn}>
@@ -555,14 +567,7 @@ export default function CreatePostPage() {
             )}
           </div>
 
-          <div className={styles.fieldGroup}>
-            <label>Description <span className={styles.optionalText}>(optional)</span></label>
-            <TipTapEditor 
-              content={description}
-              onChange={setDescription}
-            />
-            {getCharLimitWarning(description.replace(/(<([^>]+)>)/gi, "").length, 1000)}
-          </div>
+          
 
           <div className={styles.fieldGroup}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
@@ -635,7 +640,7 @@ export default function CreatePostPage() {
 
           
           <div className={styles.fieldGroup} style={{ marginTop: '1.5rem', padding: '1.5rem', backgroundColor: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-            <label style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Sparkles size={18} style={{ color: '#f59e0b' }} /> Monetization Options</label>
+            <label style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>Monetization Options</label>
             
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
               <div 
