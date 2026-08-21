@@ -391,7 +391,25 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
 
   const handleWatchAdToUnlock = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigate(`/unlock/${post.id}`);
+    
+    // Open the ad script in a new tab
+    window.open('/ad-sponsor.html', '_blank');
+    
+    // Show unlocking state
+    setIsWatchingAd(true);
+    setTimeout(() => {
+      setIsWatchingAd(false);
+      setIsUnlocked(true);
+      
+      try {
+        const unlockedRaw = localStorage.getItem('unlockedPrompts');
+        const unlocked = unlockedRaw ? JSON.parse(unlockedRaw) : [];
+        if (!unlocked.includes(post.id)) {
+          unlocked.push(post.id);
+          localStorage.setItem('unlockedPrompts', JSON.stringify(unlocked));
+        }
+      } catch (e) {}
+    }, 1500);
   };
 
   const handleSubscribeToUnlock = (e?: React.MouseEvent) => {
@@ -719,7 +737,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                   {comments.length > 0 && <span style={{ fontWeight: 500 }}>{comments.length}</span>}
                 </button>
                 {!isOwner && (
-                  <button className={styles.barBtn} onClick={handleShareLink} style={isLinkCopied ? { color: '#10b981', borderColor: '#10b981' } : {}} title="Share">
+                  <button className={styles.barBtn} onClick={handleShareLink} style={isLinkCopied ? { color: '#0572F6', borderColor: '#0572F6' } : {}} title="Share">
                     {isLinkCopied ? <Check size={17} /> : <Share2 size={17} />}
                   </button>
                 )}
@@ -843,9 +861,9 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
 
 
                     {isWatchingAd ? (
-                      <div style={{ padding: '2.5rem 1.5rem', textAlign: 'center', backgroundColor: 'var(--bg-primary)', border: '2px dashed #10b981', borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', color: 'var(--text-primary)' }}>
-                        <Loader2 size={38} style={{ animation: 'spin 1s linear infinite', color: '#10b981' }} />
-                        <strong style={{ fontSize: '1.1rem', color: '#10b981' }}>Playing Community Sponsor Message...</strong>
+                      <div style={{ padding: '2.5rem 1.5rem', textAlign: 'center', backgroundColor: 'var(--bg-primary)', border: '2px dashed #0572F6', borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', color: 'var(--text-primary)' }}>
+                        <Loader2 size={38} style={{ animation: 'spin 1s linear infinite', color: '#0572F6' }} />
+                        <strong style={{ fontSize: '1.1rem', color: '#0572F6' }}>Playing Community Sponsor Message...</strong>
                         <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', maxWidth: '340px' }}>
                           Thank you for supporting generative creators on Olin Prompt List! Prompt parameters unlocking in moments...
                         </span>
