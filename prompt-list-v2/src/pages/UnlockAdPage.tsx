@@ -56,7 +56,7 @@ export default function UnlockAdPage() {
       padding: '2rem',
       textAlign: 'center'
     }}>
-      <ShieldCheck size={48} style={{ color: '#1E50FF', marginBottom: '1.5rem' }} />
+      <ShieldCheck size={48} style={{ color: '#1754D8', marginBottom: '1.5rem' }} />
       <h1 style={{ marginBottom: '1rem', fontSize: '1.8rem' }}>Unlock Protected Prompt</h1>
       
       {!clicked ? (
@@ -68,7 +68,7 @@ export default function UnlockAdPage() {
             onClick={handleWatchAd}
             style={{
               padding: '1rem 2rem',
-              backgroundColor: '#1E50FF',
+              backgroundColor: '#1754D8',
               color: 'white',
               border: 'none',
               borderRadius: '4px',
@@ -89,7 +89,7 @@ export default function UnlockAdPage() {
         </>
       ) : (
         <>
-          <p style={{ color: '#1E50FF', fontSize: '1.2rem', fontWeight: 500, marginBottom: '1rem' }}>
+          <p style={{ color: '#1754D8', fontSize: '1.2rem', fontWeight: 500, marginBottom: '1rem' }}>
             Thank you for supporting creators!
           </p>
           <p style={{ color: 'var(--text-secondary)' }}>
