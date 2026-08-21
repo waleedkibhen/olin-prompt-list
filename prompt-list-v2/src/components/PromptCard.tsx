@@ -394,7 +394,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
     
     // IDEAL SOLUTION: DIRECT LINK
     // Replace this URL with your Adsterra Direct Link URL
-    const DIRECT_LINK_URL = 'https://google.com'; // PLACEHOLDER
+    const DIRECT_LINK_URL = 'https://www.effectivecpmnetwork.com/k1qybg57?key=41b37323a01727c9cc93104afa6c1671';
     
     if (DIRECT_LINK_URL && DIRECT_LINK_URL !== 'https://google.com') {
         window.open(DIRECT_LINK_URL, '_blank');
