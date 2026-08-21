@@ -52,6 +52,7 @@ export default function PostDetailPage() {
             copiesCount: d.copiesCount || 0,
             isPaid: d.isPaid || false,
             price: d.price || 0,
+            whopPlanId: d.whopPlanId || undefined,
             monetizationType: d.monetizationType || (d.isPaid ? 'subscribers_only' : 'free'),
             createdAt: d.createdAt?.toDate ? d.createdAt.toDate().toLocaleDateString() : 'Just now'
           });

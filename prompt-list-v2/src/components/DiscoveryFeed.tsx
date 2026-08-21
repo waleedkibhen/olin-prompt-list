@@ -203,6 +203,7 @@ export default function DiscoveryFeed() {
           commentCount: data.commentCount || data.commentsCount || 0,
           isPaid: data.isPaid || false,
           price: data.price || 0,
+            whopPlanId: data.whopPlanId || undefined,
           monetizationType: data.monetizationType || (data.isPaid ? 'subscribers_only' : 'free'),
           isFlagged: data.isFlagged || false,
           flaggedReason: data.flaggedReason || '',
