@@ -62,7 +62,7 @@ export default function UnlockAdPage() {
       {!clicked ? (
         <>
           <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', maxWidth: '400px', lineHeight: '1.6' }}>
-            This creator has chosen to monetize their prompt via ads. Click the button below to view a quick sponsor message and reveal the generative parameters.
+            The creator has chosen to monetize their prompts through ads, and click the button below to view a quick sponsor message or click the button below to watch an ad to reveal the prompt.
           </p>
           <button
             onClick={handleWatchAd}
@@ -84,8 +84,7 @@ export default function UnlockAdPage() {
             onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
             onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
           >
-            <PlayCircle size={22} />
-            Show Ad & Unlock
+            Watch Ad
           </button>
         </>
       ) : (
