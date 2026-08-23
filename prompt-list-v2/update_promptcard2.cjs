@@ -1,65 +1,59 @@
 const fs = require('fs');
-const p = 'src/components/PromptCard.tsx';
-let code = fs.readFileSync(p, 'utf8');
+let code = fs.readFileSync('src/components/PromptCard.tsx', 'utf8');
 
-if (!code.includes("import WhopCheckoutModal")) {
-    code = code.replace(
-        "import React, { useState, useRef, useEffect } from 'react';",
-        "import React, { useState, useRef, useEffect } from 'react';\nimport WhopCheckoutModal from './WhopCheckoutModal';"
-    );
-}
+// Fix Ghost Button
+code = code.replace(
+    /\{isCreator && effectiveMonetization !== 'free' && \(/g,
+    "{isCreator && effectiveMonetization === 'charge' && ("
+);
 
-if (!code.includes("const [showCheckout, setShowCheckout] = useState(false);")) {
-    code = code.replace(
-        "const [isWatchingAd, setIsWatchingAd] = useState(false);",
-        "const [isWatchingAd, setIsWatchingAd] = useState(false);\n  const [showCheckout, setShowCheckout] = useState(false);"
-    );
-}
-
-const targetButtonStr = "onClick={(e) => { e.stopPropagation(); alert('Payment infrastructure coming soon!'); handleWatchAdToUnlock(e); }}";
-const replaceButtonStr = "onClick={(e) => { e.stopPropagation(); if (post.whopPlanId) { setShowCheckout(true); } else { alert('Creator has not setup a valid checkout for this item yet.'); } }}";
-if (code.includes(targetButtonStr)) {
-    code = code.replace(targetButtonStr, replaceButtonStr);
-}
-
-const modalRender = `
-      {showCheckout && post.whopPlanId && (
-        <WhopCheckoutModal 
-          planId={post.whopPlanId}
-          onSuccess={handlePaymentSuccess}
-          onClose={() => setShowCheckout(false)}
-        />
-      )}
+// Add Skeleton Loader
+const skeletonStr = `
+                      {effectiveMonetization === 'ad_supported' && !adDelayComplete ? (
+                        <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}>
+                          <div style={{ height: '1rem', width: '100%', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px' }}></div>
+                          <div style={{ height: '1rem', width: '85%', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px' }}></div>
+                          <div style={{ height: '1rem', width: '90%', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px' }}></div>
+                        </div>
+                      ) : (
+                        <div className={styles.promptTextContainer} style={{ color: 'var(--text-primary)' }}>
+                          <RichTextRenderer 
+                            content={effectivePrompts[parseInt(activeTab.split('-')[1] || '0')]} 
+                            className={styles.promptCode} 
+                          />
+                        </div>
+                      )}
 `;
 
-if (!code.includes("<WhopCheckoutModal")) {
-    // find {isReportModalOpen && ...} and insert above
-    code = code.replace(
-        "{isReportModalOpen && <ReportModal",
-        modalRender + "\n      {isReportModalOpen && <ReportModal"
-    );
-}
+code = code.replace(
+    /<div className=\{styles\.promptTextContainer\} style=\{\{ color: 'var\(--text-primary\)' \}\}>\s*<RichTextRenderer \s*content=\{effectivePrompts\[parseInt\(activeTab\.split\('-'\)\[1\] \|\| '0'\)\]\} \s*className=\{styles\.promptCode\} \s*\/>\s*<\/div>/,
+    skeletonStr
+);
 
-if (!code.includes("const handlePaymentSuccess = () => {")) {
-  const handlePaymentSuccess = `
-  const handlePaymentSuccess = () => {
-    setShowCheckout(false);
-    setIsUnlocked(true);
-    try {
-      const unlockedRaw = localStorage.getItem('unlockedPrompts');
-      const unlocked = unlockedRaw ? JSON.parse(unlockedRaw) : [];
-      if (!unlocked.includes(post.id)) {
-        unlocked.push(post.id);
-        localStorage.setItem('unlockedPrompts', JSON.stringify(unlocked));
-      }
-    } catch (e) {}
-  };
+const skeletonStr2 = `
+                    {effectiveMonetization === 'ad_supported' && !adDelayComplete ? (
+                        <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}>
+                          <div style={{ height: '1rem', width: '100%', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px' }}></div>
+                          <div style={{ height: '1rem', width: '85%', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px' }}></div>
+                          <div style={{ height: '1rem', width: '90%', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px' }}></div>
+                        </div>
+                    ) : (
+                      <div className={styles.promptTextContainer} style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
+                        <RichTextRenderer content={post.description || ''} className={styles.promptCode} />
+                      </div>
+                    )}
 `;
-  code = code.replace(
-      "const handleWatchAdToUnlock = (e: React.MouseEvent) => {",
-      `${handlePaymentSuccess}\n  const handleWatchAdToUnlock = (e: React.MouseEvent) => {`
-  );
-}
 
-fs.writeFileSync(p, code);
-console.log('updated prompt card 2');
+code = code.replace(
+    /<div className=\{styles\.promptTextContainer\} style=\{\{ marginTop: '0\.5rem', marginBottom: '1\.rem' \}\}>\s*<RichTextRenderer content=\{post\.description \|\| ''\} className=\{styles\.promptCode\} \/>\s*<\/div>/,
+    skeletonStr2
+);
+
+// Try simpler replace for the second one if it fails (typo in margin 1.rem)
+code = code.replace(
+    /<div className=\{styles\.promptTextContainer\} style=\{\{ marginTop: '0\.5rem', marginBottom: '1rem' \}\}>\s*<RichTextRenderer content=\{post\.description \|\| ''\} className=\{styles\.promptCode\} \/>\s*<\/div>/,
+    skeletonStr2
+);
+
+fs.writeFileSync('src/components/PromptCard.tsx', code);
+console.log('Fixed Ghost Button and added Skeletons');

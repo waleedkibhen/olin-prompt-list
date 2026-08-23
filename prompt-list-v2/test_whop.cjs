@@ -1,8 +1,32 @@
-async function test() {
-  const res = await fetch('https://api.whop.com/api/v2/companies', {
-    headers: { Authorization: "Bearer apik_ehGz6NoKEOfQv_C5388822_C_4ef6b481f1f55c864cab889eeada81dda783fa0f1257ac1654cd863031830c" }
+async function testWhop() {
+  const apiKey = "apik_2CfsbKSmO9GOL_C5388822_C_82def646b456fafa4713cc95b5871e3cac59be30a306b469ac8d6c87f494cc";
+  const companyId = "biz_Cl76q9At9iiox0";
+  
+  const res = await fetch("https://api.whop.com/api/v1/checkout_configurations", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    },
+    body: JSON.stringify({
+      mode: "payment",
+      plan: {
+        company_id: companyId,
+        currency: "usd",
+        initial_price: 1,
+        plan_type: "one_time"
+      },
+      metadata: {
+        prompt_id: "test",
+        user_id: "test",
+        title: "test"
+      }
+    })
   });
-  const text = await res.text();
-  console.log(text);
+  
+  const data = await res.json();
+  console.log(JSON.stringify(data, null, 2));
 }
-test();
+
+testWhop();

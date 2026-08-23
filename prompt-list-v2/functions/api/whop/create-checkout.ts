@@ -7,9 +7,9 @@ const DEFAULT_WHOP_API_KEY = "apik_2CfsbKSmO9GOL_C5388822_C_82def646b456fafa4713
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   try {
-    const { title, price, promptId } = await context.request.json<any>();
+    const { title, price, promptId, userId } = await context.request.json<any>();
     
-    if (!title || typeof price !== "number" || !promptId) {
+    if (!title || typeof price !== "number" || !promptId || !userId) {
       return new Response(JSON.stringify({ success: false, reason: "Invalid payload" }), {
         status: 400,
         headers: { "Content-Type": "application/json" }
@@ -36,6 +36,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         },
         metadata: {
           prompt_id: promptId,
+          user_id: userId,
           title: title
         }
       })
@@ -51,7 +52,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     // Usually whopData has id which we can pass to the embedded checkout.
     return new Response(JSON.stringify({ 
       success: true, 
-      checkoutId: whopData.id || (whopData.data && whopData.data.id)
+      checkoutId: whopData.id || (whopData.data && whopData.data.id),
+      purchaseUrl: whopData.purchase_url || (whopData.data && whopData.data.purchase_url)
     }), {
       status: 200,
       headers: { "Content-Type": "application/json" }

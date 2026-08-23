@@ -329,7 +329,8 @@ export default function CreatePostPage() {
               body: JSON.stringify({
                 title: title,
                 price: pVal,
-                promptId: newPostRef.id
+                promptId: newPostRef.id,
+                userId: user.uid
               })
             });
             const whopData = await whopRes.json();
@@ -347,6 +348,7 @@ export default function CreatePostPage() {
       }
 
       
+      const isCharge = monetizationType === 'paid' && paidUnlockMethod === 'charge';
       const postPayload = {
         id: newPostRef.id,
         creatorId: user.uid,
@@ -356,8 +358,8 @@ export default function CreatePostPage() {
         
         title,
         description,
-        promptText: prompts[0],
-        prompts: prompts,
+        promptText: isCharge ? "" : prompts[0],
+        prompts: isCharge ? [] : prompts,
         model: model === 'Other' ? customModel.trim() || 'Unknown' : model,
         monetizationType: monetizationType === 'free' ? 'free' : (paidUnlockMethod === 'ad' ? 'ad_supported' : 'charge'),
         whopPlanId: whopPlanId,
@@ -385,6 +387,16 @@ export default function CreatePostPage() {
       };
 
       await setDoc(newPostRef, postPayload);
+      
+      // If charge, put the actual prompt text in the secure subcollection
+      if (isCharge) {
+        const secureRef = doc(collection(db, 'posts', newPostRef.id, 'secure_content'), 'data');
+        await setDoc(secureRef, {
+          promptText: prompts[0],
+          prompts: prompts
+        });
+      }
+
 
       // Notification logic
       try {

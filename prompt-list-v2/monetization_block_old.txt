@@ -1,0 +1,130 @@
+<section className={styles.kpiGrid}>
+                <div className={styles.kpiCard}>
+                  <div className={styles.kpiTop}>
+                    <Sparkles size={18} className={styles.kpiIcon} style={{color: '#8b5cf6'}} />
+                    <span>Total Revenue Earned</span>
+                  </div>
+                  <div className={styles.kpiValueRow}>
+                    <div className={styles.kpiValue}>${monetizationStats.revenue.toFixed(2)}</div>
+                  </div>
+                  <div className={styles.kpiDesc}>Estimated overall earnings</div>
+                </div>
+
+                <div className={styles.kpiCard}>
+                  <div className={styles.kpiTop}>
+                    <Copy size={18} className={styles.kpiIcon} style={{color: '#3b82f6'}} />
+                    <span>Total Paid Unlocks</span>
+                  </div>
+                  <div className={styles.kpiValueRow}>
+                    <div className={styles.kpiValue}>{monetizationStats.paidUnlocks.toLocaleString()}</div>
+                  </div>
+                  <div className={styles.kpiDesc}>Direct prompt sales</div>
+                </div>
+
+                <div className={styles.kpiCard}>
+                  <div className={styles.kpiTop}>
+                    <Eye size={18} className={styles.kpiIcon} style={{color: '#f59e0b'}} />
+                    <span>Total Ad Unlocks</span>
+                  </div>
+                  <div className={styles.kpiValueRow}>
+                    <div className={styles.kpiValue}>{monetizationStats.adUnlocks.toLocaleString()}</div>
+                  </div>
+                  <div className={styles.kpiDesc}>Monetized ad views</div>
+                </div>
+              </section>
+
+              <div className={styles.tableHeader}>
+                <h2 className={styles.sectionTitle}>
+                  Monetized Posts ({monetizationPosts.length})
+                </h2>
+              </div>
+
+              {monetizationPosts.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <AlertTriangle size={48} className={styles.emptyIcon} />
+                  <h3>No monetized artwork found</h3>
+                  <p>You haven't set up any paid or ad-supported prompts yet.</p>
+                </div>
+              ) : (
+                <div className={styles.tableContainer}>
+                  <table className={styles.table}>
+                    <thead>
+                      <tr>
+                        <th>Artwork &amp; Title</th>
+                        <th>Monetization</th>
+                        <th className={styles.textRight}>Unlocks</th>
+                        <th className={styles.textRight}>Revenue Earned</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {monetizationPosts.map(post => {
+                        const isPaid = post.monetizationType === 'charge';
+                        const unlocks = isPaid ? (post.copiesCount || 0) : (post.viewsCount || 0);
+                        const revenue = isPaid 
+                          ? (unlocks * (post.price || 1.99)).toFixed(2) 
+                          : (unlocks * 0.12).toFixed(2);
+                        
+                        return (
+                          <tr key={post.id}>
+                            <td>
+                              <div className={styles.postInfo}>
+                                <div className={styles.postThumbWrapper}>
+                                  <img src={post.imageUrls[0]} alt={post.title} className={styles.postThumb} />
+                                </div>
+                                <div>
+                                  <span className={styles.postTitle}>{post.title}</span>
+                                  <span className={styles.postModel}>ID: {post.id.substring(0, 14)}...</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              {isPaid ? (
+                                <span className={styles.badgePill} style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                                  ?? Paid (${post.price?.toFixed(2) || '1.99'})
+                                </span>
+                              ) : (
+                                <span className={styles.badgePill} style={{ backgroundColor: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
+                                  ?? Ad Unlock
+                                </span>
+                              )}
+                            </td>
+                            <td className={styles.textRight} style={{ fontWeight: 600 }}>
+                              {unlocks.toLocaleString()}
+                            </td>
+                            <td className={styles.textRight} style={{ fontWeight: 600, color: '#10b981' }}>
+                              ${revenue}
+                            </td>
+                            <td>
+                              <div className={styles.actionButtons}>
+                                <Link to={`/post/${post.id}`} className={styles.actionBtn} title="View Post">
+                                  <ExternalLink size={16} />
+                                </Link>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </>
+          )}</>
+      )}
+
+      {postToDelete && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h3 className={styles.modalTitle}>Delete Artwork</h3>
+            <p className={styles.modalText}>
+              Are you sure you want to permanently delete "{postToDelete.title}"? This action cannot be undone.
+            </p>
+            <div className={styles.modalActions}>
+              <button className={styles.modalCancelBtn} onClick={() => setPostToDelete(null)}>Cancel</button>
+              <button className={styles.modalDeleteBtn} onClick={confirmDelete}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+    

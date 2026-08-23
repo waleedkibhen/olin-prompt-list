@@ -1,66 +1,25 @@
 const fs = require('fs');
-const p = 'src/components/PromptCard.tsx';
-let code = fs.readFileSync(p, 'utf8');
+let code = fs.readFileSync('src/components/PromptCard.tsx', 'utf8');
 
-if (!code.includes("import WhopCheckoutModal")) {
+// 1. Import Adsterra
+if (!code.includes('AdsterraSocialBar')) {
     code = code.replace(
-        "import React, { useState, useRef, useEffect } from 'react';",
-        "import React, { useState, useRef, useEffect } from 'react';\nimport WhopCheckoutModal from './WhopCheckoutModal';"
+        /import React, \{ useState, useEffect \} from 'react';/g,
+        "import React, { useState, useEffect } from 'react';\nimport { AdsterraSocialBar } from './AdsterraSocialBar';"
     );
 }
 
-const stateInsert = "const [isWatchingAd, setIsWatchingAd] = useState(false);";
-if (!code.includes("const [showCheckout, setShowCheckout] = useState(false);")) {
-    code = code.replace(
-        stateInsert,
-        "const [isWatchingAd, setIsWatchingAd] = useState(false);\n  const [showCheckout, setShowCheckout] = useState(false);"
-    );
-}
+// 2. Change isProtected definition
+code = code.replace(
+    /const isProtected = Boolean\(effectiveMonetization !== 'free' && \(\!isUnlocked \|\| \(isCreator && previewPaywall\)\)\);/g,
+    "const isProtected = Boolean((effectiveMonetization === 'charge' || effectiveMonetization === 'subscribers_only') && (!isUnlocked || (isCreator && previewPaywall)));"
+);
 
-const handlePaymentSuccess = `
-  const handlePaymentSuccess = () => {
-    setShowCheckout(false);
-    setIsUnlocked(true);
-    try {
-      const unlockedRaw = localStorage.getItem('unlockedPrompts');
-      const unlocked = unlockedRaw ? JSON.parse(unlockedRaw) : [];
-      if (!unlocked.includes(post.id)) {
-        unlocked.push(post.id);
-        localStorage.setItem('unlockedPrompts', JSON.stringify(unlocked));
-      }
-    } catch (e) {}
-  };
-`;
-if (!code.includes("handlePaymentSuccess")) {
-    code = code.replace(
-        "const handleWatchAdToUnlock = (e: React.MouseEvent) => {",
-        `${handlePaymentSuccess}\n  const handleWatchAdToUnlock = (e: React.MouseEvent) => {`
-    );
-}
+// 3. Inject AdsterraSocialBar inside the unmasked prompt area (e.g. right before generation details)
+code = code.replace(
+    /<div className=\{styles\.mobileGenDetails\} style=\{\{ marginBottom: '1\.5rem', marginTop: '1\.5rem' \}\}>/g,
+    "{effectiveMonetization === 'ad_supported' && <AdsterraSocialBar />}\n              <div className={styles.mobileGenDetails} style={{ marginBottom: '1.5rem', marginTop: '1.5rem' }}>"
+);
 
-const targetButtonStr = "onClick={(e) => { e.stopPropagation(); alert('Payment infrastructure coming soon!'); handleWatchAdToUnlock(e); }}";
-const replaceButtonStr = "onClick={(e) => { e.stopPropagation(); if (post.whopPlanId) { setShowCheckout(true); } else { alert('Creator has not setup a valid checkout for this item yet.'); } }}";
-code = code.replace(targetButtonStr, replaceButtonStr);
-
-const modalRender = `
-      {showCheckout && post.whopPlanId && (
-        <WhopCheckoutModal 
-          planId={post.whopPlanId}
-          onSuccess={handlePaymentSuccess}
-          onClose={() => setShowCheckout(false)}
-        />
-      )}
-`;
-if (!code.includes("<WhopCheckoutModal")) {
-    code = code.replace(
-        "return (",
-        `return (\n    <>`
-    );
-    code = code.replace(
-        / {2}\);\n}\n$/,
-        `      ${modalRender}\n    </>\n  );\n}`
-    );
-}
-
-fs.writeFileSync(p, code);
-console.log('updated prompt card');
+fs.writeFileSync('src/components/PromptCard.tsx', code);
+console.log('Updated PromptCard.tsx');

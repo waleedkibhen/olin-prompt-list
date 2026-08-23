@@ -1,3 +1,5 @@
+import WhopCheckoutModal from './WhopCheckoutModal';
+import { AdsterraSocialBar } from './AdsterraSocialBar';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import styles from './PromptCard.module.css';
 import { PromptPost } from '@/lib/mockData';
@@ -69,6 +71,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
   
   const [isModalOpen, setIsModalOpen] = useState(defaultOpen);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  
   const [isCopied, setIsCopied] = useState(false);
   const [isLinkCopied, setIsLinkCopied] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -197,6 +200,25 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
   }, [isModalOpen, post.id, defaultOpen, onCloseOverride]);
 
   const effectiveMonetization = !ENABLE_MONETIZATION ? 'free' : (post.monetizationType || (post.isPaid ? 'subscribers_only' : 'free'));
+
+  const [adDelayComplete, setAdDelayComplete] = useState(false);
+
+  useEffect(() => {
+    if (effectiveMonetization === 'ad_supported') {
+      if (isModalOpen) {
+        setAdDelayComplete(false);
+        const timer = setTimeout(() => {
+          setAdDelayComplete(true);
+        }, 2000);
+        return () => clearTimeout(timer);
+      } else {
+        setAdDelayComplete(false);
+      }
+    } else {
+      setAdDelayComplete(true);
+    }
+  }, [effectiveMonetization, isModalOpen]);
+
 
   useEffect(() => {
     const storageKey = user ? `unlocked_${user.uid}` : 'unlocked_guest';
@@ -411,7 +433,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
     // Replace this URL with your Adsterra Direct Link URL
     const DIRECT_LINK_URL = 'https://www.effectivecpmnetwork.com/k1qybg57?key=41b37323a01727c9cc93104afa6c1671';
     
-    if (DIRECT_LINK_URL && DIRECT_LINK_URL !== 'https://google.com') {
+    if (DIRECT_LINK_URL && (DIRECT_LINK_URL as string) !== 'https://google.com') {
         window.open(DIRECT_LINK_URL, '_blank');
     } else {
         alert("Developer Note: Please provide your Adsterra Direct Link URL to instantly open the ad.");
@@ -594,7 +616,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
   };
 
   const isCreator = Boolean(user && user.uid === post.creator.uid);
-  const isProtected = Boolean(effectiveMonetization !== 'free' && (!isUnlocked || (isCreator && previewPaywall)));
+  const isProtected = Boolean((effectiveMonetization === 'charge' || effectiveMonetization === 'subscribers_only') && (!isUnlocked || (isCreator && previewPaywall)));
 
   return (
     <>
@@ -864,7 +886,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
               >
                 {activeTab.startsWith('prompt') ? (
                   <div className={styles.promptVaultBox}>
-                      {isCreator && effectiveMonetization !== 'free' && (
+                      {isCreator && effectiveMonetization === 'charge' && (
                         <div style={{ marginBottom: '0.75rem', display: 'flex' }}>
                           <button
                             type="button"
@@ -962,6 +984,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                 )}
               </div>
 
+              {effectiveMonetization === 'ad_supported' && <AdsterraSocialBar />}
               <div className={styles.mobileGenDetails} style={{ marginBottom: '1.5rem', marginTop: '1.5rem' }}>
                 <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 400 }}>Generation Details</span>
                 <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
