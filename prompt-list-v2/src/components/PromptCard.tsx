@@ -199,12 +199,13 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
     return () => window.removeEventListener('popstate', handlePopState);
   }, [isModalOpen, post.id, defaultOpen, onCloseOverride]);
 
-  const effectiveMonetization = !ENABLE_MONETIZATION ? 'free' : (post.monetizationType || (post.isPaid ? 'subscribers_only' : 'free'));
+  const effectiveMonetization = !ENABLE_MONETIZATION ? 'free' : ((post.monetizationType as any) === 'ad' ? 'ad_supported' : (post.monetizationType || (post.isPaid ? 'subscribers_only' : 'free')));
+  const isAdSupported = Boolean(effectiveMonetization === 'ad_supported' || (post.monetizationType as any) === 'ad_supported' || (post.monetizationType as any) === 'ad');
 
-  const [adDelayComplete, setAdDelayComplete] = useState(false);
+  const [adDelayComplete, setAdDelayComplete] = useState<boolean>(!isAdSupported);
 
   useEffect(() => {
-    if (effectiveMonetization === 'ad_supported') {
+    if (isAdSupported) {
       if (isModalOpen) {
         setAdDelayComplete(false);
         const timer = setTimeout(() => {
@@ -217,7 +218,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
     } else {
       setAdDelayComplete(true);
     }
-  }, [effectiveMonetization, isModalOpen]);
+  }, [isAdSupported, isModalOpen]);
 
 
   useEffect(() => {
@@ -956,31 +957,58 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                       </div>
                     ) : (
                       <>
-                        <div className={styles.promptTextContainer} style={{ color: 'var(--text-primary)' }}>
-                          <RichTextRenderer 
-                            content={effectivePrompts[parseInt(activeTab.split('-')[1] || '0')]} 
-                            className={styles.promptCode} 
-                          />
-                        </div>
-                        
-                        <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '1rem', marginBottom: '0.5rem' }}>
-                          <button 
-                            onClick={handleCopyPrompt}
-                            style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', padding: '0.4rem 0.75rem', borderRadius: '8px', transition: 'all 0.2s ease' }}
-                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-hover)'; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'; }}
-                          >
-                            {isCopied ? <Check size={14} /> : <Copy size={14} />}
-                            <span style={{ textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>{isCopied ? 'Copied' : 'Copy'}</span>
-                          </button>
-                        </div>
+                        {isAdSupported && !adDelayComplete ? (
+                          <div className={styles.skeletonContainer}>
+                            <div className={styles.skeletonHeader}>
+                              <div className={styles.skeletonDot} />
+                              <span className={styles.skeletonLabel}>Unlocking generative prompt...</span>
+                            </div>
+                            <div className={styles.skeletonBar} style={{ width: '100%' }} />
+                            <div className={styles.skeletonBar} style={{ width: '85%' }} />
+                            <div className={styles.skeletonBar} style={{ width: '92%' }} />
+                            <div className={styles.skeletonBar} style={{ width: '65%' }} />
+                          </div>
+                        ) : (
+                          <>
+                            <div className={styles.promptTextContainer} style={{ color: 'var(--text-primary)' }}>
+                              <RichTextRenderer 
+                                content={effectivePrompts[parseInt(activeTab.split('-')[1] || '0')]} 
+                                className={styles.promptCode} 
+                              />
+                            </div>
+                            
+                            <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '1rem', marginBottom: '0.5rem' }}>
+                              <button 
+                                onClick={handleCopyPrompt}
+                                style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', padding: '0.4rem 0.75rem', borderRadius: '8px', transition: 'all 0.2s ease' }}
+                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-hover)'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'; }}
+                              >
+                                {isCopied ? <Check size={14} /> : <Copy size={14} />}
+                                <span style={{ textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>{isCopied ? 'Copied' : 'Copy'}</span>
+                              </button>
+                            </div>
+                          </>
+                        )}
                       </>
                     )}
                   </div>
                 ) : (
-                  <div className={styles.promptTextContainer} style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
-                    <RichTextRenderer content={post.description || ''} className={styles.promptCode} />
-                  </div>
+                  isAdSupported && !adDelayComplete ? (
+                    <div className={styles.skeletonContainer}>
+                      <div className={styles.skeletonHeader}>
+                        <div className={styles.skeletonDot} />
+                        <span className={styles.skeletonLabel}>Unlocking generative prompt...</span>
+                      </div>
+                      <div className={styles.skeletonBar} style={{ width: '100%' }} />
+                      <div className={styles.skeletonBar} style={{ width: '85%' }} />
+                      <div className={styles.skeletonBar} style={{ width: '92%' }} />
+                    </div>
+                  ) : (
+                    <div className={styles.promptTextContainer} style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
+                      <RichTextRenderer content={post.description || ''} className={styles.promptCode} />
+                    </div>
+                  )
                 )}
               </div>
 
