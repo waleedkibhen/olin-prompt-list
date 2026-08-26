@@ -76,6 +76,25 @@
   background-color: var(--bg-secondary);
 }
 
+.createBtn {
+  color: #ffffff;
+  background-color: var(--cta-primary);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: var(--radius-btn);
+  transition: background-color 200ms ease-in-out, box-shadow 200ms ease-in-out;
+  box-shadow: 0 1px 2px rgba(59, 130, 246, 0.25);
+}
+
+.createBtn:hover {
+  background-color: var(--cta-primary-hover);
+  box-shadow: 0 3px 10px rgba(59, 130, 246, 0.4);
+}
+
 .iconBtnActive {
   background-color: var(--bg-secondary);
 }
@@ -94,11 +113,21 @@
   display: flex;
   align-items: center;
   background-color: var(--bg-secondary);
-  border-radius: 1px;
+  border-radius: 999px; /* Fully rounded pill */
   padding: 0 1rem;
-  height: 37px;
+  height: 48px; /* Slightly taller to accommodate the pill look properly */
   width: 100%;
   position: relative;
+  z-index: 53;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+}
+
+.searchFormActive {
+  border-radius: 24px 24px 0 0; /* Match dropdown rounded corners */
+  background-color: var(--bg-primary); /* Match the dropdown */
+  border: 1px solid var(--border-color);
+  border-bottom: none;
 }
 
 .searchInput {
@@ -124,13 +153,14 @@
 
 .recentSearchesDropdown {
   position: absolute;
-  top: calc(100% + 1rem);
+  top: 100%;
   left: 0;
   width: 100%;
   background-color: var(--bg-primary);
-  padding: 1.5rem;
+  padding: 0.5rem 1.5rem 1.5rem 1.5rem;
   border: 1px solid var(--border-color);
-  border-radius: 1px;
+  border-top: none;
+  border-radius: 0 0 24px 24px;
   z-index: 52;
 }
 
@@ -148,7 +178,7 @@
   color: var(--text-primary);
   border: 1px solid var(--border-color);
   padding: 0.25rem 0.75rem 0.25rem 0.25rem;
-  border-radius: 1px;
+  border-radius: 8px;
   font-size: 0.9rem;
   cursor: pointer;
   text-align: left;
@@ -159,7 +189,7 @@
   width: 32px;
   height: 32px;
   object-fit: cover;
-  border-radius: 1px;
+  border-radius: 8px;
 }
 
 .removeSearchBtn {

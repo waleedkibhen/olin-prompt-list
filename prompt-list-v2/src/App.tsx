@@ -1,13 +1,15 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import GlobalAdManager from '@/components/GlobalAdManager';
 import Navbar from '@/components/Navbar';
 import HomePage from '@/pages/HomePage';
 import OnboardingModal from '@/components/OnboardingModal';
+import GlobalAdDisclaimer from '@/components/GlobalAdDisclaimer';
 import './index.css';
 
 // Lazy load non-critical routes for massive performance boost
-const CreatorDashboardPage = lazy(() => import('@/pages/CreatorDashboardPage'));
+const CreatorDashboardPage = lazy(() => import('@/pages/CreatorDashboard'));
 const PostDetailPage = lazy(() => import('@/pages/PostDetailPage'));
 const AdminDashboardPage = lazy(() => import('@/pages/AdminDashboardPage'));
 const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
@@ -18,11 +20,27 @@ const PrivacyPolicyPage = lazy(() => import('@/pages/PrivacyPolicyPage'));
 const TermsPage = lazy(() => import('@/pages/TermsPage'));
 const AboutPage = lazy(() => import('@/pages/AboutPage'));
 const AdTestPage = lazy(() => import('@/pages/AdTestPage'));
-const UnlockAdPage = lazy(() => import('@/pages/UnlockAdPage'));
 
 export default function App() {
+  // Prevent leaked ad listeners on document from triggering on the Discover page
+  React.useEffect(() => {
+    const handleBodyClick = (e: MouseEvent) => {
+      // If a post modal is not open, stop clicks from bubbling up to document
+      // where Monetag's rogue global listeners are hiding.
+      const isDashboard = window.location.pathname === '/dashboard';
+        if (!document.body.classList.contains('post-modal-open') && !isDashboard) {
+          e.stopPropagation();
+        }
+    };
+    // React 18 handles events at the #root level. 
+    // By attaching to body, we let React process the click, but stop it before it hits document.
+    document.body.addEventListener('click', handleBodyClick);
+    return () => document.body.removeEventListener('click', handleBodyClick);
+  }, []);
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <GlobalAdManager />
       <Toaster
         position="bottom-right"
         toastOptions={{
@@ -44,6 +62,7 @@ export default function App() {
       />
       <Navbar />
       <OnboardingModal />
+      <GlobalAdDisclaimer />
       <div style={{ flex: 1, paddingTop: '64px' }}>
         <Suspense fallback={<div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading...</div>}>
           <Routes>
@@ -60,8 +79,7 @@ export default function App() {
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/about" element={<AboutPage />} />
               <Route path="/ad-test" element={<AdTestPage />} />
-              <Route path="/unlock/:id" element={<UnlockAdPage />} />
-          </Routes>
+              </Routes>
         </Suspense>
       </div>
     </div>

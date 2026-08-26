@@ -1,15 +1,26 @@
 import React, { useState, useEffect } from 'react';
+import { getAggregateFromServer, sum } from 'firebase/firestore';
 import styles from './AdminDashboardPage.module.css';
 import { useAuth } from '@/context/AuthContext';
 import { db } from '@/lib/firebase';
 import { collection, onSnapshot, doc, updateDoc, deleteDoc, getDocs } from 'firebase/firestore';
 import { sendNotification } from '@/lib/notifications';
-import { ShieldAlert, Check, X, AlertTriangle, Users, MessageSquare, Flame, Ban, CheckCircle, ShieldCheck, Send, Loader2, Sparkles } from 'lucide-react';
+import { ShieldAlert, Check, X, AlertTriangle, Users, MessageSquare, Flame, Ban, CheckCircle, ShieldCheck, Send, Loader2, Sparkles , DollarSign } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import RichTextRenderer from '@/components/RichTextRenderer';
 import { extractImagePalette } from '@/lib/colorAnalyzer';
 import { analyzeArtworkMultimodalWithGemini, diagnoseGeminiApi } from '@/lib/ai';
 import toast from 'react-hot-toast';
+
+interface PayoutRequest {
+  id: string;
+  userId: string;
+  requestedAmount: number;
+  payoutMethod: 'paypal' | 'crypto' | 'local_bank';
+  payoutDetails: string;
+  status: 'pending' | 'completed' | 'rejected';
+  createdAt: string;
+}
 
 interface AdminPost {
   id: string;
@@ -50,16 +61,19 @@ interface SupportTicket {
 
 export default function AdminDashboardPage() {
   const { user, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState<'flagged' | 'monetization' | 'tickets' | 'users'>('flagged');
+  const [activeTab, setActiveTab] = useState<'flagged' | 'monetization' | 'payouts' | 'tickets' | 'users'>('flagged');
   
   const [allPosts, setAllPosts] = useState<AdminPost[]>([]);
   const [allUsers, setAllUsers] = useState<AdminUser[]>([]);
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
+  const [payoutRequests, setPayoutRequests] = useState<PayoutRequest[]>([]);
   
   const [replyTextMap, setReplyTextMap] = useState<{ [ticketId: string]: string }>({});
   const [rejectReasonMap, _setRejectReasonMap] = useState<{ [uid: string]: string }>({});
 
   const [isScanningColors, setIsScanningColors] = useState(false);
+  const [globalAdPoolAmount, setGlobalAdPoolAmount] = useState<string>('');
+  const [isSavingAdPool, setIsSavingAdPool] = useState(false);
   const [scanStatus, setScanStatus] = useState<string | null>(null);
   const [isDiagnosing, setIsDiagnosing] = useState(false);
   const [diagnosticData, setDiagnosticData] = useState<any>(null);
@@ -67,7 +81,13 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     if (loading || !user || user.email !== 'wisecrafts81@gmail.com') return;
 
-    const unsubPosts = onSnapshot(collection(db, 'posts'), (snapshot) => {
+    const unsubAdPool = onSnapshot(doc(db, 'system', 'adPool'), (docSnap) => {
+        if (docSnap.exists()) {
+          setGlobalAdPoolAmount(docSnap.data().distributablePool?.toString() || '0');
+        }
+      });
+      
+      const unsubPosts = onSnapshot(collection(db, 'posts'), (snapshot) => {
       const items: AdminPost[] = [];
       snapshot.forEach(docSnap => {
         items.push({ id: docSnap.id, ...docSnap.data() } as AdminPost);
@@ -183,6 +203,34 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const handleSaveAdPool = async () => {
+    setIsSavingAdPool(true);
+    try {
+      const { setDoc } = await import('firebase/firestore');
+      await setDoc(doc(db, 'system', 'adPool'), {
+        distributablePool: parseFloat(globalAdPoolAmount) || 0,
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+      toast.success('Ad Pool updated successfully');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to update ad pool');
+    } finally {
+      setIsSavingAdPool(false);
+    }
+  };
+
+  const handleMarkPayoutPaid = async (reqId: string) => {
+    try {
+      await updateDoc(doc(db, 'payout_requests', reqId), { status: 'completed' });
+      setPayoutRequests(prev => prev.map(r => r.id === reqId ? { ...r, status: 'completed' } : r));
+      toast.success('Payout marked as completed');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to update payout');
+    }
+  };
+  
   const handleReplyTicket = async (ticket: SupportTicket) => {
     const replyText = replyTextMap[ticket.id];
     if (!replyText || !replyText.trim()) {
@@ -486,14 +534,75 @@ export default function AdminDashboardPage() {
           <span className={styles.countBadge}>{tickets.filter(t => t.status === 'open').length} open</span>
         </button>
         <button 
-          className={`${styles.tabBtn} ${activeTab === 'users' ? styles.tabActive : ''}`}
-          onClick={() => setActiveTab('users')}
-        >
-          <Users size={16} />
-          <span>User Management &amp; Ban Hammer</span>
-          <span className={styles.countBadge}>{allUsers.length}</span>
-        </button>
-      </div>
+            className={`${styles.tabBtn} ${activeTab === 'users' ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab('users')}
+          >
+            <Users size={16} />
+            <span>User Management &amp; Ban Hammer</span>
+            <span className={styles.countBadge}>{allUsers.length}</span>
+          </button>
+          <button 
+            className={`${styles.tabBtn} ${activeTab === 'payouts' ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab('payouts')}
+          >
+            <DollarSign size={16} />
+            <span>Payout Requests</span>
+            <span className={styles.countBadge} style={{ backgroundColor: 'rgba(16, 185, 129, 0.2)', color: '#10b981' }}>{payoutRequests.filter(r => r.status === 'pending').length}</span>
+          </button>
+        </div>
+
+        <div style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '1.5rem', marginBottom: '2rem' }}>
+          <h2 style={{ fontSize: '1.2rem', fontWeight: 600, margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <DollarSign size={20} style={{ color: '#10b981' }} /> Global Ad Pool Configuration
+          </h2>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.25rem' }}>
+            Set the total distributable revenue for the current month. This amount will be split among creators based on their share of global platform ad views.
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <div style={{ position: 'relative', width: '250px' }}>
+              <span style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>$</span>
+              <input 
+                type="number"
+                value={globalAdPoolAmount}
+                onChange={(e) => setGlobalAdPoolAmount(e.target.value)}
+                style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 2rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}
+                placeholder="0.00"
+              />
+            </div>
+            
+              <div style={{ display: 'flex', gap: '1rem' }}>
+              <button 
+                className="btn-solid"
+                onClick={handleSaveAdPool}
+                disabled={isSavingAdPool}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+              >
+                {isSavingAdPool ? 'Saving...' : 'Update Pool'}
+              </button>
+
+              <button 
+                className="btn-solid"
+                style={{ backgroundColor: '#10b981', display: 'flex', alignItems: 'center' }}
+                onClick={async () => {
+                  if(!window.confirm("Recalculate global pool views using ALL post views? (Costs 1 aggregate read)")) return;
+                  try {
+                    const { collection, doc, updateDoc } = await import('firebase/firestore');
+                    const agg = await getAggregateFromServer(collection(db, 'posts'), { totalViews: sum('viewsCount') });
+                    const total = agg.data().totalViews;
+                    await updateDoc(doc(db, 'system', 'adPool'), { totalPlatformAdViews: total });
+                    alert("Updated global pool views to: " + total);
+                  } catch(e: any) {
+                    console.error(e);
+                    alert("Error: " + e.message);
+                  }
+                }}
+              >
+                Recalculate Global Views
+              </button>
+              </div>
+
+          </div>
+        </div>
 
       {activeTab === 'flagged' && (
         <section className={styles.gridSection}>
@@ -582,6 +691,54 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
             ))
+          )}
+        </section>
+      )}
+
+      {activeTab === 'payouts' && (
+        <section className={styles.gridSection}>
+          {payoutRequests.length === 0 ? (
+            <div className={styles.emptyState}>
+              <DollarSign size={42} style={{ color: 'var(--text-secondary)', opacity: 0.5 }} />
+              <h3>No Payout Requests</h3>
+              <p>There are no pending creator withdrawal requests.</p>
+            </div>
+          ) : (
+            payoutRequests.map((req) => {
+              const reqUser = allUsers.find(u => u.uid === req.userId);
+              return (
+                <div key={req.id} className={styles.card} style={req.status !== 'pending' ? { opacity: 0.7 } : {}}>
+                  <div className={styles.cardHeader}>
+                    <h3 className={styles.cardTitle}>{reqUser ? reqUser.displayName : 'Unknown User'}</h3>
+                    <span style={{
+                      padding: '0.2rem 0.6rem',
+                      borderRadius: '9999px',
+                      fontSize: '0.72rem',
+                      fontWeight: 800,
+                      backgroundColor: req.status === 'pending' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(16, 185, 129, 0.15)',
+                      color: req.status === 'pending' ? '#f59e0b' : '#10b981'
+                    }}>
+                      {req.status.toUpperCase()}
+                    </span>
+                  </div>
+                  <div className={styles.metaInfo}>
+                    <span>Email: <strong>{reqUser?.email || 'N/A'}</strong></span>
+                    <span>Amount: <strong style={{ color: '#10b981', fontSize: '1.1rem' }}>${req.requestedAmount.toFixed(2)}</strong></span>
+                  </div>
+                  <div style={{ backgroundColor: 'var(--bg-tertiary)', padding: '0.85rem', borderRadius: '8px', fontSize: '0.88rem', color: 'var(--text-primary)', lineHeight: 1.4, marginTop: '0.5rem' }}>
+                    <div style={{ fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.25rem', textTransform: 'uppercase', fontSize: '0.75rem' }}>Method: {req.payoutMethod.replace('_', ' ')}</div>
+                    <div>{req.payoutDetails}</div>
+                  </div>
+                  {req.status === 'pending' && (
+                    <div className={styles.actionRow} style={{ marginTop: '1rem' }}>
+                      <button type="button" className="btn-solid" onClick={() => handleMarkPayoutPaid(req.id)} style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '0.4rem', alignItems: 'center' }}>
+                        <Check size={16} /> Mark as Paid
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })
           )}
         </section>
       )}

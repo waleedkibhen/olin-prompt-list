@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import GoogleSignInButton from '@/components/GoogleSignInButton';
 import styles from './Navbar.module.css';
 import { Search, Filter, Plus, User, Bell, ChevronDown, ChevronRight, Check, Sparkles, Moon, Sun, X, ChevronLeft } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -32,6 +33,7 @@ export default function Navbar() {
   
   // Profile / Notification state
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const filterRef = useRef<HTMLDivElement>(null);
@@ -134,7 +136,7 @@ export default function Navbar() {
 
         {/* Center: Search Bar */}
         <div className={styles.centerSection}>
-          <form onSubmit={handleSearchSubmit} className={styles.searchFormExpanded}>
+          <form onSubmit={handleSearchSubmit} className={`${styles.searchFormExpanded} ${(isSearchExpanded && recentSearches.length > 0) ? styles.searchFormActive : ''}`}>
             <Search size={16} style={{ color: 'var(--text-muted)' }} />
             <input 
               ref={searchInputRef}
@@ -345,7 +347,7 @@ export default function Navbar() {
             </div>
 
             {/* Create Post */}
-            <button className={styles.iconBtn} onClick={() => navigate('/create')} title="Create Artwork">
+            <button className={styles.createBtn} onClick={() => navigate('/create')} title="Create Artwork">
               <Plus size={20} strokeWidth={2} />
             </button>
             
@@ -356,36 +358,42 @@ export default function Navbar() {
             
             {/* Profile Menu */}
             <div style={{ position: 'relative' }} ref={profileRef}>
-              <button className={styles.iconBtn} onClick={() => user ? setShowProfileMenu(!showProfileMenu) : signInWithGoogle()} title={user ? "Profile" : "Sign In"}>
+              <button className={styles.iconBtn} onClick={() => user ? setShowProfileMenu(!showProfileMenu) : setShowAuthModal(true)} title={user ? "Profile" : "Sign In"}>
                 {user ? (
                   <img src={profile?.avatarUrl || user.photoURL || ''} alt="Profile" style={{ width: '26px', height: '26px', borderRadius: '50%', objectFit: 'cover' }} />
                 ) : (
                   <User size={22} strokeWidth={2} />
                 )}
               </button>
-              {user && showProfileMenu && (
-                <div className={styles.dropdownMenu} style={{ right: 0, width: '220px' }}>
-                  <div className={styles.profileDropdownHeader}>
-                    <img src={profile?.avatarUrl || user.photoURL || ''} alt="Avatar" className={styles.profileAvatar} />
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>{profile?.displayName || user.displayName}</span>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>@{profile?.username}</span>
-                    </div>
-                  </div>
-                  <div className={styles.dropdownDivider} />
-                  <Link to={`/creator/${profile?.username}`} className={styles.dropdownItem} onClick={() => setShowProfileMenu(false)}>My Profile</Link>
-                  <Link to="/dashboard" className={styles.dropdownItem} onClick={() => setShowProfileMenu(false)}>Creator Dashboard</Link>
-                  <Link to="/settings" className={styles.dropdownItem} onClick={() => setShowProfileMenu(false)}>Settings</Link>
-                  <button className={styles.dropdownItem} onClick={() => { setIsFeedbackModalOpen(true); setShowProfileMenu(false); }} style={{ width: '100%', textAlign: 'left', cursor: 'pointer', border: 'none', background: 'none' }}>
-                    Submit Feedback
-                  </button>
-                  {user.email === 'wisecrafts81@gmail.com' && (
-                    <Link to="/admin" className={styles.dropdownItem} onClick={() => setShowProfileMenu(false)}>Superadmin Console</Link>
+              {showProfileMenu && (
+                <div className={styles.dropdownMenu} style={{ right: 0, width: user ? '220px' : '320px', padding: user ? '0.5rem' : '1.5rem' }}>
+                  {user ? (
+                    <>
+                      <div className={styles.profileDropdownHeader}>
+                        <img src={profile?.avatarUrl || user.photoURL || ''} alt="Avatar" className={styles.profileAvatar} />
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                          <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>{profile?.displayName || user.displayName}</span>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>@{profile?.username}</span>
+                        </div>
+                      </div>
+                      <div className={styles.dropdownDivider} />
+                      <Link to={`/creator/${profile?.username}`} className={styles.dropdownItem} onClick={() => setShowProfileMenu(false)}>My Profile</Link>
+                      <Link to="/dashboard" className={styles.dropdownItem} onClick={() => setShowProfileMenu(false)}>Creator Dashboard</Link>
+                      <Link to="/settings" className={styles.dropdownItem} onClick={() => setShowProfileMenu(false)}>Settings</Link>
+                      <button className={styles.dropdownItem} onClick={() => { setIsFeedbackModalOpen(true); setShowProfileMenu(false); }} style={{ width: '100%', textAlign: 'left', cursor: 'pointer', border: 'none', background: 'none' }}>
+                        Submit Feedback
+                      </button>
+                      {user.email === 'wisecrafts81@gmail.com' && (
+                        <Link to="/admin" className={styles.dropdownItem} onClick={() => setShowProfileMenu(false)}>Superadmin Console</Link>
+                      )}
+                      <div className={styles.dropdownDivider} />
+                      <button className={`${styles.dropdownItem} ${styles.signOutItem}`} onClick={() => { signOut(); setShowProfileMenu(false); }} style={{ width: '100%', textAlign: 'left', cursor: 'pointer', border: 'none', background: 'none' }}>
+                        Sign Out
+                      </button>
+                    </>
+                  ) : (
+                    <GoogleSignInButton onSuccess={() => setShowProfileMenu(false)} />
                   )}
-                  <div className={styles.dropdownDivider} />
-                  <button className={`${styles.dropdownItem} ${styles.signOutItem}`} onClick={() => { signOut(); setShowProfileMenu(false); }} style={{ width: '100%', textAlign: 'left', cursor: 'pointer', border: 'none', background: 'none' }}>
-                    Sign Out
-                  </button>
                 </div>
               )}
             </div>
@@ -398,6 +406,18 @@ export default function Navbar() {
       )}
 
       {isFeedbackModalOpen && <FeedbackModal onClose={() => setIsFeedbackModalOpen(false)} />}
+
+      {/* Auth Modal */}
+      {!user && showAuthModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setShowAuthModal(false)}>
+          <div style={{ backgroundColor: '#0F0F11', padding: '2rem', borderRadius: '16px', border: '1px solid #27272a', width: '90%', maxWidth: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }} onClick={e => e.stopPropagation()}>
+            <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.5rem', fontWeight: 700, color: '#fff', textAlign: 'center' }}>Welcome to Olin's Prompt List</h2>
+            <p style={{ margin: '0 0 1.5rem 0', color: '#a1a1aa', textAlign: 'center', fontSize: '0.9rem', textWrap: 'balance', padding: '0 1rem' }}>Authenticate to continue your browsing experience.</p>
+            <GoogleSignInButton onSuccess={() => setShowAuthModal(false)} />
+          </div>
+        </div>
+      )}
+
     </>
   );
 }

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import GoogleSignInButton from '@/components/GoogleSignInButton';
 import styles from './FeedbackModal.module.css';
 import { useAuth } from '@/context/AuthContext';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -65,9 +66,7 @@ export default function ReportModal({ post, onClose }: ReportModalProps) {
         {!user ? (
           <div className={styles.formBody} style={{ textAlign: 'center', padding: '2rem 1.5rem' }}>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>You must be signed in with Google to flag artwork and report violations.</p>
-            <button type="button" className="btn-solid" onClick={signInWithGoogle}>
-              Sign In with Google
-            </button>
+            <GoogleSignInButton />
           </div>
         ) : isSuccess ? (
           <div className={styles.formBody} style={{ textAlign: 'center', padding: '2.5rem 1.5rem', color: '#10b981' }}>

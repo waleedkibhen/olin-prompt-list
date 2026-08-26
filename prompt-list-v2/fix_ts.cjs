@@ -1,10 +1,8 @@
 const fs = require('fs');
-let code = fs.readFileSync('src/components/PromptCard.tsx', 'utf8');
+let code = fs.readFileSync('src/components/GlobalAdManager.tsx', 'utf8');
 
-code = code.replace(
-    /const DIRECT_LINK_URL = 'https:\/\/www\.effectivecpmnetwork\.com\/k1qybg57\?key=41b37323a01727c9cc93104afa6c1671';/g,
-    "const DIRECT_LINK_URL: string = 'https://www.effectivecpmnetwork.com/k1qybg57?key=41b37323a01727c9cc93104afa6c1671';"
-);
+code = code.replace(/const aNode = node as HTMLAnchorElement;/g, "const aNode = node as unknown as HTMLAnchorElement;");
+code = code.replace(/return originalAppendChild\.call\(this, node\);/g, "return originalAppendChild.call(this, node) as T;");
 
-fs.writeFileSync('src/components/PromptCard.tsx', code);
-console.log('Fixed TS literal type issue');
+fs.writeFileSync('src/components/GlobalAdManager.tsx', code);
+console.log("Fixed GlobalAdManager TS errors");

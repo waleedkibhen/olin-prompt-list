@@ -89,7 +89,7 @@ export default function PostDetailPage() {
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', gap: '1rem', color: 'var(--text-secondary)' }}>
         <AlertCircle size={48} color="var(--text-muted)" />
         <h2>Post not found</h2>
-        <button onClick={() => navigate('/')} style={{ padding: '0.5rem 1rem', background: 'var(--bg-accent)', border: 'none', borderRadius: 'var(--radius-md)', color: 'var(--text-primary)', cursor: 'pointer' }}>
+        <button className="btn-solid" onClick={() => navigate('/')}>
           Return Home
         </button>
       </div>

@@ -178,6 +178,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signInWithGoogle = async () => {
     try {
+      (window as any)._allowPopups = true;
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
       await signInWithPopup(auth, provider);
@@ -185,8 +186,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error("Google sign-in error:", error);
       if (error.code !== 'auth/popup-closed-by-user') {
         toast.error(`Sign-in failed: ${error.message || 'Unknown error'}`);
+        }
+      } finally {
+        (window as any)._allowPopups = false;
       }
-    }
   };
 
   const signOut = async () => {

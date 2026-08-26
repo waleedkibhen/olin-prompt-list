@@ -80,19 +80,20 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  border: 2px solid var(--border-color);
-  color: var(--text-secondary);
-  background: transparent;
+  border: none;
+  color: #ffffff;
+  background: var(--cta-primary);
   border-radius: 50%;
   cursor: pointer;
   transition: all 0.2s ease;
   padding: 0;
+  box-shadow: 0 1px 3px rgba(59, 130, 246, 0.35);
 }
 
 .btnFollow:hover {
-  color: var(--text-primary);
-  border-color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--cta-primary-hover);
+  color: #ffffff;
+  box-shadow: 0 3px 10px rgba(59, 130, 246, 0.45);
 }
 
 .btnFollowing {

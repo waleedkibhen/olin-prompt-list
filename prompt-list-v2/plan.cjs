@@ -1,11 +1,12 @@
 const fs = require('fs');
-const path = require('path');
 
-const cssPath = path.join('src', 'components', 'PromptCard.module.css');
-let cssCode = fs.readFileSync(cssPath, 'utf8');
+const performanceTabStr = `
+import React from 'react';
+import { Eye, Copy, Bookmark, Heart, Users, TrendingUp, TrendingDown, BarChart2, ExternalLink, Trash2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ENABLE_MONETIZATION } from '@/lib/config';
 
-// The blurredVaultContainer currently has the green border. We will keep it.
-// Wait, the inner div has the border. 
-// Let's remove the border from blurredVaultContainer and only keep it on the inner box? Or vice versa?
-// In the user's first screenshot from the earlier message, there was NO outer border initially. 
-// Oh wait, yes there was. I'll just remove the border from the inner div.
+// Add types as needed...
+`;
+
+// I will write this manually rather than using a complex node script string.

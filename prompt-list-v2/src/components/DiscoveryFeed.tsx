@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import GoogleSignInButton from '@/components/GoogleSignInButton';
 import styles from './DiscoveryFeed.module.css';
 import { PromptPost } from '@/lib/mockData';
 import { recordSearchTerm } from '@/lib/personalization';
@@ -644,7 +645,7 @@ export default function DiscoveryFeed() {
             className={`${styles.navTab} ${activeTab === tab ? styles.navTabActive : ''}`}
             onClick={() => handleTabClick(tab)}
           >
-            {tab === 'for_you' ? 'For You' : tab === 'trending' ? 'Trending' : tab === 'newest' ? 'Newest' : tab === 'following' ? 'Following' : 'Saved'}
+            {tab === 'for_you' ? 'for you' : tab === 'trending' ? 'trending' : tab === 'newest' ? 'newest' : tab === 'following' ? 'following' : 'saved'}
           </button>
         ))}
       </div>
@@ -683,9 +684,7 @@ export default function DiscoveryFeed() {
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '450px' }}>
                 You need to authenticate in order to gain access to the saved post or the ability to save posts in the first place.
               </p>
-              <button className="btn-solid" onClick={signInWithGoogle} style={{ marginTop: '0.5rem' }}>
-                Sign in or sign up
-              </button>
+              <GoogleSignInButton text="Sign in or sign up" />
             </div>
           ) : (
             <div className={styles.emptyState}>
@@ -708,9 +707,7 @@ export default function DiscoveryFeed() {
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '450px' }}>
                 You need to authenticate in order to follow creators and see their artwork in this section.
               </p>
-              <button className="btn-solid" onClick={signInWithGoogle} style={{ marginTop: '0.5rem' }}>
-                Sign in or sign up
-              </button>
+              <GoogleSignInButton text="Sign in or sign up" />
             </div>
           ) : (
             <div className={styles.emptyState}>

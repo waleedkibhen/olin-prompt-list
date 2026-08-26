@@ -2,17 +2,17 @@
 
 :root {
   /* Default Theme Variables (Dark Preference) - Gallery Minimalist */
-  --bg-primary: #09090B;
-  --bg-secondary: #121212;
-  --bg-elevated: #18181b;
-  --bg-hover: #27272a;
+  --bg-primary: #111111;
+  --bg-secondary: #1a1a1a;
+  --bg-elevated: #242424;
+  --bg-hover: #333333;
   
   --text-primary: #FFFFFF;
   --text-secondary: #a1a1aa;
   --text-muted: #71717a;
   --text-inverted: #18181b;
 
-  --border-color: #27272A;
+  --border-color: #333333;
   --border-focus: #FFFFFF;
   
   --accent-color: #FFFFFF;
@@ -27,6 +27,14 @@
   /* Data Accents */
   --data-green: #10b981;
   --data-red: #ef4444;
+
+  /* CTA Action Blue */
+  --cta-primary: #3b82f6;
+  --cta-primary-hover: #2563eb;
+  --cta-primary-active: #1d4ed8;
+
+  /* Button & Control Radius (modern smooth) */
+  --radius-btn: 8px;
 
   /* ZERO Shadow */
   --shadow-sm: none;
@@ -135,26 +143,37 @@ button:focus-visible {
 }
 
 .btn-solid {
-  background-color: transparent;
-  color: var(--text-primary);
+  background-color: var(--cta-primary);
+  color: #ffffff;
   font-weight: 600;
   font-size: 0.875rem;
   padding: 0.6rem 1.25rem;
-  border: 1px solid var(--text-primary);
-  border-radius: 0px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-btn);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  transition: transform var(--transition-fast), background-color var(--transition-fast);
+  transition: background-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+  box-shadow: 0 1px 2px rgba(59, 130, 246, 0.25);
 }
 
 .btn-solid:hover {
-  background-color: var(--bg-hover);
+  background-color: var(--cta-primary-hover);
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+  transform: translateY(-1px);
 }
 
 .btn-solid:active {
-  transform: scale(0.98);
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 1px 2px rgba(59, 130, 246, 0.25);
+}
+
+.btn-solid:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .btn-outline {
@@ -163,8 +182,8 @@ button:focus-visible {
   font-weight: 600;
   font-size: 0.875rem;
   padding: 0.6rem 1.25rem;
-  border: 2px solid var(--border-color);
-  border-radius: 0px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-btn);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -180,7 +199,7 @@ button:focus-visible {
 .btn-icon {
   width: 40px;
   height: 40px;
-  border-radius: 0px;
+  border-radius: var(--radius-btn);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -200,7 +219,7 @@ input, textarea, select {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
-  border-radius: 0px;
+  border-radius: var(--radius-btn);
   padding: 0.75rem;
   transition: border-color var(--transition-fast);
 }

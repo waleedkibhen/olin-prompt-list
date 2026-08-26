@@ -101,5 +101,18 @@ service cloud.firestore {
       allow create: if isAuthenticated() && request.resource.data.reporterId == request.auth.uid;
       allow read, update, delete: if isAdmin();
     }
+
+    // --- 6. Payout Requests ---
+    match /payout_requests/{requestId} {
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+
+    // --- 7. System ---
+    match /system/{document} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
   }
 }

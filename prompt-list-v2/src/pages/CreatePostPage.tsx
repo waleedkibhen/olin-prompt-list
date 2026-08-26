@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import GoogleSignInButton from '@/components/GoogleSignInButton';
 import styles from './CreatePostPage.module.css';
 import { useAuth } from '@/context/AuthContext';
 import { moderateText, moderateSingleImage, generateLiveEmbedding, analyzeArtworkMultimodalWithGemini } from '@/lib/ai';
@@ -36,7 +37,7 @@ export default function CreatePostPage() {
   const [model, setModel] = useState('Midjourney');
   const [customModel, setCustomModel] = useState('');
   const [monetizationType, setMonetizationType] = useState<'free'|'paid'>('free');
-  const [paidUnlockMethod, setPaidUnlockMethod] = useState<'charge'|'ad'>('ad');
+  const [paidUnlockMethod, setPaidUnlockMethod] = useState<'charge'>('charge');
   const [price, setPrice] = useState('1.99');
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
   const [wasFlagged, setWasFlagged] = useState(false);
@@ -361,7 +362,7 @@ export default function CreatePostPage() {
         promptText: isCharge ? "" : prompts[0],
         prompts: isCharge ? [] : prompts,
         model: model === 'Other' ? customModel.trim() || 'Unknown' : model,
-        monetizationType: monetizationType === 'free' ? 'free' : (paidUnlockMethod === 'ad' ? 'ad_supported' : 'charge'),
+        monetizationType: monetizationType === 'free' ? 'free' : 'charge',
         whopPlanId: whopPlanId,
           price: monetizationType === 'paid' && paidUnlockMethod === 'charge' ? parseFloat(price) || 0 : 0,
         
@@ -453,9 +454,7 @@ export default function CreatePostPage() {
           <ShieldAlert size={48} className={styles.warnIcon} />
           <h3>Authentication Required</h3>
           <p>You must be signed in with a creator profile to access the Creation Engine and share your generative prompts.</p>
-          <button className="btn-primary" onClick={signInWithGoogle}>
-            Authenticate with Google
-          </button>
+          <GoogleSignInButton text="Authenticate with Google" />
         </div>
       </div>
     );
@@ -704,26 +703,7 @@ export default function CreatePostPage() {
 
             {monetizationType === 'paid' && (
               <div style={{ padding: '1rem', backgroundColor: 'var(--bg-primary)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                <label style={{ marginBottom: '1rem', display: 'block' }}>Unlock Method</label>
                 
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                  <div 
-                    style={{ flex: 1, padding: '0.75rem', border: `1px solid ${paidUnlockMethod === 'ad' ? '#10b981' : 'var(--border-color)'}`, borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.75rem' }}
-                    onClick={() => setPaidUnlockMethod('ad')}
-                  >
-                    <div style={{ width: '18px', height: '18px', borderRadius: '50%', border: `5px solid ${paidUnlockMethod === 'ad' ? '#10b981' : 'var(--border-color)'}`, backgroundColor: 'transparent' }} />
-                    <span style={{ fontWeight: 500 }}>Watch an Ad</span>
-                  </div>
-                  
-                  <div 
-                    style={{ flex: 1, padding: '0.75rem', border: `1px solid ${paidUnlockMethod === 'charge' ? '#10b981' : 'var(--border-color)'}`, borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.75rem' }}
-                    onClick={() => setPaidUnlockMethod('charge')}
-                  >
-                    <div style={{ width: '18px', height: '18px', borderRadius: '50%', border: `5px solid ${paidUnlockMethod === 'charge' ? '#10b981' : 'var(--border-color)'}`, backgroundColor: 'transparent' }} />
-                    <span style={{ fontWeight: 500 }}>Charge to Unlock</span>
-                  </div>
-                </div>
-
                 {paidUnlockMethod === 'charge' && (
                   <div style={{ marginTop: '1rem' }}>
                     <label style={{ fontSize: '0.85rem' }}>Price (USD)</label>

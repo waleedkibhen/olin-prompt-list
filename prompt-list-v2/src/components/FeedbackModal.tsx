@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import GoogleSignInButton from '@/components/GoogleSignInButton';
 import styles from './FeedbackModal.module.css';
 import { useAuth } from '@/context/AuthContext';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -63,9 +64,7 @@ export default function FeedbackModal({ onClose }: FeedbackModalProps) {
         {!user ? (
           <div className={styles.formBody} style={{ textAlign: 'center', padding: '2rem 1.5rem' }}>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>You must be signed in with Google to file support tickets and bug reports.</p>
-            <button type="button" className="btn-solid" onClick={signInWithGoogle}>
-              Sign In with Google
-            </button>
+            <GoogleSignInButton />
           </div>
         ) : isSuccess ? (
           <div className={styles.formBody} style={{ textAlign: 'center', padding: '2.5rem 1.5rem', color: '#10b981' }}>

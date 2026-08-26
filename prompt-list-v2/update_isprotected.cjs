@@ -1,9 +1,10 @@
 const fs = require('fs');
-const p = 'src/components/PromptCard.tsx';
-let code = fs.readFileSync(p, 'utf8');
+let code = fs.readFileSync('src/components/PromptCard.tsx', 'utf8');
 
-code = code.replace(
-  /const isProtected = Boolean\(effectiveMonetization !== 'free' && !isUnlocked && !isCreator\);/,
-  "const isProtected = Boolean(effectiveMonetization !== 'free' && !isUnlocked);"
-);
-fs.writeFileSync(p, code);
+const regex = /const isProtected = Boolean\(\(effectiveMonetization === 'charge' \|\| effectiveMonetization === 'subscribers_only'\) && \(!isUnlocked \|\| \(isCreator && previewPaywall\)\)\);/;
+
+const replacement = `const isProtected = Boolean((effectiveMonetization === 'charge' || effectiveMonetization === 'subscribers_only' || effectiveMonetization === 'ad_supported') && (!isUnlocked || (isCreator && previewPaywall)));`;
+
+code = code.replace(regex, replacement);
+fs.writeFileSync('src/components/PromptCard.tsx', code);
+console.log("Updated isProtected to include ad_supported");

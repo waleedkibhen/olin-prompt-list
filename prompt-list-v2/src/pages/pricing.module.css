@@ -216,7 +216,7 @@
 .ctaBtn {
   width: 100%;
   padding: 1rem 1.5rem;
-  border-radius: 0px;
+  border-radius: var(--radius-btn);
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
@@ -229,13 +229,14 @@
 }
 
 .primaryCta {
-  background-color: transparent; border: 1px solid var(--text-primary); color: var(--text-primary);
-  color: var(--text-inverted);
+  background-color: var(--cta-primary);
+  color: #ffffff;
 }
 
 .primaryCta:hover {
-  background-color: var(--accent-hover);
-  transform: scale(1.02);
+  background-color: var(--cta-primary-hover);
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+  transform: translateY(-1px);
 }
 
 .secondaryCta {

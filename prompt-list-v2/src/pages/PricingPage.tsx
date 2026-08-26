@@ -137,7 +137,7 @@ export default function PricingPage() {
             type="button" 
             className="btn-solid" 
             onClick={() => navigate('/')}
-            style={{ width: '100%', maxWidth: '340px', padding: '0.95rem 1.5rem', fontSize: '1.05rem', borderRadius: '9999px', background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff', fontWeight: 700, margin: '0 auto' }}
+            style={{ width: '100%', maxWidth: '340px', padding: '0.95rem 1.5rem', fontSize: '1.05rem', fontWeight: 700, margin: '0 auto' }}
           >
             Explore All Prompts for Free
           </button>

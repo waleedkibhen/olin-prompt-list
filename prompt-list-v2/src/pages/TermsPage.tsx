@@ -195,7 +195,26 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2>8. AI Generation Disclaimer</h2>
+          <h2>8. Monetization & Payouts</h2>
+          
+          <h3>8.1 No Guaranteed Earnings</h3>
+          <p>The Platform makes no guarantees regarding potential earnings or ad revenue. User monetization is subject to change at our sole discretion.</p>
+          
+          <h3>8.2 Ad Revenue Pool Contingency</h3>
+          <p>Ad-supported payouts (requiring a minimum of 1,000 views) are strictly contingent upon the Platform receiving successful disbursements from our advertising partners. If a partner defaults or withholds revenue, we reserve the right to void corresponding creator payouts.</p>
+          
+          <h3>8.3 Paid Prompts & Fees</h3>
+          <p>Creators retain 100% of their set price for Paid Prompts, less mandatory payment processing fees levied by our merchant of record (Whop). A minimum threshold of $5.00 must be met before withdrawal.</p>
+          
+          <h3>8.4 Tax Liability</h3>
+          <p>Creators act as independent contractors and are solely responsible for reporting and remitting any applicable taxes on their earnings.</p>
+          
+          <h3>8.5 Anti-Fraud & Clawbacks</h3>
+          <p>Any attempt to manipulate views or engagement using bots or coordinated inauthentic behavior will result in an immediate, permanent ban and the total forfeiture of all pending earnings.</p>
+        </section>
+
+        <section>
+          <h2>9. AI Generation Disclaimer</h2>
           <p>Olin's Prompt List is a platform for discovering, sharing, and curating AI-generated content. We do not generate AI art ourselves.</p>
           <p>Please understand:</p>
           <ul>
@@ -208,7 +227,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2>9. Disclaimer of Warranties</h2>
+          <h2>10. Disclaimer of Warranties</h2>
           <p>THE PLATFORM IS PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS, IMPLIED, OR STATUTORY.</p>
           <p>To the fullest extent permitted by applicable law, we disclaim all warranties, including but not limited to:</p>
           <ul>
@@ -221,7 +240,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2>10. Limitation of Liability</h2>
+          <h2>11. Limitation of Liability</h2>
           <p>TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, OLIN'S PROMPT LIST, ITS OWNERS, OPERATORS, AFFILIATES, OFFICERS, DIRECTORS, EMPLOYEES, AGENTS, AND LICENSORS SHALL NOT BE LIABLE FOR:</p>
           <ul>
             <li>Any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data, goodwill, or other intangible losses.</li>
@@ -242,7 +261,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2>11. Indemnification</h2>
+          <h2>12. Indemnification</h2>
           <p>You agree to indemnify, defend, and hold harmless Olin's Prompt List, its owners, operators, affiliates, officers, directors, employees, agents, and licensors from and against any and all claims, damages, losses, liabilities, costs, and expenses (including reasonable attorneys' fees) arising out of or related to:</p>
           <ul>
             <li>Your use of the Platform.</li>
@@ -254,17 +273,17 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2>12. Third-Party Links & Services</h2>
+          <h2>13. Third-Party Links & Services</h2>
           <p>The Platform may contain links to third-party websites, tools, or services (including AI model providers). We do not control, endorse, or assume responsibility for any third-party content, products, or services. Your use of third-party services is at your own risk and subject to those third parties' terms and policies.</p>
         </section>
 
         <section>
-          <h2>13. Modifications to the Platform</h2>
+          <h2>14. Modifications to the Platform</h2>
           <p>We reserve the right to modify, suspend, or discontinue the Platform (or any feature or part thereof) at any time, with or without notice. We will not be liable to you or any third party for any modification, suspension, or discontinuation of the Platform.</p>
         </section>
 
         <section>
-          <h2>14. Changes to These Terms</h2>
+          <h2>15. Changes to These Terms</h2>
           <p>We may update these Terms from time to time. When we make material changes:</p>
           <ul>
             <li>We will update the "Last Updated" date at the top of this page.</li>
@@ -275,7 +294,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2>15. Termination</h2>
+          <h2>16. Termination</h2>
           <h3>15.1 Termination by You</h3>
           <p>You may stop using the Platform at any time. You may request account deletion by contacting us at contact@getolin.xyz or through your account settings.</p>
           
@@ -298,7 +317,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2>16. Governing Law & Dispute Resolution</h2>
+          <h2>17. Governing Law & Dispute Resolution</h2>
           <h3>16.1 Governing Law</h3>
           <p>These Terms are governed by and construed in accordance with the laws of the United States, without regard to its conflict of law provisions.</p>
           
@@ -314,7 +333,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2>17. General Provisions</h2>
+          <h2>18. General Provisions</h2>
           <ul>
             <li><strong>Entire Agreement:</strong> These Terms, together with our Privacy Policy, constitute the entire agreement between you and Olin's Prompt List regarding your use of the Platform.</li>
             <li><strong>Severability:</strong> If any provision of these Terms is found to be invalid or unenforceable, that provision will be enforced to the maximum extent permissible, and the remaining provisions will remain in full force and effect.</li>
@@ -327,7 +346,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2>18. Contact Us</h2>
+          <h2>19. Contact Us</h2>
           <p>If you have any questions about these Terms of Service, please contact us at:</p>
           <p>
             📧 <strong>contact@getolin.xyz</strong><br/>

@@ -74,6 +74,7 @@ export default function WhopCheckoutModal({ planId, onSuccess, onClose }: WhopCh
         <div style={{ width: '100%', height: '100%', overflowY: 'auto' }}>
           <WhopCheckoutEmbed 
             planId={planId} 
+            theme="dark"
             returnUrl={window.location.href}
             onComplete={() => {
               onSuccess();
