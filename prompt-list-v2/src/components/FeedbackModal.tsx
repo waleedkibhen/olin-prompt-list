@@ -12,7 +12,7 @@ interface FeedbackModalProps {
 }
 
 export default function FeedbackModal({ onClose }: FeedbackModalProps) {
-  const { user, profile, signInWithGoogle } = useAuth();
+  const { user, profile } = useAuth();
   const [subject, setSubject] = useState('Bug Report');
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);

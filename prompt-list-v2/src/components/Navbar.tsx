@@ -1,23 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import GoogleSignInButton from '@/components/GoogleSignInButton';
 import styles from './Navbar.module.css';
-import { Search, Filter, Plus, User, Bell, ChevronDown, ChevronRight, Check, Sparkles, Moon, Sun, X, ChevronLeft } from 'lucide-react';
+import { Search, Filter, Plus, User, ChevronRight, Check, Moon, Sun, X, ChevronLeft } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useRecentSearches } from '@/hooks/useRecentSearches';
 import NotificationBell from './NotificationBell';
 import FeedbackModal from './FeedbackModal';
-import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { COLOR_OPTIONS, ASPECT_OPTIONS, TIME_OPTIONS } from '../lib/filters';
 
 export default function Navbar() {
-  const { user, profile, signInWithGoogle, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { recentSearches, removeRecentSearch } = useRecentSearches();
-  
-  const activeTab = searchParams.get('tab') || 'for_you';
-  
+
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() => localStorage.getItem('theme') !== 'light');
@@ -95,13 +92,6 @@ export default function Navbar() {
       setIsSearchExpanded(false);
     }
     setIsMobileSearchOpen(false);
-  };
-
-  const handleTabClick = (tab: string) => {
-    setSearchParams(prev => {
-      prev.set('tab', tab);
-      return prev;
-    });
   };
 
   const handleFilterChange = (key: string, value: string) => {

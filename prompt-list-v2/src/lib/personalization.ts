@@ -35,7 +35,7 @@ export function getSearchHistory(): string[] {
   try {
     const raw = localStorage.getItem(SEARCH_HISTORY_KEY);
     return raw ? JSON.parse(raw) : [];
-  } catch (_err) {
+  } catch {
     return [];
   }
 }

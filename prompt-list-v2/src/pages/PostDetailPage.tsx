@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc, updateDoc, increment } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { PromptPost } from '@/lib/mockData';
 import { Box, AlertCircle } from 'lucide-react';
 import PromptCard from '@/components/PromptCard';
-import { hasViewedRecently, recordView } from '@/lib/viewTracker';
 import { updateSEOTags, resetSEOTags } from '@/lib/seo';
 
 export default function PostDetailPage() {

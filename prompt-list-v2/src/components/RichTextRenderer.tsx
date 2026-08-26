@@ -30,7 +30,7 @@ export async function copyRichPrompt(content: string): Promise<void> {
     } else {
       await navigator.clipboard.writeText(plainText || content);
     }
-  } catch (_err) {
+  } catch {
     // Fallback if writing ClipboardItem is restricted in current browser environment
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = content;

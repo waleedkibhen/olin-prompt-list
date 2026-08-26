@@ -113,6 +113,7 @@ export default function AdminDashboardPage() {
     });
 
     return () => {
+      unsubAdPool();
       unsubPosts();
       unsubUsers();
       unsubTickets();

@@ -7,16 +7,12 @@ import PromptCard from './PromptCard';
 
 import { useAuth } from '@/context/AuthContext';
 import { useRecentSearches } from '@/hooks/useRecentSearches';
-import { 
-  Compass, Flame, Clock, Layers, Box, Search, AlertTriangle, X, 
-  SlidersHorizontal, Palette, Sparkles, Image as ImageIcon, Calendar, RotateCcw, Check 
-} from 'lucide-react';
+import { Compass, Layers, Box, Search, AlertTriangle, X, RotateCcw } from 'lucide-react';
 import { calculateCosineSimilarity } from '@/lib/vector';
 import { generateLiveEmbedding } from '@/lib/ai';
 import { collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useSearchParams, Link } from 'react-router-dom';
-import { ENABLE_MONETIZATION } from '@/lib/config';
 import { matchesColorFilter } from '@/lib/colorAnalyzer';
 
 const COLOR_OPTIONS = [
@@ -34,16 +30,6 @@ const COLOR_OPTIONS = [
   { name: 'Clean White & Light', hex: '#f8fafc', keywords: ['white', 'light', 'clean', 'minimal', 'ivory', 'snow', 'bright', 'studio background'] },
 ];
 
-const TYPE_OPTIONS = [
-  { label: 'All Types', value: 'All Types' },
-  { label: 'Photorealism', value: 'Photorealistic', keywords: ['photo', 'realistic', 'portrait', 'canon', 'macro', '8k', 'photorealistic', 'photography', 'lifelike', 'raw photo', 'dslr'] },
-  { label: '3D Render & CGI', value: '3D Render', keywords: ['3d', 'blender', 'unreal engine', 'render', 'cgi', 'octane', 'pixar', 'volumetric', 'cinema4d', 'rendering', '3d model'] },
-  { label: 'Digital & Anime', value: 'Illustration', keywords: ['anime', 'manga', 'illustration', 'digital art', 'comic', 'painting', 'watercolor', 'concept art', 'cel-shaded', 'ghibli'] },
-  { label: 'Cyberpunk & Sci-Fi', value: 'Sci-Fi', keywords: ['cyberpunk', 'futuristic', 'sci-fi', 'neon', 'mecha', 'space', 'synthwave', 'android', 'cyber', 'robot', 'scifi'] },
-  { label: 'Fantasy & Mythical', value: 'Fantasy', keywords: ['fantasy', 'dragon', 'magic', 'wizard', 'elf', 'mystical', 'enchanted', 'spell', 'armor', 'mythical', 'fairy', 'witch'] },
-  { label: 'Clipart / Line / Logo', value: 'Minimalist', keywords: ['minimal', 'simple', 'clipart', 'line drawing', 'logo', 'vector', 'flat', 'icon', 'background', 'minimalist', 'clean'] }
-];
-
 const ASPECT_OPTIONS = [
   { label: 'All Dimensions', value: 'All Dimensions' },
   { label: 'Square', value: 'Square', keywords: ['1:1', 'square', 'avatar', 'instagram'] },
@@ -56,12 +42,6 @@ const TIME_OPTIONS = [
   { label: 'Past 24 Hours', value: '24h', ms: 24 * 60 * 60 * 1000 },
   { label: 'Past 7 Days', value: '7d', ms: 7 * 24 * 60 * 60 * 1000 },
   { label: 'Past 30 Days', value: '30d', ms: 30 * 24 * 60 * 60 * 1000 }
-];
-
-const VAULT_OPTIONS = [
-  { label: 'All Artwork', value: 'All Artwork' },
-  { label: 'Free Open Prompts', value: 'free' },
-  { label: 'PRO Exclusive Vaults', value: 'subscribers_only' }
 ];
 
 const PinterestIcon = ({ size = 18 }: { size?: number }) => (
@@ -91,7 +71,7 @@ export default function DiscoveryFeed() {
   const timeFilter = searchParams.get('time') || 'All Time';
   const vaultFilter = searchParams.get('vault') || 'All Artwork';
   
-  const { user, profile, signInWithGoogle } = useAuth();
+  const { user, profile } = useAuth();
   const { addRecentSearch } = useRecentSearches();
   
   const [dbPosts, setDbPosts] = useState<PromptPost[]>([]);
@@ -103,15 +83,6 @@ export default function DiscoveryFeed() {
   const [isSearching, setIsSearching] = useState(false);
   const [activeVector, setActiveVector] = useState<number[] | null>(null);
   const [visibleCount, setVisibleCount] = useState(12);
-
-  const activeFilterCount = [
-    colorFilter !== 'All',
-    typeFilter !== 'All Types',
-    aspectFilter !== 'All Dimensions',
-    timeFilter !== 'All Time',
-    vaultFilter !== 'All Artwork',
-    modelFilter !== 'All Models'
-  ].filter(Boolean).length;
 
   const filterSignature = `${searchParams.toString()}|${activeTab}|${colorFilter}|${typeFilter}|${aspectFilter}|${timeFilter}|${vaultFilter}|${profile?.uid || 'anon'}|${activeVector ? 'vector' : 'no-vector'}`;
   const lastFilterSignature = useRef<string>('');
@@ -285,20 +256,6 @@ export default function DiscoveryFeed() {
         return getPercentage(b.colorProfile) - getPercentage(a.colorProfile);
       });
     }
-
-    // 3. Art Type & Medium Filter
-    /* 
-    if (type && type !== 'All Types') {
-      const selectedTypeObj = TYPE_OPTIONS.find(t => t.value === type);
-      if (selectedTypeObj && selectedTypeObj.keywords) {
-        current = current.filter(post => {
-          if (post.styleTag === selectedTypeObj.value || post.styleTag.toLowerCase().includes(type.toLowerCase())) return true;
-          const contentStr = `${post.title} ${post.description} ${post.promptText} ${post.styleTag} ${post.categories.join(" ")}`.toLowerCase();
-          return selectedTypeObj.keywords.some(kw => contentStr.includes(kw));
-        });
-      }
-    }
-    */
 
     // 4. Aspect Ratio / Dimensions Filter
     if (aspect && aspect !== 'All Dimensions') {

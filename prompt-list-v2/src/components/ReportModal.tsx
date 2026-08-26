@@ -14,7 +14,7 @@ interface ReportModalProps {
 }
 
 export default function ReportModal({ post, onClose }: ReportModalProps) {
-  const { user, profile, signInWithGoogle } = useAuth();
+  const { user, profile } = useAuth();
   const [reasonCategory, setReasonCategory] = useState('Inappropriate / Sensitive Content');
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);

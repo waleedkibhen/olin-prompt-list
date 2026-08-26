@@ -8,23 +8,20 @@ import React, { useEffect, useState } from 'react';
 import GoogleSignInButton from '@/components/GoogleSignInButton';
 import styles from './dashboard.module.css';
 import { useAuth } from '@/context/AuthContext';
-import { collection, onSnapshot, query, where, doc, deleteDoc, getDocs, limit, orderBy, getAggregateFromServer, sum, count } from 'firebase/firestore';
+import { collection, onSnapshot, query, where, doc, deleteDoc, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { PromptPost } from '@/lib/mockData';
-import { BarChart2, Eye, Heart, Bookmark, Copy, Trash2, ExternalLink, PlusCircle, Box, AlertTriangle, Sparkles, CheckCircle, Award, Users, TrendingUp, TrendingDown, Lock, PlayCircle, X, Info, DollarSign, MonitorPlay } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ENABLE_MONETIZATION } from '@/lib/config';
+import { Box, AlertTriangle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function CreatorDashboardPage() {
-  const { user, profile, updateProfileState, loading: authLoading, signInWithGoogle } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   
   const [creatorPosts, setCreatorPosts] = useState<(PromptPost & { createdAtMs: number })[]>([]);
   const [loadingDb, setLoadingDb] = useState(true);
   const [timeFilter, setTimeFilter] = useState('30d');
   const [activeTab, setActiveTab] = useState<'performance' | 'monetization'>('performance');
-  const [monetizationFilter, setMonetizationFilter] = useState<'all' | 'paid' | 'ad'>('all');
-    const [showMonetizationInfo, setShowMonetizationInfo] = useState(true); // '1d', '7d', '30d', '1y', 'all'
+  const [monetizationFilter] = useState<'all' | 'paid' | 'ad'>('all');
   const [postToDelete, setPostToDelete] = useState<{ id: string, title: string } | null>(null);
   const [followerCount, setFollowerCount] = useState(0);
   const [isPayoutModalOpen, setIsPayoutModalOpen] = useState(false);
@@ -35,7 +32,6 @@ export default function CreatorDashboardPage() {
   const [isSubmittingPayout, setIsSubmittingPayout] = useState(false);
   const [globalAdPool, setGlobalAdPool] = useState<{distributablePool: number}>({ distributablePool: 0 });
   const [totalPlatformAdViews, setTotalPlatformAdViews] = useState(0);
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (authLoading) return;
@@ -185,10 +181,6 @@ export default function CreatorDashboardPage() {
   
 
   
-  const monetizationPosts = React.useMemo(() => {
-    return creatorPosts.filter(p => p.monetizationType === 'charge' || p.monetizationType === 'ad_supported');
-  }, [creatorPosts]);
-
   const monetizationStats = React.useMemo(() => {
     let paidRevenue = 0;
     let paidUnlocks = 0;
@@ -331,7 +323,6 @@ export default function CreatorDashboardPage() {
               followerCount={followerCount}
               creatorPosts={creatorPosts}
               filteredPosts={filteredPosts}
-              timeFilter={timeFilter}
               calculateTrend={calculateTrend}
               handleDeletePost={handleDeletePost}
             />

@@ -255,7 +255,7 @@ export async function extractImagePalette(imageSrc: string): Promise<ColorProfil
           isResolved = true;
           clearTimeout(globalTimer);
           resolve(profile);
-        } catch (_e) {
+        } catch {
           tryNextUrl();
         }
       };

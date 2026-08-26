@@ -5,7 +5,7 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
 import { sendNotification } from '@/lib/notifications';
-import { Sparkles, Camera, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { Camera, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function OnboardingModal() {

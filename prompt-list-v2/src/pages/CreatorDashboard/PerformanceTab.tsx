@@ -10,13 +10,12 @@ interface PerformanceTabProps {
   followerCount: number;
   creatorPosts: any[];
   filteredPosts: any[];
-  timeFilter: string;
   calculateTrend: (current: number, previous: number) => number | null;
   handleDeletePost: (id: string, title: string) => void;
 }
 
 export default function PerformanceTab({
-  stats, previousStats, followerCount, creatorPosts, filteredPosts, timeFilter, calculateTrend, handleDeletePost
+  stats, previousStats, followerCount, creatorPosts, filteredPosts, calculateTrend, handleDeletePost
 }: PerformanceTabProps) {
   const TrendIndicator = ({ trend }: { trend: number | null }) => {
     if (trend === null) {

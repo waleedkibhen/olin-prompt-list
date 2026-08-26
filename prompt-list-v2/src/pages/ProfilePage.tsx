@@ -5,11 +5,10 @@ import { db, storage, auth } from '@/lib/firebase';
 import { doc, updateDoc, collection, collectionGroup, query, where, getDocs, writeBatch, deleteDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { updateProfile, deleteUser } from 'firebase/auth';
-import { User, ShieldAlert, Sparkles, Upload, Box, MessageSquarePlus, CheckCircle2, AlertTriangle, Trash2 } from 'lucide-react';
+import { Upload, Box, AlertTriangle, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import FeedbackModal from '@/components/FeedbackModal';
-import { Link, useNavigate } from 'react-router-dom';
-import { ENABLE_MONETIZATION } from '@/lib/config';
+import { useNavigate } from 'react-router-dom';
 
 const PinterestIcon = ({ size = 18 }: { size?: number }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -58,7 +57,6 @@ export default function ProfilePage() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isSubscriber, setIsSubscriber] = useState(false);
   const [isSupportOpen, setIsSupportOpen] = useState(false);
 
   useEffect(() => {
@@ -75,13 +73,6 @@ export default function ProfilePage() {
         instagram: profile?.socialLinks?.instagram || ''
       });
     }
-    const subStatus = user ? localStorage.getItem(`olin_subscription_${user.uid}`) : null;
-    setIsSubscriber(
-      profile?.isPremium === true || 
-      profile?.subscriptionStatus === 'active' || 
-      subStatus === 'active' ||
-      localStorage.getItem('olin_recent_success') === 'true'
-    );
   }, [profile, user]);
 
   if (loading) {
@@ -276,17 +267,6 @@ export default function ProfilePage() {
       setIsSubmitting(false);
     }
   };
-
-  const handleToggleSubscription = () => {
-    if (!user) return;
-    if (isSubscriber) {
-      window.open('https://whop.com/orders', '_blank', 'noopener,noreferrer');
-    } else {
-      navigate('/pricing');
-    }
-  };
-
-  const isAdmin = user.email === 'wisecrafts81@gmail.com';
 
   return (
     <div className={styles.container}>

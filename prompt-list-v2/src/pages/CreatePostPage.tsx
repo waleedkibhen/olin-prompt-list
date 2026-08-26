@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import GoogleSignInButton from '@/components/GoogleSignInButton';
 import styles from './CreatePostPage.module.css';
 import { useAuth } from '@/context/AuthContext';
@@ -7,7 +7,7 @@ import { sendNotification } from '@/lib/notifications';
 import { doc, setDoc, serverTimestamp, collection, query, getDocs, orderBy, limit, where } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
-import { UploadCloud, CheckCircle2, Loader2, Image as ImageIcon, Trash2, ShieldAlert, AlertTriangle, Info, PlusCircle, ChevronDown, Type, Box, AlignLeft, Terminal, Sparkles, X } from 'lucide-react';
+import { Loader2, Image as ImageIcon, Trash2, ShieldAlert, AlertTriangle, Info, PlusCircle, ChevronDown, Box, X } from 'lucide-react';
 import { extractImagePalette } from '@/lib/colorAnalyzer';
 import { toast } from 'react-hot-toast';
 import TipTapEditor from '@/components/TipTapEditor';
@@ -27,7 +27,7 @@ const calculateFileHash = async (file: File): Promise<string> => {
 };
 
 export default function CreatePostPage() {
-  const { user, profile, signInWithGoogle } = useAuth();
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
   
   const [title, setTitle] = useState('');
@@ -37,10 +37,10 @@ export default function CreatePostPage() {
   const [model, setModel] = useState('Midjourney');
   const [customModel, setCustomModel] = useState('');
   const [monetizationType, setMonetizationType] = useState<'free'|'paid'>('free');
-  const [paidUnlockMethod, setPaidUnlockMethod] = useState<'charge'>('charge');
+  const [paidUnlockMethod] = useState<'charge'>('charge');
   const [price, setPrice] = useState('1.99');
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
-  const [wasFlagged, setWasFlagged] = useState(false);
+  const [wasFlagged] = useState(false);
   
   const [selectedFiles, setSelectedFiles] = useState<SelectedFile[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);

@@ -3,11 +3,10 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import styles from './PromptCard.module.css';
 import { PromptPost } from '@/lib/mockData';
 import { useAuth } from '@/context/AuthContext';
-import { doc, updateDoc, increment, collection, onSnapshot, addDoc, serverTimestamp, query, orderBy, arrayUnion, arrayRemove, setDoc, deleteDoc } from 'firebase/firestore';
+import { doc, updateDoc, increment, collection, addDoc, serverTimestamp, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Heart, Bookmark, Copy, Check, Sparkles, Share2, MessageSquare, MessageCircle, ExternalLink, Send, Loader2, PlayCircle, ShieldCheck, Flag, ThumbsUp, Eye, X, ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react';
+import { Heart, Bookmark, Copy, Check, Share2, MessageSquare, Loader2, PlayCircle, Flag, Eye, X, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { moderateText } from '@/lib/ai';
 import { ENABLE_MONETIZATION } from '@/lib/config';
 import ReportModal from '@/components/ReportModal';
 import DiscoverMore from '../DiscoverMore';
@@ -16,28 +15,6 @@ import toast from 'react-hot-toast';
 import { hasViewedRecently, recordView } from '@/lib/viewTracker';
 import { updateSEOTags, resetSEOTags } from '@/lib/seo';
 import { getOptimizedImageUrl } from '@/lib/imageOptimization';
-
-interface PromptCardProps {
-  post: PromptPost;
-  onLike?: (id: string) => void;
-  onSave?: (id: string) => void;
-  defaultOpen?: boolean;
-  onCloseOverride?: () => void;
-}
-
-interface CommentItem {
-  id: string;
-  authorName: string;
-  authorAvatar: string;
-  text: string;
-  createdAt: string;
-  likesCount: number;
-  likedBy: string[];
-  replyCount: number;
-  parentId?: string;
-  userId?: string;
-  rawTimestamp?: number;
-}
 
 import CommentsSection from './CommentsSection';
 import { useComments } from '@/hooks/useComments';
@@ -152,7 +129,7 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
       setActiveTab(availableTabs[currentIndex - 1]);
     }
   };
-  const [activeVariantIndex, setActiveVariantIndex] = useState(0);
+  const [isWatchingAd] = useState(false);
   
   const [previewPaywall, setPreviewPaywall] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState<boolean>(() => {
@@ -163,13 +140,12 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
     try {
       const arr = JSON.parse(localStorage.getItem(storageKey) || '[]');
       localUnlocked = arr.includes(post.id);
-    } catch(e){}
+    } catch {}
     return isFree || isOwner || localUnlocked;
   });
-  const [isWatchingAd, setIsWatchingAd] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
 
-  const { comments, isSubmitting: isSubmittingComment, error: commentError, submitComment, likeComment: handleLikeComment, deleteComment: handleDeleteComment, setError: setCommentError } = useComments(post.id, isModalOpen);
+  const { comments, isSubmitting: isSubmittingComment, error: commentError, submitComment, likeComment: handleLikeComment, deleteComment: handleDeleteComment } = useComments(post.id, isModalOpen);
   const [newComment, setNewComment] = useState('');
   const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
   const [activeReplyName, setActiveReplyName] = useState<string | null>(null);
@@ -193,7 +169,7 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
     }
     
     // Handle the browser back button
-    const handlePopState = (event: PopStateEvent) => {
+    const handlePopState = () => {
       // If we are no longer on the post URL, ensure the modal is closed
       if (!window.location.pathname.startsWith(`/post/${post.id}`)) {
         if (!defaultOpen && isModalOpen) {
@@ -205,7 +181,7 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [isModalOpen, post.id, defaultOpen, onCloseOverride]);
+  }, [isModalOpen, post.id, post.promptText, post.description, post.title, defaultOpen, onCloseOverride, setIsModalOpen]);
 
   
 
@@ -240,7 +216,7 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
         setIsFollowing(followedArr.includes(post.creator.uid));
       }
     }
-  }, [user, profile, post.id, post.creator?.uid, post.isPaid, post.monetizationType, effectiveMonetization]);
+  }, [user, profile, post.id, post.creator?.uid, post.isPaid, post.monetizationType, effectiveMonetization, isOwner]);
 
   
 
@@ -327,10 +303,10 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
         unlocked.push(post.id);
         localStorage.setItem('unlockedPrompts', JSON.stringify(unlocked));
       }
-    } catch (e) {}
+    } catch {}
   };
 
-  const handleWatchAdToUnlock = (e: React.MouseEvent) => {
+  const handleWatchAdToUnlock = () => {
     // We intentionally allow this click to bubble up to the document so Monetag's listener can detect it!
     
     // Dynamically inject the Monetag Vignette Script
@@ -353,7 +329,7 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
           unlocked.push(post.id);
           localStorage.setItem('unlockedPrompts', JSON.stringify(unlocked));
         }
-      } catch (e) {}
+      } catch {}
     }, 1500);
   };
 
