@@ -1,5 +1,5 @@
 const fs = require('fs');
-let temp = fs.readFileSync('src/components/PromptCard.tsx.temp', 'utf8');
+let temp = fs.readFileSync('scripts/legacy/PromptCard.tsx.temp', 'utf8');
 // Normalize CRLF -> LF so all regex anchors below work reliably
 temp = temp.replace(/\r\n/g, '\n');
 const lines = temp.split('\n');
