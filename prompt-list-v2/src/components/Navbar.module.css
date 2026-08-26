@@ -76,25 +76,6 @@
   background-color: var(--bg-secondary);
 }
 
-.createBtn {
-  color: #ffffff;
-  background-color: var(--cta-primary);
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
-  border-radius: var(--radius-btn);
-  transition: background-color 200ms ease-in-out, box-shadow 200ms ease-in-out;
-  box-shadow: 0 1px 2px rgba(59, 130, 246, 0.25);
-}
-
-.createBtn:hover {
-  background-color: var(--cta-primary-hover);
-  box-shadow: 0 3px 10px rgba(59, 130, 246, 0.4);
-}
-
 .iconBtnActive {
   background-color: var(--bg-secondary);
 }

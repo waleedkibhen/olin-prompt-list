@@ -347,7 +347,7 @@ export default function Navbar() {
             </div>
 
             {/* Create Post */}
-            <button className={styles.createBtn} onClick={() => navigate('/create')} title="Create Artwork">
+            <button className={styles.iconBtn} onClick={() => navigate('/create')} title="Create Artwork">
               <Plus size={20} strokeWidth={2} />
             </button>
             

@@ -6,15 +6,17 @@ const lines = temp.split('\n');
 
 // ---------------------------------------------------------------------------
 // 1. Extract the modal JSX (the block rendered under `{isModalOpen && (`).
-//    Source line 679 (array 678)   = `{isModalOpen && (`
-//    Source line 680 (array 679)   = `<div className={styles.modalBackdrop} ...>`
-//    Source line 1012 (array 1011) = closing `</div>` of that backdrop
-//    Source line 1013 (array 1012) = `)}` closing the conditional
-//    We take array indices 679..1010 => source lines 680..1011.
+//    Source line 679 (array 678)   = `<div className={styles.modalBackdrop} ...>`  ← MUST be included:
+//                                    it provides the fixed full-screen overlay.
+//    Source line 680 (array 679)   = `<div className={styles.modalCard} ...>`
+//    Source line 1012 (array 1011) = closing `</div>` of the backdrop           ← MUST be included.
+//    Source line 1013 (array 1012) = `)}` closing the conditional (excluded —
+//                                    PromptCard already renders <PromptModal> conditionally).
+//    We take array indices 678..1011 => source lines 679..1012.
 // ---------------------------------------------------------------------------
 const modalStartIdx = 678;
-const modalEndIdx = 1011;
-let modalBackdropJsx = lines.slice(modalStartIdx + 1, modalEndIdx).join('\n');
+const modalEndIdx = 1012;
+let modalBackdropJsx = lines.slice(modalStartIdx, modalEndIdx).join('\n');
 
 // ---------------------------------------------------------------------------
 // 2. Split monolith: imports+interfaces | legacy header | component body

@@ -446,7 +446,8 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
 
   return (
     <>
-                <div className={styles.modalCard}>
+              <div className={styles.modalBackdrop} onClick={(e) => { if (e.target === e.currentTarget) { if(onCloseOverride) onCloseOverride(); else setIsModalOpen(false); } }}>
+          <div className={styles.modalCard}>
             <button className={styles.modalCloseBtn} onClick={() => { if(onCloseOverride) onCloseOverride(); else setIsModalOpen(false); }} aria-label="Close">
               <X size={18} strokeWidth={2.5} />
             </button>
@@ -778,6 +779,7 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
               <DiscoverMore currentPostId={post.id} />
             </div>
           </div>
+        </div>
 
       {showComments && (
         <CommentsSection
