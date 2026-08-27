@@ -34,6 +34,9 @@ interface AdminPost {
   isFlagged?: boolean;
   flagSource?: string;
   flaggedReason?: string;
+  monetizationType?: string;
+  isPaid?: boolean;
+  variantCount?: number;
   createdAt?: any;
 }
 
@@ -74,6 +77,7 @@ export default function AdminDashboardPage() {
   const [isScanningColors, setIsScanningColors] = useState(false);
   const [globalAdPoolAmount, setGlobalAdPoolAmount] = useState<string>('');
   const [isSavingAdPool, setIsSavingAdPool] = useState(false);
+  const [isBackfillingVariants, setIsBackfillingVariants] = useState(false);
   const [scanStatus, setScanStatus] = useState<string | null>(null);
   const [isDiagnosing, setIsDiagnosing] = useState(false);
   const [diagnosticData, setDiagnosticData] = useState<any>(null);
@@ -218,6 +222,43 @@ export default function AdminDashboardPage() {
       toast.error('Failed to update ad pool');
     } finally {
       setIsSavingAdPool(false);
+    }
+  };
+
+  // One-click metadata repair: stamp the true variant count onto paid posts
+  // published before variantCount existed (their prompts live in secure_content).
+  const handleBackfillVariantCounts = async () => {
+    setIsBackfillingVariants(true);
+    let patched = 0;
+    let skipped = 0;
+    let errors = 0;
+    try {
+      const { getDoc } = await import('firebase/firestore');
+      const candidates = allPosts.filter(p =>
+        (p.monetizationType === 'charge' || p.isPaid === true)
+        && (!p.variantCount || p.variantCount < 1)
+      );
+      for (const p of candidates) {
+        try {
+          const snap = await getDoc(doc(db, 'posts', p.id, 'secure_content', 'data'));
+          if (!snap.exists()) { skipped++; continue; }
+          const d = snap.data();
+          const count = Array.isArray(d.prompts) && d.prompts.length > 0
+            ? d.prompts.length
+            : (d.promptText ? 1 : 0);
+          if (count < 1) { skipped++; continue; }
+          await updateDoc(doc(db, 'posts', p.id), { variantCount: count });
+          patched++;
+        } catch {
+          errors++;
+        }
+      }
+      toast.success(`Variant backfill done: ${patched} patched, ${skipped} skipped, ${errors} failed`);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(`Backfill failed: ${err.message}`);
+    } finally {
+      setIsBackfillingVariants(false);
     }
   };
 
@@ -599,6 +640,18 @@ export default function AdminDashboardPage() {
                 }}
               >
                 Recalculate Global Views
+              </button>
+
+              <button
+                className="btn-solid"
+                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                onClick={() => {
+                  if (!window.confirm('Scan all paid posts and stamp their true prompt-variant counts? (Reads secure_content for posts missing variantCount)')) return;
+                  handleBackfillVariantCounts();
+                }}
+              >
+                {isBackfillingVariants ? <Loader2 size={14} className="animate-spin" /> : null}
+                {isBackfillingVariants ? 'Backfilling...' : 'Backfill Variant Counts'}
               </button>
               </div>
 
