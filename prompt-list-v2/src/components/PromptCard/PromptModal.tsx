@@ -157,13 +157,22 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
     }
   };
 
+  const [previewPaywall, setPreviewPaywall] = useState(false);
+  const isCreator = Boolean(user && user.uid === post.creator.uid);
+  const isProtected = Boolean((effectiveMonetization === 'charge' || effectiveMonetization === 'subscribers_only') && (!isUnlocked || (isCreator && previewPaywall)));
+
+  // While locked, reveal the variant count (non-secret) so buyers know what they're paying for.
+  const promptTabCount = isProtected
+    ? Math.max(1, post.variantCount || 0)
+    : Math.max(1, effectivePrompts.length);
+
   const handleTabTouchEnd = () => {
     if (touchStartX === null || touchEndX === null) return;
     const distance = touchStartX - touchEndX;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
     
-    const availableTabs = effectivePrompts.map((_, i) => `prompt-${i}`);
+    const availableTabs = Array.from({ length: promptTabCount }, (_, i) => `prompt-${i}`);
     if (post.description) availableTabs.push('description');
     
     const currentIndex = availableTabs.indexOf(activeTab);
@@ -176,8 +185,6 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
     }
   };
   const [isWatchingAd] = useState(false);
-  
-  const [previewPaywall, setPreviewPaywall] = useState(false);
 
   const { comments, isSubmitting: isSubmittingComment, error: commentError, submitComment, likeComment: handleLikeComment, deleteComment: handleDeleteComment } = useComments(post.id, isModalOpen);
   const [newComment, setNewComment] = useState('');
@@ -451,13 +458,6 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
     setIsReportModalOpen(true);
   };
 
-  const isCreator = Boolean(user && user.uid === post.creator.uid);
-  const isProtected = Boolean((effectiveMonetization === 'charge' || effectiveMonetization === 'subscribers_only') && (!isUnlocked || (isCreator && previewPaywall)));
-
-  // While locked, reveal the variant count (non-secret) so buyers know what they're paying for.
-  const promptTabCount = isProtected
-    ? Math.max(1, post.variantCount || 0)
-    : Math.max(1, effectivePrompts.length);
 
 
   return (
@@ -710,7 +710,7 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                                 {effectiveMonetization === 'ad_supported'
                                   ? 'The creator has chosen to monetize their prompts through ads. Click the button below to watch an ad.'
                                   : effectiveMonetization === 'charge'
-                                  ? `The creator has opted for a pay-to-unlock model for this prompt. One payment of $${post.price || '1.99'} unlocks the full prompt instantly.`
+                                  ? 'The creator has opted for a pay-to-unlock model for this prompt. One payment unlocks it instantly.'
                                   : 'This creator reserves their prompts for subscribers. Subscribe to unlock everything they publish.'}
                             </div>
                             
