@@ -34,6 +34,7 @@ export default function PostDetailPage() {
             description: d.description || '',
             promptText: d.promptText || '',
             prompts: d.prompts || undefined,
+            variantCount: d.variantCount || undefined,
             imageUrls: d.imageUrls || [],
             model: d.model || 'Midjourney V6',
             styleTag: d.styleTag || 'Community',

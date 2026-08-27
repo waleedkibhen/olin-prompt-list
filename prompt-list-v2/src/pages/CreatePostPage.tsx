@@ -361,6 +361,8 @@ export default function CreatePostPage() {
         description,
         promptText: isCharge ? "" : prompts[0],
         prompts: isCharge ? [] : prompts,
+        // Non-secret metadata so locked posts can advertise their variant count
+        variantCount: plainTextPrompts.filter(Boolean).length || 1,
         model: model === 'Other' ? customModel.trim() || 'Unknown' : model,
         monetizationType: monetizationType === 'free' ? 'free' : 'charge',
         whopPlanId: whopPlanId,

@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import styles from './PromptCard.module.css';
 import { PromptPost } from '@/lib/mockData';
 import { useAuth } from '@/context/AuthContext';
-import { doc, updateDoc, increment, collection, addDoc, serverTimestamp, setDoc, deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, increment, collection, addDoc, serverTimestamp, setDoc, deleteDoc, arrayUnion } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Heart, Bookmark, Copy, Check, Share2, MessageSquare, Loader2, PlayCircle, Flag, Eye, X, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -16,6 +16,19 @@ import { hasViewedRecently, recordView } from '@/lib/viewTracker';
 import { updateSEOTags, resetSEOTags } from '@/lib/seo';
 import { getOptimizedImageUrl } from '@/lib/imageOptimization';
 
+// Unlock persistence: primary key per-user, with read-compat for the legacy global key.
+const unlockStorageKey = (uid?: string | null) => (uid ? `unlocked_${uid}` : 'unlocked_guest');
+const isLocallyUnlocked = (postId: string, uid?: string | null): boolean => {
+  try {
+    const primary = JSON.parse(localStorage.getItem(unlockStorageKey(uid)) || '[]');
+    if (Array.isArray(primary) && primary.includes(postId)) return true;
+    const legacy = JSON.parse(localStorage.getItem('unlockedPrompts') || '[]');
+    return Array.isArray(legacy) && legacy.includes(postId);
+  } catch {
+    return false;
+  }
+};
+
 import CommentsSection from './CommentsSection';
 import { useComments } from '@/hooks/useComments';
 
@@ -27,6 +40,12 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
   const { user, profile, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
   const isOwner = Boolean(user && (user.uid === post.creator?.uid));
+  const [isUnlocked, setIsUnlocked] = useState<boolean>(() => {
+    const isFree = !ENABLE_MONETIZATION ? true : (effectiveMonetization === 'free' || effectiveMonetization === 'ad_supported');
+    return isFree || isOwner || isLocallyUnlocked(post.id, user?.uid);
+  });
+  const [securePrompts, setSecurePrompts] = useState<string[] | null>(null);
+  const [showCheckout, setShowCheckout] = useState(false);
   const commentsRef = useRef<HTMLDivElement>(null);
 
   const scrollToComments = () => {
@@ -69,6 +88,11 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
     setTouchEndX(e.targetTouches[0].clientX);
   };
   const effectivePrompts = useMemo(() => {
+    // Paid content lives in the protected subcollection — prefer it once fetched
+    if (securePrompts && securePrompts.length > 0) {
+      return securePrompts;
+    }
+
     if (post.prompts && post.prompts.length > 1) {
       return post.prompts;
     }
@@ -96,7 +120,29 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
     }
     
     return [post.promptText || ''];
-  }, [post.promptText, post.prompts]);
+  }, [post.promptText, post.prompts, securePrompts]);
+
+  // Paid prompts live in posts/{id}/secure_content — readable by the creator and
+  // by any user whose uid is recorded in users/{uid}.purchasedPrompts (Firestore rules).
+  useEffect(() => {
+    if (!isModalOpen || !user || effectiveMonetization !== 'charge') return;
+    if (!isUnlocked && !isOwner) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const snap = await getDoc(doc(db, 'posts', post.id, 'secure_content', 'data'));
+        if (cancelled) return;
+        if (snap.exists()) {
+          const data = snap.data();
+          const list: string[] = Array.isArray(data.prompts) && data.prompts.length > 0 ? data.prompts : [data.promptText || ''];
+          setSecurePrompts(list);
+        }
+      } catch {
+        // Rules may deny non-purchasers; the vault stays up in that case.
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [isModalOpen, user, effectiveMonetization, isUnlocked, isOwner, post.id]);
 
   const handleImageTouchEnd = () => {
     if (touchStartX === null || touchEndX === null) return;
@@ -132,18 +178,6 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
   const [isWatchingAd] = useState(false);
   
   const [previewPaywall, setPreviewPaywall] = useState(false);
-  const [isUnlocked, setIsUnlocked] = useState<boolean>(() => {
-    const isFree = !ENABLE_MONETIZATION ? true : (effectiveMonetization === 'free' || effectiveMonetization === 'ad_supported');
-    const isOwner = Boolean(user && post.creator?.uid === user.uid);
-    const storageKey = user ? `unlocked_${user.uid}` : 'unlocked_guest';
-    let localUnlocked = false;
-    try {
-      const arr = JSON.parse(localStorage.getItem(storageKey) || '[]');
-      localUnlocked = arr.includes(post.id);
-    } catch {}
-    return isFree || isOwner || localUnlocked;
-  });
-  const [showCheckout, setShowCheckout] = useState(false);
 
   const { comments, isSubmitting: isSubmittingComment, error: commentError, submitComment, likeComment: handleLikeComment, deleteComment: handleDeleteComment } = useComments(post.id, isModalOpen);
   const [newComment, setNewComment] = useState('');
@@ -190,9 +224,6 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
   
 
   useEffect(() => {
-    const storageKey = user ? `unlocked_${user.uid}` : 'unlocked_guest';
-    const unlockedArr = JSON.parse(localStorage.getItem(storageKey) || '[]');
-    
     const isFree = effectiveMonetization === 'free' || effectiveMonetization === 'ad_supported';
     
     let subUnlocked = false;
@@ -208,7 +239,7 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
       }
     }
 
-    setIsUnlocked(isFree || isOwner || subUnlocked || unlockedArr.includes(post.id));
+    setIsUnlocked(isFree || isOwner || subUnlocked || isLocallyUnlocked(post.id, user?.uid));
 
     if (user && profile) {
       const followedArr = JSON.parse(localStorage.getItem(`following_${user.uid}`) || '[]');
@@ -297,13 +328,17 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
     setShowCheckout(false);
     setIsUnlocked(true);
     try {
-      const unlockedRaw = localStorage.getItem('unlockedPrompts');
-      const unlocked = unlockedRaw ? JSON.parse(unlockedRaw) : [];
+      const key = unlockStorageKey(user?.uid);
+      const unlocked = JSON.parse(localStorage.getItem(key) || '[]');
       if (!unlocked.includes(post.id)) {
         unlocked.push(post.id);
-        localStorage.setItem('unlockedPrompts', JSON.stringify(unlocked));
+        localStorage.setItem(key, JSON.stringify(unlocked));
       }
     } catch {}
+    // Grant future access per Firestore rules (users/{uid}.purchasedPrompts)
+    if (user) {
+      updateDoc(doc(db, 'users', user.uid), { purchasedPrompts: arrayUnion(post.id) }).catch(() => {});
+    }
   };
 
   const handleWatchAdToUnlock = () => {
@@ -418,6 +453,11 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
 
   const isCreator = Boolean(user && user.uid === post.creator.uid);
   const isProtected = Boolean((effectiveMonetization === 'charge' || effectiveMonetization === 'subscribers_only') && (!isUnlocked || (isCreator && previewPaywall)));
+
+  // While locked, reveal the variant count (non-secret) so buyers know what they're paying for.
+  const promptTabCount = isProtected
+    ? Math.max(1, post.variantCount || 0)
+    : Math.max(1, effectivePrompts.length);
 
 
   return (
@@ -551,8 +591,8 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
 
               <div className={styles.mobilePromptArea}>
               <div style={{ display: 'flex', gap: '1.5rem', borderBottom: 'none', marginBottom: '1rem', marginTop: '0.5rem', overflowX: 'auto', whiteSpace: 'nowrap' }}>
-                {effectivePrompts.length > 1 ? (
-                  effectivePrompts.map((_: string, idx: number) => (
+                {promptTabCount > 1 ? (
+                  Array.from({ length: promptTabCount }, (_, idx) => (
                     <button
                       key={`prompt-${idx}`}
                       onClick={() => setActiveTab(`prompt-${idx}`)}
@@ -657,17 +697,21 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                       <div className={styles.blurredVaultContainer}>
                         <div className={styles.dummyBlurBackground} aria-hidden="true">
                           <code>
-                            /imagine prompt: [PROTECTED OLIN VAULT] cinematic photographic masterpiece, hyperdetailed textures, 8k resolution, volumetric ambiance, studio lighting, dynamic contrast, masterwork seeds [UNLOCK TO REVEAL FULL GENERATIVE PARAMETERS &amp; STYLING WEIGHTS] --v 6.0 --ar 16:9 --style raw --s 750
+                            /imagine prompt: cinematic editorial portrait, soft directional window light, 85mm lens, shallow depth of field, muted warm palette, subtle film grain, high detail --ar 4:5 --style raw
                           </code>
                         </div>
                         
                         <div className={styles.vaultOverlayContent} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '0 1rem' }}>
                           <div style={{ flex: 1, padding: '1.5rem', width: '100%', maxWidth: '350px', textAlign: 'center' }}>
                             <div style={{ fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)', fontSize: '1.1rem' }}>
-                                {effectiveMonetization === 'subscribers_only' ? 'Subscriber Vault' : effectiveMonetization === 'charge' ? 'Premium Vault' : 'Watch an Ad to unlock'}
+                                {effectiveMonetization === 'subscribers_only' ? 'Subscriber Exclusive' : effectiveMonetization === 'charge' ? 'Pay to Unlock' : 'Watch an Ad to unlock'}
                             </div>
                             <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
-                                {effectiveMonetization === 'ad_supported' ? 'The creator has chosen to monetize their prompts through ads. Click the button below to watch an ad.' : 'Unlock to reveal full generative parameters, styling seeds, and camera weights.'}
+                                {effectiveMonetization === 'ad_supported'
+                                  ? 'The creator has chosen to monetize their prompts through ads. Click the button below to watch an ad.'
+                                  : effectiveMonetization === 'charge'
+                                  ? `The creator has opted for a pay-to-unlock model for this prompt. One payment of $${post.price || '1.99'} unlocks the full prompt instantly.`
+                                  : 'This creator reserves their prompts for subscribers. Subscribe to unlock everything they publish.'}
                             </div>
                             
                             {effectiveMonetization === 'subscribers_only' ? (
