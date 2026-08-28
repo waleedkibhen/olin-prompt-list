@@ -1,5 +1,5 @@
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from './firebase';
+import { db, auth } from './firebase';
 
 export interface UserNotification {
   id: string;
@@ -24,6 +24,8 @@ export async function sendNotification(
       message,
       read: false,
       type,
+      // Firestore rules require senderId == the authenticated writer
+      senderId: auth.currentUser?.uid || null,
       createdAt: serverTimestamp()
     });
   } catch (error) {
