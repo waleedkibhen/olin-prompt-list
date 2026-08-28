@@ -365,7 +365,7 @@ export default function CreatePostPage() {
         variantCount: plainTextPrompts.filter(Boolean).length || 1,
         model: model === 'Other' ? customModel.trim() || 'Unknown' : model,
         monetizationType: monetizationType === 'free' ? 'free' : 'charge',
-        whopPlanId: whopPlanId,
+        whopPlanId: whopPlanId || null,
           price: monetizationType === 'paid' && paidUnlockMethod === 'charge' ? parseFloat(price) || 0 : 0,
         
         imageUrls: imageUrls,

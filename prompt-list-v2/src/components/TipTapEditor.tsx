@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import Underline from '@tiptap/extension-underline';
 import { Bold, Italic, Underline as UnderlineIcon, List } from 'lucide-react';
 import './TipTapEditor.css';
 
@@ -64,7 +63,6 @@ export default function TipTapEditor({ content, onChange, tall = false }: TipTap
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Underline,
     ],
     content: content,
     onUpdate: ({ editor }) => {
