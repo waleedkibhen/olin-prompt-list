@@ -1,10 +1,12 @@
 export interface Env {
   WHOP_API_KEY?: string;
   WHOP_WEBHOOK_SECRET?: string;
+  WHOP_SUB_WEBHOOK_SECRET?: string;
   FIREBASE_SERVICE_ACCOUNT?: string;
 }
 
 const FALLBACK_WEBHOOK_SECRET = "ws_416d8e96b213e38ce9988ff3f09032c46dadb8202acaae9dbcb906bc78467d48";
+const FALLBACK_SUB_WEBHOOK_SECRET = "ws_927ad114f897d78ae0e11e954700a602435db276a433c481fb724d6bae22c747";
 
 // Reuse logic from verify-purchase.ts
 function base64ToUint8Array(base64: string) {
@@ -191,16 +193,30 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     }
     
     const sig = context.request.headers.get("whop-signature");
-    if (sig) {
-      const webhookSecret = context.env.WHOP_WEBHOOK_SECRET || FALLBACK_WEBHOOK_SECRET;
-      const isValid = await verifyWhopSignature(webhookSecret, sig, rawBody);
-      if (!isValid) {
-        console.warn("Invalid webhook signature — rejecting");
-        return new Response(JSON.stringify({ success: false, reason: "Invalid signature" }), { status: 401 });
-      }
-    } else {
+    if (!sig) {
       // Whop always signs deliveries; missing header is treated as untrusted
       return new Response(JSON.stringify({ success: false, reason: "Missing signature" }), { status: 401 });
+    }
+
+    // Two live webhooks feed this endpoint (one-time payments + subscriptions):
+    // authorize if the signature verifies against ANY configured secret.
+    const candidateSecrets = [
+      context.env.WHOP_WEBHOOK_SECRET,
+      context.env.WHOP_SUB_WEBHOOK_SECRET,
+      FALLBACK_WEBHOOK_SECRET,
+      FALLBACK_SUB_WEBHOOK_SECRET
+    ].filter(Boolean) as string[];
+
+    const signatureValid = await (async () => {
+      for (const secret of candidateSecrets) {
+        if (await verifyWhopSignature(secret, sig, rawBody)) return true;
+      }
+      return false;
+    })();
+
+    if (!signatureValid) {
+      console.warn("Invalid webhook signature — rejecting");
+      return new Response(JSON.stringify({ success: false, reason: "Invalid signature" }), { status: 401 });
     }
 
     const eventType = payload.action || payload.type || "";
