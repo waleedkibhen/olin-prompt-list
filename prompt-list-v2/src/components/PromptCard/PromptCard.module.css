@@ -1190,3 +1190,22 @@
   animation: shimmerPulse 2s infinite linear;
   margin: 0.5rem 0 1rem 0;
 }
+
+/* Purple subscription CTA (blue is reserved for one-time purchases) */
+.subscribeCta {
+  background-color: #9333ea;
+  color: #ffffff;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+  border: none;
+  cursor: pointer;
+}
+.subscribeCta:hover {
+  background-color: #a855f7;
+}
+.subscribeCta:active {
+  transform: scale(0.98);
+}
+.subscribeCta:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

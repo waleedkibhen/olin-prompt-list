@@ -83,6 +83,10 @@ async function createMembershipPlan(
       currency: "usd",
       initial_price: price,
       renewal_price: price,
+      unlimited_stock: true,
+      stock: null,
+      release_method: "buy_now",
+      visibility: "visible",
       title: `Olin Membership: ${creatorName} (${interval === 'monthly' ? 'Monthly' : 'Yearly'})`,
       metadata: {
         kind: "creator_membership",

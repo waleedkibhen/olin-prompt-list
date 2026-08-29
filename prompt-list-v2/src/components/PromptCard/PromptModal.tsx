@@ -52,6 +52,7 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
   const [showCheckout, setShowCheckout] = useState(false);
   const [creatorSubSettings, setCreatorSubSettings] = useState<any>(null);
   const [showSubCheckout, setShowSubCheckout] = useState(false);
+  const [showSubPlanModal, setShowSubPlanModal] = useState(false);
   const [subBilling, setSubBilling] = useState<'monthly' | 'yearly'>('monthly');
   const [subPromptCount, setSubPromptCount] = useState<number | null>(null);
   const commentsRef = useRef<HTMLDivElement>(null);
@@ -427,11 +428,17 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
     : (creatorSubSettings?.whopMonthlyPlanId || creatorSubSettings?.monthlyPlanId);
 
   const handleSubscribeToUnlock = () => {
-    if (selectedSubPlanId) {
-      setShowSubCheckout(true);
+    if (creatorSubSettings?.whopMonthlyPlanId || creatorSubSettings?.monthlyPlanId || creatorSubSettings?.planId) {
+      setShowSubPlanModal(true);
     } else {
       toast.error(`@${post.creator.username} hasn't set up a membership plan yet.`);
     }
+  };
+
+  const openSubCheckout = (tier: 'monthly' | 'yearly') => {
+    setSubBilling(tier);
+    setShowSubPlanModal(false);
+    setShowSubCheckout(true);
   };
 
   const handleSubscribeSuccess = () => {
@@ -731,7 +738,7 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
               >
                 {activeTab.startsWith('prompt') ? (
                   <div className={styles.promptVaultBox}>
-                      {isCreator && effectiveMonetization === 'charge' && (
+                      {isCreator && (effectiveMonetization === 'charge' || effectiveMonetization === 'subscribers_only') && (
                         <div style={{ marginBottom: '0.75rem', display: 'flex' }}>
                           <button
                             type="button"
@@ -758,6 +765,39 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                         </span>
                       </div>
                     ) : isProtected ? (
+                      effectiveMonetization === 'subscribers_only' ? (
+                        <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                          <div style={{ padding: '2rem 1.75rem', backgroundColor: '#141416', border: '1px solid #27272a', borderRadius: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', width: '100%', maxWidth: '440px' }}>
+                            <Lock size={28} style={{ color: '#a855f7', marginBottom: '0.85rem' }} />
+                            <div style={{ fontWeight: 700, marginBottom: '0.5rem', color: 'var(--text-primary)', fontSize: '1.15rem', lineHeight: 1.3 }}>
+                              Subscribe to @{post.creator?.username || 'this creator'} to unlock this prompt
+                            </div>
+                            <div style={{ fontSize: '0.87rem', color: 'var(--text-secondary)', marginBottom: '1.1rem', maxWidth: '340px' }}>
+                              This creator has chosen a subscription model for their exclusive prompts.
+                              {subPromptCount != null && subPromptCount > 0 ? ` A membership instantly unlocks ${subPromptCount} subscriber-only prompt${subPromptCount === 1 ? '' : 's'}.` : ' A membership unlocks all exclusive drops they publish.'}
+                            </div>
+
+                            {creatorSubSettings?.benefits?.length > 0 && (
+                              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.25rem 0', display: 'flex', flexDirection: 'column', gap: '0.45rem', textAlign: 'left', width: '100%' }}>
+                                {creatorSubSettings.benefits.map((b: string, i: number) => (
+                                  <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                    <Check size={14} style={{ color: '#a855f7', flexShrink: 0, marginTop: '2px' }} />
+                                    <span>{b}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+
+                            <button
+                              className={styles.subscribeCta}
+                              onClick={handleSubscribeToUnlock}
+                              style={{ width: '100%', padding: '0.8rem', borderRadius: '10px', fontWeight: 600, fontSize: '0.95rem' }}
+                            >
+                              Subscribe to Unlock
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
                       <div className={styles.blurredVaultContainer}>
                         <div className={styles.dummyBlurBackground} aria-hidden="true">
                           <code>
@@ -767,74 +807,16 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                         
                         <div className={styles.vaultOverlayContent} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '0 1rem' }}>
                           <div style={{ flex: 1, padding: '1.5rem', width: '100%', maxWidth: '380px', textAlign: 'center' }}>
-                            {effectiveMonetization === 'subscribers_only' && (
-                              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', backgroundColor: 'rgba(168, 85, 247, 0.1)', border: '1px solid rgba(168, 85, 247, 0.35)', borderRadius: '9999px', padding: '0.3rem 0.8rem', marginBottom: '0.85rem', fontSize: '0.75rem', color: '#c084fc', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-                                <Lock size={12} /> Subscriber Only Content
-                              </div>
-                            )}
                             <div style={{ fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)', fontSize: '1.1rem' }}>
-                                {effectiveMonetization === 'subscribers_only'
-                                  ? `Subscribe to @${post.creator?.username || 'this creator'} to Unlock`
-                                  : effectiveMonetization === 'charge' ? 'Pay to Unlock' : 'Watch an Ad to unlock'}
+                                {effectiveMonetization === 'charge' ? 'Pay to Unlock' : 'Watch an Ad to unlock'}
                             </div>
-
-                            {effectiveMonetization === 'subscribers_only' && subPromptCount != null && subPromptCount > 0 && (
-                              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', backgroundColor: 'rgba(59, 130, 246, 0.12)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '9999px', padding: '0.3rem 0.8rem', marginBottom: '1rem', fontSize: '0.8rem', color: '#60a5fa', fontWeight: 600 }}>
-                                ⚡ Instantly Unlocks {subPromptCount} Exclusive Prompt{subPromptCount === 1 ? '' : 's'}
-                              </div>
-                            )}
-
                             <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
                                 {effectiveMonetization === 'ad_supported'
                                   ? 'The creator has chosen to monetize their prompts through ads. Click the button below to watch an ad.'
-                                  : effectiveMonetization === 'charge'
-                                  ? 'The creator has opted for a pay-to-unlock model for this prompt. One payment unlocks it instantly.'
-                                  : (creatorSubSettings?.benefits?.length
-                                      ? null
-                                      : 'Unlock this prompt and all exclusive drops with a Creator Membership.')}
+                                  : 'The creator has opted for a pay-to-unlock model for this prompt. One payment unlocks it instantly.'}
                             </div>
 
-                            {effectiveMonetization === 'subscribers_only' ? (
-                              <>
-                                {creatorSubSettings?.monthlyPrice != null && creatorSubSettings.monthlyPrice > 0 && (
-                                  <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
-                                    <button
-                                      onClick={(e) => { e.stopPropagation(); setSubBilling('monthly'); }}
-                                      style={{ flex: 1, padding: '0.55rem 0.5rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, border: subBilling === 'monthly' ? '2px solid #3b82f6' : '1px solid var(--border-color)', backgroundColor: subBilling === 'monthly' ? 'rgba(59, 130, 246, 0.12)' : 'transparent', color: 'var(--text-primary)' }}
-                                    >
-                                      Monthly · ${creatorSubSettings.monthlyPrice}/mo
-                                    </button>
-                                    {creatorSubSettings?.yearlyPrice != null && creatorSubSettings.yearlyPrice > 0 && (creatorSubSettings?.whopYearlyPlanId || creatorSubSettings?.yearlyPlanId) && (
-                                      <button
-                                        onClick={(e) => { e.stopPropagation(); setSubBilling('yearly'); }}
-                                        style={{ flex: 1, padding: '0.55rem 0.5rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, border: subBilling === 'yearly' ? '2px solid #3b82f6' : '1px solid var(--border-color)', backgroundColor: subBilling === 'yearly' ? 'rgba(59, 130, 246, 0.12)' : 'transparent', color: 'var(--text-primary)' }}
-                                      >
-                                        Yearly · ${creatorSubSettings.yearlyPrice}/yr
-                                      </button>
-                                    )}
-                                  </div>
-                                )}
-
-                                {creatorSubSettings?.benefits?.length > 0 && (
-                                  <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.25rem 0', display: 'flex', flexDirection: 'column', gap: '0.45rem', textAlign: 'left' }}>
-                                    {creatorSubSettings.benefits.map((b: string, i: number) => (
-                                      <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.83rem', color: 'var(--text-secondary)' }}>
-                                        <Check size={14} style={{ color: '#10b981', flexShrink: 0, marginTop: '2px' }} />
-                                        <span>{b}</span>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                )}
-
-                                <button
-                                  onClick={handleSubscribeToUnlock}
-                                  className="btn-solid"
-                                  style={{ width: '100%', padding: '0.75rem' }}
-                                >
-                                  Subscribe to Unlock
-                                </button>
-                              </>
-                            ) : effectiveMonetization === 'charge' ? (
+                            {effectiveMonetization === 'charge' ? (
                               <button
                                 onClick={(e) => { e.stopPropagation(); if (post.whopPlanId) { setShowCheckout(true); } else { alert('Creator has not setup a valid checkout for this item yet.'); } }}
                                 className="btn-solid"
@@ -854,6 +836,7 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                           </div>
                         </div>
                       </div>
+                      )
                     ) : (
                       <>
                         <>
@@ -946,10 +929,94 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
         />
       )}
 
+      {showSubPlanModal && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100001, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.82)', padding: '1rem' }} onClick={() => setShowSubPlanModal(false)}>
+          <div style={{ width: '100%', maxWidth: '500px', maxHeight: '85vh', overflowY: 'auto', backgroundColor: '#131316', border: '1px solid #27272a', borderRadius: '16px', padding: '1.5rem', position: 'relative' }} onClick={e => e.stopPropagation()}>
+            <button
+              onClick={() => setShowSubPlanModal(false)}
+              style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(255,255,255,0.06)', border: 'none', color: '#fff', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+              aria-label="Close"
+            >
+              <X size={16} />
+            </button>
+
+            <h3 style={{ margin: '0 0 0.35rem 0', fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)', paddingRight: '2rem' }}>
+              Choose a Membership Plan for @{post.creator?.username || 'this creator'}
+            </h3>
+            <p style={{ margin: '0 0 1.25rem 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              {subPromptCount != null && subPromptCount > 0
+                ? `Your membership instantly unlocks ${subPromptCount} subscriber-only prompt${subPromptCount === 1 ? '' : 's'} and every future drop.`
+                : 'Your membership unlocks every subscriber-only prompt and all future drops.'}
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+              <div
+                onClick={() => openSubCheckout('monthly')}
+                style={{ padding: '1.15rem', backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '12px', cursor: 'pointer', transition: 'border-color 0.2s ease', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#9333ea'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#27272a'; }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                  <span style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)' }}>Monthly</span>
+                  <span style={{ fontWeight: 700, fontSize: '1.05rem', color: '#a855f7' }}>
+                    ${creatorSubSettings?.monthlyPrice ?? '—'} <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 400 }}>/ month</span>
+                  </span>
+                </div>
+                {creatorSubSettings?.benefits?.length > 0 && (
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    {creatorSubSettings.benefits.map((b: string, i: number) => (
+                      <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                        <Check size={13} style={{ color: '#a855f7', flexShrink: 0, marginTop: '2px' }} />
+                        <span>{b}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              {(creatorSubSettings?.whopYearlyPlanId || creatorSubSettings?.yearlyPlanId) && creatorSubSettings?.yearlyPrice != null && creatorSubSettings.yearlyPrice > 0 && (
+                <div
+                  onClick={() => openSubCheckout('yearly')}
+                  style={{ padding: '1.15rem', backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '12px', cursor: 'pointer', transition: 'border-color 0.2s ease', display: 'flex', flexDirection: 'column', gap: '0.6rem', position: 'relative' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#9333ea'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#27272a'; }}
+                >
+                  {creatorSubSettings?.monthlyPrice != null && creatorSubSettings.monthlyPrice > 0 && creatorSubSettings.yearlyPrice < creatorSubSettings.monthlyPrice * 12 && (
+                    <span style={{ position: 'absolute', top: '1rem', right: '1rem', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.35)', borderRadius: '9999px', padding: '0.15rem 0.55rem', fontSize: '0.7rem', color: '#10b981', fontWeight: 700 }}>
+                      Save {Math.round((1 - creatorSubSettings.yearlyPrice / (creatorSubSettings.monthlyPrice * 12)) * 100)}%
+                    </span>
+                  )}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', paddingRight: '4.5rem' }}>
+                    <span style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)' }}>Yearly</span>
+                    <span style={{ fontWeight: 700, fontSize: '1.05rem', color: '#a855f7' }}>
+                      ${creatorSubSettings.yearlyPrice} <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 400 }}>/ year</span>
+                    </span>
+                  </div>
+                  {creatorSubSettings?.benefits?.length > 0 && (
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                      {creatorSubSettings.benefits.map((b: string, i: number) => (
+                        <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                          <Check size={13} style={{ color: '#a855f7', flexShrink: 0, marginTop: '2px' }} />
+                          <span>{b}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div style={{ marginTop: '1.1rem', fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center' }}>
+              Secure checkout powered by Whop · Cancel anytime
+            </div>
+          </div>
+        </div>
+      )}
+
       {showSubCheckout && selectedSubPlanId && (
         <WhopCheckoutModal
           planId={selectedSubPlanId}
-          metadata={{ creatorId: post.creator?.uid || '', buyerId: user?.uid || '', billingInterval: subBilling }}
+          metadata={{ creatorId: post.creator?.uid || '', buyerId: user?.uid || '', tier: subBilling, billingInterval: subBilling }}
           onSuccess={handleSubscribeSuccess}
           onClose={() => setShowSubCheckout(false)}
         />
