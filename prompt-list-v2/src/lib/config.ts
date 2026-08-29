@@ -11,3 +11,12 @@
  * To activate the full Whop subscription monetization engine when ready, simply change this flag to true!
  */
 export const ENABLE_MONETIZATION = true;
+
+/**
+ * ENABLE_ADS:
+ * When set to false:
+ * - No ad scripts, containers, service workers, or tracking listeners execute.
+ * - Legacy "ad_supported" posts are treated as free content.
+ * - Payout calculation functions and backend schemas remain intact for potential re-enablement.
+ */
+export const ENABLE_ADS = false;

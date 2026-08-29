@@ -1,5 +1,5 @@
 import React from 'react';
-import { DollarSign, Lock, MonitorPlay, Eye, AlertTriangle, ExternalLink } from 'lucide-react';
+import { DollarSign, Lock, Eye, AlertTriangle, ExternalLink, BadgeCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import styles from './dashboard.module.css';
 
@@ -8,14 +8,23 @@ interface MonetizationTabProps {
   displayMonetizationPosts: any[];
   setIsPayoutModalOpen: (open: boolean) => void;
   setIsMonetizationModalOpen: (open: boolean) => void;
-  monetizationFilter: string;
 }
 
 export default function MonetizationTab({
-  monetizationStats, displayMonetizationPosts, setIsPayoutModalOpen, setIsMonetizationModalOpen, monetizationFilter
+  monetizationStats, displayMonetizationPosts, setIsPayoutModalOpen, setIsMonetizationModalOpen
 }: MonetizationTabProps) {
   return (
     <>
+      <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.06)', border: '1px solid rgba(16, 185, 129, 0.25)', borderRadius: '12px', padding: '1.1rem 1.35rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+        <BadgeCheck size={22} style={{ color: '#10b981', flexShrink: 0 }} />
+        <div>
+          <div style={{ fontWeight: 700, color: '#10b981', fontSize: '1rem' }}>0% Platform Fee — You keep 100% of your earnings.</div>
+          <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.2rem' }}>
+            Earn through Direct Prompt Purchases ($1–$50) and Monthly Creator Subscriptions.
+          </div>
+        </div>
+      </div>
+
       <section className={styles.kpiGrid}>
         <div className={styles.kpiCard}>
           <div className={styles.kpiTop}>
@@ -23,9 +32,20 @@ export default function MonetizationTab({
             <span>Total Revenue</span>
           </div>
           <div className={styles.kpiValueRow}>
-            <div className={styles.kpiValue}>${monetizationStats.totalRevenue.toFixed(2)}</div>
+            <div className={styles.kpiValue}>${monetizationStats.paidRevenue.toFixed(2)}</div>
           </div>
-          <div className={styles.kpiDesc}>Estimated overall earnings</div>
+          <div className={styles.kpiDesc}>Direct prompt sales, 100% yours</div>
+        </div>
+
+        <div className={styles.kpiCard}>
+          <div className={styles.kpiTop}>
+            <Eye size={18} className={styles.kpiIcon} style={{color: 'var(--text-muted)'}} />
+            <span>Purchases</span>
+          </div>
+          <div className={styles.kpiValueRow}>
+            <div className={styles.kpiValue}>{monetizationStats.paidUnlocks.toLocaleString()}</div>
+          </div>
+          <div className={styles.kpiDesc}>Prompt copies unlocked</div>
         </div>
 
         <div className={styles.kpiCard}>
@@ -36,58 +56,11 @@ export default function MonetizationTab({
           <div className={styles.kpiValueRow}>
             <div className={styles.kpiValue}>{monetizationStats.paidPosts.toLocaleString()}</div>
           </div>
-          <div className={styles.kpiDesc}>Charge-to-unlock prompts</div>
-        </div>
-
-        <div className={styles.kpiCard}>
-          <div className={styles.kpiTop}>
-            <DollarSign size={18} className={styles.kpiIcon} style={{color: 'var(--text-muted)'}} />
-            <span>Paid Revenue</span>
-          </div>
-          <div className={styles.kpiValueRow}>
-            <div className={styles.kpiValue}>${monetizationStats.paidRevenue.toFixed(2)}</div>
-          </div>
-          <div className={styles.kpiDesc}>Direct prompt sales</div>
-        </div>
-
-        <div className={styles.kpiCard}>
-          <div className={styles.kpiTop}>
-            <MonitorPlay size={18} className={styles.kpiIcon} style={{color: 'var(--text-muted)'}} />
-            <span>Ad Posts</span>
-          </div>
-          <div className={styles.kpiValueRow}>
-            <div className={styles.kpiValue}>{monetizationStats.adPosts.toLocaleString()}</div>
-          </div>
-          <div className={styles.kpiDesc}>Ad-supported prompts</div>
-        </div>
-
-        <div className={styles.kpiCard}>
-          <div className={styles.kpiTop}>
-            <Eye size={18} className={styles.kpiIcon} style={{color: 'var(--text-muted)'}} />
-            <span>Ad Revenue</span>
-          </div>
-          <div className={styles.kpiValueRow}>
-            <div className={styles.kpiValue}>${monetizationStats.adRevenue.toFixed(2)}</div>
-          </div>
-          <div className={styles.kpiDesc}>Estimated monthly pool share</div>
+          <div className={styles.kpiDesc}>Pay-to-unlock prompts</div>
         </div>
       </section>
 
-      {monetizationStats.isAdRevenuePending && (
-        <div style={{ backgroundColor: 'rgba(234, 179, 8, 0.05)', border: '1px solid rgba(234, 179, 8, 0.2)', borderRadius: '12px', padding: '1.25rem', marginBottom: '1.5rem', display: 'flex', gap: '1rem' }}>
-          <div style={{ color: '#eab308', flexShrink: 0, marginTop: '0.25rem' }}>
-            <AlertTriangle size={24} />
-          </div>
-          <div>
-            <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', fontWeight: 600, color: '#f8fafc' }}>Ad Revenue Pending</h3>
-            <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.5 }}>
-              Your ad earnings will appear once you reach a total of 1,000 views. Current views: {monetizationStats.adViews.toLocaleString()}
-            </p>
-          </div>
-        </div>
-      )}
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '2rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
         <button 
           className="btn-solid" 
           onClick={() => setIsPayoutModalOpen(true)}
@@ -123,8 +96,8 @@ export default function MonetizationTab({
       {displayMonetizationPosts.length === 0 ? (
         <div className={styles.emptyState}>
           <AlertTriangle size={48} className={styles.emptyIcon} />
-          <h3>No artwork found</h3>
-          <p>Try adjusting your filter or setting up a monetized prompt.</p>
+          <h3>No monetized artwork found</h3>
+          <p>Publish a post and choose Paid or Subscriber Only access to start earning.</p>
         </div>
       ) : (
         <div className={styles.tableContainer}>
@@ -132,10 +105,8 @@ export default function MonetizationTab({
             <thead>
               <tr>
                 <th>Artwork &amp; Title</th>
-                <th>Monetization</th>
-                <th className={styles.textRight}>
-                  {monetizationFilter === 'paid' ? 'Purchases' : monetizationFilter === 'ad' ? 'Views' : 'Unlocks / Views'}
-                </th>
+                <th>Access Tier</th>
+                <th className={styles.textRight}>Purchases</th>
                 <th className={styles.textRight}>Revenue Earned</th>
                 <th>Actions</th>
               </tr>
@@ -143,7 +114,7 @@ export default function MonetizationTab({
             <tbody>
               {displayMonetizationPosts.map(post => {
                 const isPaid = post.monetizationType === 'charge';
-                const unlocks = isPaid ? (post.copiesCount || 0) : (post.viewsCount || 0);
+                const unlocks = post.copiesCount || 0;
                 const revenue = isPaid 
                   ? (unlocks * (post.price || 1.99)).toFixed(2) 
                   : null;
@@ -168,7 +139,7 @@ export default function MonetizationTab({
                         </span>
                       ) : (
                         <span className={styles.badgePill} style={{ backgroundColor: 'transparent', color: 'var(--text-muted)', border: 'none', padding: 0 }}>
-                          Ad-Supported
+                          Subscriber Only
                         </span>
                       )}
                     </td>

@@ -36,8 +36,7 @@ export default function CreatePostPage() {
   const [activePromptIndex, setActivePromptIndex] = useState(0);
   const [model, setModel] = useState('Midjourney');
   const [customModel, setCustomModel] = useState('');
-  const [monetizationType, setMonetizationType] = useState<'free'|'paid'>('free');
-  const [paidUnlockMethod] = useState<'charge'>('charge');
+  const [monetizationType, setMonetizationType] = useState<'free'|'subscribers_only'|'charge'>('free');
   const [price, setPrice] = useState('1.99');
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
   const [wasFlagged] = useState(false);
@@ -319,11 +318,15 @@ export default function CreatePostPage() {
       
       const newPostRef = doc(collection(db, 'posts'));
       
-      let whopPlanId = undefined;
-      if (monetizationType === 'paid' && paidUnlockMethod === 'charge') {
+      let whopPlanId: string | null = null;
+      if (monetizationType === 'charge') {
         const pVal = parseFloat(price) || 0;
-        if (pVal > 0) {
-          try {
+        if (pVal < 1 || pVal > 50) {
+          setModerationError('Price must be between $1.00 and $50.00 for pay-to-unlock posts.');
+          setIsScanning(false);
+          return;
+        }
+        try {
             const whopRes = await fetch('/api/whop/create-checkout', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -345,11 +348,11 @@ export default function CreatePostPage() {
             setIsScanning(false);
             return;
           }
-        }
       }
 
       
-      const isCharge = monetizationType === 'paid' && paidUnlockMethod === 'charge';
+      const isSecure = monetizationType !== 'free';
+      const isCharge = monetizationType === 'charge';
       const postPayload = {
         id: newPostRef.id,
         creatorId: user.uid,
@@ -359,14 +362,14 @@ export default function CreatePostPage() {
         
         title,
         description,
-        promptText: isCharge ? "" : prompts[0],
-        prompts: isCharge ? [] : prompts,
+        promptText: isSecure ? "" : prompts[0],
+        prompts: isSecure ? [] : prompts,
         // Non-secret metadata so locked posts can advertise their variant count
         variantCount: plainTextPrompts.filter(Boolean).length || 1,
         model: model === 'Other' ? customModel.trim() || 'Unknown' : model,
-        monetizationType: monetizationType === 'free' ? 'free' : 'charge',
+        monetizationType,
         whopPlanId: whopPlanId || null,
-          price: monetizationType === 'paid' && paidUnlockMethod === 'charge' ? parseFloat(price) || 0 : 0,
+          price: isCharge ? parseFloat(price) || 0 : 0,
         
         imageUrls: imageUrls,
         imageHash: fileHash,
@@ -391,8 +394,8 @@ export default function CreatePostPage() {
 
       await setDoc(newPostRef, postPayload);
       
-      // If charge, put the actual prompt text in the secure subcollection
-      if (isCharge) {
+      // Protected tiers (Paid + Subscriber Only) keep real prompts in the secure subcollection
+      if (isSecure) {
         const secureRef = doc(collection(db, 'posts', newPostRef.id, 'secure_content'), 'data');
         await setDoc(secureRef, {
           promptText: prompts[0],
@@ -686,43 +689,51 @@ export default function CreatePostPage() {
           <div className={styles.fieldGroup} style={{ marginTop: '1.5rem', padding: '1.5rem', backgroundColor: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
             <label style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>Monetization Options</label>
             
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
               <div 
-                style={{ flex: 1, padding: '1rem', border: `2px solid ${monetizationType === 'free' ? '#3b82f6' : 'var(--border-color)'}`, borderRadius: '8px', cursor: 'pointer', backgroundColor: monetizationType === 'free' ? 'rgba(59, 130, 246, 0.1)' : 'transparent' }}
+                style={{ flex: 1, minWidth: '140px', padding: '1rem', border: `2px solid ${monetizationType === 'free' ? '#3b82f6' : 'var(--border-color)'}`, borderRadius: '8px', cursor: 'pointer', backgroundColor: monetizationType === 'free' ? 'rgba(59, 130, 246, 0.1)' : 'transparent' }}
                 onClick={() => setMonetizationType('free')}
               >
                 <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Free</div>
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Anyone can view your prompt</div>
               </div>
               <div 
-                style={{ flex: 1, padding: '1rem', border: `2px solid ${monetizationType === 'paid' ? '#10b981' : 'var(--border-color)'}`, borderRadius: '8px', cursor: 'pointer', backgroundColor: monetizationType === 'paid' ? 'rgba(16, 185, 129, 0.1)' : 'transparent' }}
-                onClick={() => setMonetizationType('paid')}
+                style={{ flex: 1, minWidth: '140px', padding: '1rem', border: `2px solid ${monetizationType === 'subscribers_only' ? '#a855f7' : 'var(--border-color)'}`, borderRadius: '8px', cursor: 'pointer', backgroundColor: monetizationType === 'subscribers_only' ? 'rgba(168, 85, 247, 0.1)' : 'transparent' }}
+                onClick={() => setMonetizationType('subscribers_only')}
               >
-                <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Paid</div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Require users to unlock your prompt</div>
+                <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Subscriber Only</div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Included in your Creator Membership</div>
+              </div>
+              <div 
+                style={{ flex: 1, minWidth: '140px', padding: '1rem', border: `2px solid ${monetizationType === 'charge' ? '#10b981' : 'var(--border-color)'}`, borderRadius: '8px', cursor: 'pointer', backgroundColor: monetizationType === 'charge' ? 'rgba(16, 185, 129, 0.1)' : 'transparent' }}
+                onClick={() => setMonetizationType('charge')}
+              >
+                <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Paid One-Time Purchase</div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Set a fixed price ($1–$50) per unlock</div>
               </div>
             </div>
 
-            {monetizationType === 'paid' && (
+            {monetizationType === 'charge' && (
               <div style={{ padding: '1rem', backgroundColor: 'var(--bg-primary)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                
-                {paidUnlockMethod === 'charge' && (
-                  <div style={{ marginTop: '1rem' }}>
-                    <label style={{ fontSize: '0.85rem' }}>Price (USD)</label>
-                    <div style={{ position: 'relative', marginTop: '0.5rem' }}>
-                      <span style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }}>$</span>
-                      <input 
-                        type="number" 
-                        step="0.01"
-                        min="0.99"
-                        value={price}
-                        onChange={(e) => setPrice(e.target.value)}
-                        className={styles.plainInput}
-                        style={{ paddingLeft: '2rem' }}
-                      />
-                    </div>
+                <div style={{ marginTop: '0.25rem' }}>
+                  <label style={{ fontSize: '0.85rem' }}>Price (USD) — between $1 and $50</label>
+                  <div style={{ position: 'relative', marginTop: '0.5rem' }}>
+                    <span style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }}>$</span>
+                    <input 
+                      type="number" 
+                      step="0.01"
+                      min="1"
+                      max="50"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                      className={styles.plainInput}
+                      style={{ paddingLeft: '2rem' }}
+                    />
                   </div>
-                )}
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+                    You keep 100% of every sale. 0% platform fee.
+                  </div>
+                </div>
               </div>
             )}
           </div>

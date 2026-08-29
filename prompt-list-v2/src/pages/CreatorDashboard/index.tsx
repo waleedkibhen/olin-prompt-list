@@ -21,7 +21,6 @@ export default function CreatorDashboardPage() {
   const [loadingDb, setLoadingDb] = useState(true);
   const [timeFilter, setTimeFilter] = useState('30d');
   const [activeTab, setActiveTab] = useState<'performance' | 'monetization'>('performance');
-  const [monetizationFilter] = useState<'all' | 'paid' | 'ad'>('all');
   const [postToDelete, setPostToDelete] = useState<{ id: string, title: string } | null>(null);
   const [followerCount, setFollowerCount] = useState(0);
   const [isPayoutModalOpen, setIsPayoutModalOpen] = useState(false);
@@ -332,7 +331,6 @@ export default function CreatorDashboardPage() {
               displayMonetizationPosts={displayMonetizationPosts}
               setIsPayoutModalOpen={setIsPayoutModalOpen}
               setIsMonetizationModalOpen={setIsMonetizationModalOpen}
-              monetizationFilter={monetizationFilter}
             />
           )}
         </>

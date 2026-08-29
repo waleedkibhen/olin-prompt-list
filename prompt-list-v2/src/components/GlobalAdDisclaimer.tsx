@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { ENABLE_ADS } from '@/lib/config';
 
 export default function GlobalAdDisclaimer() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    if (!ENABLE_ADS) return;
     const dismissed = localStorage.getItem('adDisclaimerDismissed');
     if (!dismissed) {
       setIsVisible(true);

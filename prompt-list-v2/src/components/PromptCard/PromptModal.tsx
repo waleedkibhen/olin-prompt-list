@@ -7,7 +7,7 @@ import { doc, getDoc, updateDoc, increment, collection, addDoc, serverTimestamp,
 import { db } from '@/lib/firebase';
 import { Heart, Bookmark, Copy, Check, Share2, MessageSquare, Loader2, PlayCircle, Flag, Eye, X, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ENABLE_MONETIZATION } from '@/lib/config';
+import { ENABLE_MONETIZATION, ENABLE_ADS } from '@/lib/config';
 import ReportModal from '@/components/ReportModal';
 import DiscoverMore from '../DiscoverMore';
 import RichTextRenderer, { copyRichPrompt } from '@/components/RichTextRenderer';
@@ -34,7 +34,12 @@ import { useComments } from '@/hooks/useComments';
 
 export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked, isSaved, likesCount, savesCount, toggleLike, toggleSave, onCloseOverride, defaultOpen }: { post: PromptPost; [key: string]: any }) {
 
-  const effectiveMonetization = !ENABLE_MONETIZATION ? 'free' : ((post.monetizationType as any) === 'ad' ? 'ad_supported' : (post.monetizationType || (post.isPaid ? 'subscribers_only' : 'free')));
+  // Legacy 'ad'/'ad_supported' posts fall back to free content when ads are disabled
+  const effectiveMonetization = (() => {
+    if (!ENABLE_MONETIZATION) return 'free';
+    const raw = (post.monetizationType as any) === 'ad' ? 'ad_supported' : (post.monetizationType || (post.isPaid ? 'subscribers_only' : 'free'));
+    return !ENABLE_ADS && raw === 'ad_supported' ? 'free' : raw;
+  })();
   const isAdSupported = Boolean(effectiveMonetization === 'ad_supported' || (post.monetizationType as any) === 'ad_supported' || (post.monetizationType as any) === 'ad');
   const [adDelayComplete, setAdDelayComplete] = useState(true);
   const { user, profile, signInWithGoogle } = useAuth();
@@ -125,7 +130,8 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
   // Paid prompts live in posts/{id}/secure_content — readable by the creator and
   // by any user whose uid is recorded in users/{uid}.purchasedPrompts (Firestore rules).
   useEffect(() => {
-    if (!isModalOpen || !user || effectiveMonetization !== 'charge') return;
+    if (!isModalOpen || !user) return;
+    if (effectiveMonetization !== 'charge' && effectiveMonetization !== 'subscribers_only') return;
     if (!isUnlocked && !isOwner) return;
     let cancelled = false;
     (async () => {

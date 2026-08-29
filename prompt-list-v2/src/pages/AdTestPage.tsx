@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
+import { ENABLE_ADS } from '@/lib/config';
 
 const AdTestPage = () => {
   useEffect(() => {
+    if (!ENABLE_ADS) return;
     // Safely inject the script only when this component mounts
     const script = document.createElement('script');
     script.src = 'https://pl30941411.effectivecpmnetwork.com/d0/cd/78/d0cd78e0f7daecfe6effe9409b414efc.js';

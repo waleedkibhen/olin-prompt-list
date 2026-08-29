@@ -1,5 +1,5 @@
 import React from 'react';
-import { Info, Lock, PlayCircle, DollarSign, X } from 'lucide-react';
+import { Info, Lock, Users, DollarSign, X } from 'lucide-react';
 
 interface MonetizationInfoModalProps {
   onClose: () => void;
@@ -37,19 +37,19 @@ export default function MonetizationInfoModal({ onClose }: MonetizationInfoModal
         <div style={{ fontSize: '0.95rem', lineHeight: 1.6, display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <div>
             <h4 style={{ margin: '0 0 0.5rem 0', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600 }}>
-              <Lock size={16} style={{ color: '#a1a1aa' }} /> Paid Prompts (0% Platform Fee)
+              <Lock size={16} style={{ color: '#a1a1aa' }} /> Direct Prompt Purchases
             </h4>
             <p style={{ margin: 0, color: '#a1a1aa' }}>
-              When someone purchases your prompt, you keep 100% of your earnings minus standard card processing fees (2.7% + $0.30 via Whop). We charge 0% in platform fees.
+              Set a fixed price between $1 and $50 on any prompt. Buyers pay once to unlock it instantly. 0% Platform Fee — you keep 100% of every sale (standard card processing fees via Whop apply).
             </p>
           </div>
 
           <div>
             <h4 style={{ margin: '0 0 0.5rem 0', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600 }}>
-              <PlayCircle size={16} style={{ color: '#a1a1aa' }} /> Ad Revenue Pool
+              <Users size={16} style={{ color: '#a1a1aa' }} /> Monthly Creator Subscriptions
             </h4>
             <p style={{ margin: 0, color: '#a1a1aa' }}>
-              Earn passive income simply by publishing quality prompts. All ad revenue is pooled at the end of each month and distributed to creators with 1,000+ views based on their total share of platform impressions.
+              Offer a Creator Membership and unlock recurring revenue. Subscribers get access to every Subscriber-Only prompt you publish, automatically.
             </p>
           </div>
 

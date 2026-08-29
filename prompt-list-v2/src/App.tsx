@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import { ENABLE_ADS } from '@/lib/config';
 import GlobalAdManager from '@/components/GlobalAdManager';
 import Navbar from '@/components/Navbar';
 import HomePage from '@/pages/HomePage';
@@ -24,6 +25,7 @@ const AdTestPage = lazy(() => import('@/pages/AdTestPage'));
 export default function App() {
   // Prevent leaked ad listeners on document from triggering on the Discover page
   React.useEffect(() => {
+    if (!ENABLE_ADS) return;
     const handleBodyClick = (e: MouseEvent) => {
       // If a post modal is not open, stop clicks from bubbling up to document
       // where Monetag's rogue global listeners are hiding.

@@ -62,10 +62,12 @@ service cloud.firestore {
         // Creator and Admin can read and write
         allow write: if (isAuthenticated() && get(/databases/$(database)/documents/posts/$(postId)).data.creatorId == request.auth.uid) || isAdmin();
         
-        // Anyone who purchased it (stored in users/{auth.uid}.purchasedPrompts) can read
+        // Read: creator, admin, purchasers, or active Creator Membership subscribers
         allow read: if (isAuthenticated() && get(/databases/$(database)/documents/posts/$(postId)).data.creatorId == request.auth.uid) 
                     || isAdmin()
-                    || (isAuthenticated() && postId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('purchasedPrompts', []));
+                    || (isAuthenticated() && postId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('purchasedPrompts', []))
+                    || (isAuthenticated() && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('isPremium', false) == true
+                        || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('subscriptionStatus', '') == 'active'));
       }
 
       

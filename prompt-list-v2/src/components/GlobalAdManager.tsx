@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { ENABLE_ADS } from '@/lib/config';
 
 export default function GlobalAdManager() {
   const location = useLocation();
 
   useEffect(() => {
+    if (!ENABLE_ADS) return;
     // Sandbox Monetag's ability to open popups or navigate when not allowed
     if (!(window as any)._monetagSandboxed) {
       (window as any)._monetagSandboxed = true;
