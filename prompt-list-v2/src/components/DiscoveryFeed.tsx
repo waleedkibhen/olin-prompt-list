@@ -158,6 +158,8 @@ export default function DiscoveryFeed() {
           promptText: data.promptText || '',
           prompts: data.prompts || undefined,
           variantCount: data.variantCount || undefined,
+          accessTier: data.accessTier || undefined,
+          creatorId: data.creatorId || undefined,
           imageUrls: data.imageUrls || [],
           model: data.model || 'Midjourney V6',
           styleTag: data.styleTag || 'Community',

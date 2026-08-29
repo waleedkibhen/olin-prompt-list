@@ -62,13 +62,12 @@ service cloud.firestore {
         // Creator and Admin can read and write
         allow write: if (isAuthenticated() && get(/databases/$(database)/documents/posts/$(postId)).data.creatorId == request.auth.uid) || isAdmin();
         
-        // Read: creator, admin, purchasers, active subscribers of THIS creator, or platform premium
+        // Read: creator, admin, purchasers, or active subscribers of THIS creator
+        // (strict per-creator model — legacy platform-premium no longer grants vault access)
         allow read: if (isAuthenticated() && get(/databases/$(database)/documents/posts/$(postId)).data.creatorId == request.auth.uid) 
                     || isAdmin()
                     || (isAuthenticated() && postId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('purchasedPrompts', []))
-                    || (isAuthenticated() && get(/databases/$(database)/documents/posts/$(postId)).data.creatorId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('activeSubscriptions', []))
-                    || (isAuthenticated() && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('isPremium', false) == true
-                        || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('subscriptionStatus', '') == 'active'));
+                    || (isAuthenticated() && get(/databases/$(database)/documents/posts/$(postId)).data.creatorId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('activeSubscriptions', []));
       }
 
       

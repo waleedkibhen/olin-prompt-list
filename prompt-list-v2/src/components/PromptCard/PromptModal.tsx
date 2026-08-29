@@ -5,7 +5,7 @@ import { PromptPost } from '@/lib/mockData';
 import { useAuth } from '@/context/AuthContext';
 import { doc, getDoc, updateDoc, increment, collection, addDoc, serverTimestamp, setDoc, deleteDoc, arrayUnion, query, where, getCountFromServer } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Heart, Bookmark, Copy, Check, Share2, MessageSquare, Loader2, PlayCircle, Flag, Eye, X, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { Heart, Bookmark, Copy, Check, Share2, MessageSquare, Loader2, PlayCircle, Flag, Eye, X, ChevronLeft, ChevronRight, Plus, Lock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ENABLE_MONETIZATION, ENABLE_ADS } from '@/lib/config';
 import ReportModal from '@/components/ReportModal';
@@ -37,7 +37,7 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
   // Legacy 'ad'/'ad_supported' posts fall back to free content when ads are disabled
   const effectiveMonetization = (() => {
     if (!ENABLE_MONETIZATION) return 'free';
-    const raw = (post.monetizationType as any) === 'ad' ? 'ad_supported' : (post.monetizationType || (post.isPaid ? 'subscribers_only' : 'free'));
+    const raw = (post.monetizationType as any) === 'ad' ? 'ad_supported' : (post.monetizationType || (post.accessTier === 'subscriber' ? 'subscribers_only' : (post.isPaid ? 'subscribers_only' : 'free')));
     return !ENABLE_ADS && raw === 'ad_supported' ? 'free' : raw;
   })();
   const isAdSupported = Boolean(effectiveMonetization === 'ad_supported' || (post.monetizationType as any) === 'ad_supported' || (post.monetizationType as any) === 'ad');
@@ -244,16 +244,11 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
     
     let subUnlocked = false;
     if (user && effectiveMonetization === 'subscribers_only') {
-      const creatorUid = post.creator?.uid;
-      const subscribedToCreator = Boolean(creatorUid && profile?.activeSubscriptions?.includes(creatorUid));
-      const subStatus = user ? localStorage.getItem(`olin_subscription_${user.uid}`) : null;
-      if (
-        subscribedToCreator ||
-        subStatus === 'active' || 
-        profile?.isPremium === true || 
-        profile?.subscriptionStatus === 'active' ||
-        localStorage.getItem('olin_recent_success') === 'true'
-      ) {
+      const creatorUid = post.creator?.uid || post.creatorId;
+      // Strict per-creator gate: only an active subscription to THIS creator unlocks.
+      // Legacy platform-premium flags (isPremium / olin_recent_success) no longer
+      // grant subscriber-only content.
+      if (creatorUid && profile?.activeSubscriptions?.includes(creatorUid)) {
         subUnlocked = true;
       }
     }
@@ -266,7 +261,7 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
         setIsFollowing(followedArr.includes(post.creator.uid));
       }
     }
-  }, [user, profile, post.id, post.creator?.uid, post.isPaid, post.monetizationType, effectiveMonetization, isOwner]);
+  }, [user, profile, post.id, post.creator?.uid, post.creatorId, post.isPaid, post.monetizationType, post.accessTier, effectiveMonetization, isOwner]);
 
   
 
@@ -772,6 +767,11 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                         
                         <div className={styles.vaultOverlayContent} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '0 1rem' }}>
                           <div style={{ flex: 1, padding: '1.5rem', width: '100%', maxWidth: '380px', textAlign: 'center' }}>
+                            {effectiveMonetization === 'subscribers_only' && (
+                              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', backgroundColor: 'rgba(168, 85, 247, 0.1)', border: '1px solid rgba(168, 85, 247, 0.35)', borderRadius: '9999px', padding: '0.3rem 0.8rem', marginBottom: '0.85rem', fontSize: '0.75rem', color: '#c084fc', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                                <Lock size={12} /> Subscriber Only Content
+                              </div>
+                            )}
                             <div style={{ fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)', fontSize: '1.1rem' }}>
                                 {effectiveMonetization === 'subscribers_only'
                                   ? `Subscribe to @${post.creator?.username || 'this creator'} to Unlock`
@@ -831,7 +831,7 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                                   className="btn-solid"
                                   style={{ width: '100%', padding: '0.75rem' }}
                                 >
-                                  Subscribe on Whop
+                                  Subscribe to Unlock
                                 </button>
                               </>
                             ) : effectiveMonetization === 'charge' ? (

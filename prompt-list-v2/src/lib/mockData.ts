@@ -15,6 +15,8 @@ export interface PromptPost {
   promptText: string;
   prompts?: string[];
   variantCount?: number;
+  accessTier?: 'free' | 'subscriber' | 'paid' | string;
+  creatorId?: string;
   imageUrls: string[];
   model: 'Midjourney V6' | 'Flux.1' | 'DALL-E 3' | 'Stable Diffusion XL' | string;
   styleTag: string;
