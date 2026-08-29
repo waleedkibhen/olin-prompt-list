@@ -215,8 +215,8 @@ export default function CreatorDashboardPage() {
   }, [creatorPosts, totalPlatformAdViews, globalAdPool]);
 
   const displayMonetizationPosts = React.useMemo(() => {
-    // All posts are monetized via global ad revenue now
-    return creatorPosts;
+    // Only genuinely monetized posts belong here: paid unlocks + subscriber-only
+    return creatorPosts.filter(p => p.monetizationType === 'charge' || p.monetizationType === 'subscribers_only');
   }, [creatorPosts]);
 
 

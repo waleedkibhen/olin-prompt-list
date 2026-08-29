@@ -689,51 +689,68 @@ export default function CreatePostPage() {
           <div className={styles.fieldGroup} style={{ marginTop: '1.5rem', padding: '1.5rem', backgroundColor: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
             <label style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>Monetization Options</label>
             
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '1rem' }}>
               <div 
-                style={{ flex: 1, minWidth: '140px', padding: '1rem', border: `2px solid ${monetizationType === 'free' ? '#3b82f6' : 'var(--border-color)'}`, borderRadius: '8px', cursor: 'pointer', backgroundColor: monetizationType === 'free' ? 'rgba(59, 130, 246, 0.1)' : 'transparent' }}
+                style={{ flex: 1, padding: '0.9rem 1rem', border: `2px solid ${monetizationType === 'free' ? '#3b82f6' : 'var(--border-color)'}`, borderRadius: '8px', cursor: 'pointer', backgroundColor: monetizationType === 'free' ? 'rgba(59, 130, 246, 0.1)' : 'transparent' }}
                 onClick={() => setMonetizationType('free')}
               >
-                <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Free</div>
+                <div style={{ fontWeight: 600 }}>Free</div>
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Anyone can view your prompt</div>
               </div>
               <div 
-                style={{ flex: 1, minWidth: '140px', padding: '1rem', border: `2px solid ${monetizationType === 'subscribers_only' ? '#a855f7' : 'var(--border-color)'}`, borderRadius: '8px', cursor: 'pointer', backgroundColor: monetizationType === 'subscribers_only' ? 'rgba(168, 85, 247, 0.1)' : 'transparent' }}
-                onClick={() => setMonetizationType('subscribers_only')}
+                style={{ flex: 1, padding: '0.9rem 1rem', border: `2px solid ${monetizationType !== 'free' ? '#10b981' : 'var(--border-color)'}`, borderRadius: '8px', cursor: 'pointer', backgroundColor: monetizationType !== 'free' ? 'rgba(16, 185, 129, 0.1)' : 'transparent' }}
+                onClick={() => setMonetizationType(monetizationType === 'free' ? 'charge' : monetizationType)}
               >
-                <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Subscriber Only</div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Included in your Creator Membership</div>
-              </div>
-              <div 
-                style={{ flex: 1, minWidth: '140px', padding: '1rem', border: `2px solid ${monetizationType === 'charge' ? '#10b981' : 'var(--border-color)'}`, borderRadius: '8px', cursor: 'pointer', backgroundColor: monetizationType === 'charge' ? 'rgba(16, 185, 129, 0.1)' : 'transparent' }}
-                onClick={() => setMonetizationType('charge')}
-              >
-                <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Paid One-Time Purchase</div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Set a fixed price ($1–$50) per unlock</div>
+                <div style={{ fontWeight: 600 }}>Paid</div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Monetize this prompt</div>
               </div>
             </div>
 
-            {monetizationType === 'charge' && (
+            {monetizationType !== 'free' && (
               <div style={{ padding: '1rem', backgroundColor: 'var(--bg-primary)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                <div style={{ marginTop: '0.25rem' }}>
-                  <label style={{ fontSize: '0.85rem' }}>Price (USD) — between $1 and $50</label>
-                  <div style={{ position: 'relative', marginTop: '0.5rem' }}>
-                    <span style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }}>$</span>
-                    <input 
-                      type="number" 
-                      step="0.01"
-                      min="1"
-                      max="50"
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value)}
-                      className={styles.plainInput}
-                      style={{ paddingLeft: '2rem' }}
-                    />
+                <label style={{ fontSize: '0.85rem', display: 'block', marginBottom: '0.6rem', color: 'var(--text-secondary)' }}>Who can unlock it?</label>
+                <div style={{ display: 'flex', gap: '0.75rem', marginBottom: monetizationType === 'charge' ? '1rem' : 0 }}>
+                  <div
+                    style={{ flex: 1, padding: '0.6rem 0.75rem', border: `1.5px solid ${monetizationType === 'charge' ? '#10b981' : 'var(--border-color)'}`, borderRadius: '6px', cursor: 'pointer', backgroundColor: monetizationType === 'charge' ? 'rgba(16, 185, 129, 0.08)' : 'transparent', fontSize: '0.875rem', fontWeight: 500 }}
+                    onClick={() => setMonetizationType('charge')}
+                  >
+                    One-Time Purchase
                   </div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
-                    You keep 100% of every sale. 0% platform fee.
+                  <div
+                    style={{ flex: 1, padding: '0.6rem 0.75rem', border: `1.5px solid ${monetizationType === 'subscribers_only' ? '#a855f7' : 'var(--border-color)'}`, borderRadius: '6px', cursor: 'pointer', backgroundColor: monetizationType === 'subscribers_only' ? 'rgba(168, 85, 247, 0.08)' : 'transparent', fontSize: '0.875rem', fontWeight: 500 }}
+                    onClick={() => setMonetizationType('subscribers_only')}
+                  >
+                    Subscriber Only
                   </div>
                 </div>
+
+                {monetizationType === 'charge' && (
+                  <div>
+                    <label style={{ fontSize: '0.85rem' }}>Price (USD) — between $1 and $50</label>
+                    <div style={{ position: 'relative', marginTop: '0.5rem' }}>
+                      <span style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }}>$</span>
+                      <input 
+                        type="number" 
+                        step="0.01"
+                        min="1"
+                        max="50"
+                        value={price}
+                        onChange={(e) => setPrice(e.target.value)}
+                        className={styles.plainInput}
+                        style={{ paddingLeft: '2rem' }}
+                      />
+                    </div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+                      You keep 100% of every sale. 0% platform fee.
+                    </div>
+                  </div>
+                )}
+
+                {monetizationType === 'subscribers_only' && (
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                    Anyone with an active membership to your Creator Subscription unlocks this prompt at no extra cost. You earn through their monthly plan.
+                  </div>
+                )}
               </div>
             )}
           </div>
