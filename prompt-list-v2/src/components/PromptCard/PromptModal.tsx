@@ -487,7 +487,8 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                     src={getOptimizedImageUrl(post.imageUrls[activeImageIndex], 1200)} 
                     alt={post.title} 
                     className={styles.modalMainImage}
-                    loading="lazy"
+                    loading="eager"
+                    fetchPriority="high"
                     decoding="async"
                   />
                 

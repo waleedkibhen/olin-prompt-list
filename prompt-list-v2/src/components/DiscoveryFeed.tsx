@@ -695,12 +695,13 @@ export default function DiscoveryFeed() {
         )
       ) : (
         <div className="masonry-grid">
-          {displayedPosts.slice(0, visibleCount).map(post => (
+          {displayedPosts.slice(0, visibleCount).map((post, index) => (
             <div className="masonry-item" key={post.id}>
               <PromptCard 
                 post={post}
                 onLike={handleLike}
                 onSave={handleSave}
+                eager={index < 4}
               />
             </div>
           ))}

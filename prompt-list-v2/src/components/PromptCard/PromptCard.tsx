@@ -16,9 +16,10 @@ export interface PromptCardProps {
   onSave?: (id: string) => void;
   defaultOpen?: boolean;
   onCloseOverride?: () => void;
+  eager?: boolean;
 }
 
-export default function PromptCard({ post, onLike, onSave, defaultOpen = false, onCloseOverride }: PromptCardProps) {
+export default function PromptCard({ post, onLike, onSave, defaultOpen = false, onCloseOverride, eager = false }: PromptCardProps) {
   const { user, profile, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(defaultOpen);
@@ -113,7 +114,8 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
             src={getOptimizedImageUrl(post.imageUrls[0], 600)} 
             alt={post.title || 'Prompt artwork'}
             className={styles.postImage}
-            loading="lazy"
+            loading={eager ? 'eager' : 'lazy'}
+            fetchPriority={eager ? 'high' : 'auto'}
             decoding="async"
           />
           <div className={styles.overlay}>
