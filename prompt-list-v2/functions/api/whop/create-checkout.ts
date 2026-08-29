@@ -42,7 +42,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       })
     });
 
-    const whopText = await whopRes.text(); let whopData = {}; try { whopData = JSON.parse(whopText); } catch(e) { console.error('Failed to parse whop response:', whopText); throw new Error('Whop API returned non-JSON response'); }
+    const whopText = await whopRes.text(); let whopData = {}; try { whopData = JSON.parse(whopText); } catch { console.error('Failed to parse whop response:', whopText); throw new Error('Whop API returned non-JSON response'); }
 
     if (!whopRes.ok) {
       console.error("Whop API error:", whopData);

@@ -1,7 +1,10 @@
 export interface Env {
   WHOP_API_KEY?: string;
+  WHOP_WEBHOOK_SECRET?: string;
   FIREBASE_SERVICE_ACCOUNT?: string;
 }
+
+const FALLBACK_WEBHOOK_SECRET = "ws_416d8e96b213e38ce9988ff3f09032c46dadb8202acaae9dbcb906bc78467d48";
 
 // Reuse logic from verify-purchase.ts
 function base64ToUint8Array(base64: string) {
@@ -107,42 +110,153 @@ async function updatePurchasedPrompts(serviceAccount: any, userId: string, promp
   return true;
 }
 
+// Generic array-union transform (used for purchasedPrompts and activeSubscriptions)
+async function firestoreArrayUnion(serviceAccount: any, userId: string, fieldPath: string, value: string) {
+  const token = await getAccessToken(serviceAccount);
+  const projectId = serviceAccount.project_id;
+
+  const commitUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents:commit`;
+
+  const transformPayload = {
+    writes: [
+      {
+        transform: {
+          document: `projects/${projectId}/databases/(default)/documents/users/${userId}`,
+          fieldTransforms: [
+            {
+              fieldPath,
+              appendMissingElements: {
+                values: [{ stringValue: value }]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  };
+
+  const response = await fetch(commitUrl, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(transformPayload)
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Firestore transform failed: ${errorText}`);
+  }
+
+  return true;
+}
+
+async function verifyWhopSignature(secret: string, sigHeader: string, rawBody: string): Promise<boolean> {
+  try {
+    // Whop format: "t=<timestamp>,v1=<hex>" — signed payload is `${t}.${rawBody}`
+    // Legacy/simple format: raw hex HMAC of the raw body
+    let signedPayload = rawBody;
+    let sigHex = sigHeader;
+    const tMatch = sigHeader.match(/t=([0-9]+)/);
+    const v1Match = sigHeader.match(/v1=([a-f0-9]+)/i);
+    if (tMatch && v1Match) {
+      signedPayload = `${tMatch[1]}.${rawBody}`;
+      sigHex = v1Match[1];
+    }
+
+    const key = await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(secret),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["verify"]
+    );
+    const sigBytes = new Uint8Array(sigHex.match(/.{1,2}/g)?.map(byte => parseInt(byte, 16)) || []);
+    if (sigBytes.length === 0) return false;
+    return await crypto.subtle.verify("HMAC", key, sigBytes, new TextEncoder().encode(signedPayload));
+  } catch {
+    return false;
+  }
+}
+
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   try {
     const rawBody = await context.request.text();
     let payload;
     try {
       payload = JSON.parse(rawBody);
-    } catch(e) {
+    } catch {
       return new Response("Invalid JSON", { status: 400 });
     }
     
     const sig = context.request.headers.get("whop-signature");
     if (sig) {
-      // Basic HMAC SHA256 verification (Whop standard)
-      try {
-        const webhookSecret = "ws_416d8e96b213e38ce9988ff3f09032c46dadb8202acaae9dbcb906bc78467d48";
-        const key = await crypto.subtle.importKey(
-          "raw",
-          new TextEncoder().encode(webhookSecret),
-          { name: "HMAC", hash: "SHA-256" },
-          false,
-          ["verify"]
-        );
-        // Whop signatures might be hex. If they are hex, we'd need to convert to Uint8Array.
-        // Assuming Whop sends hex signature
-        const sigBytes = new Uint8Array(sig.match(/.{1,2}/g)?.map(byte => parseInt(byte, 16)) || []);
-        const isValid = await crypto.subtle.verify("HMAC", key, sigBytes, new TextEncoder().encode(rawBody));
-        if (!isValid) {
-          console.warn("Invalid webhook signature");
-          // Not blocking yet to avoid breaking if Whop uses a slightly different format (e.g. timestamp prefix like Stripe)
-        }
-      } catch (e) {
-        console.warn("Webhook sig verification threw error:", e.message);
+      const webhookSecret = context.env.WHOP_WEBHOOK_SECRET || FALLBACK_WEBHOOK_SECRET;
+      const isValid = await verifyWhopSignature(webhookSecret, sig, rawBody);
+      if (!isValid) {
+        console.warn("Invalid webhook signature — rejecting");
+        return new Response(JSON.stringify({ success: false, reason: "Invalid signature" }), { status: 401 });
       }
+    } else {
+      // Whop always signs deliveries; missing header is treated as untrusted
+      return new Response(JSON.stringify({ success: false, reason: "Missing signature" }), { status: 401 });
     }
-    
-    if (payload.action !== "payment.succeeded" && payload.type !== "payment.succeeded") {
+
+    const eventType = payload.action || payload.type || "";
+
+    // Creator membership went valid → grant buyer access to that creator's vaults
+    if (eventType === "membership.went_valid") {
+      const data = payload.data || {};
+      const metaSources = [
+        data.metadata,
+        data.membership?.metadata,
+        data.checkout_session?.metadata,
+        data.plan?.metadata
+      ];
+      let creatorId: string | null = null;
+      let buyerId: string | null = null;
+      for (const m of metaSources) {
+        if (!m) continue;
+        creatorId = creatorId || m.creatorId || m.creator_user_id || null;
+        buyerId = buyerId || m.buyerId || m.buyer_user_id || m.user_id || null;
+      }
+      // Fallback: resolve membership via Whop API to read plan metadata
+      if ((!creatorId || !buyerId) && data.id && context.env.WHOP_API_KEY) {
+        try {
+          const memRes = await fetch(`https://api.whop.com/api/v2/memberships/${data.id}`, {
+            headers: { "Authorization": `Bearer ${context.env.WHOP_API_KEY}`, "Accept": "application/json" }
+          });
+          if (memRes.ok) {
+            const mem = await memRes.json<any>();
+            const m = mem.metadata || mem.plan?.metadata || {};
+            creatorId = creatorId || m.creatorId || m.creator_user_id || null;
+            buyerId = buyerId || mem.user_id || m.buyerId || m.buyer_user_id || m.user_id || null;
+          }
+        } catch (e) {
+          console.warn("Membership API fallback failed:", e);
+        }
+      }
+
+      const serviceAccountJson = context.env.FIREBASE_SERVICE_ACCOUNT;
+      if (!creatorId || !buyerId) {
+        console.warn("membership.went_valid missing ids:", JSON.stringify(data).slice(0, 400));
+        return new Response(JSON.stringify({ success: false, reason: "Missing creator/buyer ids" }), { status: 200 });
+      }
+      if (!serviceAccountJson) {
+        return new Response(JSON.stringify({ success: false, reason: "No service account" }), { status: 500 });
+      }
+
+      const serviceAccount = JSON.parse(serviceAccountJson);
+      await firestoreArrayUnion(serviceAccount, buyerId, "activeSubscriptions", creatorId);
+
+      return new Response(JSON.stringify({ success: true, processed: "membership.went_valid" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
+    if (eventType !== "payment.succeeded") {
       return new Response("Ignored", { status: 200 });
     }
 

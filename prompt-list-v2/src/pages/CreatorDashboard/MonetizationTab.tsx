@@ -26,8 +26,6 @@ export default function MonetizationTab({
   const [subMonthlyPrice, setSubMonthlyPrice] = useState<string>(plan?.monthlyPrice != null ? String(plan.monthlyPrice) : (legacy?.monthlyPrice != null ? String(legacy.monthlyPrice) : ''));
   const [subYearlyPrice, setSubYearlyPrice] = useState<string>(plan?.yearlyPrice != null ? String(plan.yearlyPrice) : '');
   const [subBenefits, setSubBenefits] = useState<string>(plan?.benefits?.join('\n') ?? legacy?.description ?? '');
-  const [subMonthlyPlanId, setSubMonthlyPlanId] = useState<string>(plan?.monthlyPlanId ?? legacy?.planId ?? '');
-  const [subYearlyPlanId, setSubYearlyPlanId] = useState<string>(plan?.yearlyPlanId ?? '');
   const [isSavingSub, setIsSavingSub] = useState(false);
 
   useEffect(() => {
@@ -36,49 +34,52 @@ export default function MonetizationTab({
       setSubMonthlyPrice(plan.monthlyPrice != null ? String(plan.monthlyPrice) : '');
       setSubYearlyPrice(plan.yearlyPrice != null ? String(plan.yearlyPrice) : '');
       setSubBenefits(plan.benefits?.join('\n') ?? '');
-      setSubMonthlyPlanId(plan.monthlyPlanId ?? '');
-      setSubYearlyPlanId(plan.yearlyPlanId ?? '');
     }
     // Intentional hydration: re-seed form fields whenever saved settings change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.uid, JSON.stringify(plan ?? null)]);
 
-  const extractPlanId = (raw: string): string => {
-    const match = raw.trim().match(/plan_[A-Za-z0-9]+/);
-    return match ? match[0] : raw.trim();
-  };
-
   const handleSaveSubscription = async () => {
     if (!user) return;
-    const monthlyPlanId = extractPlanId(subMonthlyPlanId);
-    const yearlyPlanId = extractPlanId(subYearlyPlanId);
     const monthlyPrice = parseFloat(subMonthlyPrice) || 0;
     const yearlyPrice = parseFloat(subYearlyPrice) || 0;
-    if (subEnabled && !monthlyPlanId) {
-      toast.error('Add your Whop Monthly Plan ID (or paste the plan link) before enabling subscriptions.');
-      return;
-    }
     if (subEnabled && monthlyPrice <= 0) {
       toast.error('Set a monthly price for your membership.');
       return;
     }
-    if (yearlyPlanId && yearlyPrice <= 0) {
-      toast.error('Set a yearly price or remove the yearly plan.');
+    if (subEnabled && yearlyPrice > 0 === false && subYearlyPrice.trim() !== '') {
+      toast.error('Yearly price must be greater than $0, or left empty.');
       return;
     }
     setIsSavingSub(true);
     try {
+      // Whop auto-provisions the renewal plans for this creator
+      const provRes = await fetch('/api/whop/provision-membership', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.uid,
+          monthlyPrice,
+          yearlyPrice,
+          creatorName: profile?.displayName || profile?.username || 'Olin Creator'
+        })
+      });
+      const provData = await provRes.json();
+      if (!provRes.ok || !provData.success) {
+        throw new Error(provData.error || 'Failed to provision Whop membership plans');
+      }
+
       const settings = {
         enabled: subEnabled,
         monthlyPrice,
         yearlyPrice,
         benefits: subBenefits.split('\n').map(b => b.trim()).filter(Boolean),
-        monthlyPlanId,
-        yearlyPlanId
+        whopMonthlyPlanId: provData.whopMonthlyPlanId,
+        whopYearlyPlanId: provData.whopYearlyPlanId || ''
       };
       await updateDoc(doc(db, 'users', user.uid), { subscriptionPlan: settings });
       await updateProfileState({ subscriptionPlan: settings } as any);
-      toast.success(subEnabled ? 'Creator Membership plan saved!' : 'Membership plan saved (disabled).');
+      toast.success(subEnabled ? 'Creator Membership plan saved & Whop plans provisioned!' : 'Membership plan saved (disabled).');
     } catch (err: any) {
       console.error(err);
       toast.error(`Failed to save: ${err.message}`);
@@ -152,26 +153,6 @@ export default function MonetizationTab({
               />
             </div>
           </div>
-          <div>
-            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>Whop Monthly Plan ID or Link</label>
-            <input
-              type="text"
-              value={subMonthlyPlanId}
-              onChange={(e) => setSubMonthlyPlanId(e.target.value)}
-              placeholder="plan_XXXXXXXX or https://whop.com/plan_..."
-              style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
-            />
-          </div>
-          <div>
-            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>Whop Yearly Plan ID — optional</label>
-            <input
-              type="text"
-              value={subYearlyPlanId}
-              onChange={(e) => setSubYearlyPlanId(e.target.value)}
-              placeholder="plan_XXXXXXXX"
-              style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
-            />
-          </div>
           <div style={{ gridColumn: '1 / -1' }}>
             <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>Member Benefits (one per line)</label>
             <textarea
@@ -189,7 +170,7 @@ export default function MonetizationTab({
           {isSavingSub ? 'Saving...' : 'Save Membership Plan'}
         </button>
         <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.6rem' }}>
-          Subscribers unlock all your Subscriber-Only prompts while their membership is active.
+          Whop renewal plans are provisioned automatically when you save. Subscribers unlock all your Subscriber-Only prompts while their membership is active.
         </div>
       </div>
 

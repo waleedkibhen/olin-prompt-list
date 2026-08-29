@@ -322,7 +322,8 @@ export default function CreatePostPage() {
       // Subscriber-Only requires an active, configured Creator Membership plan
       if (monetizationType === 'subscribers_only') {
         const plan = (profile as any)?.subscriptionPlan ?? (profile as any)?.subscriptionSettings;
-        if (!plan?.enabled || !(plan.monthlyPlanId || plan.planId)) {
+        const hasProvisionedPlan = Boolean(plan?.whopMonthlyPlanId || plan?.monthlyPlanId || plan?.planId);
+        if (!plan?.enabled || !hasProvisionedPlan) {
           setModerationError('You haven\'t set up a subscription plan yet. Configure your Creator Membership in the dashboard first.');
           setIsScanning(false);
           return;

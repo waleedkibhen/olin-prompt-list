@@ -149,7 +149,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     let payload: any;
     try {
       payload = JSON.parse(rawBody);
-    } catch (_parseErr) {
+    } catch {
       console.error("Invalid JSON payload in Whop webhook.");
       return new Response("OK: Malformed JSON ignored", { status: 200 });
     }

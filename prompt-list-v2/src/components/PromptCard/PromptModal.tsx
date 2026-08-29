@@ -428,8 +428,8 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
   }, [effectiveMonetization, isUnlocked, isOwner, post.creator?.uid]);
 
   const selectedSubPlanId = subBilling === 'yearly'
-    ? creatorSubSettings?.yearlyPlanId
-    : creatorSubSettings?.monthlyPlanId;
+    ? (creatorSubSettings?.whopYearlyPlanId || creatorSubSettings?.yearlyPlanId)
+    : (creatorSubSettings?.whopMonthlyPlanId || creatorSubSettings?.monthlyPlanId);
 
   const handleSubscribeToUnlock = () => {
     if (selectedSubPlanId) {
@@ -804,7 +804,7 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                                     >
                                       Monthly · ${creatorSubSettings.monthlyPrice}/mo
                                     </button>
-                                    {creatorSubSettings?.yearlyPrice != null && creatorSubSettings.yearlyPrice > 0 && creatorSubSettings?.yearlyPlanId && (
+                                    {creatorSubSettings?.yearlyPrice != null && creatorSubSettings.yearlyPrice > 0 && (creatorSubSettings?.whopYearlyPlanId || creatorSubSettings?.yearlyPlanId) && (
                                       <button
                                         onClick={(e) => { e.stopPropagation(); setSubBilling('yearly'); }}
                                         style={{ flex: 1, padding: '0.55rem 0.5rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, border: subBilling === 'yearly' ? '2px solid #3b82f6' : '1px solid var(--border-color)', backgroundColor: subBilling === 'yearly' ? 'rgba(59, 130, 246, 0.12)' : 'transparent', color: 'var(--text-primary)' }}
@@ -949,7 +949,7 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
       {showSubCheckout && selectedSubPlanId && (
         <WhopCheckoutModal
           planId={selectedSubPlanId}
-          metadata={{ creatorId: post.creator?.uid || '', buyerId: user?.uid || '', tier: subBilling }}
+          metadata={{ creatorId: post.creator?.uid || '', buyerId: user?.uid || '', billingInterval: subBilling }}
           onSuccess={handleSubscribeSuccess}
           onClose={() => setShowSubCheckout(false)}
         />
