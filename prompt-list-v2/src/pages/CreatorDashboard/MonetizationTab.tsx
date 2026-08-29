@@ -66,6 +66,9 @@ export default function MonetizationTab({
       });
       const provData = await provRes.json();
       if (!provRes.ok || !provData.success) {
+        if (provData.code === 'products_permission_missing') {
+          throw new Error('Whop key needs the products permission: Whop Dashboard → Developer → API keys → enable Products, then save again.');
+        }
         throw new Error(provData.error || 'Failed to provision Whop membership plans');
       }
 
