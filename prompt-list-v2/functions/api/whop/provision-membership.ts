@@ -8,6 +8,12 @@ export interface Env {
 const FALLBACK_API_KEY = "apik_2CfsbKSmO9GOL_C5388822_C_82def646b456fafa4713cc95b5871e3cac59be30a306b469ac8d6c87f494cc";
 const FALLBACK_COMPANY_ID = "biz_Cl76q9At9iiox0";
 
+// Whop v1 expects billing_period as an integer number of days
+const BILLING_PERIOD_DAYS: Record<'monthly' | 'yearly', number> = {
+  monthly: 30,
+  yearly: 365
+};
+
 async function createMembershipConfig(
   apiKey: string,
   companyId: string,
@@ -31,7 +37,7 @@ async function createMembershipConfig(
         initial_price: price,
         renewal_price: price,
         plan_type: "renewal",
-        billing_period: interval
+        billing_period: BILLING_PERIOD_DAYS[interval]
       },
       metadata: {
         kind: "creator_membership",
