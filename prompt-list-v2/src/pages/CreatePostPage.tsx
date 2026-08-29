@@ -318,6 +318,17 @@ export default function CreatePostPage() {
       
       const newPostRef = doc(collection(db, 'posts'));
       
+      
+      // Subscriber-Only requires an active, configured Creator Membership plan
+      if (monetizationType === 'subscribers_only') {
+        const sub = (profile as any)?.subscriptionSettings;
+        if (!sub?.enabled || !sub?.planId) {
+          setModerationError('You haven\'t set up a subscription plan yet. Configure your Creator Membership in the dashboard first.');
+          setIsScanning(false);
+          return;
+        }
+      }
+
       let whopPlanId: string | null = null;
       if (monetizationType === 'charge') {
         const pVal = parseFloat(price) || 0;
@@ -368,6 +379,7 @@ export default function CreatePostPage() {
         variantCount: plainTextPrompts.filter(Boolean).length || 1,
         model: model === 'Other' ? customModel.trim() || 'Unknown' : model,
         monetizationType,
+        accessTier: monetizationType === 'subscribers_only' ? 'subscriber' : isCharge ? 'paid' : 'free',
         whopPlanId: whopPlanId || null,
           price: isCharge ? parseFloat(price) || 0 : 0,
         
@@ -749,6 +761,22 @@ export default function CreatePostPage() {
                 {monetizationType === 'subscribers_only' && (
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                     Anyone with an active membership to your Creator Subscription unlocks this prompt at no extra cost. You earn through their monthly plan.
+                  </div>
+                )}
+
+                {monetizationType === 'subscribers_only' && !(profile as any)?.subscriptionSettings?.enabled && (
+                  <div style={{ marginTop: '0.9rem', padding: '0.85rem 1rem', backgroundColor: 'rgba(234, 179, 8, 0.08)', border: '1px solid rgba(234, 179, 8, 0.3)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '0.875rem', color: '#eab308', fontWeight: 500 }}>
+                      You haven't set up a subscription plan yet.
+                    </span>
+                    <button
+                      type="button"
+                      className="btn-solid"
+                      style={{ padding: '0.45rem 0.9rem', fontSize: '0.8rem', flexShrink: 0 }}
+                      onClick={() => navigate('/dashboard')}
+                    >
+                      Set Up Subscription Plan
+                    </button>
                   </div>
                 )}
               </div>

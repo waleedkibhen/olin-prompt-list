@@ -1,6 +1,10 @@
-import React from 'react';
-import { DollarSign, Lock, Eye, AlertTriangle, ExternalLink, BadgeCheck } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { doc, updateDoc } from 'firebase/firestore';
+import { DollarSign, Lock, Eye, AlertTriangle, ExternalLink, BadgeCheck, Loader2, Crown } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { db } from '@/lib/firebase';
+import { useAuth } from '@/context/AuthContext';
+import toast from 'react-hot-toast';
 import styles from './dashboard.module.css';
 
 interface MonetizationTabProps {
@@ -13,6 +17,54 @@ interface MonetizationTabProps {
 export default function MonetizationTab({
   monetizationStats, displayMonetizationPosts, setIsPayoutModalOpen, setIsMonetizationModalOpen
 }: MonetizationTabProps) {
+  const { user, profile, updateProfileState } = useAuth();
+  const sub = (profile as any)?.subscriptionSettings;
+
+  const [subEnabled, setSubEnabled] = useState<boolean>(sub?.enabled ?? false);
+  const [subPrice, setSubPrice] = useState<string>(sub?.monthlyPrice != null ? String(sub.monthlyPrice) : '');
+  const [subDesc, setSubDesc] = useState<string>(sub?.description ?? '');
+  const [subPlanId, setSubPlanId] = useState<string>(sub?.planId ?? '');
+  const [isSavingSub, setIsSavingSub] = useState(false);
+
+  useEffect(() => {
+    if (sub) {
+      setSubEnabled(sub.enabled ?? false);
+      setSubPrice(sub.monthlyPrice != null ? String(sub.monthlyPrice) : '');
+      setSubDesc(sub.description ?? '');
+      setSubPlanId(sub.planId ?? '');
+    }
+    // Intentional hydration: re-seed form fields whenever saved settings change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.uid, JSON.stringify(sub ?? null)]);
+
+  const handleSaveSubscription = async () => {
+    if (!user) return;
+    const raw = subPlanId.trim();
+    const planMatch = raw.match(/plan_[A-Za-z0-9]+/);
+    const planId = planMatch ? planMatch[0] : raw;
+    const monthlyPrice = parseFloat(subPrice) || 0;
+    if (subEnabled && !planId) {
+      toast.error('Add your Whop Plan ID (or paste your Whop plan link) before enabling subscriptions.');
+      return;
+    }
+    if (subEnabled && monthlyPrice <= 0) {
+      toast.error('Set a monthly price for your membership.');
+      return;
+    }
+    setIsSavingSub(true);
+    try {
+      const settings = { enabled: subEnabled, monthlyPrice, description: subDesc.trim(), planId };
+      await updateDoc(doc(db, 'users', user.uid), { subscriptionSettings: settings });
+      await updateProfileState({ subscriptionSettings: settings } as any);
+      toast.success(subEnabled ? 'Creator Membership plan saved!' : 'Subscription plan saved (disabled).');
+    } catch (err: any) {
+      console.error(err);
+      toast.error(`Failed to save: ${err.message}`);
+    } finally {
+      setIsSavingSub(false);
+    }
+  };
+
   return (
     <>
       <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.06)', border: '1px solid rgba(16, 185, 129, 0.25)', borderRadius: '12px', padding: '1.1rem 1.35rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
@@ -22,6 +74,70 @@ export default function MonetizationTab({
           <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.2rem' }}>
             Earn through Direct Prompt Purchases ($1–$50) and Monthly Creator Subscriptions.
           </div>
+        </div>
+      </div>
+
+      {/* Creator Membership Plan configuration */}
+      <div style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '1.35rem', marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.05rem', fontWeight: 700 }}>
+            <Crown size={18} style={{ color: '#eab308' }} /> Creator Membership Plan
+          </h3>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+            <input
+              type="checkbox"
+              checked={subEnabled}
+              onChange={(e) => setSubEnabled(e.target.checked)}
+              style={{ width: '16px', height: '16px', accentColor: '#3b82f6', cursor: 'pointer' }}
+            />
+            Enable Subscriptions
+          </label>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+          <div>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>Monthly Price (USD)</label>
+            <div style={{ position: 'relative' }}>
+              <span style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>$</span>
+              <input
+                type="number"
+                min="1"
+                step="0.01"
+                value={subPrice}
+                onChange={(e) => setSubPrice(e.target.value)}
+                placeholder="4.99"
+                style={{ width: '100%', padding: '0.6rem 0.75rem 0.6rem 1.7rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
+              />
+            </div>
+          </div>
+          <div>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>Whop Plan ID or Plan Link</label>
+            <input
+              type="text"
+              value={subPlanId}
+              onChange={(e) => setSubPlanId(e.target.value)}
+              placeholder="plan_XXXXXXXX or https://whop.com/plan_..."
+              style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
+            />
+          </div>
+          <div style={{ gridColumn: '1 / -1' }}>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>Member Perks / Short Description</label>
+            <textarea
+              value={subDesc}
+              onChange={(e) => setSubDesc(e.target.value)}
+              rows={2}
+              placeholder="Access to all subscriber-only prompts, exclusive drops, and early releases."
+              style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)', resize: 'vertical' }}
+            />
+          </div>
+        </div>
+
+        <button className="btn-solid" onClick={handleSaveSubscription} disabled={isSavingSub} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+          {isSavingSub ? <Loader2 size={14} className="spin" /> : null}
+          {isSavingSub ? 'Saving...' : 'Save Membership Plan'}
+        </button>
+        <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.6rem' }}>
+          Subscribers unlock all your Subscriber-Only prompts while their membership is active.
         </div>
       </div>
 

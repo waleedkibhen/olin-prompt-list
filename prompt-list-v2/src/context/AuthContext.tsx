@@ -19,6 +19,13 @@ export interface CreatorProfile {
   monetizationStatus?: 'ineligible' | 'pending_review' | 'approved' | 'rejected';
   rejectionReason?: string;
   isBanned?: boolean;
+  activeSubscriptions?: string[];
+  subscriptionSettings?: {
+    enabled: boolean;
+    monthlyPrice: number;
+    description: string;
+    planId: string;
+  };
   subscriptionStatus?: 'active' | 'canceled' | 'expired' | string;
   isPremium?: boolean;
   subscriptionTier?: 'monthly' | 'yearly' | string;

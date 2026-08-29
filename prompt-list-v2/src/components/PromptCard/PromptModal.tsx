@@ -6,7 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { doc, getDoc, updateDoc, increment, collection, addDoc, serverTimestamp, setDoc, deleteDoc, arrayUnion } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Heart, Bookmark, Copy, Check, Share2, MessageSquare, Loader2, PlayCircle, Flag, Eye, X, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ENABLE_MONETIZATION, ENABLE_ADS } from '@/lib/config';
 import ReportModal from '@/components/ReportModal';
 import DiscoverMore from '../DiscoverMore';
@@ -43,7 +43,6 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
   const isAdSupported = Boolean(effectiveMonetization === 'ad_supported' || (post.monetizationType as any) === 'ad_supported' || (post.monetizationType as any) === 'ad');
   const [adDelayComplete, setAdDelayComplete] = useState(true);
   const { user, profile, signInWithGoogle } = useAuth();
-  const navigate = useNavigate();
   const isOwner = Boolean(user && (user.uid === post.creator?.uid));
   const [isUnlocked, setIsUnlocked] = useState<boolean>(() => {
     const isFree = !ENABLE_MONETIZATION ? true : (effectiveMonetization === 'free' || effectiveMonetization === 'ad_supported');
@@ -51,6 +50,8 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
   });
   const [securePrompts, setSecurePrompts] = useState<string[] | null>(null);
   const [showCheckout, setShowCheckout] = useState(false);
+  const [creatorSubSettings, setCreatorSubSettings] = useState<any>(null);
+  const [showSubCheckout, setShowSubCheckout] = useState(false);
   const commentsRef = useRef<HTMLDivElement>(null);
 
   const scrollToComments = () => {
@@ -241,8 +242,11 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
     
     let subUnlocked = false;
     if (user && effectiveMonetization === 'subscribers_only') {
-      const subStatus = localStorage.getItem(`olin_subscription_${user.uid}`);
+      const creatorUid = post.creator?.uid;
+      const subscribedToCreator = Boolean(creatorUid && profile?.activeSubscriptions?.includes(creatorUid));
+      const subStatus = user ? localStorage.getItem(`olin_subscription_${user.uid}`) : null;
       if (
+        subscribedToCreator ||
         subStatus === 'active' || 
         profile?.isPremium === true || 
         profile?.subscriptionStatus === 'active' ||
@@ -381,9 +385,36 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
     }, 1500);
   };
 
-  const handleSubscribeToUnlock = (e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    navigate('/pricing');
+  // Fetch the creator's membership configuration for Subscriber-Only posts
+  useEffect(() => {
+    const creatorUid = post.creator?.uid;
+    if (effectiveMonetization !== 'subscribers_only' || !creatorUid) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const snap = await getDoc(doc(db, 'users', creatorUid));
+        if (cancelled) return;
+        if (snap.exists()) setCreatorSubSettings((snap.data() as any).subscriptionSettings || null);
+      } catch {}
+    })();
+    return () => { cancelled = true; };
+  }, [effectiveMonetization, post.creator?.uid]);
+
+  const handleSubscribeToUnlock = () => {
+    if (creatorSubSettings?.planId) {
+      setShowSubCheckout(true);
+    } else {
+      toast.error(`@${post.creator.username} hasn't set up a membership plan yet.`);
+    }
+  };
+
+  const handleSubscribeSuccess = () => {
+    setShowSubCheckout(false);
+    setIsUnlocked(true);
+    // Record the creator subscription so Firestore rules grant secure-content access
+    if (user && post.creator?.uid) {
+      updateDoc(doc(db, 'users', user.uid), { activeSubscriptions: arrayUnion(post.creator.uid) }).catch(() => {});
+    }
   };
 
   const handleShareLink = (e: React.MouseEvent) => {
@@ -711,14 +742,14 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                         <div className={styles.vaultOverlayContent} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '0 1rem' }}>
                           <div style={{ flex: 1, padding: '1.5rem', width: '100%', maxWidth: '350px', textAlign: 'center' }}>
                             <div style={{ fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)', fontSize: '1.1rem' }}>
-                                {effectiveMonetization === 'subscribers_only' ? 'Subscriber Exclusive' : effectiveMonetization === 'charge' ? 'Pay to Unlock' : 'Watch an Ad to unlock'}
+                                {effectiveMonetization === 'subscribers_only' ? 'Creator Membership' : effectiveMonetization === 'charge' ? 'Pay to Unlock' : 'Watch an Ad to unlock'}
                             </div>
                             <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
                                 {effectiveMonetization === 'ad_supported'
                                   ? 'The creator has chosen to monetize their prompts through ads. Click the button below to watch an ad.'
                                   : effectiveMonetization === 'charge'
                                   ? 'The creator has opted for a pay-to-unlock model for this prompt. One payment unlocks it instantly.'
-                                  : 'This creator reserves their prompts for subscribers. Subscribe to unlock everything they publish.'}
+                                  : `Subscribe to @${post.creator?.username || 'this creator'} for $${creatorSubSettings?.monthlyPrice ?? '...'}${creatorSubSettings?.monthlyPrice ? '/mo' : ''} to unlock this prompt and all exclusive drops.`}
                             </div>
                             
                             {effectiveMonetization === 'subscribers_only' ? (
@@ -727,7 +758,7 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                                 className="btn-solid"
                                 style={{ width: '100%', padding: '0.75rem' }}
                               >
-                                Subscribe to Unlock
+                                Subscribe with Whop
                               </button>
                             ) : effectiveMonetization === 'charge' ? (
                               <button
@@ -838,6 +869,14 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
           planId={post.whopPlanId}
           onSuccess={handlePaymentSuccess}
           onClose={() => setShowCheckout(false)}
+        />
+      )}
+
+      {showSubCheckout && creatorSubSettings?.planId && (
+        <WhopCheckoutModal
+          planId={creatorSubSettings.planId}
+          onSuccess={handleSubscribeSuccess}
+          onClose={() => setShowSubCheckout(false)}
         />
       )}
 
