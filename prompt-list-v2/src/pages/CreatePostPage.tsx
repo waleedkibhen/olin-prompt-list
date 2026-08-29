@@ -321,8 +321,8 @@ export default function CreatePostPage() {
       
       // Subscriber-Only requires an active, configured Creator Membership plan
       if (monetizationType === 'subscribers_only') {
-        const sub = (profile as any)?.subscriptionSettings;
-        if (!sub?.enabled || !sub?.planId) {
+        const plan = (profile as any)?.subscriptionPlan ?? (profile as any)?.subscriptionSettings;
+        if (!plan?.enabled || !(plan.monthlyPlanId || plan.planId)) {
           setModerationError('You haven\'t set up a subscription plan yet. Configure your Creator Membership in the dashboard first.');
           setIsScanning(false);
           return;
@@ -764,7 +764,7 @@ export default function CreatePostPage() {
                   </div>
                 )}
 
-                {monetizationType === 'subscribers_only' && !(profile as any)?.subscriptionSettings?.enabled && (
+                {monetizationType === 'subscribers_only' && !(((profile as any)?.subscriptionPlan ?? (profile as any)?.subscriptionSettings)?.enabled) && (
                   <div style={{ marginTop: '0.9rem', padding: '0.85rem 1rem', backgroundColor: 'rgba(234, 179, 8, 0.08)', border: '1px solid rgba(234, 179, 8, 0.3)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
                     <span style={{ fontSize: '0.875rem', color: '#eab308', fontWeight: 500 }}>
                       You haven't set up a subscription plan yet.

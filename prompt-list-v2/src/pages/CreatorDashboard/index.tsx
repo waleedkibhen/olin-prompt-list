@@ -331,6 +331,7 @@ export default function CreatorDashboardPage() {
               displayMonetizationPosts={displayMonetizationPosts}
               setIsPayoutModalOpen={setIsPayoutModalOpen}
               setIsMonetizationModalOpen={setIsMonetizationModalOpen}
+              subscriberPostCount={creatorPosts.filter(p => p.monetizationType === 'subscribers_only').length}
             />
           )}
         </>

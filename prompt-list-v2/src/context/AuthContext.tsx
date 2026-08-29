@@ -20,6 +20,14 @@ export interface CreatorProfile {
   rejectionReason?: string;
   isBanned?: boolean;
   activeSubscriptions?: string[];
+  subscriptionPlan?: {
+    enabled: boolean;
+    monthlyPrice: number;
+    yearlyPrice: number;
+    benefits: string[];
+    monthlyPlanId: string;
+    yearlyPlanId: string;
+  };
   subscriptionSettings?: {
     enabled: boolean;
     monthlyPrice: number;

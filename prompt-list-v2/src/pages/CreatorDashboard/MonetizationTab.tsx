@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { doc, updateDoc } from 'firebase/firestore';
-import { DollarSign, Lock, Eye, AlertTriangle, ExternalLink, BadgeCheck, Loader2, Crown } from 'lucide-react';
+import { DollarSign, Lock, Eye, AlertTriangle, ExternalLink, BadgeCheck, Loader2, Crown, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/context/AuthContext';
@@ -12,51 +12,73 @@ interface MonetizationTabProps {
   displayMonetizationPosts: any[];
   setIsPayoutModalOpen: (open: boolean) => void;
   setIsMonetizationModalOpen: (open: boolean) => void;
+  subscriberPostCount: number;
 }
 
 export default function MonetizationTab({
-  monetizationStats, displayMonetizationPosts, setIsPayoutModalOpen, setIsMonetizationModalOpen
+  monetizationStats, displayMonetizationPosts, setIsPayoutModalOpen, setIsMonetizationModalOpen, subscriberPostCount
 }: MonetizationTabProps) {
   const { user, profile, updateProfileState } = useAuth();
-  const sub = (profile as any)?.subscriptionSettings;
+  const plan = (profile as any)?.subscriptionPlan;
+  const legacy = (profile as any)?.subscriptionSettings;
 
-  const [subEnabled, setSubEnabled] = useState<boolean>(sub?.enabled ?? false);
-  const [subPrice, setSubPrice] = useState<string>(sub?.monthlyPrice != null ? String(sub.monthlyPrice) : '');
-  const [subDesc, setSubDesc] = useState<string>(sub?.description ?? '');
-  const [subPlanId, setSubPlanId] = useState<string>(sub?.planId ?? '');
+  const [subEnabled, setSubEnabled] = useState<boolean>(plan?.enabled ?? legacy?.enabled ?? false);
+  const [subMonthlyPrice, setSubMonthlyPrice] = useState<string>(plan?.monthlyPrice != null ? String(plan.monthlyPrice) : (legacy?.monthlyPrice != null ? String(legacy.monthlyPrice) : ''));
+  const [subYearlyPrice, setSubYearlyPrice] = useState<string>(plan?.yearlyPrice != null ? String(plan.yearlyPrice) : '');
+  const [subBenefits, setSubBenefits] = useState<string>(plan?.benefits?.join('\n') ?? legacy?.description ?? '');
+  const [subMonthlyPlanId, setSubMonthlyPlanId] = useState<string>(plan?.monthlyPlanId ?? legacy?.planId ?? '');
+  const [subYearlyPlanId, setSubYearlyPlanId] = useState<string>(plan?.yearlyPlanId ?? '');
   const [isSavingSub, setIsSavingSub] = useState(false);
 
   useEffect(() => {
-    if (sub) {
-      setSubEnabled(sub.enabled ?? false);
-      setSubPrice(sub.monthlyPrice != null ? String(sub.monthlyPrice) : '');
-      setSubDesc(sub.description ?? '');
-      setSubPlanId(sub.planId ?? '');
+    if (plan) {
+      setSubEnabled(plan.enabled ?? false);
+      setSubMonthlyPrice(plan.monthlyPrice != null ? String(plan.monthlyPrice) : '');
+      setSubYearlyPrice(plan.yearlyPrice != null ? String(plan.yearlyPrice) : '');
+      setSubBenefits(plan.benefits?.join('\n') ?? '');
+      setSubMonthlyPlanId(plan.monthlyPlanId ?? '');
+      setSubYearlyPlanId(plan.yearlyPlanId ?? '');
     }
     // Intentional hydration: re-seed form fields whenever saved settings change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile?.uid, JSON.stringify(sub ?? null)]);
+  }, [profile?.uid, JSON.stringify(plan ?? null)]);
+
+  const extractPlanId = (raw: string): string => {
+    const match = raw.trim().match(/plan_[A-Za-z0-9]+/);
+    return match ? match[0] : raw.trim();
+  };
 
   const handleSaveSubscription = async () => {
     if (!user) return;
-    const raw = subPlanId.trim();
-    const planMatch = raw.match(/plan_[A-Za-z0-9]+/);
-    const planId = planMatch ? planMatch[0] : raw;
-    const monthlyPrice = parseFloat(subPrice) || 0;
-    if (subEnabled && !planId) {
-      toast.error('Add your Whop Plan ID (or paste your Whop plan link) before enabling subscriptions.');
+    const monthlyPlanId = extractPlanId(subMonthlyPlanId);
+    const yearlyPlanId = extractPlanId(subYearlyPlanId);
+    const monthlyPrice = parseFloat(subMonthlyPrice) || 0;
+    const yearlyPrice = parseFloat(subYearlyPrice) || 0;
+    if (subEnabled && !monthlyPlanId) {
+      toast.error('Add your Whop Monthly Plan ID (or paste the plan link) before enabling subscriptions.');
       return;
     }
     if (subEnabled && monthlyPrice <= 0) {
       toast.error('Set a monthly price for your membership.');
       return;
     }
+    if (yearlyPlanId && yearlyPrice <= 0) {
+      toast.error('Set a yearly price or remove the yearly plan.');
+      return;
+    }
     setIsSavingSub(true);
     try {
-      const settings = { enabled: subEnabled, monthlyPrice, description: subDesc.trim(), planId };
-      await updateDoc(doc(db, 'users', user.uid), { subscriptionSettings: settings });
-      await updateProfileState({ subscriptionSettings: settings } as any);
-      toast.success(subEnabled ? 'Creator Membership plan saved!' : 'Subscription plan saved (disabled).');
+      const settings = {
+        enabled: subEnabled,
+        monthlyPrice,
+        yearlyPrice,
+        benefits: subBenefits.split('\n').map(b => b.trim()).filter(Boolean),
+        monthlyPlanId,
+        yearlyPlanId
+      };
+      await updateDoc(doc(db, 'users', user.uid), { subscriptionPlan: settings });
+      await updateProfileState({ subscriptionPlan: settings } as any);
+      toast.success(subEnabled ? 'Creator Membership plan saved!' : 'Membership plan saved (disabled).');
     } catch (err: any) {
       console.error(err);
       toast.error(`Failed to save: ${err.message}`);
@@ -94,6 +116,11 @@ export default function MonetizationTab({
           </label>
         </div>
 
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'rgba(59, 130, 246, 0.08)', border: '1px solid rgba(59, 130, 246, 0.25)', borderRadius: '8px', padding: '0.45rem 0.8rem', marginBottom: '1.1rem', fontSize: '0.85rem' }}>
+          <Zap size={14} style={{ color: '#3b82f6' }} />
+          <span>Membership currently includes <strong>{subscriberPostCount}</strong> subscriber-only prompt{subscriberPostCount === 1 ? '' : 's'} (auto-counted)</span>
+        </div>
+
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
           <div>
             <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>Monthly Price (USD)</label>
@@ -103,30 +130,55 @@ export default function MonetizationTab({
                 type="number"
                 min="1"
                 step="0.01"
-                value={subPrice}
-                onChange={(e) => setSubPrice(e.target.value)}
+                value={subMonthlyPrice}
+                onChange={(e) => setSubMonthlyPrice(e.target.value)}
                 placeholder="4.99"
                 style={{ width: '100%', padding: '0.6rem 0.75rem 0.6rem 1.7rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
               />
             </div>
           </div>
           <div>
-            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>Whop Plan ID or Plan Link</label>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>Yearly Price (USD) — optional</label>
+            <div style={{ position: 'relative' }}>
+              <span style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>$</span>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={subYearlyPrice}
+                onChange={(e) => setSubYearlyPrice(e.target.value)}
+                placeholder="49.99"
+                style={{ width: '100%', padding: '0.6rem 0.75rem 0.6rem 1.7rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
+              />
+            </div>
+          </div>
+          <div>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>Whop Monthly Plan ID or Link</label>
             <input
               type="text"
-              value={subPlanId}
-              onChange={(e) => setSubPlanId(e.target.value)}
+              value={subMonthlyPlanId}
+              onChange={(e) => setSubMonthlyPlanId(e.target.value)}
               placeholder="plan_XXXXXXXX or https://whop.com/plan_..."
               style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
             />
           </div>
+          <div>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>Whop Yearly Plan ID — optional</label>
+            <input
+              type="text"
+              value={subYearlyPlanId}
+              onChange={(e) => setSubYearlyPlanId(e.target.value)}
+              placeholder="plan_XXXXXXXX"
+              style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
+            />
+          </div>
           <div style={{ gridColumn: '1 / -1' }}>
-            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>Member Perks / Short Description</label>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>Member Benefits (one per line)</label>
             <textarea
-              value={subDesc}
-              onChange={(e) => setSubDesc(e.target.value)}
-              rows={2}
-              placeholder="Access to all subscriber-only prompts, exclusive drops, and early releases."
+              value={subBenefits}
+              onChange={(e) => setSubBenefits(e.target.value)}
+              rows={3}
+              placeholder={'Early drop access\nFull prompt license\nAccess to all subscriber-only prompts'}
               style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)', resize: 'vertical' }}
             />
           </div>

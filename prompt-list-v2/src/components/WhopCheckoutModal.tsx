@@ -6,9 +6,10 @@ interface WhopCheckoutModalProps {
   planId: string;
   onSuccess: () => void;
   onClose: () => void;
+  metadata?: Record<string, string>;
 }
 
-export default function WhopCheckoutModal({ planId, onSuccess, onClose }: WhopCheckoutModalProps) {
+export default function WhopCheckoutModal({ planId, onSuccess, onClose, metadata }: WhopCheckoutModalProps) {
   useEffect(() => {
     // Disable background scrolling when active
     document.body.style.overflow = 'hidden';
@@ -76,6 +77,7 @@ export default function WhopCheckoutModal({ planId, onSuccess, onClose }: WhopCh
             planId={planId} 
             theme="dark"
             returnUrl={window.location.href}
+            {...(metadata ? ({ metadata } as any) : {})}
             onComplete={() => {
               onSuccess();
             }}
