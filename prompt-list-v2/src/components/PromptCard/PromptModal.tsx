@@ -423,15 +423,41 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
     return () => { cancelled = true; };
   }, [effectiveMonetization, isUnlocked, isOwner, post.creator?.uid]);
 
+  const hasMonthly = Boolean(
+    (creatorSubSettings?.whopMonthlyPlanId || creatorSubSettings?.monthlyPlanId) &&
+    creatorSubSettings?.monthlyPrice != null &&
+    creatorSubSettings.monthlyPrice > 0
+  );
+  const hasYearly = Boolean(
+    (creatorSubSettings?.whopYearlyPlanId || creatorSubSettings?.yearlyPlanId) &&
+    creatorSubSettings?.yearlyPrice != null &&
+    creatorSubSettings.yearlyPrice > 0
+  );
+  const hasAnyPlan = Boolean(
+    hasMonthly ||
+    hasYearly ||
+    creatorSubSettings?.whopMonthlyPlanId ||
+    creatorSubSettings?.whopYearlyPlanId ||
+    creatorSubSettings?.monthlyPlanId ||
+    creatorSubSettings?.yearlyPlanId ||
+    creatorSubSettings?.planId
+  );
+
   const selectedSubPlanId = subBilling === 'yearly'
     ? (creatorSubSettings?.whopYearlyPlanId || creatorSubSettings?.yearlyPlanId)
     : (creatorSubSettings?.whopMonthlyPlanId || creatorSubSettings?.monthlyPlanId);
 
   const handleSubscribeToUnlock = () => {
-    if (creatorSubSettings?.whopMonthlyPlanId || creatorSubSettings?.monthlyPlanId || creatorSubSettings?.planId) {
-      setShowSubPlanModal(true);
+    if (hasAnyPlan) {
+      if (hasMonthly && !hasYearly) {
+        openSubCheckout('monthly');
+      } else if (hasYearly && !hasMonthly) {
+        openSubCheckout('yearly');
+      } else {
+        setShowSubPlanModal(true);
+      }
     } else {
-      toast.error(`@${post.creator.username} hasn't set up a membership plan yet.`);
+      toast.error(`@${post.creator?.username || 'This creator'} hasn't set up a membership plan yet.`);
     }
   };
 
@@ -969,46 +995,48 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-              <div
-                onClick={() => openSubCheckout('monthly')}
-                style={{ padding: '1.15rem', backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '12px', cursor: 'pointer', transition: 'border-color 0.2s ease', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#9333ea'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#27272a'; }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <span style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)' }}>Monthly</span>
-                  <span style={{ fontWeight: 700, fontSize: '1.05rem', color: '#a855f7' }}>
-                    ${creatorSubSettings?.monthlyPrice ?? '—'} <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 400 }}>/ month</span>
-                  </span>
+              {hasMonthly && (
+                <div
+                  onClick={() => openSubCheckout('monthly')}
+                  style={{ padding: '1.15rem', backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '12px', cursor: 'pointer', transition: 'border-color 0.2s ease', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#9333ea'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#27272a'; }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <span style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)' }}>Monthly</span>
+                    <span style={{ fontWeight: 700, fontSize: '1.05rem', color: '#a855f7' }}>
+                      ${creatorSubSettings?.monthlyPrice ?? '—'} <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 400 }}>/ month</span>
+                    </span>
+                  </div>
+                  {creatorSubSettings?.benefits?.length > 0 && (
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                      {creatorSubSettings.benefits.map((b: string, i: number) => (
+                        <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                          <Check size={13} style={{ color: '#a855f7', flexShrink: 0, marginTop: '2px' }} />
+                          <span>{b}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
-                {creatorSubSettings?.benefits?.length > 0 && (
-                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                    {creatorSubSettings.benefits.map((b: string, i: number) => (
-                      <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                        <Check size={13} style={{ color: '#a855f7', flexShrink: 0, marginTop: '2px' }} />
-                        <span>{b}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
+              )}
 
-              {(creatorSubSettings?.whopYearlyPlanId || creatorSubSettings?.yearlyPlanId) && creatorSubSettings?.yearlyPrice != null && creatorSubSettings.yearlyPrice > 0 && (
+              {hasYearly && (
                 <div
                   onClick={() => openSubCheckout('yearly')}
                   style={{ padding: '1.15rem', backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '12px', cursor: 'pointer', transition: 'border-color 0.2s ease', display: 'flex', flexDirection: 'column', gap: '0.6rem', position: 'relative' }}
                   onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#9333ea'; }}
                   onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#27272a'; }}
                 >
-                  {creatorSubSettings?.monthlyPrice != null && creatorSubSettings.monthlyPrice > 0 && creatorSubSettings.yearlyPrice < creatorSubSettings.monthlyPrice * 12 && (
+                  {hasMonthly && creatorSubSettings?.monthlyPrice != null && creatorSubSettings.monthlyPrice > 0 && creatorSubSettings.yearlyPrice < creatorSubSettings.monthlyPrice * 12 && (
                     <span style={{ position: 'absolute', top: '1rem', right: '1rem', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.35)', borderRadius: '9999px', padding: '0.15rem 0.55rem', fontSize: '0.7rem', color: '#10b981', fontWeight: 700 }}>
                       Save {Math.round((1 - creatorSubSettings.yearlyPrice / (creatorSubSettings.monthlyPrice * 12)) * 100)}%
                     </span>
                   )}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', paddingRight: '4.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', paddingRight: hasMonthly ? '4.5rem' : '0' }}>
                     <span style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)' }}>Yearly</span>
                     <span style={{ fontWeight: 700, fontSize: '1.05rem', color: '#a855f7' }}>
-                      ${creatorSubSettings.yearlyPrice} <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 400 }}>/ year</span>
+                      ${creatorSubSettings?.yearlyPrice} <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 400 }}>/ year</span>
                     </span>
                   </div>
                   {creatorSubSettings?.benefits?.length > 0 && (

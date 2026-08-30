@@ -129,10 +129,11 @@ async function createMembershipPlan(
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   try {
-    const { userId, monthlyPrice, yearlyPrice, creatorName } = await context.request.json<any>();
+    const hasMonthly = typeof monthlyPrice === "number" && monthlyPrice > 0;
+    const hasYearly = typeof yearlyPrice === "number" && yearlyPrice > 0;
 
-    if (!userId || typeof monthlyPrice !== "number" || monthlyPrice <= 0) {
-      return new Response(JSON.stringify({ success: false, error: "Invalid payload" }), {
+    if (!userId || (!hasMonthly && !hasYearly)) {
+      return new Response(JSON.stringify({ success: false, error: "At least one subscription price (monthly or yearly) must be greater than 0." }), {
         status: 400,
         headers: { "Content-Type": "application/json" }
       });
@@ -143,10 +144,14 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const name = typeof creatorName === "string" && creatorName.trim() ? creatorName.trim().slice(0, 60) : (userId.slice(0, 12));
 
     const { productId } = await resolveProductForCreator(apiKey, companyId, name, userId);
-    const whopMonthlyPlanId = await createMembershipPlan(apiKey, productId, 'monthly', monthlyPrice, name, userId);
+
+    let whopMonthlyPlanId: string | null = null;
+    if (hasMonthly) {
+      whopMonthlyPlanId = await createMembershipPlan(apiKey, productId, 'monthly', monthlyPrice, name, userId);
+    }
 
     let whopYearlyPlanId: string | null = null;
-    if (typeof yearlyPrice === "number" && yearlyPrice > 0) {
+    if (hasYearly) {
       whopYearlyPlanId = await createMembershipPlan(apiKey, productId, 'yearly', yearlyPrice, name, userId);
     }
 
