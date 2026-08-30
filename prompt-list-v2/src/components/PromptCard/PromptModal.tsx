@@ -889,10 +889,8 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                                   Subscribe to @{post.creator?.username || 'this creator'} <br />
                                   to unlock this prompt
                                 </>
-                              ) : effectiveMonetization === 'charge' ? (
-                                'Pay to Unlock'
                               ) : (
-                                'Watch an Ad to unlock'
+                                'Pay to Unlock'
                               )}
                             </div>
                             <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem', lineHeight: 1.45 }}>
@@ -900,9 +898,7 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                                 ? (subPromptCount != null && subPromptCount > 1
                                     ? `The creator has chosen a subscription model for this prompt. Subscribe to unlock this and ${subPromptCount - 1} other prompt${subPromptCount - 1 === 1 ? '' : 's'}.`
                                     : 'The creator has chosen a subscription model for this prompt. Subscribe to unlock this prompt.')
-                                : effectiveMonetization === 'ad_supported'
-                                  ? 'The creator has chosen to monetize their prompts through ads. Click the button below to watch an ad.'
-                                  : 'The creator has opted for a pay-to-unlock model for this prompt. One payment unlocks it instantly.'}
+                                : 'The creator has opted for a pay-to-unlock model for this prompt. One payment unlocks it instantly.'}
                             </div>
 
                             {effectiveMonetization === 'subscribers_only' ? (
@@ -918,21 +914,13 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                                 <Unlock size={16} />
                                 <span>Subscribe to Unlock</span>
                               </button>
-                            ) : effectiveMonetization === 'charge' ? (
+                            ) : (
                               <button
                                 onClick={(e) => { e.stopPropagation(); if (post.whopPlanId) { setShowCheckout(true); } else { toast.error('Creator has not setup a valid checkout for this item yet.'); } }}
                                 className="btn-solid"
                                 style={{ width: '100%', padding: '0.75rem' }}
                               >
                                 Pay ${post.price || '1.99'} to Unlock
-                              </button>
-                            ) : (
-                              <button
-                                onClick={handleWatchAdToUnlock}
-                                className="btn-solid"
-                                style={{ width: '100%', padding: '0.75rem' }}
-                              >
-                                <PlayCircle size={18} /> Watch Ad
                               </button>
                             )}
                           </div>
