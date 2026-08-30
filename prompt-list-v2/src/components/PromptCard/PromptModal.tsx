@@ -920,7 +920,7 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                               </button>
                             ) : effectiveMonetization === 'charge' ? (
                               <button
-                                onClick={(e) => { e.stopPropagation(); if (post.whopPlanId) { setShowCheckout(true); } else { alert('Creator has not setup a valid checkout for this item yet.'); } }}
+                                onClick={(e) => { e.stopPropagation(); if (post.whopPlanId) { setShowCheckout(true); } else { toast.error('Creator has not setup a valid checkout for this item yet.'); } }}
                                 className="btn-solid"
                                 style={{ width: '100%', padding: '0.75rem' }}
                               >
