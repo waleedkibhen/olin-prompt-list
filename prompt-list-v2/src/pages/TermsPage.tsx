@@ -13,7 +13,7 @@ export default function TermsPage() {
         <div className={styles.meta}>
           <span><strong>Olin's Prompt List</strong> | Website: getolin.xyz</span>
           <span>Effective Date: August 12, 2026</span>
-          <span>Last Updated: August 12, 2026</span>
+          <span>Last Updated: August 30, 2026</span>
         </div>
       </header>
 
@@ -21,338 +21,231 @@ export default function TermsPage() {
         <section>
           <h2>1. Introduction & Acceptance</h2>
           <p>
-            Welcome to Olin's Prompt List ("the Platform," "we," "us," or "our"), accessible at getolin.xyz. Olin's Prompt List is a discovery engine and marketplace for AI-generated art and prompts where users can upload AI-generated images, share prompts and configurations, and engage with a creative community.
+            Welcome to Olin's Prompt List ("the Platform," "we," "us," or "our"), accessible at getolin.xyz. Olin's Prompt List is a discovery engine, community marketplace, and creator monetization hub for AI-generated art, prompt engineering, and creator memberships.
           </p>
           <p>
-            By creating an account, accessing, or using the Platform, you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use the Platform.
+            By creating an account, accessing, or using the Platform, you agree to be bound by these Terms of Service ("Terms") and our <a href="/privacy">Privacy Policy</a>. If you do not agree to these Terms, you must not access or use the Platform.
           </p>
           <p>
-            These Terms constitute a legally binding agreement between you ("you," "your," or "User") and Olin's Prompt List. Please read them carefully.
+            These Terms constitute a legally binding agreement between you ("you," "your," or "User") and Olin's Prompt List.
           </p>
         </section>
 
         <section>
           <h2>2. Eligibility</h2>
-          <p>To use Olin's Prompt List, you must:</p>
+          <p>To use Olin's Prompt List, you represent and warrant that you:</p>
           <ul>
-            <li>Be at least 13 years old (or at least 16 years old if you are located in the European Economic Area).</li>
-            <li>Have a valid Google account, as we use Google OAuth as our sole authentication method.</li>
-            <li>Have the legal capacity to enter into a binding agreement.</li>
-            <li>Not have been previously banned or removed from the Platform.</li>
+            <li>Are at least 13 years old (or at least 16 years old in the European Economic Area).</li>
+            <li>Have a valid Google account, as Google OAuth is our primary authentication method.</li>
+            <li>Possess the legal capacity to enter into a binding contract under applicable law.</li>
+            <li>Have not been previously suspended, banned, or removed from the Platform.</li>
           </ul>
-          <p>If you are using the Platform on behalf of an organization, you represent that you have the authority to bind that organization to these Terms.</p>
         </section>
 
         <section>
           <h2>3. Account Registration & Security</h2>
           
           <h3>3.1 Google Authentication</h3>
-          <p>All accounts on Olin's Prompt List are created and accessed exclusively through Google Authentication (OAuth). By signing in, you authorize us to access the limited Google profile information described in our Privacy Policy (email address, display name, profile picture, and Google Account ID).</p>
+          <p>
+            Accounts on Olin's Prompt List are created and authenticated through Google OAuth. By signing in, you authorize us to access the basic profile information described in our Privacy Policy (email address, display name, avatar URL, and Google ID).
+          </p>
           
           <h3>3.2 Account Responsibility</h3>
           <ul>
-            <li>You are responsible for all activity that occurs under your account.</li>
-            <li>You must maintain the security of your Google account. We are not liable for any loss or damage resulting from unauthorized access to your account caused by your failure to secure your Google credentials.</li>
-            <li>You may not share, transfer, or sell your account to another person.</li>
-            <li>You agree to provide accurate information and to update your profile if your information changes.</li>
+            <li>You are solely responsible for all activity that occurs under your account.</li>
+            <li>You must maintain the security and confidentiality of your Google credentials. We are not liable for any loss resulting from unauthorized access caused by compromised credentials.</li>
+            <li>You may not transfer, share, or sell your account to any other person or organization.</li>
+            <li>You agree to provide accurate profile information and to keep your account details current.</li>
           </ul>
 
-          <h3>3.3 One Account Per User</h3>
-          <p>Each individual may maintain only one account. Creating multiple accounts to evade bans, manipulate engagement metrics, or circumvent these Terms is prohibited and grounds for immediate termination.</p>
+          <h3>3.3 One Account Per Individual</h3>
+          <p>
+            Users are permitted one account. Creating secondary or burner accounts to circumvent bans, manipulate analytics, or bypass security restrictions is strictly prohibited.
+          </p>
         </section>
 
         <section>
-          <h2>4. User Conduct & Community Guidelines</h2>
-          <p>Olin's Prompt List is a community built around creative sharing and discovery. To keep it safe and enjoyable for everyone, you agree to the following rules of conduct:</p>
+          <h2>4. User Conduct & Community Standards</h2>
+          <p>To maintain a safe, high-quality creative community, all users agree to adhere to the following rules:</p>
           
           <h3>4.1 Prohibited Content</h3>
-          <p>You may not upload, post, share, or otherwise distribute content that:</p>
+          <p>You may not upload, publish, or share content that:</p>
           <ul>
-            <li>Is illegal under applicable law, including but not limited to content that violates intellectual property rights, export controls, or sanctions.</li>
-            <li>Depicts, promotes, or facilitates child sexual abuse material (CSAM) or the exploitation of minors in any form. This is a zero-tolerance policy resulting in immediate permanent ban and reporting to relevant authorities.</li>
-            <li>Contains non-consensual intimate imagery (sometimes called "revenge porn"), including AI-generated intimate depictions of real people without their consent.</li>
-            <li>Promotes violence, terrorism, or physical harm against any individual or group.</li>
-            <li>Constitutes hate speech — content that attacks, demeans, or incites violence against individuals or groups based on race, ethnicity, nationality, religion, gender, gender identity, sexual orientation, disability, or other protected characteristics.</li>
-            <li>Is fraudulent, deceptive, or misleading, including scams, phishing attempts, or impersonation of others.</li>
-            <li>Contains malware, viruses, or harmful code.</li>
-            <li>Is spam or unsolicited promotional material.</li>
-            <li>Violates OpenAI's Usage Policies or the usage policies of other AI model providers whose outputs are shared on the Platform.</li>
-            <li>Is otherwise harmful, abusive, harassing, threatening, or objectionable as determined by us in our sole discretion.</li>
+            <li>Violates any applicable local, national, or international law, regulation, or intellectual property right.</li>
+            <li>Contains Child Sexual Abuse Material (CSAM) or any form of child sexual exploitation (zero-tolerance policy resulting in immediate permanent ban and law enforcement referral).</li>
+            <li>Contains non-consensual intimate imagery (NCII) or non-consensual deepfakes of real individuals.</li>
+            <li>Promotes violent extremism, terrorism, illegal weapon manufacturing, or self-harm.</li>
+            <li>Constitutes hate speech or incitement of violence targeting protected characteristics (race, ethnicity, religion, sexual orientation, disability, gender identity).</li>
+            <li>Contains deceptive phishing links, malware, computer viruses, or unauthorized scripts.</li>
+            <li>Violates the acceptable use policies of third-party AI model providers (such as OpenAI, Midjourney, Stability AI, Black Forest Labs).</li>
           </ul>
 
-          <h3>4.2 Prohibited Behavior</h3>
+          <h3>4.2 Prohibited Behaviors</h3>
           <p>You may not:</p>
           <ul>
-            <li>Harass, bully, stalk, intimidate, or threaten other users.</li>
-            <li>Manipulate engagement metrics through bots, scripts, fake accounts, or coordinated inauthentic behavior.</li>
-            <li>Scrape, crawl, or automatically collect data from the Platform without our prior written consent.</li>
-            <li>Reverse-engineer, decompile, or attempt to extract the source code of the Platform.</li>
-            <li>Interfere with or disrupt the Platform's infrastructure, servers, or networks.</li>
-            <li>Circumvent or disable any content moderation, security, or access control features.</li>
-            <li>Use the Platform for any commercial purpose not expressly authorized by us (e.g., unauthorized advertising, selling access to scraped data).</li>
-            <li>Impersonate any person or entity, or falsely claim an affiliation with any person or entity.</li>
+            <li>Harass, stalk, threaten, or impersonate other users or public figures.</li>
+            <li>Use automated bots, scrapers, or scripts to systematically crawl or extract prompt data from the Platform without prior written permission.</li>
+            <li>Artificially inflate likes, bookmarks, views, or metrics through coordinated inauthentic engagement.</li>
+            <li>Attempt to reverse engineer, decompile, or breach the security architecture of the Platform.</li>
+            <li>Circumvent or tamper with paid prompt paywalls, digital locks, or Firestore security rules.</li>
           </ul>
-
-          <h3>4.3 Community Interactions (Comments, Likes, Saves, Shares)</h3>
-          <p>When engaging with other users' content through comments, likes, saves, shares, and follows:</p>
-          <ul>
-            <li><strong>Be respectful.</strong> Disagreement is fine; personal attacks are not.</li>
-            <li><strong>Stay on topic.</strong> Comments should be relevant to the content they are posted on.</li>
-            <li><strong>No spam.</strong> Do not post repetitive, irrelevant, or promotional comments.</li>
-            <li><strong>No harassment in comments.</strong> Targeting a user with hostile, derogatory, or threatening comments across multiple posts constitutes harassment and will result in enforcement action.</li>
-            <li><strong>Engagement must be genuine.</strong> Artificially inflating likes, saves, or follows through coordinated schemes or automated tools is prohibited.</li>
-          </ul>
-
-          <h3>4.4 Reporting</h3>
-          <p>We provide an active reporting feature that allows any user to report content or other users that violate these Terms. We take reports seriously and will review them promptly. To file a report:</p>
-          <ul>
-            <li>Use the report button available on posts, comments, and user profiles.</li>
-            <li>Provide as much detail as possible about the violation.</li>
-          </ul>
-          <p>We will not disclose the identity of the reporting user to the reported party. Filing false or malicious reports repeatedly is itself a violation of these Terms.</p>
         </section>
 
         <section>
-          <h2>5. Content Moderation & Enforcement</h2>
-          
-          <h3>5.1 Automated Moderation</h3>
-          <p>We use OpenAI's moderation API to automatically scan uploaded images, prompts, and text content for potentially harmful or policy-violating material. Content flagged by the moderation system may be:</p>
-          <ul>
-            <li>Automatically blocked from being published.</li>
-            <li>Queued for manual review by our team.</li>
-            <li>Removed after review.</li>
-          </ul>
-          <p>No automated system is perfect. If you believe your content was wrongly flagged or removed, you may contact us at contact@getolin.xyz to request a review.</p>
-
-          <h3>5.2 Our Enforcement Rights</h3>
-          <p>We reserve the right, at our sole discretion and without prior notice, to:</p>
-          <ul>
-            <li>Remove or disable access to any content that violates these Terms.</li>
-            <li>Issue warnings to users who violate these Terms.</li>
-            <li>Temporarily suspend accounts that engage in violations.</li>
-            <li>Permanently ban accounts that engage in severe or repeated violations.</li>
-            <li>Report illegal activity to law enforcement authorities.</li>
-          </ul>
-          <p>We are not obligated to provide advance notice or a detailed explanation before taking enforcement action, although we will make reasonable efforts to inform affected users when appropriate.</p>
-
-          <h3>5.3 Appeals</h3>
-          <p>If you believe enforcement action was taken against your account or content in error, you may submit an appeal by contacting us at contact@getolin.xyz within 14 days of the action. We will review appeals in good faith but are not obligated to reverse any decision.</p>
+          <h2>5. Content Moderation & Safety</h2>
+          <p>
+            We utilize automated moderation systems (including OpenAI's Moderation API) alongside human review to filter harmful or policy-violating text and images.
+          </p>
+          <p>
+            We reserve the right, in our sole discretion and without prior notice, to remove any content, suspend publishing capabilities, or permanently terminate accounts that violate our guidelines. Content appeals may be submitted to <strong>contact@getolin.xyz</strong> within 14 days of enforcement.
+          </p>
         </section>
 
         <section>
           <h2>6. Content Ownership & Licensing</h2>
           
-          <h3>6.1 Your Ownership</h3>
-          <p>You retain ownership of the original prompts, AI-generated images, configurations, and other content you upload to Olin's Prompt List, subject to:</p>
-          <ul>
-            <li>Any rights held by the AI model providers whose tools generated the content (e.g., rights under the terms of service of Midjourney, Stable Diffusion, DALL·E, or other tools you used).</li>
-            <li>The license you grant to us below.</li>
-          </ul>
-          <p>You are solely responsible for ensuring you have the right to upload and share any content you post. If a third-party AI model provider's terms restrict how you can use or share generated outputs, it is your responsibility to comply with those terms.</p>
+          <h3>6.1 Creator Ownership</h3>
+          <p>
+            You retain ownership of the original text prompts, parameters, and AI-generated image uploads you submit to Olin's Prompt List, subject to the third-party terms of the AI generator utilized and the license granted below.
+          </p>
 
-          <h3>6.2 License You Grant to Olin's Prompt List</h3>
-          <p>By uploading content to the Platform, you grant Olin's Prompt List a worldwide, non-exclusive, royalty-free, sublicensable, and transferable license to use, reproduce, display, distribute, modify (for formatting and display purposes), and promote your content in connection with operating, developing, and marketing the Platform.</p>
-          <p>This license allows us to:</p>
-          <ul>
-            <li>Display your content on the Platform, including in search results, feeds, and curated collections.</li>
-            <li>Feature your content in promotional materials for the Platform (e.g., social media posts, newsletters, advertisements showcasing the Platform).</li>
-            <li>Create thumbnails, previews, and format adaptations of your content for display across different devices and interfaces.</li>
-            <li>Cache and distribute your content through our content delivery networks (CDNs).</li>
-          </ul>
-          <p>This license continues for as long as your content remains on the Platform. If you delete specific content, the license for that content terminates within a commercially reasonable time, except where it has been shared by other users, cached by third-party services, or is required for legal compliance.</p>
+          <h3>6.2 License Granted to Olin's Prompt List</h3>
+          <p>
+            By uploading content, you grant Olin's Prompt List a worldwide, non-exclusive, royalty-free license to host, display, index, format, cache, and promote your content across the Platform and in marketing materials (e.g., social previews, featured showcases) for the purpose of operating and growing the service.
+          </p>
 
-          <h3>6.3 Public Nature of Shared Content</h3>
-          <p>By uploading prompts and images to Olin's Prompt List, you understand and agree that:</p>
-          <ul>
-            <li>Your prompts are publicly visible and copyable by other users. This is a fundamental feature of the Platform.</li>
-            <li>Other users may use, adapt, and build upon your prompts to generate their own AI art. We do not control or take responsibility for how others use prompts they discover on the Platform.</li>
-            <li>Your content may appear in search engine results and be accessible to non-registered visitors.</li>
-          </ul>
-          <p>If you do not want a prompt or image to be publicly accessible, do not upload it to the Platform.</p>
-
-          <h3>6.4 Feedback</h3>
-          <p>Any feedback, suggestions, or ideas you provide to us about the Platform may be used by us without any obligation to you. You assign to us all rights in such feedback.</p>
+          <h3>6.3 Public vs. Protected Prompts</h3>
+          <p>
+            Prompts published as "Free" are publicly readable and copyable by all visitors. Prompts published under "One-Time Unlock" or "Subscribers Only" are cryptographically restricted and accessible only to verified purchasers and active subscribers.
+          </p>
         </section>
 
         <section>
-          <h2>7. Intellectual Property</h2>
-          
-          <h3>7.1 Platform Intellectual Property</h3>
-          <p>The Platform itself — including its design, layout, logos, branding ("Olin's Prompt List"), code, features, and documentation — is owned by us and protected by intellectual property laws. These Terms do not grant you any right to use our trademarks, logos, or branding without our prior written consent.</p>
-
-          <h3>7.2 Copyright Complaints (DMCA)</h3>
-          <p>We respect intellectual property rights. If you believe content on the Platform infringes your copyright, you may submit a takedown notice to: <strong>contact@getolin.xyz</strong></p>
-          <p>Your notice must include:</p>
+          <h2>7. Intellectual Property & DMCA Takedown Notices</h2>
+          <p>
+            We respect intellectual property rights and respond promptly to notices of alleged copyright infringement in accordance with the Digital Millennium Copyright Act (DMCA). If you believe your copyrighted work has been infringed, send a formal notice to <strong>contact@getolin.xyz</strong> including:
+          </p>
           <ul>
-            <li>Identification of the copyrighted work you claim is infringed.</li>
-            <li>Identification of the material on the Platform that you claim is infringing, with sufficient information to locate it.</li>
-            <li>Your contact information (name, address, email, phone number).</li>
-            <li>A statement that you have a good faith belief that the use is not authorized by the copyright owner, its agent, or the law.</li>
-            <li>A statement under penalty of perjury that the information in your notice is accurate and that you are the copyright owner or authorized to act on their behalf.</li>
+            <li>Identification of the copyrighted work claimed to be infringed.</li>
+            <li>The specific URL or post ID of the allegedly infringing material.</li>
+            <li>Your contact information (name, address, email, telephone number).</li>
+            <li>A good faith statement that the use is unauthorized and that the notice is accurate under penalty of perjury.</li>
             <li>Your physical or electronic signature.</li>
           </ul>
-          <p>We will respond to valid DMCA notices in accordance with applicable law, which may include removing or disabling access to the allegedly infringing content and notifying the uploader.</p>
         </section>
 
         <section>
-          <h2>8. Monetization & Payouts</h2>
+          <h2>8. Monetization, Creator Memberships & Purchases</h2>
           
-          <h3>8.1 No Guaranteed Earnings</h3>
-          <p>The Platform makes no guarantees regarding potential earnings or ad revenue. User monetization is subject to change at our sole discretion.</p>
-          
-          <h3>8.2 Ad Revenue Pool Contingency</h3>
-          <p>Ad-supported payouts (requiring a minimum of 1,000 views) are strictly contingent upon the Platform receiving successful disbursements from our advertising partners. If a partner defaults or withholds revenue, we reserve the right to void corresponding creator payouts.</p>
-          
-          <h3>8.3 Paid Prompts & Fees</h3>
-          <p>Creators retain 100% of their set price for Paid Prompts, less mandatory payment processing fees levied by our merchant of record (Whop). A minimum threshold of $5.00 must be met before withdrawal.</p>
-          
-          <h3>8.4 Tax Liability</h3>
-          <p>Creators act as independent contractors and are solely responsible for reporting and remitting any applicable taxes on their earnings.</p>
-          
-          <h3>8.5 Anti-Fraud & Clawbacks</h3>
-          <p>Any attempt to manipulate views or engagement using bots or coordinated inauthentic behavior will result in an immediate, permanent ban and the total forfeiture of all pending earnings.</p>
-        </section>
-
-        <section>
-          <h2>9. AI Generation Disclaimer</h2>
-          <p>Olin's Prompt List is a platform for discovering, sharing, and curating AI-generated content. We do not generate AI art ourselves.</p>
-          <p>Please understand:</p>
+          <h3>8.1 Monetization Models</h3>
+          <p>The Platform provides creators with direct monetization capabilities:</p>
           <ul>
-            <li><strong>We are not responsible for AI outputs.</strong> The prompts shared on our Platform are created by users and intended for use with third-party AI models (such as Midjourney, Stable Diffusion, DALL·E, Flux, and others). We have no control over and accept no responsibility for the images, text, or other outputs generated by these third-party AI models when users apply prompts found on our Platform.</li>
-            <li><strong>Results will vary.</strong> The same prompt may produce different results depending on the AI model, version, settings, and random seed used. We do not guarantee that any prompt will produce a specific output.</li>
-            <li><strong>Third-party AI terms apply.</strong> Your use of any third-party AI tool is governed by that tool's own terms of service and usage policies. It is your responsibility to comply with those terms.</li>
-            <li><strong>No endorsement.</strong> The presence of a prompt on our Platform does not constitute an endorsement of the prompt's content or the outputs it may generate. Users upload and share prompts at their own discretion.</li>
-            <li><strong>Accuracy not guaranteed.</strong> We do not verify the accuracy, completeness, or effectiveness of prompts or configurations shared by users. Use them at your own risk.</li>
-          </ul>
-        </section>
-
-        <section>
-          <h2>10. Disclaimer of Warranties</h2>
-          <p>THE PLATFORM IS PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS, IMPLIED, OR STATUTORY.</p>
-          <p>To the fullest extent permitted by applicable law, we disclaim all warranties, including but not limited to:</p>
-          <ul>
-            <li>Implied warranties of merchantability, fitness for a particular purpose, and non-infringement.</li>
-            <li>Any warranty that the Platform will be uninterrupted, error-free, secure, or free of viruses or harmful components.</li>
-            <li>Any warranty regarding the accuracy, reliability, or completeness of content on the Platform, including user-generated prompts, images, configurations, and engagement metrics.</li>
-            <li>Any warranty that the Platform will meet your specific requirements or expectations.</li>
-          </ul>
-          <p>Some jurisdictions do not allow the exclusion of certain warranties. In such jurisdictions, the above exclusions apply only to the extent permitted by law.</p>
-        </section>
-
-        <section>
-          <h2>11. Limitation of Liability</h2>
-          <p>TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, OLIN'S PROMPT LIST, ITS OWNERS, OPERATORS, AFFILIATES, OFFICERS, DIRECTORS, EMPLOYEES, AGENTS, AND LICENSORS SHALL NOT BE LIABLE FOR:</p>
-          <ul>
-            <li>Any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data, goodwill, or other intangible losses.</li>
-            <li>Damages arising from:
-              <ul>
-                <li>Your use of or inability to use the Platform.</li>
-                <li>Any unauthorized access to or alteration of your data or content.</li>
-                <li>Content or conduct of any third party on the Platform.</li>
-                <li>Any content you upload, share, or make available through the Platform.</li>
-                <li>Platform downtime, outages, or technical failures.</li>
-                <li>Disputes between users.</li>
-                <li>Actions taken by third-party AI models using prompts found on the Platform.</li>
-              </ul>
-            </li>
-          </ul>
-          <p>IN NO EVENT SHALL OUR TOTAL AGGREGATE LIABILITY TO YOU FOR ALL CLAIMS ARISING OUT OF OR RELATED TO THESE TERMS OR THE PLATFORM EXCEED THE GREATER OF (A) THE AMOUNT YOU PAID US, IF ANY, IN THE 12 MONTHS PRECEDING THE CLAIM, OR (B) ONE HUNDRED U.S. DOLLARS ($100.00).</p>
-          <p>Some jurisdictions do not allow the limitation or exclusion of liability for certain types of damages. In such jurisdictions, our liability is limited to the fullest extent permitted by law.</p>
-        </section>
-
-        <section>
-          <h2>12. Indemnification</h2>
-          <p>You agree to indemnify, defend, and hold harmless Olin's Prompt List, its owners, operators, affiliates, officers, directors, employees, agents, and licensors from and against any and all claims, damages, losses, liabilities, costs, and expenses (including reasonable attorneys' fees) arising out of or related to:</p>
-          <ul>
-            <li>Your use of the Platform.</li>
-            <li>Your violation of these Terms.</li>
-            <li>Content you upload, post, or share on the Platform.</li>
-            <li>Your violation of any third party's rights, including intellectual property rights.</li>
-            <li>Your violation of any applicable law or regulation.</li>
-          </ul>
-        </section>
-
-        <section>
-          <h2>13. Third-Party Links & Services</h2>
-          <p>The Platform may contain links to third-party websites, tools, or services (including AI model providers). We do not control, endorse, or assume responsibility for any third-party content, products, or services. Your use of third-party services is at your own risk and subject to those third parties' terms and policies.</p>
-        </section>
-
-        <section>
-          <h2>14. Modifications to the Platform</h2>
-          <p>We reserve the right to modify, suspend, or discontinue the Platform (or any feature or part thereof) at any time, with or without notice. We will not be liable to you or any third party for any modification, suspension, or discontinuation of the Platform.</p>
-        </section>
-
-        <section>
-          <h2>15. Changes to These Terms</h2>
-          <p>We may update these Terms from time to time. When we make material changes:</p>
-          <ul>
-            <li>We will update the "Last Updated" date at the top of this page.</li>
-            <li>We will provide a prominent notice on the Platform (e.g., a banner or pop-up notification).</li>
-            <li>For significant changes, we may send a notification to the email address associated with your account.</li>
-          </ul>
-          <p>Your continued use of the Platform after updated Terms take effect constitutes your acceptance of the revised Terms. If you do not agree to the updated Terms, you must stop using the Platform and may request account deletion.</p>
-        </section>
-
-        <section>
-          <h2>16. Termination</h2>
-          <h3>15.1 Termination by You</h3>
-          <p>You may stop using the Platform at any time. You may request account deletion by contacting us at contact@getolin.xyz or through your account settings.</p>
-          
-          <h3>15.2 Termination by Us</h3>
-          <p>We may suspend or terminate your account at any time, for any reason, including but not limited to:</p>
-          <ul>
-            <li>Violation of these Terms or our community guidelines.</li>
-            <li>Conduct that we believe is harmful to other users, the Platform, or third parties.</li>
-            <li>Extended periods of inactivity.</li>
-            <li>Legal or regulatory requirements.</li>
+            <li><strong>One-Time Prompt Unlocks:</strong> Buyers pay a fixed one-time fee to permanently unlock the prompt text, parameters, and configurations for a specific post.</li>
+            <li><strong>Creator Memberships (Monthly / Yearly):</strong> Buyers subscribe on a recurring monthly or yearly billing cycle to unlock a creator's entire library of subscriber-only prompts, updates, and exclusive creator benefits.</li>
           </ul>
 
-          <h3>15.3 Effect of Termination</h3>
-          <p>Upon termination:</p>
+          <h3>8.2 0% Platform Fee Notice</h3>
+          <p>
+            Olin operates as a software facilitation and discovery platform. <strong>Olin currently takes a 0% platform take-rate/fee</strong> on creator transactions. 100% of the creator's set price is passed forward to the creator, subject only to direct third-party payment processing fees levied by our merchant partner (Whop / credit card networks).
+          </p>
+
+          <h3>8.3 Merchant of Record & Payment Processing (Whop)</h3>
+          <p>
+            All financial transactions, payment card processing, digital wallet authorizations (Apple Pay, Google Pay), ACH bank debits, currency conversions, renewals, and cancellations are processed by our third-party Merchant of Record partner, <strong>Whop</strong> (<a href="https://whop.com" target="_blank" rel="noopener noreferrer">whop.com</a>).
+          </p>
           <ul>
-            <li>Your right to access and use the Platform ceases immediately.</li>
-            <li>We may delete your account data in accordance with our Privacy Policy.</li>
-            <li>Sections of these Terms that by their nature should survive termination will survive.</li>
+            <li>Olin does not collect or store credit card numbers, debit cards, or banking credentials.</li>
+            <li>Recurring memberships automatically renew at the end of each billing cycle (e.g., 30 days for monthly plans, 365 days for yearly plans) until canceled by the subscriber.</li>
+            <li>Subscribers can cancel recurring memberships at any time through their Whop customer dashboard. Cancellation prevents future renewal charges while maintaining access through the end of the current paid billing period.</li>
           </ul>
+
+          <h3>8.4 Digital Content Delivery & License</h3>
+          <p>
+            Purchasing a prompt unlock or creator membership grants the purchaser a limited, non-exclusive, non-transferable, revocable license to access, view, and utilize the prompt instructions for personal or commercial generative AI creation. Purchases do not convey intellectual property ownership of the underlying AI algorithms or platform software.
+          </p>
+
+          <h3>8.5 Refund Policy & All Sales Final</h3>
+          <p>
+            <strong>All sales and membership charges are final and non-refundable.</strong> Due to the instantaneous delivery and irrevocable digital nature of prompt text and creator vaults, refund requests cannot be honored once access has been unlocked, except where mandatory consumer refund rights are strictly required under applicable statutory local law or granted at the sole discretion of the creator.
+          </p>
+
+          <h3>8.6 Creator Content Disclaimer & No Output Guarantees</h3>
+          <p>
+            Olin's Prompt List is a user-generated platform. We do not evaluate, warrant, or guarantee:
+          </p>
+          <ul>
+            <li>The artistic output, seed consistency, or subjective quality of images generated when applying prompts to third-party AI models.</li>
+            <li>The frequency, schedule, or ongoing volume of exclusive drops provided by individual creators within their membership tiers.</li>
+            <li>Continued compatibility with future versions or updates of third-party AI software (e.g., Midjourney, Stable Diffusion, DALL-E).</li>
+          </ul>
+
+          <h3>8.7 Creator Tax Obligations</h3>
+          <p>
+            Creators act as independent entities. Each creator is solely responsible for determining, reporting, and remitting any applicable sales taxes, income taxes, or VAT related to earnings disbursed via Whop.
+          </p>
         </section>
 
         <section>
-          <h2>17. Governing Law & Dispute Resolution</h2>
-          <h3>16.1 Governing Law</h3>
-          <p>These Terms are governed by and construed in accordance with the laws of the United States, without regard to its conflict of law provisions.</p>
-          
-          <h3>16.2 Dispute Resolution</h3>
-          <p>We encourage you to contact us first at contact@getolin.xyz to resolve any dispute informally. If a dispute cannot be resolved informally within 30 days, the following applies:</p>
-          <ul>
-            <li><strong>For users in the United States:</strong> Any dispute arising out of or relating to these Terms or the Platform shall be resolved through binding arbitration administered by the American Arbitration Association (AAA) under its applicable rules, rather than in court. You agree to waive your right to a jury trial and to participate in a class action.</li>
-            <li><strong>For users outside the United States:</strong> Disputes shall be submitted to the exclusive jurisdiction of the competent courts, unless applicable local law requires a different forum.</li>
-          </ul>
-
-          <h3>16.3 Class Action Waiver</h3>
-          <p>To the fullest extent permitted by law, you agree that any dispute resolution proceedings will be conducted only on an individual basis and not in a class, consolidated, or representative action. If this class action waiver is found to be unenforceable, then the entirety of the arbitration provision shall be null and void.</p>
+          <h2>9. Disclaimer of Warranties</h2>
+          <p>
+            THE PLATFORM AND ALL CONTENT ARE PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS, IMPLIED, OR STATUTORY, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+          </p>
+          <p>
+            WE DO NOT WARRANT THAT THE PLATFORM WILL BE UNINTERRUPTED, ERROR-FREE, SECURE, OR ACCURATE, NOR DO WE WARRANT THE ACCURACY OR RELIABILITY OF ANY USER-GENERATED PROMPT OR CONFIGURATION.
+          </p>
         </section>
 
         <section>
-          <h2>18. General Provisions</h2>
-          <ul>
-            <li><strong>Entire Agreement:</strong> These Terms, together with our Privacy Policy, constitute the entire agreement between you and Olin's Prompt List regarding your use of the Platform.</li>
-            <li><strong>Severability:</strong> If any provision of these Terms is found to be invalid or unenforceable, that provision will be enforced to the maximum extent permissible, and the remaining provisions will remain in full force and effect.</li>
-            <li><strong>Waiver:</strong> Our failure to enforce any right or provision of these Terms does not constitute a waiver of that right or provision.</li>
-            <li><strong>Assignment:</strong> You may not assign or transfer your rights or obligations under these Terms without our prior written consent. We may assign our rights and obligations without restriction.</li>
-            <li><strong>No Agency:</strong> Nothing in these Terms creates a partnership, joint venture, employment, or agency relationship between you and Olin's Prompt List.</li>
-            <li><strong>Force Majeure:</strong> We will not be liable for any failure or delay in performing our obligations under these Terms due to events beyond our reasonable control, including natural disasters, war, terrorism, pandemics, government actions, or internet or infrastructure failures.</li>
-            <li><strong>Headings:</strong> Section headings are for convenience only and do not affect the interpretation of these Terms.</li>
-          </ul>
+          <h2>10. Limitation of Liability</h2>
+          <p>
+            TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL OLIN'S PROMPT LIST, ITS FOUNDERS, OPERATORS, AFFILIATES, OR LICENSORS BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES (INCLUDING LOSS OF PROFITS, DATA, REPUTATION, OR BUSINESS INTERRUPTION) ARISING OUT OF OR IN CONNECTION WITH YOUR ACCESS TO OR USE OF THE PLATFORM.
+          </p>
+          <p>
+            IN NO EVENT SHALL OUR TOTAL AGGREGATE LIABILITY FOR ALL CLAIMS EXCEED THE GREATER OF (A) THE TOTAL AMOUNT PAID BY YOU TO US IN THE TWELVE (12) MONTHS PRECEDING THE EVENT, OR (B) ONE HUNDRED U.S. DOLLARS ($100.00).
+          </p>
         </section>
 
         <section>
-          <h2>19. Contact Us</h2>
-          <p>If you have any questions about these Terms of Service, please contact us at:</p>
+          <h2>11. Indemnification</h2>
+          <p>
+            You agree to defend, indemnify, and hold harmless Olin's Prompt List and its operators against any claims, liabilities, damages, losses, and expenses (including reasonable legal fees) arising from: (a) your use or misuse of the Platform; (b) your violation of these Terms; (c) any content you upload; or (d) your infringement of any third-party rights.
+          </p>
+        </section>
+
+        <section>
+          <h2>12. Dispute Resolution & Binding Arbitration</h2>
+          <p>
+            We encourage you to contact us at <strong>contact@getolin.xyz</strong> to resolve any disputes informally.
+          </p>
+          <p>
+            If a dispute cannot be resolved informally within thirty (30) days, any controversy arising out of these Terms shall be resolved through binding individual arbitration administered under the commercial arbitration rules of the American Arbitration Association (AAA), rather than in court.
+          </p>
+          <p>
+            <strong>Class Action Waiver:</strong> YOU AGREE THAT DISPUTES WILL BE RESOLVED ON AN INDIVIDUAL BASIS ONLY AND WAIVE ANY RIGHT TO INITIATE OR PARTICIPATE IN A CLASS ACTION, COLLECTIVE ACTION, OR REPRESENTATIVE PROCEEDING.
+          </p>
+        </section>
+
+        <section>
+          <h2>13. Governing Law</h2>
+          <p>
+            These Terms shall be governed by and construed in accordance with the laws of the United States, without giving effect to any principles of conflicts of law.
+          </p>
+        </section>
+
+        <section>
+          <h2>14. Modifications to Terms & Platform</h2>
+          <p>
+            We reserve the right to modify or discontinue any feature of the Platform at any time. When we make material changes to these Terms, we will update the "Last Updated" date and provide notice on the Platform. Your continued use of the Platform after changes take effect constitutes binding acceptance of the updated Terms.
+          </p>
+        </section>
+
+        <section>
+          <h2>15. Contact Us</h2>
+          <p>If you have any questions concerning these Terms of Service, please contact us at:</p>
           <p>
             📧 <strong>contact@getolin.xyz</strong><br/>
             🌐 <strong>getolin.xyz</strong>
           </p>
-          <p>By using Olin's Prompt List, you acknowledge that you have read, understood, and agree to be bound by both this Terms of Service and our <a href="/privacy">Privacy Policy</a>.</p>
         </section>
       </div>
     </div>
