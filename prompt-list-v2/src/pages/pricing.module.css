@@ -235,8 +235,8 @@
 
 .primaryCta:hover {
   background-color: var(--cta-primary-hover);
-  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
-  transform: translateY(-1px);
+  box-shadow: none;
+  transform: none;
 }
 
 .secondaryCta {

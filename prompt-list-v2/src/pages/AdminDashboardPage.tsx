@@ -448,7 +448,6 @@ export default function AdminDashboardPage() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '8px',
-                boxShadow: '0 4px 20px rgba(6, 182, 212, 0.35)',
                 transition: 'all 0.2s ease'
               }}
             >
@@ -471,7 +470,6 @@ export default function AdminDashboardPage() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '8px',
-                boxShadow: '0 4px 20px rgba(168, 85, 247, 0.35)',
                 transition: 'all 0.2s ease'
               }}
             >

@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { DollarSign, Lock, Eye, AlertTriangle, ExternalLink, BadgeCheck, Crown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -114,18 +114,13 @@ export default function MonetizationTab({
             display: 'inline-flex',
             alignItems: 'center',
             gap: '0.5rem',
-            transition: 'background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease',
-            boxShadow: '0 1px 2px rgba(147, 51, 234, 0.25)'
+            transition: 'background-color 0.15s ease'
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.backgroundColor = '#a855f7';
-            e.currentTarget.style.transform = 'translateY(-1px)';
-            e.currentTarget.style.boxShadow = '0 4px 14px rgba(147, 51, 234, 0.35)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.backgroundColor = '#9333ea';
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 1px 2px rgba(147, 51, 234, 0.25)';
           }}
         >
           <Crown size={16} color="#ffffff" strokeWidth={2.2} />

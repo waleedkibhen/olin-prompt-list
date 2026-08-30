@@ -152,19 +152,18 @@ button:focus-visible {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  transition: background-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
-  box-shadow: 0 1px 2px rgba(59, 130, 246, 0.25);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+  box-shadow: none;
 }
 
 .btn-solid:hover {
   background-color: var(--cta-primary-hover);
-  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
-  transform: translateY(-1px);
+  box-shadow: none;
 }
 
 .btn-solid:active {
-  transform: translateY(0) scale(0.98);
-  box-shadow: 0 1px 2px rgba(59, 130, 246, 0.25);
+  transform: scale(0.98);
+  box-shadow: none;
 }
 
 .btn-solid:disabled {
@@ -186,20 +185,19 @@ button:focus-visible {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  transition: background-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast), border-color var(--transition-fast);
-  box-shadow: 0 2px 8px rgba(147, 51, 234, 0.25);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+  box-shadow: none;
 }
 
 .btn-purple:hover {
   background-color: #a855f7;
   border-color: #a855f7;
-  box-shadow: 0 4px 16px rgba(147, 51, 234, 0.5);
-  transform: translateY(-1px);
+  box-shadow: none;
 }
 
 .btn-purple:active {
-  transform: translateY(0) scale(0.98);
-  box-shadow: 0 1px 2px rgba(147, 51, 234, 0.25);
+  transform: scale(0.98);
+  box-shadow: none;
 }
 
 .btn-purple-subtle {
@@ -214,15 +212,14 @@ button:focus-visible {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  transition: background-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast), border-color var(--transition-fast);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
   box-shadow: none;
 }
 
 .btn-purple-subtle:hover {
   background-color: #9333ea;
   border-color: #9333ea;
-  box-shadow: 0 4px 16px rgba(147, 51, 234, 0.5);
-  transform: translateY(-1px);
+  box-shadow: none;
 }
 
 .btn-outline {

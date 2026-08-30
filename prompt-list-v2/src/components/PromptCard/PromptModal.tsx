@@ -1010,12 +1010,10 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                     border: `1px solid ${hoveredPlanCard === 'monthly' ? '#9333ea' : '#27272a'}`,
                     borderRadius: '12px',
                     cursor: 'pointer',
-                    transition: 'all 0.2s ease',
+                    transition: 'border-color 0.2s ease',
                     display: 'flex',
                     flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    transform: hoveredPlanCard === 'monthly' ? 'translateY(-2px)' : 'translateY(0)',
-                    boxShadow: hoveredPlanCard === 'monthly' ? '0 0 24px rgba(147, 51, 234, 0.22)' : 'none'
+                    justifyContent: 'space-between'
                   }}
                 >
                   <div>
@@ -1067,13 +1065,11 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                     border: `1px solid ${hoveredPlanCard === 'yearly' ? '#9333ea' : '#27272a'}`,
                     borderRadius: '12px',
                     cursor: 'pointer',
-                    transition: 'all 0.2s ease',
+                    transition: 'border-color 0.2s ease',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
-                    position: 'relative',
-                    transform: hoveredPlanCard === 'yearly' ? 'translateY(-2px)' : 'translateY(0)',
-                    boxShadow: hoveredPlanCard === 'yearly' ? '0 0 24px rgba(147, 51, 234, 0.22)' : 'none'
+                    position: 'relative'
                   }}
                 >
                   <div>
