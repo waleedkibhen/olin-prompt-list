@@ -36,7 +36,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           unlimited_stock: true,
           stock: 1000000,
           card_payments: true,
-          coinbase_commerce_accepted: true,
+          coinbase_commerce_accepted: false,
           ach_payments: true,
           paypal_accepted: false
         },
