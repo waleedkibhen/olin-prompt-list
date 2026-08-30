@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { DollarSign, Lock, Eye, AlertTriangle, ExternalLink, BadgeCheck, Crown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -105,55 +105,47 @@ export default function MonetizationTab({
             padding: '0.6rem 1.25rem',
             fontSize: '0.9rem',
             fontWeight: 600,
-            borderRadius: '8px',
-            border: '1px solid rgba(147, 51, 234, 0.4)',
-            background: 'rgba(147, 51, 234, 0.08)',
-            color: '#e9d5ff',
+            borderRadius: 'var(--radius-btn, 10px)',
+            border: '1px solid transparent',
+            backgroundColor: '#9333ea',
+            color: '#ffffff',
             cursor: 'pointer',
             display: 'inline-flex',
             alignItems: 'center',
             gap: '0.5rem',
-            transition: 'all 0.15s ease'
+            transition: 'background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease',
+            boxShadow: '0 1px 2px rgba(147, 51, 234, 0.25)'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(147, 51, 234, 0.16)';
-            e.currentTarget.style.borderColor = '#9333ea';
+            e.currentTarget.style.backgroundColor = '#a855f7';
+            e.currentTarget.style.transform = 'translateY(-1px)';
+            e.currentTarget.style.boxShadow = '0 4px 14px rgba(147, 51, 234, 0.35)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'rgba(147, 51, 234, 0.08)';
-            e.currentTarget.style.borderColor = 'rgba(147, 51, 234, 0.4)';
+            e.currentTarget.style.backgroundColor = '#9333ea';
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 1px 2px rgba(147, 51, 234, 0.25)';
           }}
         >
-          <Crown size={16} style={{ color: '#eab308' }} />
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Crown size={16} color="#ffffff" strokeWidth={2.2} />
+            {isSubActive && (
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '-2px',
+                  right: '-3px',
+                  width: '7px',
+                  height: '7px',
+                  backgroundColor: '#10b981',
+                  borderRadius: '50%',
+                  border: '1.5px solid #9333ea'
+                }}
+                title="Membership Active"
+              />
+            )}
+          </div>
           <span>Membership Plan</span>
-          {isSubActive ? (
-            <span
-              style={{
-                backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                color: '#10b981',
-                border: '1px solid rgba(16, 185, 129, 0.3)',
-                borderRadius: '9999px',
-                fontSize: '0.7rem',
-                padding: '0.1rem 0.5rem',
-                fontWeight: 700
-              }}
-            >
-              Active
-            </span>
-          ) : (
-            <span
-              style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                color: '#a1a1aa',
-                borderRadius: '9999px',
-                fontSize: '0.7rem',
-                padding: '0.1rem 0.5rem',
-                fontWeight: 600
-              }}
-            >
-              Setup
-            </span>
-          )}
         </button>
 
         <button
