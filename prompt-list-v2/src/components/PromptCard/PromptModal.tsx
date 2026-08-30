@@ -821,12 +821,12 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                           <div style={{ flex: 1, padding: '1.5rem', width: '100%', maxWidth: '380px', textAlign: 'center' }}>
                             <div
                               style={{
-                                fontWeight: 600,
+                                fontWeight: 500,
                                 marginBottom: '0.6rem',
                                 color: 'var(--text-primary)',
-                                fontSize: '1.08rem',
+                                fontSize: '1.05rem',
                                 lineHeight: 1.35,
-                                letterSpacing: '0.005em'
+                                letterSpacing: '0.01em'
                               }}
                             >
                               {effectiveMonetization === 'subscribers_only' ? (
@@ -984,84 +984,161 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
 
       {showSubPlanModal && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 100001, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.82)', padding: '1rem' }} onClick={() => setShowSubPlanModal(false)}>
-          <div style={{ width: '100%', maxWidth: '500px', maxHeight: '85vh', overflowY: 'auto', backgroundColor: '#131316', border: '1px solid #27272a', borderRadius: '16px', padding: '1.5rem', position: 'relative' }} onClick={e => e.stopPropagation()}>
+          <div style={{ width: '100%', maxWidth: hasMonthly && hasYearly ? '580px' : '440px', maxHeight: '85vh', overflowY: 'auto', backgroundColor: '#131316', border: '1px solid #27272a', borderRadius: '16px', padding: '1.5rem', position: 'relative' }} onClick={e => e.stopPropagation()}>
             <button
               onClick={() => setShowSubPlanModal(false)}
-              style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(255,255,255,0.06)', border: 'none', color: '#fff', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+              style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(255,255,255,0.06)', border: 'none', color: '#fff', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background 0.2s ease' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
               aria-label="Close"
             >
               <X size={16} />
             </button>
 
-            <h3 style={{ margin: '0 0 0.35rem 0', fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)', paddingRight: '2rem' }}>
+            <h3 style={{ margin: '0 0 0.35rem 0', fontSize: '1.15rem', fontWeight: 600, color: 'var(--text-primary)', paddingRight: '2rem', letterSpacing: '0.005em' }}>
               Choose a Membership Plan for @{post.creator?.username || 'this creator'}
             </h3>
-            <p style={{ margin: '0 0 1.25rem 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              {subPromptCount != null && subPromptCount > 0
-                ? `Your membership instantly unlocks ${subPromptCount} subscriber-only prompt${subPromptCount === 1 ? '' : 's'} and every future drop.`
-                : 'Your membership unlocks every subscriber-only prompt and all future drops.'}
+            <p style={{ margin: '0 0 1.35rem 0', fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+              {subPromptCount != null && subPromptCount > 1
+                ? `Your membership unlocks this prompt, ${subPromptCount - 1} other subscriber only prompt${subPromptCount - 1 === 1 ? '' : 's'}, and all future drops.`
+                : 'Your membership unlocks this prompt and all future drops.'}
             </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: hasMonthly && hasYearly ? 'repeat(auto-fit, minmax(230px, 1fr))' : '1fr', gap: '1rem' }}>
               {hasMonthly && (
                 <div
                   onClick={() => openSubCheckout('monthly')}
-                  style={{ padding: '1.15rem', backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '12px', cursor: 'pointer', transition: 'border-color 0.2s ease', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#9333ea'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#27272a'; }}
+                  style={{
+                    padding: '1.25rem',
+                    backgroundColor: '#18181b',
+                    border: '1px solid #27272a',
+                    borderRadius: '12px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#9333ea'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#27272a'; e.currentTarget.style.transform = 'translateY(0)'; }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <span style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)' }}>Monthly</span>
-                    <span style={{ fontWeight: 700, fontSize: '1.05rem', color: '#a855f7' }}>
-                      ${creatorSubSettings?.monthlyPrice ?? '—'} <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 400 }}>/ month</span>
-                    </span>
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
+                      <span style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--text-primary)' }}>Monthly</span>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.35rem', marginBottom: '1rem' }}>
+                      <span style={{ fontSize: '1.5rem', fontWeight: 700, color: '#ffffff' }}>${creatorSubSettings?.monthlyPrice ?? '—'}</span>
+                      <span style={{ fontSize: '0.82rem', color: '#a1a1aa' }}>/ month</span>
+                    </div>
+
+                    {creatorSubSettings?.benefits?.length > 0 && (
+                      <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                        {creatorSubSettings.benefits.map((b: string, i: number) => (
+                          <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                            <Check size={14} style={{ color: '#a855f7', flexShrink: 0, marginTop: '2px' }} />
+                            <span>{b}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
-                  {creatorSubSettings?.benefits?.length > 0 && (
-                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                      {creatorSubSettings.benefits.map((b: string, i: number) => (
-                        <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                          <Check size={13} style={{ color: '#a855f7', flexShrink: 0, marginTop: '2px' }} />
-                          <span>{b}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+
+                  <button
+                    className="btn-solid"
+                    onClick={(e) => { e.stopPropagation(); openSubCheckout('monthly'); }}
+                    style={{
+                      width: '100%',
+                      padding: '0.65rem',
+                      marginTop: '1.25rem',
+                      fontSize: '0.85rem',
+                      backgroundColor: '#9333ea',
+                      borderColor: '#9333ea',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.4rem'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#a855f7'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#9333ea'; }}
+                  >
+                    <Unlock size={14} />
+                    <span>Subscribe Monthly</span>
+                  </button>
                 </div>
               )}
 
               {hasYearly && (
                 <div
                   onClick={() => openSubCheckout('yearly')}
-                  style={{ padding: '1.15rem', backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '12px', cursor: 'pointer', transition: 'border-color 0.2s ease', display: 'flex', flexDirection: 'column', gap: '0.6rem', position: 'relative' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#9333ea'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#27272a'; }}
+                  style={{
+                    padding: '1.25rem',
+                    backgroundColor: '#18181b',
+                    border: '1px solid #27272a',
+                    borderRadius: '12px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    position: 'relative'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#9333ea'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#27272a'; e.currentTarget.style.transform = 'translateY(0)'; }}
                 >
-                  {hasMonthly && creatorSubSettings?.monthlyPrice != null && creatorSubSettings.monthlyPrice > 0 && creatorSubSettings.yearlyPrice < creatorSubSettings.monthlyPrice * 12 && (
-                    <span style={{ position: 'absolute', top: '1rem', right: '1rem', backgroundColor: 'rgba(16, 185, 129, 0.18)', border: '1px solid rgba(16, 185, 129, 0.45)', borderRadius: '9999px', padding: '0.15rem 0.55rem', fontSize: '0.7rem', color: '#ffffff', fontWeight: 500 }}>
-                      Save {Math.round((1 - creatorSubSettings.yearlyPrice / (creatorSubSettings.monthlyPrice * 12)) * 100)}%
-                    </span>
-                  )}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', paddingRight: hasMonthly ? '4.5rem' : '0' }}>
-                    <span style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)' }}>Yearly</span>
-                    <span style={{ fontWeight: 700, fontSize: '1.05rem', color: '#a855f7' }}>
-                      ${creatorSubSettings?.yearlyPrice} <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 400 }}>/ year</span>
-                    </span>
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
+                      <span style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--text-primary)' }}>Yearly</span>
+                      {hasMonthly && creatorSubSettings?.monthlyPrice != null && creatorSubSettings.monthlyPrice > 0 && creatorSubSettings.yearlyPrice < creatorSubSettings.monthlyPrice * 12 && (
+                        <span style={{ backgroundColor: 'rgba(16, 185, 129, 0.18)', border: '1px solid rgba(16, 185, 129, 0.45)', borderRadius: '9999px', padding: '0.15rem 0.55rem', fontSize: '0.7rem', color: '#ffffff', fontWeight: 500 }}>
+                          Save {Math.round((1 - creatorSubSettings.yearlyPrice / (creatorSubSettings.monthlyPrice * 12)) * 100)}%
+                        </span>
+                      )}
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.35rem', marginBottom: '1rem' }}>
+                      <span style={{ fontSize: '1.5rem', fontWeight: 700, color: '#ffffff' }}>${creatorSubSettings?.yearlyPrice ?? '—'}</span>
+                      <span style={{ fontSize: '0.82rem', color: '#a1a1aa' }}>/ year</span>
+                    </div>
+
+                    {creatorSubSettings?.benefits?.length > 0 && (
+                      <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                        {creatorSubSettings.benefits.map((b: string, i: number) => (
+                          <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                            <Check size={14} style={{ color: '#a855f7', flexShrink: 0, marginTop: '2px' }} />
+                            <span>{b}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
-                  {creatorSubSettings?.benefits?.length > 0 && (
-                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                      {creatorSubSettings.benefits.map((b: string, i: number) => (
-                        <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                          <Check size={13} style={{ color: '#a855f7', flexShrink: 0, marginTop: '2px' }} />
-                          <span>{b}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+
+                  <button
+                    className="btn-solid"
+                    onClick={(e) => { e.stopPropagation(); openSubCheckout('yearly'); }}
+                    style={{
+                      width: '100%',
+                      padding: '0.65rem',
+                      marginTop: '1.25rem',
+                      fontSize: '0.85rem',
+                      backgroundColor: '#9333ea',
+                      borderColor: '#9333ea',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.4rem'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#a855f7'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#9333ea'; }}
+                  >
+                    <Unlock size={14} />
+                    <span>Subscribe Yearly</span>
+                  </button>
                 </div>
               )}
             </div>
 
-            <div style={{ marginTop: '1.1rem', fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center' }}>
+            <div style={{ marginTop: '1.25rem', fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center' }}>
               Secure checkout powered by Whop · Cancel anytime
             </div>
           </div>
