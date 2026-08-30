@@ -99,7 +99,7 @@ async function createMembershipPlan(
       billing_period: billingPeriod,
       plan_type: "renewal",
       currency: "usd",
-      initial_price: price,
+      initial_price: 0,
       renewal_price: price,
       unlimited_stock: true,
       stock: 1000000,
