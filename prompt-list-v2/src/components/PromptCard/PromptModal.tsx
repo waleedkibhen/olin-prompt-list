@@ -1007,13 +1007,14 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                   style={{
                     padding: '1.25rem',
                     backgroundColor: '#18181b',
-                    border: `1px solid ${hoveredPlanCard === 'monthly' ? '#9333ea' : '#27272a'}`,
+                    border: `2px solid ${hoveredPlanCard === 'monthly' ? '#9333ea' : '#27272a'}`,
                     borderRadius: '12px',
                     cursor: 'pointer',
-                    transition: 'border-color 0.2s ease',
+                    transition: 'border-color 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
                     display: 'flex',
                     flexDirection: 'column',
-                    justifyContent: 'space-between'
+                    justifyContent: 'space-between',
+                    transform: hoveredPlanCard === 'monthly' ? 'scale(1.02)' : 'scale(1)'
                   }}
                 >
                   <div>
@@ -1045,7 +1046,9 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                       width: '100%',
                       padding: '0.65rem',
                       marginTop: '1.25rem',
-                      fontSize: '0.85rem'
+                      fontSize: '0.85rem',
+                      transform: hoveredPlanCard === 'monthly' ? 'scale(1.02)' : 'scale(1)',
+                      transition: 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, border-color 0.2s ease'
                     }}
                   >
                     <Unlock size={14} />
@@ -1062,14 +1065,15 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                   style={{
                     padding: '1.25rem',
                     backgroundColor: '#18181b',
-                    border: `1px solid ${hoveredPlanCard === 'yearly' ? '#9333ea' : '#27272a'}`,
+                    border: `2px solid ${hoveredPlanCard === 'yearly' ? '#9333ea' : '#27272a'}`,
                     borderRadius: '12px',
                     cursor: 'pointer',
-                    transition: 'border-color 0.2s ease',
+                    transition: 'border-color 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
-                    position: 'relative'
+                    position: 'relative',
+                    transform: hoveredPlanCard === 'yearly' ? 'scale(1.02)' : 'scale(1)'
                   }}
                 >
                   <div>
@@ -1106,7 +1110,9 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                       width: '100%',
                       padding: '0.65rem',
                       marginTop: '1.25rem',
-                      fontSize: '0.85rem'
+                      fontSize: '0.85rem',
+                      transform: hoveredPlanCard === 'yearly' ? 'scale(1.02)' : 'scale(1)',
+                      transition: 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, border-color 0.2s ease'
                     }}
                   >
                     <Unlock size={14} />

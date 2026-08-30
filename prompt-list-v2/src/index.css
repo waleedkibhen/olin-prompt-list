@@ -152,12 +152,13 @@ button:focus-visible {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, border-color 0.2s ease;
   box-shadow: none;
 }
 
 .btn-solid:hover {
   background-color: var(--cta-primary-hover);
+  transform: scale(1.02);
   box-shadow: none;
 }
 
@@ -185,13 +186,14 @@ button:focus-visible {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, border-color 0.2s ease;
   box-shadow: none;
 }
 
 .btn-purple:hover {
   background-color: #a855f7;
   border-color: #a855f7;
+  transform: scale(1.02);
   box-shadow: none;
 }
 
@@ -212,13 +214,14 @@ button:focus-visible {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, border-color 0.2s ease;
   box-shadow: none;
 }
 
 .btn-purple-subtle:hover {
   background-color: #9333ea;
   border-color: #9333ea;
+  transform: scale(1.02);
   box-shadow: none;
 }
 
