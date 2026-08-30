@@ -136,12 +136,10 @@ export default function MonetizationTab({
                 position: 'absolute',
                 top: '-3px',
                 right: '-3px',
-                width: '9px',
-                height: '9px',
+                width: '8px',
+                height: '8px',
                 backgroundColor: '#10b981',
-                borderRadius: '50%',
-                border: '2px solid #000000',
-                boxShadow: '0 0 0 1px #10b981'
+                borderRadius: '50%'
               }}
               title="Membership Active"
             />

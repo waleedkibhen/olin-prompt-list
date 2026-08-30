@@ -1,6 +1,6 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { doc, updateDoc } from 'firebase/firestore';
-import { Zap, X, Loader2, Check } from 'lucide-react';
+import { X, Loader2, Check } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/context/AuthContext';
 import toast from 'react-hot-toast';
@@ -206,12 +206,11 @@ export default function MembershipPlanModal({
           Allow your audience to subscribe to you for recurring monthly or yearly access to all your subscriber only prompts.
         </p>
 
-        {/* Auto-counted subscriber prompts badge without hyphen */}
+        {/* Text-only prompt count badge */}
         <div
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '0.5rem',
             backgroundColor: '#18181b',
             border: '1px solid #27272a',
             borderRadius: '8px',
@@ -221,7 +220,6 @@ export default function MembershipPlanModal({
             color: '#e4e4e7'
           }}
         >
-          <Zap size={14} style={{ color: '#a855f7', flexShrink: 0 }} />
           <span>Membership currently includes <strong>{subscriberPostCount}</strong> subscriber only prompt{subscriberPostCount === 1 ? '' : 's'}</span>
         </div>
 
@@ -278,13 +276,14 @@ export default function MembershipPlanModal({
         {/* Pricing Tiers (Visible when Enabled) */}
         {subEnabled && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.25rem' }}>
-            {/* Monthly Tier Card - Always Gray Background & Border */}
+            {/* Monthly Tier Card - Gray Background with thin purple outline when checked */}
             <div
               style={{
                 padding: '1rem 1.1rem',
                 backgroundColor: '#18181b',
-                border: '1px solid #27272a',
-                borderRadius: '12px'
+                border: enableMonthly ? '1px solid #9333ea' : '1px solid #27272a',
+                borderRadius: '12px',
+                transition: 'border-color 0.2s ease'
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: enableMonthly ? '0.75rem' : 0 }}>
@@ -327,13 +326,14 @@ export default function MembershipPlanModal({
               )}
             </div>
 
-            {/* Yearly Tier Card - Always Gray Background & Border */}
+            {/* Yearly Tier Card - Gray Background with thin purple outline when checked */}
             <div
               style={{
                 padding: '1rem 1.1rem',
                 backgroundColor: '#18181b',
-                border: '1px solid #27272a',
+                border: enableYearly ? '1px solid #9333ea' : '1px solid #27272a',
                 borderRadius: '12px',
+                transition: 'border-color 0.2s ease',
                 position: 'relative'
               }}
             >
