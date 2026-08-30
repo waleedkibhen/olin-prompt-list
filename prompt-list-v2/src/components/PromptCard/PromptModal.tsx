@@ -1029,7 +1029,7 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                   onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#27272a'; }}
                 >
                   {hasMonthly && creatorSubSettings?.monthlyPrice != null && creatorSubSettings.monthlyPrice > 0 && creatorSubSettings.yearlyPrice < creatorSubSettings.monthlyPrice * 12 && (
-                    <span style={{ position: 'absolute', top: '1rem', right: '1rem', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.35)', borderRadius: '9999px', padding: '0.15rem 0.55rem', fontSize: '0.7rem', color: '#10b981', fontWeight: 700 }}>
+                    <span style={{ position: 'absolute', top: '1rem', right: '1rem', backgroundColor: 'rgba(16, 185, 129, 0.18)', border: '1px solid rgba(16, 185, 129, 0.45)', borderRadius: '9999px', padding: '0.15rem 0.55rem', fontSize: '0.7rem', color: '#ffffff', fontWeight: 500 }}>
                       Save {Math.round((1 - creatorSubSettings.yearlyPrice / (creatorSubSettings.monthlyPrice * 12)) * 100)}%
                     </span>
                   )}

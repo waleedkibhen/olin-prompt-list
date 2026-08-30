@@ -357,7 +357,7 @@ export default function MembershipPlanModal({
                         padding: '0.15rem 0.55rem',
                         fontSize: '0.72rem',
                         color: '#ffffff',
-                        fontWeight: 700
+                        fontWeight: 500
                       }}
                     >
                       Save {savingsPct}% vs monthly

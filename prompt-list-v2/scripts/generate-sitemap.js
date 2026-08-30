@@ -67,8 +67,18 @@ async function generateSitemap() {
 
     console.log(`Successfully generated sitemap with 1 + ${posts.length} entries at ${outputPath}`);
   } catch (error) {
-    console.error('Error generating sitemap:', error);
-    process.exit(1);
+    console.warn('Warning: Could not fetch dynamic posts for sitemap, ensuring base sitemap exists:', error.message || error);
+    try {
+      const publicDir = path.resolve(__dirname, '../public');
+      if (!fs.existsSync(publicDir)) {
+        fs.mkdirSync(publicDir, { recursive: true });
+      }
+      const outputPath = path.join(publicDir, 'sitemap.xml');
+      if (!fs.existsSync(outputPath)) {
+        const fallbackXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url>\n    <loc>https://getolin.xyz/</loc>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n</urlset>`;
+        fs.writeFileSync(outputPath, fallbackXml, 'utf8');
+      }
+    } catch {}
   }
 }
 
