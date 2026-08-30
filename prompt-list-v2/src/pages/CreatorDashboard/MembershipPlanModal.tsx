@@ -1,6 +1,6 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { doc, updateDoc } from 'firebase/firestore';
-import { Crown, Zap, X, Loader2, Check } from 'lucide-react';
+import { Zap, X, Loader2, Check } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/context/AuthContext';
 import toast from 'react-hot-toast';
@@ -22,34 +22,46 @@ export default function MembershipPlanModal({
 
   const [subEnabled, setSubEnabled] = useState<boolean>(plan?.enabled ?? legacy?.enabled ?? false);
   const [enableMonthly, setEnableMonthly] = useState<boolean>(
-    plan?.enableMonthly ?? (plan?.monthlyPrice != null && plan.monthlyPrice > 0) ?? (legacy?.monthlyPrice != null && legacy.monthlyPrice > 0) ?? true
+    plan?.enableMonthly != null
+      ? plan.enableMonthly
+      : (plan?.monthlyPrice != null && plan.monthlyPrice > 0)
+        ? true
+        : false
   );
   const [enableYearly, setEnableYearly] = useState<boolean>(
-    plan?.enableYearly ?? (plan?.yearlyPrice != null && plan.yearlyPrice > 0) ?? false
+    plan?.enableYearly != null
+      ? plan.enableYearly
+      : (plan?.yearlyPrice != null && plan.yearlyPrice > 0)
+        ? true
+        : false
   );
   const [subMonthlyPrice, setSubMonthlyPrice] = useState<string>(
-    plan?.monthlyPrice != null && plan.monthlyPrice > 0 ? String(plan.monthlyPrice) : (legacy?.monthlyPrice != null && legacy.monthlyPrice > 0 ? String(legacy.monthlyPrice) : '4.99')
+    plan?.monthlyPrice != null && plan.monthlyPrice > 0 ? String(plan.monthlyPrice) : '4.99'
   );
   const [subYearlyPrice, setSubYearlyPrice] = useState<string>(
     plan?.yearlyPrice != null && plan.yearlyPrice > 0 ? String(plan.yearlyPrice) : '49.99'
   );
   const [subBenefits, setSubBenefits] = useState<string>(
-    plan?.benefits?.join('\n') ?? legacy?.description ?? 'Access to all exclusive subscriber-only prompts\nFull prompt license & parameter breakdowns\nEarly access to new prompt drops'
+    plan?.benefits?.join('\n') ?? legacy?.description ?? 'Access to all exclusive subscriber only prompts\nFull prompt license & parameter breakdowns\nEarly access to new prompt drops'
   );
   const [isSavingSub, setIsSavingSub] = useState(false);
 
   useEffect(() => {
     if (plan) {
       setSubEnabled(plan.enabled ?? false);
-      const hasMonthly = plan.enableMonthly ?? (plan.monthlyPrice != null && plan.monthlyPrice > 0);
-      const hasYearly = plan.enableYearly ?? (plan.yearlyPrice != null && plan.yearlyPrice > 0);
-      setEnableMonthly(hasMonthly || (!hasMonthly && !hasYearly));
+      const hasMonthly = plan.enableMonthly != null ? plan.enableMonthly : (plan.monthlyPrice != null && plan.monthlyPrice > 0);
+      const hasYearly = plan.enableYearly != null ? plan.enableYearly : (plan.yearlyPrice != null && plan.yearlyPrice > 0);
+      setEnableMonthly(Boolean(hasMonthly));
       setEnableYearly(Boolean(hasYearly));
       setSubMonthlyPrice(plan.monthlyPrice != null && plan.monthlyPrice > 0 ? String(plan.monthlyPrice) : '4.99');
       setSubYearlyPrice(plan.yearlyPrice != null && plan.yearlyPrice > 0 ? String(plan.yearlyPrice) : '49.99');
       if (plan.benefits && plan.benefits.length > 0) {
         setSubBenefits(plan.benefits.join('\n'));
       }
+    } else {
+      setSubEnabled(false);
+      setEnableMonthly(false);
+      setEnableYearly(false);
     }
   }, [profile?.uid, JSON.stringify(plan ?? null), isOpen]);
 
@@ -98,7 +110,7 @@ export default function MembershipPlanModal({
         provData = await provRes.json();
         if (!provRes.ok || !provData.success) {
           if (provData.code === 'products_permission_missing') {
-            throw new Error('Whop key needs the products permission: Whop Dashboard ? Developer ? API keys ? enable Products, then save again.');
+            throw new Error('Whop key needs the products permission: Whop Dashboard → Developer → API keys → enable Products, then save again.');
           }
           throw new Error(provData.error || 'Failed to provision Whop membership plans');
         }
@@ -184,32 +196,33 @@ export default function MembershipPlanModal({
           <X size={16} />
         </button>
 
-        {/* Title */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.5rem' }}>
-          <Crown size={22} style={{ color: '#eab308' }} />
-          <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700 }}>Creator Membership Plan</h2>
+        {/* Title without SVG */}
+        <div style={{ marginBottom: '0.5rem' }}>
+          <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: '#ffffff' }}>
+            Creator Membership Plan
+          </h2>
         </div>
         <p style={{ margin: '0 0 1.25rem 0', fontSize: '0.85rem', color: '#a1a1aa', lineHeight: 1.5 }}>
-          Allow your audience to subscribe to you for recurring monthly or yearly access to all your subscriber-only prompts.
+          Allow your audience to subscribe to you for recurring monthly or yearly access to all your subscriber only prompts.
         </p>
 
-        {/* Auto-counted subscriber prompts badge */}
+        {/* Auto-counted subscriber prompts badge without hyphen */}
         <div
           style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: '0.5rem',
-            backgroundColor: 'rgba(147, 51, 234, 0.08)',
-            border: '1px solid rgba(147, 51, 234, 0.25)',
+            backgroundColor: '#18181b',
+            border: '1px solid #27272a',
             borderRadius: '8px',
             padding: '0.5rem 0.85rem',
             marginBottom: '1.5rem',
             fontSize: '0.85rem',
-            color: '#d8b4fe'
+            color: '#e4e4e7'
           }}
         >
           <Zap size={14} style={{ color: '#a855f7', flexShrink: 0 }} />
-          <span>Membership currently includes <strong>{subscriberPostCount}</strong> subscriber-only prompt{subscriberPostCount === 1 ? '' : 's'}</span>
+          <span>Membership currently includes <strong>{subscriberPostCount}</strong> subscriber only prompt{subscriberPostCount === 1 ? '' : 's'}</span>
         </div>
 
         {/* Master Subscriptions Toggle */}
@@ -265,14 +278,13 @@ export default function MembershipPlanModal({
         {/* Pricing Tiers (Visible when Enabled) */}
         {subEnabled && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.25rem' }}>
-            {/* Monthly Tier Card */}
+            {/* Monthly Tier Card - Always Gray Background & Border */}
             <div
               style={{
                 padding: '1rem 1.1rem',
-                backgroundColor: enableMonthly ? 'rgba(147, 51, 234, 0.04)' : '#18181b',
-                border: enableMonthly ? '1px solid rgba(147, 51, 234, 0.35)' : '1px solid #27272a',
-                borderRadius: '12px',
-                transition: 'border-color 0.2s ease'
+                backgroundColor: '#18181b',
+                border: '1px solid #27272a',
+                borderRadius: '12px'
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: enableMonthly ? '0.75rem' : 0 }}>
@@ -315,14 +327,13 @@ export default function MembershipPlanModal({
               )}
             </div>
 
-            {/* Yearly Tier Card */}
+            {/* Yearly Tier Card - Always Gray Background & Border */}
             <div
               style={{
                 padding: '1rem 1.1rem',
-                backgroundColor: enableYearly ? 'rgba(147, 51, 234, 0.04)' : '#18181b',
-                border: enableYearly ? '1px solid rgba(147, 51, 234, 0.35)' : '1px solid #27272a',
+                backgroundColor: '#18181b',
+                border: '1px solid #27272a',
                 borderRadius: '12px',
-                transition: 'border-color 0.2s ease',
                 position: 'relative'
               }}
             >
@@ -336,11 +347,24 @@ export default function MembershipPlanModal({
                   />
                   <span>Yearly Subscription</span>
                 </label>
-                {savingsPct != null && savingsPct > 0 && enableYearly && (
-                  <span style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.35)', borderRadius: '9999px', padding: '0.15rem 0.55rem', fontSize: '0.7rem', color: '#10b981', fontWeight: 700 }}>
-                    Save {savingsPct}% vs monthly
-                  </span>
-                )}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                  {savingsPct != null && savingsPct > 0 && enableYearly && (
+                    <span
+                      style={{
+                        backgroundColor: 'rgba(16, 185, 129, 0.18)',
+                        border: '1px solid rgba(16, 185, 129, 0.45)',
+                        borderRadius: '9999px',
+                        padding: '0.15rem 0.55rem',
+                        fontSize: '0.72rem',
+                        color: '#ffffff',
+                        fontWeight: 700
+                      }}
+                    >
+                      Save {savingsPct}% vs monthly
+                    </span>
+                  )}
+                  <span style={{ fontSize: '0.78rem', color: '#a1a1aa' }}>Billed every 365 days</span>
+                </div>
               </div>
 
               {enableYearly && (
@@ -379,7 +403,7 @@ export default function MembershipPlanModal({
                 value={subBenefits}
                 onChange={(e) => setSubBenefits(e.target.value)}
                 rows={3}
-                placeholder="Access to all subscriber-only prompts&#10;Full prompt parameters & licenses&#10;Early access to drops"
+                placeholder="Access to all subscriber only prompts&#10;Full prompt parameters & licenses&#10;Early access to drops"
                 style={{
                   width: '100%',
                   padding: '0.75rem',
@@ -437,7 +461,7 @@ export default function MembershipPlanModal({
         </div>
 
         <div style={{ fontSize: '0.75rem', color: '#71717a', marginTop: '0.85rem', textAlign: 'center' }}>
-          Whop renewal plans are provisioned automatically when you save. Subscribers unlock all your Subscriber-Only prompts while their membership is active.
+          Whop renewal plans are provisioned automatically when you save. Subscribers unlock all your Subscriber Only prompts while their membership is active.
         </div>
       </div>
     </div>

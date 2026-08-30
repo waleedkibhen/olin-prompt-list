@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { DollarSign, Lock, Eye, AlertTriangle, ExternalLink, BadgeCheck, Crown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -102,6 +102,7 @@ export default function MonetizationTab({
         <button
           onClick={() => setIsMembershipModalOpen(true)}
           style={{
+            position: 'relative',
             padding: '0.6rem 1.25rem',
             fontSize: '0.9rem',
             fontWeight: 600,
@@ -127,25 +128,24 @@ export default function MonetizationTab({
             e.currentTarget.style.boxShadow = '0 1px 2px rgba(147, 51, 234, 0.25)';
           }}
         >
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Crown size={16} color="#ffffff" strokeWidth={2.2} />
-            {isSubActive && (
-              <span
-                style={{
-                  position: 'absolute',
-                  top: '-2px',
-                  right: '-3px',
-                  width: '7px',
-                  height: '7px',
-                  backgroundColor: '#10b981',
-                  borderRadius: '50%',
-                  border: '1.5px solid #9333ea'
-                }}
-                title="Membership Active"
-              />
-            )}
-          </div>
+          <Crown size={16} color="#ffffff" strokeWidth={2.2} />
           <span>Membership Plan</span>
+          {isSubActive && (
+            <span
+              style={{
+                position: 'absolute',
+                top: '-3px',
+                right: '-3px',
+                width: '9px',
+                height: '9px',
+                backgroundColor: '#10b981',
+                borderRadius: '50%',
+                border: '2px solid #000000',
+                boxShadow: '0 0 0 1px #10b981'
+              }}
+              title="Membership Active"
+            />
+          )}
         </button>
 
         <button
