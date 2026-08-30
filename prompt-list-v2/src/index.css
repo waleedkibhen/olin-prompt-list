@@ -100,9 +100,9 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-family);
   font-weight: 700;
-  letter-spacing: -0.05em; /* Tight letter spacing for architectural look */
+  letter-spacing: -0.01em; /* Clean, modern readable letter spacing */
   color: var(--text-primary);
-  line-height: 1.15;
+  line-height: 1.2;
 }
 
 p, span, button, input, textarea, select {

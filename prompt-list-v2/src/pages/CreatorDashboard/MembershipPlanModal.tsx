@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { doc, updateDoc } from 'firebase/firestore';
 import { X, Loader2, Check } from 'lucide-react';
 import { db } from '@/lib/firebase';
@@ -198,7 +198,7 @@ export default function MembershipPlanModal({
 
         {/* Title without SVG */}
         <div style={{ marginBottom: '0.5rem' }}>
-          <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: '#ffffff' }}>
+          <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: '#ffffff', letterSpacing: '0.005em' }}>
             Creator Membership Plan
           </h2>
         </div>
