@@ -32,7 +32,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           company_id: companyId,
           currency: "usd",
           initial_price: price,
-          plan_type: "one_time"
+          plan_type: "one_time",
+          unlimited_stock: true,
+          stock: 1000000
         },
         metadata: {
           prompt_id: promptId,
