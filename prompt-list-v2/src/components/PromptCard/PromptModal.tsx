@@ -819,11 +819,20 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                         
                         <div className={styles.vaultOverlayContent} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '0 1rem' }}>
                           <div style={{ flex: 1, padding: '1.5rem', width: '100%', maxWidth: '380px', textAlign: 'center' }}>
-                            <div style={{ fontWeight: 700, marginBottom: '0.5rem', color: 'var(--text-primary)', fontSize: '1.15rem', lineHeight: 1.3 }}>
+                            <div
+                              style={{
+                                fontWeight: 600,
+                                marginBottom: '0.6rem',
+                                color: 'var(--text-primary)',
+                                fontSize: '1.08rem',
+                                lineHeight: 1.35,
+                                letterSpacing: '0.005em'
+                              }}
+                            >
                               {effectiveMonetization === 'subscribers_only' ? (
                                 <>
                                   Subscribe to @{post.creator?.username || 'this creator'} <br />
-                                  to unlock their prompts
+                                  to unlock this prompt
                                 </>
                               ) : effectiveMonetization === 'charge' ? (
                                 'Pay to Unlock'
@@ -834,8 +843,8 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                             <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem', lineHeight: 1.45 }}>
                               {effectiveMonetization === 'subscribers_only'
                                 ? (subPromptCount != null && subPromptCount > 1
-                                    ? `The creator has chosen a subscription model for this prompt. Subscribe to unlock this and ${subPromptCount - 1} additional subscriber only prompt${subPromptCount - 1 === 1 ? '' : 's'}.`
-                                    : 'The creator has chosen a subscription model for this prompt. Subscribe to unlock this prompt and all subscriber only prompts.')
+                                    ? `The creator has chosen a subscription model for this prompt. Subscribe to unlock this and ${subPromptCount - 1} other prompt${subPromptCount - 1 === 1 ? '' : 's'}.`
+                                    : 'The creator has chosen a subscription model for this prompt. Subscribe to unlock this prompt.')
                                 : effectiveMonetization === 'ad_supported'
                                   ? 'The creator has chosen to monetize their prompts through ads. Click the button below to watch an ad.'
                                   : 'The creator has opted for a pay-to-unlock model for this prompt. One payment unlocks it instantly.'}
