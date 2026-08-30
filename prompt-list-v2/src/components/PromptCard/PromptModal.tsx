@@ -743,7 +743,26 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                           <button
                             type="button"
                             onClick={(e) => { e.stopPropagation(); setPreviewPaywall(!previewPaywall); }}
-                            style={{ background: '#0572F6', border: 'none', color: '#fff', borderRadius: '6px', padding: '0.35rem 0.6rem', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                            style={{
+                              background: effectiveMonetization === 'subscribers_only' ? '#9333ea' : '#0572F6',
+                              border: 'none',
+                              color: '#fff',
+                              borderRadius: '6px',
+                              padding: '0.35rem 0.6rem',
+                              fontSize: '0.75rem',
+                              cursor: 'pointer',
+                              fontWeight: 600,
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.4rem',
+                              transition: 'background 0.15s ease'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = effectiveMonetization === 'subscribers_only' ? '#a855f7' : '#045ecc';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = effectiveMonetization === 'subscribers_only' ? '#9333ea' : '#0572F6';
+                            }}
                           >
                             {previewPaywall ? (
                               <><X size={12} color="#fff" /> Stop Preview</>
