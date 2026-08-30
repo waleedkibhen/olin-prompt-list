@@ -133,27 +133,35 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
   }, [post.promptText, post.prompts, securePrompts]);
 
   // Paid prompts live in posts/{id}/secure_content — readable by the creator and
-  // by any user whose uid is recorded in users/{uid}.purchasedPrompts (Firestore rules).
+  // by any user whose uid is recorded in users/{uid}.purchasedPrompts / activeSubscriptions (Firestore rules).
   useEffect(() => {
     if (!isModalOpen || !user) return;
     if (effectiveMonetization !== 'charge' && effectiveMonetization !== 'subscribers_only') return;
     if (!isUnlocked && !isOwner) return;
+    if (securePrompts && securePrompts.length > 0) return;
     let cancelled = false;
     (async () => {
-      try {
-        const snap = await getDoc(doc(db, 'posts', post.id, 'secure_content', 'data'));
+      for (let attempt = 0; attempt < 5; attempt++) {
         if (cancelled) return;
-        if (snap.exists()) {
-          const data = snap.data();
-          const list: string[] = Array.isArray(data.prompts) && data.prompts.length > 0 ? data.prompts : [data.promptText || ''];
-          setSecurePrompts(list);
+        try {
+          const snap = await getDoc(doc(db, 'posts', post.id, 'secure_content', 'data'));
+          if (cancelled) return;
+          if (snap.exists()) {
+            const data = snap.data();
+            const list: string[] = Array.isArray(data.prompts) && data.prompts.length > 0 ? data.prompts : [data.promptText || ''];
+            setSecurePrompts(list);
+            return;
+          }
+        } catch {
+          // If Firestore rules take a moment to propagate, retry after a short pause
+          if (attempt < 4) {
+            await new Promise(r => setTimeout(r, 300));
+          }
         }
-      } catch {
-        // Rules may deny non-purchasers; the vault stays up in that case.
       }
     })();
     return () => { cancelled = true; };
-  }, [isModalOpen, user, effectiveMonetization, isUnlocked, isOwner, post.id]);
+  }, [isModalOpen, user, effectiveMonetization, isUnlocked, isOwner, post.id, securePrompts]);
 
   const handleImageTouchEnd = () => {
     if (touchStartX === null || touchEndX === null) return;
@@ -340,9 +348,9 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
   };
 
   
-  const handlePaymentSuccess = () => {
+  const handlePaymentSuccess = async () => {
     setShowCheckout(false);
-    setIsUnlocked(true);
+    
     try {
       const key = unlockStorageKey(user?.uid);
       const unlocked = JSON.parse(localStorage.getItem(key) || '[]');
@@ -351,10 +359,33 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
         localStorage.setItem(key, JSON.stringify(unlocked));
       }
     } catch {}
+
     // Grant future access per Firestore rules (users/{uid}.purchasedPrompts)
     if (user) {
-      updateDoc(doc(db, 'users', user.uid), { purchasedPrompts: arrayUnion(post.id) }).catch(() => {});
+      try {
+        await updateDoc(doc(db, 'users', user.uid), { purchasedPrompts: arrayUnion(post.id) });
+      } catch (err) {
+        console.warn('Failed updating purchasedPrompts:', err);
+      }
     }
+
+    // Fetch secure prompt content immediately with retry
+    for (let attempt = 0; attempt < 5; attempt++) {
+      try {
+        const snap = await getDoc(doc(db, 'posts', post.id, 'secure_content', 'data'));
+        if (snap.exists()) {
+          const data = snap.data();
+          const list: string[] = Array.isArray(data.prompts) && data.prompts.length > 0 ? data.prompts : [data.promptText || ''];
+          setSecurePrompts(list);
+          break;
+        }
+      } catch {
+        await new Promise(r => setTimeout(r, 250));
+      }
+    }
+
+    setIsUnlocked(true);
+    toast.success('Payment successful! Prompt unlocked.');
   };
 
   const handleWatchAdToUnlock = () => {
@@ -468,13 +499,36 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
     setShowSubCheckout(true);
   };
 
-  const handleSubscribeSuccess = () => {
+  const handleSubscribeSuccess = async () => {
     setShowSubCheckout(false);
-    setIsUnlocked(true);
-    // Record the creator subscription so Firestore rules grant secure-content access
-    if (user && post.creator?.uid) {
-      updateDoc(doc(db, 'users', user.uid), { activeSubscriptions: arrayUnion(post.creator.uid) }).catch(() => {});
+    
+    // 1. Record the creator subscription in Firestore immediately
+    const creatorUid = post.creator?.uid || post.creatorId;
+    if (user && creatorUid) {
+      try {
+        await updateDoc(doc(db, 'users', user.uid), { activeSubscriptions: arrayUnion(creatorUid) });
+      } catch (err) {
+        console.warn('Failed updating activeSubscriptions:', err);
+      }
     }
+
+    // 2. Fetch secure prompt content immediately with retry
+    for (let attempt = 0; attempt < 5; attempt++) {
+      try {
+        const snap = await getDoc(doc(db, 'posts', post.id, 'secure_content', 'data'));
+        if (snap.exists()) {
+          const data = snap.data();
+          const list: string[] = Array.isArray(data.prompts) && data.prompts.length > 0 ? data.prompts : [data.promptText || ''];
+          setSecurePrompts(list);
+          break;
+        }
+      } catch {
+        await new Promise(r => setTimeout(r, 250));
+      }
+    }
+
+    setIsUnlocked(true);
+    toast.success('Subscription active! Prompt unlocked.');
   };
 
   const handleShareLink = (e: React.MouseEvent) => {
@@ -888,10 +942,14 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                       <>
                         <>
                           <div className={styles.promptTextContainer} style={{ color: 'var(--text-primary)' }}>
-                            <RichTextRenderer 
-                              content={effectivePrompts[parseInt(activeTab.split('-')[1] || '0')]} 
-                              className={styles.promptCode} 
-                            />
+                            {(!effectivePrompts || effectivePrompts.length === 0 || !effectivePrompts[parseInt(activeTab.split('-')[1] || '0')]) && (effectiveMonetization === 'charge' || effectiveMonetization === 'subscribers_only') ? (
+                              <div className={styles.skeletonBox} style={{ height: "90px", borderRadius: "8px" }} />
+                            ) : (
+                              <RichTextRenderer 
+                                content={effectivePrompts[parseInt(activeTab.split('-')[1] || '0')]} 
+                                className={styles.promptCode} 
+                              />
+                            )}
                           </div>
                           
                           <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '1rem', marginBottom: '0.5rem' }}>
