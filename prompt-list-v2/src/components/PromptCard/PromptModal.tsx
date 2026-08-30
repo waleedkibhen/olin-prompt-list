@@ -53,6 +53,7 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
   const [creatorSubSettings, setCreatorSubSettings] = useState<any>(null);
   const [showSubCheckout, setShowSubCheckout] = useState(false);
   const [showSubPlanModal, setShowSubPlanModal] = useState(false);
+  const [hoveredPlanCard, setHoveredPlanCard] = useState<'monthly' | 'yearly' | null>(null);
   const [subBilling, setSubBilling] = useState<'monthly' | 'yearly'>('monthly');
   const [subPromptCount, setSubPromptCount] = useState<number | null>(null);
   const commentsRef = useRef<HTMLDivElement>(null);
@@ -821,12 +822,12 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                           <div style={{ flex: 1, padding: '1.5rem', width: '100%', maxWidth: '380px', textAlign: 'center' }}>
                             <div
                               style={{
-                                fontWeight: 500,
+                                fontWeight: 600,
                                 marginBottom: '0.6rem',
                                 color: 'var(--text-primary)',
-                                fontSize: '1.05rem',
+                                fontSize: '1.18rem',
                                 lineHeight: 1.35,
-                                letterSpacing: '0.01em'
+                                letterSpacing: '0.005em'
                               }}
                             >
                               {effectiveMonetization === 'subscribers_only' ? (
@@ -853,19 +854,12 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                             {effectiveMonetization === 'subscribers_only' ? (
                               <button
                                 onClick={handleSubscribeToUnlock}
-                                className="btn-solid"
+                                className="btn-purple"
                                 style={{
                                   width: '100%',
                                   padding: '0.75rem',
-                                  backgroundColor: '#9333ea',
-                                  borderColor: '#9333ea',
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  gap: '0.5rem'
+                                  fontSize: '0.95rem'
                                 }}
-                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#a855f7'; }}
-                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#9333ea'; }}
                               >
                                 <Unlock size={16} />
                                 <span>Subscribe to Unlock</span>
@@ -1008,19 +1002,21 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
               {hasMonthly && (
                 <div
                   onClick={() => openSubCheckout('monthly')}
+                  onMouseEnter={() => setHoveredPlanCard('monthly')}
+                  onMouseLeave={() => setHoveredPlanCard(null)}
                   style={{
                     padding: '1.25rem',
                     backgroundColor: '#18181b',
-                    border: '1px solid #27272a',
+                    border: `1px solid ${hoveredPlanCard === 'monthly' ? '#9333ea' : '#27272a'}`,
                     borderRadius: '12px',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
                     display: 'flex',
                     flexDirection: 'column',
-                    justifyContent: 'space-between'
+                    justifyContent: 'space-between',
+                    transform: hoveredPlanCard === 'monthly' ? 'translateY(-2px)' : 'translateY(0)',
+                    boxShadow: hoveredPlanCard === 'monthly' ? '0 0 24px rgba(147, 51, 234, 0.22)' : 'none'
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#9333ea'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#27272a'; e.currentTarget.style.transform = 'translateY(0)'; }}
                 >
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
@@ -1045,22 +1041,14 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                   </div>
 
                   <button
-                    className="btn-solid"
+                    className={hoveredPlanCard === 'monthly' ? 'btn-purple' : 'btn-purple-subtle'}
                     onClick={(e) => { e.stopPropagation(); openSubCheckout('monthly'); }}
                     style={{
                       width: '100%',
                       padding: '0.65rem',
                       marginTop: '1.25rem',
-                      fontSize: '0.85rem',
-                      backgroundColor: '#9333ea',
-                      borderColor: '#9333ea',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.4rem'
+                      fontSize: '0.85rem'
                     }}
-                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#a855f7'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#9333ea'; }}
                   >
                     <Unlock size={14} />
                     <span>Subscribe Monthly</span>
@@ -1071,20 +1059,22 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
               {hasYearly && (
                 <div
                   onClick={() => openSubCheckout('yearly')}
+                  onMouseEnter={() => setHoveredPlanCard('yearly')}
+                  onMouseLeave={() => setHoveredPlanCard(null)}
                   style={{
                     padding: '1.25rem',
                     backgroundColor: '#18181b',
-                    border: '1px solid #27272a',
+                    border: `1px solid ${hoveredPlanCard === 'yearly' ? '#9333ea' : '#27272a'}`,
                     borderRadius: '12px',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
-                    position: 'relative'
+                    position: 'relative',
+                    transform: hoveredPlanCard === 'yearly' ? 'translateY(-2px)' : 'translateY(0)',
+                    boxShadow: hoveredPlanCard === 'yearly' ? '0 0 24px rgba(147, 51, 234, 0.22)' : 'none'
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#9333ea'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#27272a'; e.currentTarget.style.transform = 'translateY(0)'; }}
                 >
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
@@ -1114,22 +1104,14 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                   </div>
 
                   <button
-                    className="btn-solid"
+                    className={hoveredPlanCard === 'yearly' ? 'btn-purple' : 'btn-purple-subtle'}
                     onClick={(e) => { e.stopPropagation(); openSubCheckout('yearly'); }}
                     style={{
                       width: '100%',
                       padding: '0.65rem',
                       marginTop: '1.25rem',
-                      fontSize: '0.85rem',
-                      backgroundColor: '#9333ea',
-                      borderColor: '#9333ea',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.4rem'
+                      fontSize: '0.85rem'
                     }}
-                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#a855f7'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#9333ea'; }}
                   >
                     <Unlock size={14} />
                     <span>Subscribe Yearly</span>
