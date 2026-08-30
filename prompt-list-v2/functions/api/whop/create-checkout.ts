@@ -34,7 +34,11 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           initial_price: price,
           plan_type: "one_time",
           unlimited_stock: true,
-          stock: 1000000
+          stock: 1000000,
+          card_payments: true,
+          coinbase_commerce_accepted: true,
+          ach_payments: true,
+          paypal_accepted: true
         },
         metadata: {
           prompt_id: promptId,
