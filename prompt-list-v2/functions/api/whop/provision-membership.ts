@@ -129,6 +129,7 @@ async function createMembershipPlan(
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   try {
+    const { userId, creatorName, monthlyPrice, yearlyPrice } = await context.request.json<any>();
     const hasMonthly = typeof monthlyPrice === "number" && monthlyPrice > 0;
     const hasYearly = typeof yearlyPrice === "number" && yearlyPrice > 0;
 
