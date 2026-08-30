@@ -106,9 +106,9 @@ async function createMembershipPlan(
       release_method: "buy_now",
       visibility: "visible",
       card_payments: true,
-      coinbase_commerce_accepted: true,
       ach_payments: true,
-      paypal_accepted: true,
+      coinbase_commerce_accepted: false,
+      paypal_accepted: false,
       title: `Olin Membership: ${creatorName} (${interval === 'monthly' ? 'Monthly' : 'Yearly'})`,
       metadata: {
         kind: "creator_membership",

@@ -38,7 +38,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           card_payments: true,
           coinbase_commerce_accepted: true,
           ach_payments: true,
-          paypal_accepted: true
+          paypal_accepted: false
         },
         metadata: {
           prompt_id: promptId,
