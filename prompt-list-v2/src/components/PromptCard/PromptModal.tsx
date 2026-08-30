@@ -5,7 +5,7 @@ import { PromptPost } from '@/lib/mockData';
 import { useAuth } from '@/context/AuthContext';
 import { doc, getDoc, updateDoc, increment, collection, addDoc, serverTimestamp, setDoc, deleteDoc, arrayUnion, query, where, getCountFromServer } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Heart, Bookmark, Copy, Check, Share2, MessageSquare, Loader2, PlayCircle, Flag, Eye, X, ChevronLeft, ChevronRight, Plus, Lock } from 'lucide-react';
+import { Heart, Bookmark, Copy, Check, Share2, MessageSquare, Loader2, PlayCircle, Flag, Eye, X, ChevronLeft, ChevronRight, Plus, Lock, Unlock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ENABLE_MONETIZATION, ENABLE_ADS } from '@/lib/config';
 import ReportModal from '@/components/ReportModal';
@@ -819,18 +819,23 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                         
                         <div className={styles.vaultOverlayContent} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '0 1rem' }}>
                           <div style={{ flex: 1, padding: '1.5rem', width: '100%', maxWidth: '380px', textAlign: 'center' }}>
-                            <div style={{ fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)', fontSize: '1.1rem' }}>
-                              {effectiveMonetization === 'subscribers_only'
-                                ? 'Subscribe to Unlock'
-                                : effectiveMonetization === 'charge'
-                                  ? 'Pay to Unlock'
-                                  : 'Watch an Ad to unlock'}
+                            <div style={{ fontWeight: 700, marginBottom: '0.5rem', color: 'var(--text-primary)', fontSize: '1.15rem', lineHeight: 1.3 }}>
+                              {effectiveMonetization === 'subscribers_only' ? (
+                                <>
+                                  Subscribe to @{post.creator?.username || 'this creator'} <br />
+                                  to unlock their prompts
+                                </>
+                              ) : effectiveMonetization === 'charge' ? (
+                                'Pay to Unlock'
+                              ) : (
+                                'Watch an Ad to unlock'
+                              )}
                             </div>
                             <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem', lineHeight: 1.45 }}>
                               {effectiveMonetization === 'subscribers_only'
                                 ? (subPromptCount != null && subPromptCount > 1
-                                    ? `The creator has opted for a subscription model for this prompt. Subscribing unlocks this prompt and ${subPromptCount - 1} other subscriber only prompt${subPromptCount - 1 === 1 ? '' : 's'}.`
-                                    : 'The creator has opted for a subscription model for this prompt. Subscribing unlocks this prompt and all subscriber only prompts.')
+                                    ? `The creator has chosen a subscription model for this prompt. Subscribe to unlock this and ${subPromptCount - 1} additional subscriber only prompt${subPromptCount - 1 === 1 ? '' : 's'}.`
+                                    : 'The creator has chosen a subscription model for this prompt. Subscribe to unlock this prompt and all subscriber only prompts.')
                                 : effectiveMonetization === 'ad_supported'
                                   ? 'The creator has chosen to monetize their prompts through ads. Click the button below to watch an ad.'
                                   : 'The creator has opted for a pay-to-unlock model for this prompt. One payment unlocks it instantly.'}
@@ -840,11 +845,21 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                               <button
                                 onClick={handleSubscribeToUnlock}
                                 className="btn-solid"
-                                style={{ width: '100%', padding: '0.75rem', backgroundColor: '#9333ea', borderColor: '#9333ea' }}
+                                style={{
+                                  width: '100%',
+                                  padding: '0.75rem',
+                                  backgroundColor: '#9333ea',
+                                  borderColor: '#9333ea',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  gap: '0.5rem'
+                                }}
                                 onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#a855f7'; }}
                                 onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#9333ea'; }}
                               >
-                                Subscribe to Unlock
+                                <Unlock size={16} />
+                                <span>Subscribe to Unlock</span>
                               </button>
                             ) : effectiveMonetization === 'charge' ? (
                               <button
