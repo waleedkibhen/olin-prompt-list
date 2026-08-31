@@ -5,7 +5,7 @@ import { PromptPost } from '@/lib/mockData';
 import { useAuth } from '@/context/AuthContext';
 import { doc, getDoc, updateDoc, increment, collection, addDoc, serverTimestamp, setDoc, deleteDoc, arrayUnion, query, where, getCountFromServer } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Heart, Bookmark, Copy, Check, Share2, MessageSquare, Loader2, PlayCircle, Flag, Eye, X, ChevronLeft, ChevronRight, Plus, Lock, Unlock, ArrowRight } from 'lucide-react';
+import { Heart, Bookmark, Copy, Check, Share2, MessageSquare, Loader2, PlayCircle, Flag, Eye, X, ChevronLeft, ChevronRight, Plus, Lock, Unlock, ArrowRight, Info } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ENABLE_MONETIZATION, ENABLE_ADS } from '@/lib/config';
 import MonetizationInfoModal from '@/pages/CreatorDashboard/MonetizationInfoModal';
@@ -758,30 +758,36 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                   gap: '0.35rem'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#e4e4e7', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     🔥 <span>Creators can now earn on Olin</span>
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => setIsMonetizationInfoOpen(true)}
-                    style={{
-                      background: 'transparent',
-                      border: 'none',
-                      color: '#3b82f6',
-                      fontSize: '0.78rem',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      padding: 0,
-                      textDecoration: 'underline'
-                    }}
-                  >
-                    How it works
-                  </button>
                 </div>
                 <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
                   Start posting prompts and earn with 0% platform fees.
                 </span>
+                <button
+                  type="button"
+                  onClick={() => setIsMonetizationInfoOpen(true)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#3b82f6',
+                    fontSize: '0.78rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    padding: 0,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    textDecoration: 'underline',
+                    alignSelf: 'flex-start',
+                    marginTop: '0.2rem'
+                  }}
+                >
+                  <Info size={13} style={{ flexShrink: 0 }} />
+                  <span>How it works</span>
+                </button>
               </div>
 
               <div style={{ display: 'flex', gap: '1.5rem', borderBottom: 'none', marginBottom: '1rem', marginTop: '0.5rem', overflowX: 'auto', whiteSpace: 'nowrap' }}>
