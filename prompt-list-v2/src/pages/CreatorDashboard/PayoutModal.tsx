@@ -222,11 +222,12 @@ export default function PayoutModal({
                   alignItems: 'center',
                   gap: '0.65rem',
                   padding: '0.65rem 0.85rem',
-                  borderRadius: '8px',
-                  border: `1.5px solid ${payoutMethod === 'usdt_trc20' ? '#ef4444' : 'var(--border-color)'}`,
-                  backgroundColor: payoutMethod === 'usdt_trc20' ? 'rgba(239, 68, 68, 0.08)' : 'var(--bg-secondary)',
+                  borderRadius: '10px',
+                  border: `2px solid ${payoutMethod === 'usdt_trc20' ? '#3b82f6' : 'var(--border-color)'}`,
+                  backgroundColor: payoutMethod === 'usdt_trc20' ? 'rgba(59, 130, 246, 0.08)' : 'var(--bg-secondary)',
                   cursor: 'pointer',
-                  textAlign: 'left'
+                  textAlign: 'left',
+                  transition: 'all 0.15s ease'
                 }}
               >
                 <img 
@@ -249,11 +250,12 @@ export default function PayoutModal({
                   alignItems: 'center',
                   gap: '0.65rem',
                   padding: '0.65rem 0.85rem',
-                  borderRadius: '8px',
-                  border: `1.5px solid ${payoutMethod === 'usdt_solana' ? '#a855f7' : 'var(--border-color)'}`,
-                  backgroundColor: payoutMethod === 'usdt_solana' ? 'rgba(168, 85, 247, 0.08)' : 'var(--bg-secondary)',
+                  borderRadius: '10px',
+                  border: `2px solid ${payoutMethod === 'usdt_solana' ? '#3b82f6' : 'var(--border-color)'}`,
+                  backgroundColor: payoutMethod === 'usdt_solana' ? 'rgba(59, 130, 246, 0.08)' : 'var(--bg-secondary)',
                   cursor: 'pointer',
-                  textAlign: 'left'
+                  textAlign: 'left',
+                  transition: 'all 0.15s ease'
                 }}
               >
                 <img 
