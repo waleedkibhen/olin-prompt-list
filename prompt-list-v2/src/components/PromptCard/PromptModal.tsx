@@ -745,6 +745,68 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
               
 
               <div className={styles.mobilePromptArea}>
+              {/* Creator Monetization Launch Callout */}
+              <div
+                style={{
+                  backgroundColor: '#121214',
+                  border: '1px solid #27272a',
+                  borderRadius: '10px',
+                  padding: '0.85rem 1rem',
+                  marginBottom: '1rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.55rem'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#e4e4e7', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    🔥 <span>Creators can now earn on Olin</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setIsMonetizationInfoOpen(true)}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: '#3b82f6',
+                      fontSize: '0.78rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      padding: 0,
+                      textDecoration: 'underline'
+                    }}
+                  >
+                    How it works
+                  </button>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                    Start posting prompts and earn with 0% platform fees.
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => navigate('/create')}
+                    style={{
+                      backgroundColor: '#ffffff',
+                      color: '#000000',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '4px 10px',
+                      fontSize: '0.78rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    <span>Start Posting</span>
+                    <ArrowRight size={12} />
+                  </button>
+                </div>
+              </div>
+
               <div style={{ display: 'flex', gap: '1.5rem', borderBottom: 'none', marginBottom: '1rem', marginTop: '0.5rem', overflowX: 'auto', whiteSpace: 'nowrap' }}>
                 {promptTabCount > 1 ? (
                   Array.from({ length: promptTabCount }, (_, idx) => (
@@ -980,69 +1042,6 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                       {new Date(post.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) }
                     </span>
                   )}
-                </div>
-              </div>
-
-              {/* Creator Monetization Launch Callout */}
-              <div
-                style={{
-                  backgroundColor: '#121214',
-                  border: '1px solid #27272a',
-                  borderRadius: '10px',
-                  padding: '0.85rem 1rem',
-                  marginTop: '1.25rem',
-                  marginBottom: '1.25rem',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '0.55rem'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#e4e4e7', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    🔥 <span>Creators can now earn on Olin</span>
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setIsMonetizationInfoOpen(true)}
-                    style={{
-                      background: 'transparent',
-                      border: 'none',
-                      color: '#3b82f6',
-                      fontSize: '0.78rem',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      padding: 0,
-                      textDecoration: 'underline'
-                    }}
-                  >
-                    How it works
-                  </button>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-                    Start posting prompts and earn with 0% platform fees.
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => navigate('/create')}
-                    style={{
-                      backgroundColor: '#ffffff',
-                      color: '#000000',
-                      border: 'none',
-                      borderRadius: '6px',
-                      padding: '4px 10px',
-                      fontSize: '0.78rem',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      whiteSpace: 'nowrap'
-                    }}
-                  >
-                    <span>Start Posting</span>
-                    <ArrowRight size={12} />
-                  </button>
                 </div>
               </div>
 
