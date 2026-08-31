@@ -372,6 +372,13 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
       }
     }
 
+    // Increment post unlock/copies counter so Creator Dashboard updates real-time
+    try {
+      await updateDoc(doc(db, 'posts', post.id), { copiesCount: increment(1) });
+    } catch (err) {
+      console.warn('Failed updating post copiesCount on purchase:', err);
+    }
+
     // Fetch secure prompt content immediately with retry
     for (let attempt = 0; attempt < 5; attempt++) {
       try {

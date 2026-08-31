@@ -191,7 +191,7 @@ export default function CreatorDashboardPage() {
       const mType = (p.monetizationType as any) === 'ad' ? 'ad_supported' : p.monetizationType;
       if (mType === 'charge' || mType === 'subscribers_only') {
         const price = parseFloat(p.price?.toString() || '0');
-        paidRevenue += (p.copiesCount || 0) * price * 0.85; // assuming 15% platform fee
+        paidRevenue += (p.copiesCount || 0) * price * 0.97; // 0% Olin platform fee, 3% Whop processing fee
         paidUnlocks += (p.copiesCount || 0);
         paidPosts++;
       }

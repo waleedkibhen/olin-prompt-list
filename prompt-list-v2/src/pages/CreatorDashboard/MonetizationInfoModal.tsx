@@ -109,7 +109,7 @@ export default function MonetizationInfoModal({ onClose }: MonetizationInfoModal
                   letterSpacing: '0.01em'
                 }}
               >
-                Set a fixed price between $1 and $50 on any prompt. Buyers pay once to unlock it instantly. <strong style={{ color: '#10b981', fontWeight: 600 }}>0% Platform Fee</strong>, you keep 100% of every sale (standard payment processing fees via Whop apply).
+                Set a fixed price between $1 and $50 on any prompt. Buyers pay once to unlock it instantly. <strong style={{ color: '#10b981', fontWeight: 600 }}>0% Platform Fee</strong> from Olin. Whop takes a standard 3% payment processing fee, meaning you receive 97% of every dollar earned.
               </p>
             </div>
           </div>
@@ -152,7 +152,7 @@ export default function MonetizationInfoModal({ onClose }: MonetizationInfoModal
                   letterSpacing: '0.01em'
                 }}
               >
-                Offer a recurring Creator Membership to earn sustainable income. Subscribers automatically gain access to your entire vault of subscriber only prompts.
+                Offer a recurring Creator Membership to earn sustainable income. Subscribers gain access to your entire vault of subscriber only prompts. Same 0% Olin platform fee, with only Whop's 3% payment processing fee deducted.
               </p>
             </div>
           </div>

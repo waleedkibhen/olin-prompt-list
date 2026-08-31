@@ -38,7 +38,7 @@ export default function MonetizationTab({
           <div className={styles.kpiValueRow}>
             <div className={styles.kpiValue}>${monetizationStats.paidRevenue.toFixed(2)}</div>
           </div>
-          <div className={styles.kpiDesc}>Direct prompt sales, 100% yours</div>
+          <div className={styles.kpiDesc}>Direct prompt sales (97% payout)</div>
         </div>
 
         <div className={styles.kpiCard}>
@@ -166,7 +166,7 @@ export default function MonetizationTab({
                 const isPaid = post.monetizationType === 'charge';
                 const unlocks = post.copiesCount || 0;
                 const revenue = isPaid 
-                  ? (unlocks * (post.price || 1.99)).toFixed(2) 
+                  ? (unlocks * (post.price || 1.99) * 0.97).toFixed(2) 
                   : null;
                 
                 return (
