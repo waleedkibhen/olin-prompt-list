@@ -777,16 +777,12 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                     fontWeight: 600,
                     cursor: 'pointer',
                     padding: 0,
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '4px',
                     textDecoration: 'underline',
                     alignSelf: 'flex-start',
                     marginTop: '0.2rem'
                   }}
                 >
-                  <Info size={13} style={{ flexShrink: 0 }} />
-                  <span>How it works</span>
+                  How it works
                 </button>
               </div>
 
