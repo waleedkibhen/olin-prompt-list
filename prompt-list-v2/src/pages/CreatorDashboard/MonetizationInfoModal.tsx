@@ -7,67 +7,208 @@ interface MonetizationInfoModalProps {
 
 export default function MonetizationInfoModal({ onClose }: MonetizationInfoModalProps) {
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.7)' }}>
+    <div 
+      style={{ 
+        position: 'fixed', 
+        inset: 0, 
+        zIndex: 100, 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+        backdropFilter: 'blur(4px)',
+        padding: '1rem'
+      }}
+      onClick={onClose}
+    >
       <div 
         style={{ 
-          maxWidth: '440px', 
+          maxWidth: '520px', 
           width: '100%',
-          borderRadius: '1rem',
-          border: '1px solid #27272a',
-          backgroundColor: '#0F0F11',
-          color: '#ffffff',
-          padding: '1.5rem',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+          borderRadius: '16px',
+          border: '1px solid var(--border-color)',
+          backgroundColor: '#0d0d10',
+          color: 'var(--text-primary)',
+          padding: '2rem',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
           position: 'relative' 
         }}
+        onClick={(e) => e.stopPropagation()}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-          <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.125rem', fontWeight: 600 }}>
-            <Info size={20} style={{ color: '#a1a1aa' }} />
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.75rem' }}>
+          <h3 
+            style={{ 
+              margin: 0, 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.65rem', 
+              fontSize: '1.25rem', 
+              fontWeight: 600,
+              letterSpacing: '0.01em',
+              color: 'var(--text-primary)'
+            }}
+          >
+            <Info size={20} style={{ color: '#3b82f6', flexShrink: 0 }} />
             How Creator Monetization Works
           </h3>
           <button 
             onClick={onClose}
-            style={{ background: 'transparent', border: 'none', color: '#a1a1aa', cursor: 'pointer', padding: '0.25rem' }}
+            style={{ 
+              background: 'transparent', 
+              border: 'none', 
+              color: 'var(--text-secondary)', 
+              cursor: 'pointer', 
+              padding: '0.35rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '6px'
+            }}
           >
             <X size={20} />
           </button>
         </div>
         
-        <div style={{ fontSize: '0.95rem', lineHeight: 1.6, display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          <div>
-            <h4 style={{ margin: '0 0 0.5rem 0', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600 }}>
-              <Lock size={16} style={{ color: '#a1a1aa' }} /> Direct Prompt Purchases
-            </h4>
-            <p style={{ margin: 0, color: '#a1a1aa' }}>
-              Set a fixed price between $1 and $50 on any prompt. Buyers pay once to unlock it instantly. 0% Platform Fee — you keep 100% of every sale (standard card processing fees via Whop apply).
-            </p>
+        {/* Benefit Items */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          {/* Direct Purchases */}
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+            <div 
+              style={{ 
+                width: '36px', 
+                height: '36px', 
+                borderRadius: '8px', 
+                backgroundColor: 'rgba(59, 130, 246, 0.1)', 
+                border: '1px solid rgba(59, 130, 246, 0.2)',
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                flexShrink: 0 
+              }}
+            >
+              <Lock size={18} style={{ color: '#3b82f6' }} />
+            </div>
+            <div>
+              <h4 
+                style={{ 
+                  margin: '0 0 0.35rem 0', 
+                  color: 'var(--text-primary)', 
+                  fontSize: '0.98rem', 
+                  fontWeight: 600,
+                  letterSpacing: '0.015em'
+                }}
+              >
+                Direct Prompt Purchases
+              </h4>
+              <p 
+                style={{ 
+                  margin: 0, 
+                  color: 'var(--text-secondary)', 
+                  fontSize: '0.88rem', 
+                  lineHeight: 1.55,
+                  letterSpacing: '0.01em'
+                }}
+              >
+                Set a fixed price between $1 and $50 on any prompt. Buyers pay once to unlock it instantly. <strong style={{ color: '#10b981', fontWeight: 600 }}>0% Platform Fee</strong> — you keep 100% of every sale (standard payment processing fees via Whop apply).
+              </p>
+            </div>
           </div>
 
-          <div>
-            <h4 style={{ margin: '0 0 0.5rem 0', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600 }}>
-              <Users size={16} style={{ color: '#a1a1aa' }} /> Monthly Creator Subscriptions
-            </h4>
-            <p style={{ margin: 0, color: '#a1a1aa' }}>
-              Offer a Creator Membership and unlock recurring revenue. Subscribers get access to every Subscriber-Only prompt you publish, automatically.
-            </p>
+          {/* Monthly Subscriptions */}
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+            <div 
+              style={{ 
+                width: '36px', 
+                height: '36px', 
+                borderRadius: '8px', 
+                backgroundColor: 'rgba(168, 85, 247, 0.1)', 
+                border: '1px solid rgba(168, 85, 247, 0.2)',
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                flexShrink: 0 
+              }}
+            >
+              <Users size={18} style={{ color: '#a855f7' }} />
+            </div>
+            <div>
+              <h4 
+                style={{ 
+                  margin: '0 0 0.35rem 0', 
+                  color: 'var(--text-primary)', 
+                  fontSize: '0.98rem', 
+                  fontWeight: 600,
+                  letterSpacing: '0.015em'
+                }}
+              >
+                Monthly Creator Subscriptions
+              </h4>
+              <p 
+                style={{ 
+                  margin: 0, 
+                  color: 'var(--text-secondary)', 
+                  fontSize: '0.88rem', 
+                  lineHeight: 1.55,
+                  letterSpacing: '0.01em'
+                }}
+              >
+                Offer a recurring Creator Membership to earn sustainable income. Subscribers automatically gain access to your entire vault of subscriber-only prompts.
+              </p>
+            </div>
           </div>
 
-          <div>
-            <h4 style={{ margin: '0 0 0.5rem 0', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600 }}>
-              <DollarSign size={16} style={{ color: '#a1a1aa' }} /> Payouts &amp; Thresholds
-            </h4>
-            <p style={{ margin: 0, color: '#a1a1aa' }}>
-              Withdraw your earnings directly to your payout account once your total balance reaches the $5.00 minimum threshold.
-            </p>
+          {/* Payouts & Thresholds */}
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+            <div 
+              style={{ 
+                width: '36px', 
+                height: '36px', 
+                borderRadius: '8px', 
+                backgroundColor: 'rgba(16, 185, 129, 0.1)', 
+                border: '1px solid rgba(16, 185, 129, 0.2)',
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                flexShrink: 0 
+              }}
+            >
+              <DollarSign size={18} style={{ color: '#10b981' }} />
+            </div>
+            <div>
+              <h4 
+                style={{ 
+                  margin: '0 0 0.35rem 0', 
+                  color: 'var(--text-primary)', 
+                  fontSize: '0.98rem', 
+                  fontWeight: 600,
+                  letterSpacing: '0.015em'
+                }}
+              >
+                Payouts &amp; Thresholds
+              </h4>
+              <p 
+                style={{ 
+                  margin: 0, 
+                  color: 'var(--text-secondary)', 
+                  fontSize: '0.88rem', 
+                  lineHeight: 1.55,
+                  letterSpacing: '0.01em'
+                }}
+              >
+                Withdraw your earnings directly to your PayPal, Wise, or USDT (Tron / Solana) account once your available balance reaches the $5.00 minimum threshold.
+              </p>
+            </div>
           </div>
         </div>
 
+        {/* Footer */}
         <div style={{ marginTop: '2rem' }}>
           <button 
+            type="button"
             onClick={onClose} 
             className="btn-solid"
-            style={{ width: '100%', padding: '0.75rem' }}
+            style={{ width: '100%', padding: '0.75rem', fontSize: '0.92rem' }}
           >
             Got it
           </button>
