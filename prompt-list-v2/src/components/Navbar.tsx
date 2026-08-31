@@ -20,13 +20,26 @@ export default function Navbar() {
   const [isHidden, setIsHidden] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() => localStorage.getItem('theme') !== 'light');
   const [isBannerVisible, setIsBannerVisible] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    if (isBannerVisible) {
-      document.documentElement.style.setProperty('--banner-height', '38px');
-    } else {
-      document.documentElement.style.setProperty('--banner-height', '0px');
-    }
+    if (!headerRef.current) return;
+    const updateHeight = () => {
+      if (headerRef.current) {
+        const fullHeight = headerRef.current.offsetHeight;
+        const bannerH = isBannerVisible ? Math.max(0, fullHeight - 64) : 0;
+        document.documentElement.style.setProperty('--banner-height', `${bannerH}px`);
+        document.documentElement.style.setProperty('--header-total-height', `${fullHeight}px`);
+      }
+    };
+    updateHeight();
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(headerRef.current);
+    window.addEventListener('resize', updateHeight);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', updateHeight);
+    };
   }, [isBannerVisible]);
 
   // Search state
@@ -119,7 +132,7 @@ export default function Navbar() {
 
   return (
     <>
-      <header className={`${styles.headerWrapper} ${isHidden ? styles.navHidden : ''}`} id="top-nav">
+      <header ref={headerRef} className={`${styles.headerWrapper} ${isHidden ? styles.navHidden : ''}`} id="top-nav">
         <TopAnnouncementBanner onVisibilityChange={setIsBannerVisible} />
         <nav className={styles.navbarContainer}>
         

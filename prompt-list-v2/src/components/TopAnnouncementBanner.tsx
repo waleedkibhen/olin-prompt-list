@@ -56,8 +56,11 @@ export default function TopAnnouncementBanner({ onVisibilityChange }: TopAnnounc
         <div className={styles.bannerContent}>
           {/* Tag & Text */}
           <div className={styles.textGroup}>
-            <span className={styles.bannerText}>
+            <span className={styles.bannerTextDesktop}>
               🔥 Users can now make money on Olin! Start posting and start earning.
+            </span>
+            <span className={styles.bannerTextMobile}>
+              🔥 Creators can now earn on Olin
             </span>
           </div>
 

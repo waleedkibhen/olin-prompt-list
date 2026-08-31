@@ -65,7 +65,7 @@ export default function App() {
       <Navbar />
       <OnboardingModal />
       <GlobalAdDisclaimer />
-      <div style={{ flex: 1, paddingTop: 'calc(64px + var(--banner-height, 0px))' }}>
+      <div style={{ flex: 1, paddingTop: 'var(--header-total-height, calc(64px + var(--banner-height, 0px)))' }}>
         <Suspense fallback={<div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading...</div>}>
           <Routes>
             <Route path="/" element={<HomePage />} />
