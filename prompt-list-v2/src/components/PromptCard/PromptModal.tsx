@@ -755,7 +755,7 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                   marginBottom: '1rem',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '0.55rem'
+                  gap: '0.35rem'
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
@@ -779,32 +779,9 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                     How it works
                   </button>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-                    Start posting prompts and earn with 0% platform fees.
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => navigate('/create')}
-                    style={{
-                      backgroundColor: '#ffffff',
-                      color: '#000000',
-                      border: 'none',
-                      borderRadius: '6px',
-                      padding: '4px 10px',
-                      fontSize: '0.78rem',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      whiteSpace: 'nowrap'
-                    }}
-                  >
-                    <span>Start Posting</span>
-                    <ArrowRight size={12} />
-                  </button>
-                </div>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                  Start posting prompts and earn with 0% platform fees.
+                </span>
               </div>
 
               <div style={{ display: 'flex', gap: '1.5rem', borderBottom: 'none', marginBottom: '1rem', marginTop: '0.5rem', overflowX: 'auto', whiteSpace: 'nowrap' }}>

@@ -11,12 +11,11 @@ export default function MonetizationInfoModal({ onClose }: MonetizationInfoModal
       style={{ 
         position: 'fixed', 
         inset: 0, 
-        zIndex: 100, 
+        zIndex: 100005, 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center', 
-        backgroundColor: 'rgba(0, 0, 0, 0.75)',
-        backdropFilter: 'blur(4px)',
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
         padding: '1rem'
       }}
       onClick={onClose}
