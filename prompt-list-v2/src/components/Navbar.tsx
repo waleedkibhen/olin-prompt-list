@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useRecentSearches } from '@/hooks/useRecentSearches';
 import NotificationBell from './NotificationBell';
 import FeedbackModal from './FeedbackModal';
+import TopAnnouncementBanner from './TopAnnouncementBanner';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { COLOR_OPTIONS, ASPECT_OPTIONS, TIME_OPTIONS } from '../lib/filters';
 
@@ -18,6 +19,15 @@ export default function Navbar() {
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() => localStorage.getItem('theme') !== 'light');
+  const [isBannerVisible, setIsBannerVisible] = useState(false);
+
+  useEffect(() => {
+    if (isBannerVisible) {
+      document.documentElement.style.setProperty('--banner-height', '38px');
+    } else {
+      document.documentElement.style.setProperty('--banner-height', '0px');
+    }
+  }, [isBannerVisible]);
 
   // Search state
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
@@ -109,7 +119,9 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className={`${styles.navbarContainer} ${isHidden ? styles.navHidden : ''}`} id="top-nav">
+      <header className={`${styles.headerWrapper} ${isHidden ? styles.navHidden : ''}`} id="top-nav">
+        <TopAnnouncementBanner onVisibilityChange={setIsBannerVisible} />
+        <nav className={styles.navbarContainer}>
         
         {/* Left side: Logo & Tabs */}
         <div className={styles.leftSection}>
@@ -389,6 +401,7 @@ export default function Navbar() {
             </div>
           </div>
       </nav>
+    </header>
 
       {/* Expanded Search Backdrop */}
       {isSearchExpanded && (

@@ -1,0 +1,147 @@
+.bannerWrapper {
+  width: 100%;
+  min-height: 38px;
+  background: linear-gradient(90deg, #091a13 0%, #0d221a 50%, #091a13 100%);
+  border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 16px;
+  position: relative;
+  z-index: 51;
+  box-sizing: border-box;
+}
+
+.bannerContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+.textGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: rgba(16, 185, 129, 0.16);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #10b981;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 1px 7px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+}
+
+.badgeIcon {
+  color: #10b981;
+}
+
+.bannerText {
+  color: #e4e4e7;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.actionGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.howItWorksBtn {
+  background: transparent;
+  border: none;
+  color: #a1a1aa;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 2px 4px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 150ms ease;
+}
+
+.howItWorksBtn:hover {
+  color: #ffffff;
+}
+
+.startPostingBtn {
+  background-color: #10b981;
+  color: #041a10;
+  border: none;
+  border-radius: 6px;
+  padding: 3px 9px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: background-color 150ms ease, transform 150ms ease;
+}
+
+.startPostingBtn:hover {
+  background-color: #34d399;
+  transform: translateY(-1px);
+}
+
+.closeBtn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: #71717a;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: color 150ms ease, background-color 150ms ease;
+}
+
+.closeBtn:hover {
+  color: #e4e4e7;
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+@media (max-width: 768px) {
+  .bannerWrapper {
+    padding: 6px 36px 6px 12px;
+    min-height: 36px;
+  }
+
+  .bannerContent {
+    gap: 0.5rem;
+  }
+
+  .bannerText {
+    font-size: 12px;
+  }
+
+  .badge {
+    display: none;
+  }
+
+  .howItWorksBtn {
+    font-size: 11.5px;
+  }
+
+  .startPostingBtn {
+    padding: 2px 7px;
+    font-size: 11px;
+  }
+}
