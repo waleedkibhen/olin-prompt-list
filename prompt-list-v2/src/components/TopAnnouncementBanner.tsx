@@ -56,12 +56,8 @@ export default function TopAnnouncementBanner({ onVisibilityChange }: TopAnnounc
         <div className={styles.bannerContent}>
           {/* Tag & Text */}
           <div className={styles.textGroup}>
-            <span className={styles.badge}>
-              <Sparkles size={12} className={styles.badgeIcon} />
-              <span>NEW</span>
-            </span>
             <span className={styles.bannerText}>
-              Users can now make money on Olin! Start posting and start earning.
+              🔥 Users can now make money on Olin! Start posting and start earning.
             </span>
           </div>
 
