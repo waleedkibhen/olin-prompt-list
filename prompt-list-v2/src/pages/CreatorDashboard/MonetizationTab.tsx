@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DollarSign, Lock, Eye, AlertTriangle, ExternalLink, BadgeCheck, Crown } from 'lucide-react';
+import { DollarSign, Lock, Eye, AlertTriangle, ExternalLink, Crown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import MembershipPlanModal from './MembershipPlanModal';
@@ -28,31 +28,6 @@ export default function MonetizationTab({
 
   return (
     <>
-      {/* 0% Platform Fee Banner */}
-      <div
-        style={{
-          backgroundColor: 'rgba(16, 185, 129, 0.05)',
-          border: '1px solid rgba(16, 185, 129, 0.22)',
-          borderRadius: '12px',
-          padding: '1rem 1.25rem',
-          marginBottom: '1.5rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.85rem',
-          flexWrap: 'wrap'
-        }}
-      >
-        <BadgeCheck size={20} style={{ color: '#10b981', flexShrink: 0 }} />
-        <div>
-          <div style={{ fontWeight: 700, color: '#10b981', fontSize: '0.95rem' }}>
-            0% Platform Fee · You keep 100% of your earnings.
-          </div>
-          <div style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: '0.15rem' }}>
-            Earn through Direct Prompt Purchases ($1 - $50) and Creator Subscriptions.
-          </div>
-        </div>
-      </div>
-
       {/* KPI Cards */}
       <section className={styles.kpiGrid}>
         <div className={styles.kpiCard}>
