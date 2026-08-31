@@ -76,18 +76,18 @@ export default function MonetizationInfoModal({ onClose }: MonetizationInfoModal
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
             <div 
               style={{ 
-                width: '36px', 
-                height: '36px', 
-                borderRadius: '8px', 
-                backgroundColor: 'var(--bg-secondary)', 
-                border: '1px solid var(--border-color)',
+                width: '38px', 
+                height: '38px', 
+                borderRadius: '10px', 
+                backgroundColor: '#222226', 
+                border: 'none',
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
                 flexShrink: 0 
               }}
             >
-              <Lock size={18} style={{ color: 'var(--text-secondary)' }} />
+              <Lock size={18} style={{ color: '#e4e4e7' }} />
             </div>
             <div>
               <h4 
@@ -110,7 +110,7 @@ export default function MonetizationInfoModal({ onClose }: MonetizationInfoModal
                   letterSpacing: '0.01em'
                 }}
               >
-                Set a fixed price between $1 and $50 on any prompt. Buyers pay once to unlock it instantly. <strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>0% Platform Fee</strong> — you keep 100% of every sale (standard payment processing fees via Whop apply).
+                Set a fixed price between $1 and $50 on any prompt. Buyers pay once to unlock it instantly. <strong style={{ color: '#10b981', fontWeight: 600 }}>0% Platform Fee</strong>, you keep 100% of every sale (standard payment processing fees via Whop apply).
               </p>
             </div>
           </div>
@@ -119,18 +119,18 @@ export default function MonetizationInfoModal({ onClose }: MonetizationInfoModal
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
             <div 
               style={{ 
-                width: '36px', 
-                height: '36px', 
-                borderRadius: '8px', 
-                backgroundColor: 'var(--bg-secondary)', 
-                border: '1px solid var(--border-color)',
+                width: '38px', 
+                height: '38px', 
+                borderRadius: '10px', 
+                backgroundColor: '#222226', 
+                border: 'none',
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
                 flexShrink: 0 
               }}
             >
-              <Users size={18} style={{ color: 'var(--text-secondary)' }} />
+              <Users size={18} style={{ color: '#e4e4e7' }} />
             </div>
             <div>
               <h4 
@@ -153,7 +153,7 @@ export default function MonetizationInfoModal({ onClose }: MonetizationInfoModal
                   letterSpacing: '0.01em'
                 }}
               >
-                Offer a recurring Creator Membership to earn sustainable income. Subscribers automatically gain access to your entire vault of subscriber-only prompts.
+                Offer a recurring Creator Membership to earn sustainable income. Subscribers automatically gain access to your entire vault of subscriber only prompts.
               </p>
             </div>
           </div>
@@ -162,18 +162,18 @@ export default function MonetizationInfoModal({ onClose }: MonetizationInfoModal
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
             <div 
               style={{ 
-                width: '36px', 
-                height: '36px', 
-                borderRadius: '8px', 
-                backgroundColor: 'var(--bg-secondary)', 
-                border: '1px solid var(--border-color)',
+                width: '38px', 
+                height: '38px', 
+                borderRadius: '10px', 
+                backgroundColor: '#222226', 
+                border: 'none',
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
                 flexShrink: 0 
               }}
             >
-              <DollarSign size={18} style={{ color: 'var(--text-secondary)' }} />
+              <DollarSign size={18} style={{ color: '#e4e4e7' }} />
             </div>
             <div>
               <h4 
