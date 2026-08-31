@@ -37,8 +37,8 @@ export default function GoogleSignInButton({
     if (onSuccess) onSuccess();
   };
 
-    return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%', alignItems: 'center', ...style }}>
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', width: '100%', alignItems: 'center', ...style }}>
       <button 
         type="button"
         className={className} 
@@ -48,33 +48,34 @@ export default function GoogleSignInButton({
           opacity: agreed ? 1 : 0.5, 
           cursor: agreed ? 'pointer' : 'not-allowed', 
           width: '100%',
-          maxWidth: '320px',
-          background: 'var(--cta-primary)',
+          maxWidth: '340px',
+          background: 'var(--cta-primary, #2563eb)',
           color: '#ffffff',
           border: 'none',
-          padding: '0.4rem 1.25rem 0.4rem 0.4rem',
+          padding: '0.45rem 1.25rem 0.45rem 0.45rem',
           borderRadius: '8px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           fontWeight: 600,
-          fontSize: '0.9rem',
+          fontSize: '0.92rem',
+          whiteSpace: 'nowrap',
           transition: 'all 0.2s'
         }}
-        onMouseEnter={(e) => { if (agreed) e.currentTarget.style.backgroundColor = 'var(--cta-primary-hover)'; }}
-        onMouseLeave={(e) => { if (agreed) e.currentTarget.style.backgroundColor = 'var(--cta-primary)'; }}
+        onMouseEnter={(e) => { if (agreed) e.currentTarget.style.backgroundColor = 'var(--cta-primary-hover, #1d4ed8)'; }}
+        onMouseLeave={(e) => { if (agreed) e.currentTarget.style.backgroundColor = 'var(--cta-primary, #2563eb)'; }}
       >
         <GoogleLogo />
-        {text}
+        <span style={{ whiteSpace: 'nowrap' }}>{text}</span>
       </button>
-      <label style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start', fontSize: '0.85rem', color: 'var(--text-secondary)', textAlign: 'left', cursor: 'pointer', maxWidth: '320px', padding: '0 0.5rem' }}>
+      <label style={{ display: 'flex', gap: '0.45rem', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(0.7rem, 2.5vw, 0.78rem)', color: 'var(--text-secondary)', cursor: 'pointer', whiteSpace: 'nowrap', width: '100%', maxWidth: '360px', padding: '0 0.25rem' }}>
         <input 
           type="checkbox" 
           checked={agreed} 
           onChange={(e) => setAgreed(e.target.checked)} 
-          style={{ marginTop: '0.2rem', accentColor: '#3b82f6', width: '16px', height: '16px', borderRadius: '4px' }} 
+          style={{ accentColor: '#3b82f6', width: '15px', height: '15px', borderRadius: '4px', flexShrink: 0, cursor: 'pointer' }} 
         />
-        <span style={{ lineHeight: 1.4 }}>
+        <span style={{ whiteSpace: 'nowrap', lineHeight: 1.2 }}>
           I agree to the <Link to="/terms" target="_blank" style={{ color: 'var(--text-primary)', textDecoration: 'underline' }}>Terms of Service</Link> and <Link to="/privacy" target="_blank" style={{ color: 'var(--text-primary)', textDecoration: 'underline' }}>Privacy Policy</Link>
         </span>
       </label>

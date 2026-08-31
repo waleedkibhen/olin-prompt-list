@@ -412,10 +412,22 @@ export default function Navbar() {
 
       {/* Auth Modal */}
       {!user && showAuthModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setShowAuthModal(false)}>
-          <div style={{ backgroundColor: '#0F0F11', padding: '2rem', borderRadius: '16px', border: '1px solid #27272a', width: '90%', maxWidth: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }} onClick={e => e.stopPropagation()}>
-            <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.5rem', fontWeight: 700, color: '#fff', textAlign: 'center' }}>Welcome to Olin's Prompt List</h2>
-            <p style={{ margin: '0 0 1.5rem 0', color: '#a1a1aa', textAlign: 'center', fontSize: '0.9rem', textWrap: 'balance', padding: '0 1rem' }}>Authenticate to continue your browsing experience.</p>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 100000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }} onClick={() => setShowAuthModal(false)}>
+          <div style={{ backgroundColor: '#0d0d10', padding: '2.25rem 1.75rem', borderRadius: '16px', border: '1px solid #27272a', width: '100%', maxWidth: '430px', display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)', position: 'relative' }} onClick={e => e.stopPropagation()}>
+            <button 
+              onClick={() => setShowAuthModal(false)}
+              style={{ position: 'absolute', top: '14px', right: '14px', background: 'transparent', border: 'none', color: '#71717a', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px' }}
+              aria-label="Close modal"
+            >
+              <X size={18} />
+            </button>
+            <img src="/logo.svg" alt="Olin Logo" style={{ width: '40px', height: '40px', marginBottom: '1rem', objectFit: 'contain' }} />
+            <h2 style={{ margin: '0 0 0.35rem 0', fontSize: 'clamp(1.1rem, 4.5vw, 1.4rem)', fontWeight: 700, color: '#fff', textAlign: 'center', whiteSpace: 'nowrap', width: '100%', letterSpacing: '-0.01em' }}>
+              Welcome to Olin's Prompt List
+            </h2>
+            <p style={{ margin: '0 0 1.5rem 0', color: '#a1a1aa', textAlign: 'center', fontSize: '0.875rem', whiteSpace: 'nowrap', width: '100%' }}>
+              Sign in to continue browsing
+            </p>
             <GoogleSignInButton onSuccess={() => setShowAuthModal(false)} />
           </div>
         </div>
