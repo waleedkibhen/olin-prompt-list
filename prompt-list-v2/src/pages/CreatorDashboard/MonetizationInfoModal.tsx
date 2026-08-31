@@ -49,7 +49,7 @@ export default function MonetizationInfoModal({ onClose }: MonetizationInfoModal
               color: 'var(--text-primary)'
             }}
           >
-            <Info size={20} style={{ color: '#3b82f6', flexShrink: 0 }} />
+            <Info size={20} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
             How Creator Monetization Works
           </h3>
           <button 
@@ -79,15 +79,15 @@ export default function MonetizationInfoModal({ onClose }: MonetizationInfoModal
                 width: '36px', 
                 height: '36px', 
                 borderRadius: '8px', 
-                backgroundColor: 'rgba(59, 130, 246, 0.1)', 
-                border: '1px solid rgba(59, 130, 246, 0.2)',
+                backgroundColor: 'var(--bg-secondary)', 
+                border: '1px solid var(--border-color)',
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
                 flexShrink: 0 
               }}
             >
-              <Lock size={18} style={{ color: '#3b82f6' }} />
+              <Lock size={18} style={{ color: 'var(--text-secondary)' }} />
             </div>
             <div>
               <h4 
@@ -110,7 +110,7 @@ export default function MonetizationInfoModal({ onClose }: MonetizationInfoModal
                   letterSpacing: '0.01em'
                 }}
               >
-                Set a fixed price between $1 and $50 on any prompt. Buyers pay once to unlock it instantly. <strong style={{ color: '#10b981', fontWeight: 600 }}>0% Platform Fee</strong> — you keep 100% of every sale (standard payment processing fees via Whop apply).
+                Set a fixed price between $1 and $50 on any prompt. Buyers pay once to unlock it instantly. <strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>0% Platform Fee</strong> — you keep 100% of every sale (standard payment processing fees via Whop apply).
               </p>
             </div>
           </div>
@@ -122,15 +122,15 @@ export default function MonetizationInfoModal({ onClose }: MonetizationInfoModal
                 width: '36px', 
                 height: '36px', 
                 borderRadius: '8px', 
-                backgroundColor: 'rgba(168, 85, 247, 0.1)', 
-                border: '1px solid rgba(168, 85, 247, 0.2)',
+                backgroundColor: 'var(--bg-secondary)', 
+                border: '1px solid var(--border-color)',
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
                 flexShrink: 0 
               }}
             >
-              <Users size={18} style={{ color: '#a855f7' }} />
+              <Users size={18} style={{ color: 'var(--text-secondary)' }} />
             </div>
             <div>
               <h4 
@@ -165,15 +165,15 @@ export default function MonetizationInfoModal({ onClose }: MonetizationInfoModal
                 width: '36px', 
                 height: '36px', 
                 borderRadius: '8px', 
-                backgroundColor: 'rgba(16, 185, 129, 0.1)', 
-                border: '1px solid rgba(16, 185, 129, 0.2)',
+                backgroundColor: 'var(--bg-secondary)', 
+                border: '1px solid var(--border-color)',
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
                 flexShrink: 0 
               }}
             >
-              <DollarSign size={18} style={{ color: '#10b981' }} />
+              <DollarSign size={18} style={{ color: 'var(--text-secondary)' }} />
             </div>
             <div>
               <h4 
