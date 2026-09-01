@@ -171,13 +171,36 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
     const distance = touchStartX - touchEndX;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
-    if (isLeftSwipe && post.imageUrls && activeImageIndex < post.imageUrls.length - 1) {
-      setActiveImageIndex(prev => prev + 1);
-    }
-    if (isRightSwipe && activeImageIndex > 0) {
-      setActiveImageIndex(prev => prev - 1);
+    const count = post.imageUrls?.length || 0;
+    if (count > 1) {
+      if (isLeftSwipe) {
+        setActiveImageIndex(prev => (prev + 1) % count);
+      }
+      if (isRightSwipe) {
+        setActiveImageIndex(prev => (prev - 1 + count) % count);
+      }
     }
   };
+
+  // Keyboard navigation for looping through images
+  useEffect(() => {
+    if (!isModalOpen || !post.imageUrls || post.imageUrls.length <= 1) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+        return;
+      }
+      if (e.key === 'ArrowLeft') {
+        setActiveImageIndex(prev => (prev - 1 + post.imageUrls.length) % post.imageUrls.length);
+      } else if (e.key === 'ArrowRight') {
+        setActiveImageIndex(prev => (prev + 1) % post.imageUrls.length);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isModalOpen, post.imageUrls]);
 
   const [previewPaywall, setPreviewPaywall] = useState(false);
   const isCreator = Boolean(user && user.uid === post.creator.uid);
@@ -642,24 +665,32 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                     decoding="async"
                   />
                 
-                {post.imageUrls.length > 1 && (
+                {post.imageUrls && post.imageUrls.length > 1 && (
                   <>
-                    {activeImageIndex > 0 && (
-                      <button 
-                        className={styles.navArrowLeft} 
-                        onClick={(e) => { e.stopPropagation(); setActiveImageIndex(prev => prev - 1); }}
-                      >
-                        <ChevronLeft size={32} color="#fff" />
-                      </button>
-                    )}
-                    {activeImageIndex < post.imageUrls.length - 1 && (
-                      <button 
-                        className={styles.navArrowRight} 
-                        onClick={(e) => { e.stopPropagation(); setActiveImageIndex(prev => prev + 1); }}
-                      >
-                        <ChevronRight size={32} color="#fff" />
-                      </button>
-                    )}
+                    <button 
+                      type="button"
+                      className={styles.navArrowLeft} 
+                      onClick={(e) => { 
+                        e.stopPropagation(); 
+                        setActiveImageIndex(prev => (prev - 1 + post.imageUrls.length) % post.imageUrls.length); 
+                      }}
+                      aria-label="Previous image"
+                      title="Previous image"
+                    >
+                      <ChevronLeft size={32} color="#fff" />
+                    </button>
+                    <button 
+                      type="button"
+                      className={styles.navArrowRight} 
+                      onClick={(e) => { 
+                        e.stopPropagation(); 
+                        setActiveImageIndex(prev => (prev + 1) % post.imageUrls.length); 
+                      }}
+                      aria-label="Next image"
+                      title="Next image"
+                    >
+                      <ChevronRight size={32} color="#fff" />
+                    </button>
                   </>
                 )}
                 
