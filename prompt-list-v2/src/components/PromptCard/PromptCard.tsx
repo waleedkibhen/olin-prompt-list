@@ -28,6 +28,11 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
   const [isSaved, setIsSaved] = useState(false);
   const [likesCount, setLikesCount] = useState(post.likesCount);
   const [savesCount, setSavesCount] = useState(post.savesCount);
+  const [viewsCount, setViewsCount] = useState(post.viewsCount || 1);
+
+  useEffect(() => {
+    setViewsCount(post.viewsCount || 1);
+  }, [post.viewsCount]);
 
   useEffect(() => {
     try {
@@ -134,9 +139,9 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
                   <Heart size={22} fill={isLiked ? "currentColor" : "none"} strokeWidth={isLiked ? 0 : 2} />
                   <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#fff' }}>{likesCount}</span>
                 </button>
-                <div title={`${post.viewsCount} views`} style={{ background: 'transparent', border: 'none', color: '#fff', padding: '4px', display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '6px' }}>
+                <div title={`${viewsCount} views`} style={{ background: 'transparent', border: 'none', color: '#fff', padding: '4px', display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '6px' }}>
                   <Eye size={22} strokeWidth={2} />
-                  <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{post.viewsCount}</span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{viewsCount}</span>
                 </div>
               </div>
             <div className={styles.bottomOverlay}>
@@ -160,6 +165,7 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
           isSaved={isSaved}
           likesCount={likesCount}
           savesCount={savesCount}
+          viewsCount={viewsCount}
           toggleLike={toggleLike}
           toggleSave={toggleSave}
           onCloseOverride={onCloseOverride}

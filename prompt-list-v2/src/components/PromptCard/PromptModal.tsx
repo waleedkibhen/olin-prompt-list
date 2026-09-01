@@ -33,7 +33,7 @@ const isLocallyUnlocked = (postId: string, uid?: string | null): boolean => {
 import CommentsSection from './CommentsSection';
 import { useComments } from '@/hooks/useComments';
 
-export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked, isSaved, likesCount, savesCount, toggleLike, toggleSave, onCloseOverride, defaultOpen }: { post: PromptPost; [key: string]: any }) {
+export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked, isSaved, likesCount, savesCount, viewsCount, toggleLike, toggleSave, onCloseOverride, defaultOpen }: { post: PromptPost; [key: string]: any }) {
 
   // Legacy 'ad'/'ad_supported' posts fall back to free content when ads are disabled
   const effectiveMonetization = (() => {
@@ -708,6 +708,10 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                   <Bookmark size={17} fill={isSaved ? "currentColor" : "none"} />
                   {savesCount > 0 && <span>{savesCount}</span>}
                 </button>
+                <div className={styles.barBtn} title={`${viewsCount || post.viewsCount || 1} views`} style={{ cursor: 'default', opacity: 0.9 }}>
+                  <Eye size={17} />
+                  <span>{viewsCount || post.viewsCount || 1}</span>
+                </div>
                 <button className={`${styles.barBtn} ${showComments ? styles.barBtnActive : ''}`} onClick={handleCommentsClick} onContextMenu={handleCommentsContextMenu} title="Comments">
                   <MessageSquare size={17} />
                   {comments.length > 0 && <span style={{ fontWeight: 500 }}>{comments.length}</span>}

@@ -1,8 +1,10 @@
 interface Env {
   VITE_FIREBASE_PROJECT_ID?: string;
+  VITE_FIREBASE_API_KEY?: string;
 }
 
 const DEFAULT_FIREBASE_PROJECT_ID = "promptlist-15659";
+const DEFAULT_FIREBASE_API_KEY = "AIzaSyDft0f0YPzPhS3PP4ASiVcAakzZK4nY590";
 
 // Known automated search crawlers & preview scrapers (Exclude real human in-app browsers like Pinterest, Instagram, TikTok, etc.)
 const BOT_USER_AGENTS = /Googlebot|bingbot|Slurp|DuckDuckBot|Baiduspider|YandexBot|Sogou|Exabot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|Slackbot|Discordbot|TelegramBot|WhatsApp|Embedly|Quora Link Preview|Rogerbot|outbrain|W3C_Validator/i;
@@ -72,9 +74,10 @@ async function handleViewIncrement(context: EventContext<Env, any, any>): Promis
     }
 
     const projectId = context.env.VITE_FIREBASE_PROJECT_ID || DEFAULT_FIREBASE_PROJECT_ID;
+    const apiKey = context.env.VITE_FIREBASE_API_KEY || DEFAULT_FIREBASE_API_KEY;
 
-    // 3. Atomically increment viewsCount in Firestore via REST API commit
-    const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents:commit`;
+    // 3. Atomically increment viewsCount in Firestore via REST API commit with Firebase API key
+    const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents:commit?key=${apiKey}`;
     
     const commitBody = {
       writes: [
