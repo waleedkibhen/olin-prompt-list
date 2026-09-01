@@ -6,6 +6,7 @@ import { PromptPost } from '@/lib/mockData';
 import { Box, AlertCircle } from 'lucide-react';
 import PromptCard from '@/components/PromptCard';
 import { updateSEOTags, resetSEOTags } from '@/lib/seo';
+import { trackPostView } from '@/lib/viewTracker';
 
 export default function PostDetailPage() {
   const params = useParams();
@@ -18,10 +19,10 @@ export default function PostDetailPage() {
   useEffect(() => {
     if (!id) return;
     
+    // Safely and immediately track post view on mount (edge sendBeacon + deduplicated local store)
+    trackPostView(id);
+
     const postRef = doc(db, 'posts', id);
-    
-    // View incrementing is now handled exclusively by PromptCard.tsx 
-    // to prevent double-counting on direct URL visits.
 
     const fetchPost = async () => {
       try {

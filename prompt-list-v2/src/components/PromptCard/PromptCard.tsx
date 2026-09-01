@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './PromptCard.module.css';
 import { PromptPost } from '@/lib/mockData';
 import { useAuth } from '@/context/AuthContext';
@@ -30,17 +30,19 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
   const [savesCount, setSavesCount] = useState(post.savesCount);
 
   useEffect(() => {
-    if (user && profile) {
-      const savedArr = profile.savedPosts || JSON.parse(localStorage.getItem(`saves_${user.uid}`) || '[]');
-      const likedArr = profile.likedPosts || JSON.parse(localStorage.getItem(`likes_${user.uid}`) || '[]');
-      setIsSaved(savedArr.includes(post.id));
-      setIsLiked(likedArr.includes(post.id));
-    } else if (user) {
-      const savedArr = JSON.parse(localStorage.getItem(`saves_${user.uid}`) || '[]');
-      const likedArr = JSON.parse(localStorage.getItem(`likes_${user.uid}`) || '[]');
-      setIsSaved(savedArr.includes(post.id));
-      setIsLiked(likedArr.includes(post.id));
-    }
+    try {
+      if (user && profile) {
+        const savedArr = profile.savedPosts || JSON.parse(localStorage.getItem(`saves_${user.uid}`) || '[]');
+        const likedArr = profile.likedPosts || JSON.parse(localStorage.getItem(`likes_${user.uid}`) || '[]');
+        setIsSaved(savedArr.includes(post.id));
+        setIsLiked(likedArr.includes(post.id));
+      } else if (user) {
+        const savedArr = JSON.parse(localStorage.getItem(`saves_${user.uid}`) || '[]');
+        const likedArr = JSON.parse(localStorage.getItem(`likes_${user.uid}`) || '[]');
+        setIsSaved(savedArr.includes(post.id));
+        setIsLiked(likedArr.includes(post.id));
+      }
+    } catch {}
   }, [user, profile, post.id]);
 
   const requireAuth = (_actionName: string): boolean => {
@@ -61,9 +63,11 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
     setIsLiked(nextVal);
     setLikesCount(prev => nextVal ? prev + 1 : Math.max(0, prev - 1));
 
-    const likedArr = JSON.parse(localStorage.getItem(`likes_${user.uid}`) || '[]');
-    const nextArr = nextVal ? [...likedArr, post.id] : likedArr.filter((item: string) => item !== post.id);
-    localStorage.setItem(`likes_${user.uid}`, JSON.stringify(nextArr));
+    try {
+      const likedArr = JSON.parse(localStorage.getItem(`likes_${user.uid}`) || '[]');
+      const nextArr = nextVal ? [...likedArr, post.id] : likedArr.filter((item: string) => item !== post.id);
+      localStorage.setItem(`likes_${user.uid}`, JSON.stringify(nextArr));
+    } catch {}
 
     if (onLike) onLike(post.id);
     
@@ -83,9 +87,11 @@ export default function PromptCard({ post, onLike, onSave, defaultOpen = false, 
     setIsSaved(nextVal);
     setSavesCount(prev => nextVal ? prev + 1 : Math.max(0, prev - 1));
 
-    const savedArr = JSON.parse(localStorage.getItem(`saves_${user.uid}`) || '[]');
-    const nextArr = nextVal ? [...savedArr, post.id] : savedArr.filter((item: string) => item !== post.id);
-    localStorage.setItem(`saves_${user.uid}`, JSON.stringify(nextArr));
+    try {
+      const savedArr = JSON.parse(localStorage.getItem(`saves_${user.uid}`) || '[]');
+      const nextArr = nextVal ? [...savedArr, post.id] : savedArr.filter((item: string) => item !== post.id);
+      localStorage.setItem(`saves_${user.uid}`, JSON.stringify(nextArr));
+    } catch {}
 
     if (onSave) onSave(post.id);
     

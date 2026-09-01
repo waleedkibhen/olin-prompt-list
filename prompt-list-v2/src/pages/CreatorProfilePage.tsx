@@ -125,8 +125,10 @@ export default function CreatorProfilePage() {
 
         // 4. Check if current user is following (using our localStorage mock for now)
         if (user) {
-          const followedArr = JSON.parse(localStorage.getItem(`following_${user.uid}`) || '[]');
-          setIsFollowing(followedArr.includes(userData.id));
+          try {
+            const followedArr = JSON.parse(localStorage.getItem(`following_${user.uid}`) || '[]');
+            setIsFollowing(followedArr.includes(userData.id));
+          } catch {}
         }
 
       } catch (err) {
@@ -145,9 +147,11 @@ export default function CreatorProfilePage() {
     setIsFollowing(nextVal);
     
     // Fallback to local storage like PromptCard
-    const followedArr = JSON.parse(localStorage.getItem(`following_${user.uid}`) || '[]');
-    const nextArr = nextVal ? [...followedArr, creatorUser.id] : followedArr.filter((id: string) => id !== creatorUser.id);
-    localStorage.setItem(`following_${user.uid}`, JSON.stringify(nextArr));
+    try {
+      const followedArr = JSON.parse(localStorage.getItem(`following_${user.uid}`) || '[]');
+      const nextArr = nextVal ? [...followedArr, creatorUser.id] : followedArr.filter((id: string) => id !== creatorUser.id);
+      localStorage.setItem(`following_${user.uid}`, JSON.stringify(nextArr));
+    } catch {}
 
     // Optional: Optimistically update visual follower count
     setFollowerCount(prev => nextVal ? prev + 1 : Math.max(0, prev - 1));

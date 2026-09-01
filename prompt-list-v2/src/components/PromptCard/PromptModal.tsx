@@ -13,7 +13,7 @@ import ReportModal from '@/components/ReportModal';
 import DiscoverMore from '../DiscoverMore';
 import RichTextRenderer, { copyRichPrompt } from '@/components/RichTextRenderer';
 import toast from 'react-hot-toast';
-import { hasViewedRecently, recordView } from '@/lib/viewTracker';
+import { trackPostView } from '@/lib/viewTracker';
 import { updateSEOTags, resetSEOTags } from '@/lib/seo';
 import { getOptimizedImageUrl } from '@/lib/imageOptimization';
 
@@ -269,29 +269,18 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
     setIsUnlocked(isFree || isOwner || subUnlocked || isLocallyUnlocked(post.id, user?.uid));
 
     if (user && profile) {
-      const followedArr = JSON.parse(localStorage.getItem(`following_${user.uid}`) || '[]');
-      if (post.creator?.uid) {
-        setIsFollowing(followedArr.includes(post.creator.uid));
-      }
+      try {
+        const followedArr = JSON.parse(localStorage.getItem(`following_${user.uid}`) || '[]');
+        if (post.creator?.uid) {
+          setIsFollowing(followedArr.includes(post.creator.uid));
+        }
+      } catch {}
     }
   }, [user, profile, post.id, post.creator?.uid, post.creatorId, post.isPaid, post.monetizationType, post.accessTier, effectiveMonetization, isOwner]);
 
-  
-
   useEffect(() => {
-    if (isModalOpen) {
-      const incrementView = async () => {
-        try {
-          if (!hasViewedRecently(post.id)) {
-            const postRef = doc(db, 'posts', post.id);
-            await updateDoc(postRef, { viewsCount: increment(1) });
-            recordView(post.id);
-          }
-        } catch (err) {
-          console.error("Failed to increment view count:", err);
-        }
-      };
-      incrementView();
+    if (isModalOpen && post.id) {
+      trackPostView(post.id);
     }
   }, [isModalOpen, post.id]);
 
@@ -304,8 +293,6 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
     return true;
   };
 
-  
-  
   const toggleFollow = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!requireAuth("Follow")) return;
@@ -315,9 +302,11 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
     const nextVal = !isFollowing;
     setIsFollowing(nextVal);
 
-    const followedArr = JSON.parse(localStorage.getItem(`following_${user.uid}`) || '[]');
-    const nextArr = nextVal ? [...followedArr, creatorUid] : followedArr.filter((item: string) => item !== creatorUid);
-    localStorage.setItem(`following_${user.uid}`, JSON.stringify(nextArr));
+    try {
+      const followedArr = JSON.parse(localStorage.getItem(`following_${user.uid}`) || '[]');
+      const nextArr = nextVal ? [...followedArr, creatorUid] : followedArr.filter((item: string) => item !== creatorUid);
+      localStorage.setItem(`following_${user.uid}`, JSON.stringify(nextArr));
+    } catch {}
     
     const followDocId = `${user.uid}_${creatorUid}`;
     try {

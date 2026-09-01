@@ -459,7 +459,10 @@ export default function DiscoveryFeed() {
         }
       } else if (tab === 'following') {
         const uid = profile?.uid || 'anon';
-        const followingArr: string[] = JSON.parse(localStorage.getItem(`following_${uid}`) || '[]');
+        let followingArr: string[] = [];
+        try {
+          followingArr = JSON.parse(localStorage.getItem(`following_${uid}`) || '[]');
+        } catch {}
         current = current.filter(p => followingArr.includes(p.creator.uid)).sort((a, b) => (b.rawTimestamp || 0) - (a.rawTimestamp || 0));
       } else if (tab === 'saved') {
         const savedArr = profile?.savedPosts || [];
