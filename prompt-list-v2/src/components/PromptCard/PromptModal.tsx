@@ -863,23 +863,13 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                         }}
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                          <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#ffffff' }}>
-                            Creator Monetization
-                          </span>
-                        </div>
+                        <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#ffffff' }}>
+                          Creator Monetization
+                        </span>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: '0.76rem', color: '#a1a1aa', lineHeight: 1.45 }}>
-                          <div>
-                            <strong style={{ color: '#e4e4e7' }}>One-Time Unlocks:</strong> Charge $1 to $50 to unlock prompts instantly.
-                          </div>
-                          <div>
-                            <strong style={{ color: '#e4e4e7' }}>Subscriptions:</strong> Offer monthly memberships to your prompt vault.
-                          </div>
-                          <div>
-                            <strong style={{ color: '#10b981' }}>0% Platform Fee:</strong> You receive 97% of every sale after Whop's 3% payment processing fee.
-                          </div>
-                        </div>
+                        <p style={{ margin: 0, fontSize: '0.76rem', color: '#a1a1aa', lineHeight: 1.5 }}>
+                          You can monetize through one-time purchases by charging between $1 to $50 to unlock prompts, or earn through subscriptions. Olin takes a 0% platform fee, with only Whop's 3% payment processing fee deducted.
+                        </p>
 
                         <button
                           type="button"
