@@ -59,7 +59,25 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
   const [hoveredPlanCard, setHoveredPlanCard] = useState<'monthly' | 'yearly' | null>(null);
   const [subBilling, setSubBilling] = useState<'monthly' | 'yearly'>('monthly');
   const [subPromptCount, setSubPromptCount] = useState<number | null>(null);
+  const [showInfoPopover, setShowInfoPopover] = useState(false);
+  const infoPopoverRef = useRef<HTMLDivElement>(null);
   const commentsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+      if (infoPopoverRef.current && !infoPopoverRef.current.contains(e.target as Node)) {
+        setShowInfoPopover(false);
+      }
+    };
+    if (showInfoPopover) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [showInfoPopover]);
 
   const scrollToComments = () => {
     setShowComments(true);
@@ -782,39 +800,121 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                   backgroundColor: '#121214',
                   border: '1px solid #27272a',
                   borderRadius: '10px',
-                  padding: '0.85rem 1rem',
+                  padding: '0.75rem 1rem',
                   marginBottom: '1rem',
                   display: 'flex',
                   flexDirection: 'column',
                   gap: '0.35rem'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                   <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#e4e4e7', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     🔥 <span>Creators can now earn on Olin</span>
                   </span>
+
+                  {/* Information Icon & Hover/Click Popover */}
+                  <div 
+                    ref={infoPopoverRef}
+                    style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}
+                    onMouseEnter={() => setShowInfoPopover(true)}
+                    onMouseLeave={() => setShowInfoPopover(false)}
+                  >
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowInfoPopover(prev => !prev);
+                      }}
+                      aria-label="Monetization information"
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: showInfoPopover ? '#e4e4e7' : '#71717a',
+                        cursor: 'pointer',
+                        padding: '2px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRadius: '4px',
+                        transition: 'color 150ms ease'
+                      }}
+                    >
+                      <Info size={15} />
+                    </button>
+
+                    {showInfoPopover && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '100%',
+                          right: 0,
+                          marginTop: '6px',
+                          width: '280px',
+                          backgroundColor: '#18181b',
+                          border: '1px solid #27272a',
+                          borderRadius: '10px',
+                          padding: '0.85rem 1rem',
+                          boxShadow: '0 12px 30px -4px rgba(0, 0, 0, 0.7)',
+                          zIndex: 100,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '0.5rem',
+                          textAlign: 'left'
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#ffffff' }}>
+                            Creator Monetization
+                          </span>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: '0.76rem', color: '#a1a1aa', lineHeight: 1.45 }}>
+                          <div>
+                            <strong style={{ color: '#e4e4e7' }}>One-Time Unlocks:</strong> Charge $1 to $50 to unlock prompts instantly.
+                          </div>
+                          <div>
+                            <strong style={{ color: '#e4e4e7' }}>Subscriptions:</strong> Offer monthly memberships to your prompt vault.
+                          </div>
+                          <div>
+                            <strong style={{ color: '#10b981' }}>0% Platform Fee:</strong> You receive 97% of every sale after Whop's 3% payment processing fee.
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowInfoPopover(false);
+                            setIsMonetizationInfoOpen(true);
+                          }}
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: '#3b82f6',
+                            fontSize: '0.78rem',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            padding: '4px 0 0 0',
+                            textAlign: 'left',
+                            textDecoration: 'underline',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            alignSelf: 'flex-start'
+                          }}
+                        >
+                          <span>How it works</span>
+                          <ArrowRight size={11} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
+
                 <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
                   Start posting prompts and earn with 0% platform fees.
                 </span>
-                <button
-                  type="button"
-                  onClick={() => setIsMonetizationInfoOpen(true)}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: '#3b82f6',
-                    fontSize: '0.78rem',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    padding: 0,
-                    textDecoration: 'underline',
-                    alignSelf: 'flex-start',
-                    marginTop: '0.2rem'
-                  }}
-                >
-                  How it works
-                </button>
               </div>
 
               <div style={{ display: 'flex', gap: '1.5rem', borderBottom: 'none', marginBottom: '1rem', marginTop: '0.5rem', overflowX: 'auto', whiteSpace: 'nowrap' }}>
