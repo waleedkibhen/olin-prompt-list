@@ -241,7 +241,7 @@ export default function CreatePostPage() {
 
       const textAnalysis = await moderateText(`${title}\n${description}\n${prompts.join('\n')}\n${model === 'Other' ? customModel : ''}`);
       if (!textAnalysis.approved) {
-        throw new Error(`Content blocked: ${textAnalysis.reason}. Your account has been flagged.`);
+        throw new Error(`Content blocked: ${textAnalysis.reason || 'Safety policy violation'}`);
       }
 
       setStatusText('We are evaluating your creation');
@@ -249,7 +249,7 @@ export default function CreatePostPage() {
       
       const imageAnalysis = await moderateSingleImage(coverBase64, 1);
       if (!imageAnalysis.approved) {
-        throw new Error(`Image blocked: ${imageAnalysis.reason}. Account flagged.`);
+        throw new Error(imageAnalysis.reason || 'Image was flagged by safety moderation');
       }
 
       setStatusText('We are processing it right now');
