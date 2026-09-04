@@ -194,6 +194,10 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     })
     .on('head', {
       element(e) {
+        if (primaryImage && !primaryImage.includes('og-banner.jpg')) {
+          const optimized1200 = `https://wsrv.nl/?url=${encodeURIComponent(primaryImage)}&w=1200&output=webp&n=1&q=80`;
+          e.append(`<link rel="preload" as="image" href="${escapeHtml(optimized1200)}" fetchpriority="high" />`, { html: true });
+        }
         e.append(`<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`, { html: true });
       }
     })

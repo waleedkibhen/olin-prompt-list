@@ -64,7 +64,6 @@ export default function DiscoveryFeed() {
   type TabType = 'for_you' | 'trending' | 'newest' | 'following' | 'saved';
   const activeTab = (searchParams.get('tab') as TabType) || 'for_you';
 
-  // Multi-dimensional filter states
   const colorFilter = searchParams.get('color') || 'All';
   const typeFilter = searchParams.get('type') || 'All Types';
   const aspectFilter = searchParams.get('aspect') || 'All Dimensions';
@@ -74,9 +73,34 @@ export default function DiscoveryFeed() {
   const { user, profile } = useAuth();
   const { addRecentSearch } = useRecentSearches();
   
-  const [dbPosts, setDbPosts] = useState<PromptPost[]>([]);
-  const [displayedPosts, setDisplayedPosts] = useState<PromptPost[]>([]);
-  const [isLoadingDb, setIsLoadingDb] = useState(true);
+  const [dbPosts, setDbPosts] = useState<PromptPost[]>(() => {
+    try {
+      const cached = localStorage.getItem('olin_feed_cache_v1');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return [];
+  });
+  const [displayedPosts, setDisplayedPosts] = useState<PromptPost[]>(() => {
+    try {
+      const cached = localStorage.getItem('olin_feed_cache_v1');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return [];
+  });
+  const [isLoadingDb, setIsLoadingDb] = useState<boolean>(() => {
+    try {
+      const cached = localStorage.getItem('olin_feed_cache_v1');
+      return !cached || JSON.parse(cached).length === 0;
+    } catch {
+      return true;
+    }
+  });
   const [permissionError, setPermissionError] = useState(false);
   const [searchFilter, setSearchFilter] = useState('');
   const [modelFilter, setModelFilter] = useState('All Models');
@@ -100,25 +124,21 @@ export default function DiscoveryFeed() {
       lastFilterSignature.current = filterSignature;
 
       if (isBackgroundUpdate) {
-        // Sync new db data (like counts/saves) strictly in-place to prevent UI jumping while scrolling!
         setDisplayedPosts(prev => prev.map(p => {
           const updated = dbPosts.find(dbP => dbP.id === p.id);
           return updated ? updated : p;
         }));
       } else {
-        // Full recalculation and resort for filter/tab/auth changes
-        setVisibleCount(12); // Reset visible items on new layout
+        setVisibleCount(12);
         applyAllFiltersAndSearch(dbPosts, activeTab, queryParam, modelParam, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter, activeVector);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, activeTab, colorFilter, typeFilter, aspectFilter, timeFilter, vaultFilter, dbPosts, profile, activeVector]);
 
   useEffect(() => {
     const fetchEmbedding = async () => {
       const term = searchParams.get('search')?.trim() || '';
       
-      // Skip embedding generation for short terms or known color searches to save API costs
       const isColor = COLOR_OPTIONS.some(c => 
         c.name.toLowerCase().includes(term.toLowerCase()) || 
         c.keywords.some(kw => kw.toLowerCase() === term.toLowerCase() || term.toLowerCase().includes(kw.toLowerCase()))
@@ -140,8 +160,6 @@ export default function DiscoveryFeed() {
   }, [searchParams]);
 
   useEffect(() => {
-    // Limit to newest 60 posts to create the local candidate pool 
-    // (60 is the perfect balance: keeps reading costs extremely low while providing enough data for AI sorting)
     const postsQuery = query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(60));
     
     const unsubscribe = onSnapshot(postsQuery, (snapshot) => {
@@ -149,7 +167,6 @@ export default function DiscoveryFeed() {
       const liveItems: PromptPost[] = [];
       snapshot.forEach((docSnap) => {
         const data = docSnap.data();
-        // AI moderation flags remove the post instantly; User reports keep the post public while queuing for Admin review
         if (data.isFlagged === true && data.flagSource !== 'user' && !String(data.flaggedReason || '').startsWith('Reported by')) return;
         liveItems.push({
           id: docSnap.id,
@@ -178,7 +195,7 @@ export default function DiscoveryFeed() {
           commentCount: data.commentCount || data.commentsCount || 0,
           isPaid: data.isPaid || false,
           price: data.price || 0,
-            whopPlanId: data.whopPlanId || undefined,
+          whopPlanId: data.whopPlanId || undefined,
           monetizationType: data.monetizationType || (data.isPaid ? 'subscribers_only' : 'free'),
           isFlagged: data.isFlagged || false,
           flaggedReason: data.flaggedReason || '',
@@ -192,6 +209,11 @@ export default function DiscoveryFeed() {
 
       setDbPosts(liveItems);
       setIsLoadingDb(false);
+      try {
+        if (liveItems.length > 0) {
+          localStorage.setItem('olin_feed_cache_v1', JSON.stringify(liveItems.slice(0, 24)));
+        }
+      } catch {}
     }, (error: any) => {
       console.error("Firestore error:", error);
       setIsLoadingDb(false);
