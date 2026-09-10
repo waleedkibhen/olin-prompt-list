@@ -63,6 +63,12 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
   const infoPopoverRef = useRef<HTMLDivElement>(null);
   const commentsRef = useRef<HTMLDivElement>(null);
 
+  const [copiesCount, setCopiesCount] = useState<number>(post.copiesCount || 0);
+
+  useEffect(() => {
+    setCopiesCount(post.copiesCount || 0);
+  }, [post.copiesCount]);
+
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent | TouchEvent) => {
       if (infoPopoverRef.current && !infoPopoverRef.current.contains(e.target as Node)) {
@@ -371,6 +377,7 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
     const promptToCopy = effectivePrompts[activeIdx] || post.promptText;
     await copyRichPrompt(promptToCopy);
     setIsCopied(true);
+    setCopiesCount(prev => prev + 1);
     setTimeout(() => setIsCopied(false), 2500);
 
     try {
@@ -404,6 +411,7 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
 
     // Increment post unlock/copies counter so Creator Dashboard updates real-time
     try {
+      setCopiesCount(prev => prev + 1);
       await updateDoc(doc(db, 'posts', post.id), { copiesCount: increment(1) });
     } catch (err) {
       console.warn('Failed updating post copiesCount on purchase:', err);
@@ -760,6 +768,10 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
                 <div className={styles.barBtn} title={`${viewsCount || post.viewsCount || 1} views`} style={{ cursor: 'default', opacity: 0.9 }}>
                   <Eye size={17} />
                   <span>{viewsCount || post.viewsCount || 1}</span>
+                </div>
+                <div className={styles.barBtn} title={`${copiesCount} prompt ${copiesCount === 1 ? 'copy' : 'copies'}`} style={{ cursor: 'default', opacity: 0.9 }}>
+                  <Copy size={17} />
+                  <span>{copiesCount}</span>
                 </div>
                 <button className={`${styles.barBtn} ${showComments ? styles.barBtnActive : ''}`} onClick={handleCommentsClick} onContextMenu={handleCommentsContextMenu} title="Comments">
                   <MessageSquare size={17} />
