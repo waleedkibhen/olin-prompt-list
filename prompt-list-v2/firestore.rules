@@ -50,9 +50,9 @@ service cloud.firestore {
                           'savedBy'
                         ])
                     )
-                    // ALLOW UNAUTHENTICATED USERS TO INCREMENT VIEWS ONLY
+                    // ALLOW UNAUTHENTICATED USERS TO INCREMENT VIEWS AND COPIES ONLY
                     || (!isAuthenticated() 
-                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['viewsCount'])
+                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['viewsCount', 'copiesCount'])
                     );
       
       allow delete: if (isAuthenticated() && resource.data.creatorId == request.auth.uid) || isAdmin();

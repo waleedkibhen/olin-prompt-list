@@ -14,6 +14,7 @@ import DiscoverMore from '../DiscoverMore';
 import RichTextRenderer, { copyRichPrompt } from '@/components/RichTextRenderer';
 import toast from 'react-hot-toast';
 import { trackPostView } from '@/lib/viewTracker';
+import { trackPromptCopy } from '@/lib/copyTracker';
 import { updateSEOTags, resetSEOTags } from '@/lib/seo';
 import { getOptimizedImageUrl } from '@/lib/imageOptimization';
 
@@ -377,13 +378,11 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
     const promptToCopy = effectivePrompts[activeIdx] || post.promptText;
     await copyRichPrompt(promptToCopy);
     setIsCopied(true);
-    setCopiesCount(prev => prev + 1);
     setTimeout(() => setIsCopied(false), 2500);
 
-    try {
-      await updateDoc(doc(db, 'posts', post.id), { copiesCount: increment(1) });
-    } catch (err) {
-      console.error("Failed to increment copy count:", err);
+    const tracked = trackPromptCopy(post.id, isOwner, user?.uid);
+    if (tracked) {
+      setCopiesCount(prev => prev + 1);
     }
   };
 
