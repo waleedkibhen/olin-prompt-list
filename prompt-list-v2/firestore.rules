@@ -17,10 +17,48 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
+    function isSingleIncrement(field) {
+      return !(field in request.resource.data.diff(resource.data).affectedKeys())
+        || (request.resource.data[field] is int && request.resource.data[field] == resource.data.get(field, 0) + 1);
+    }
+
+    function isStepByOne(field) {
+      return !(field in request.resource.data.diff(resource.data).affectedKeys())
+        || (request.resource.data[field] is int 
+            && (request.resource.data[field] == resource.data.get(field, 0) + 1 
+                || request.resource.data[field] == resource.data.get(field, 0) - 1));
+    }
+
     // --- 1. Users Collection ---
     match /users/{userId} {
       allow read: if true;
-      allow write: if isOwner(userId) || isAdmin();
+      
+      // Allow user creation without pre-populated purchases or entitlement tampering
+      allow create: if (isOwner(userId)
+                        && (!('purchasedPrompts' in request.resource.data) || request.resource.data.purchasedPrompts.size() == 0)
+                        && (!('activeSubscriptions' in request.resource.data) || request.resource.data.activeSubscriptions.size() == 0)
+                        && !('isPremium' in request.resource.data)
+                        && !('subscriptionStatus' in request.resource.data)
+                        && !('monetizationStatus' in request.resource.data)
+                        && !('isBanned' in request.resource.data)
+                    ) || isAdmin();
+      
+      // Allow owners to update ONLY non-billing/profile fields. Billing fields require backend/admin.
+      allow update: if (isOwner(userId) 
+                        && request.resource.data.diff(resource.data).affectedKeys().hasNoAny([
+                          'purchasedPrompts', 
+                          'activeSubscriptions', 
+                          'isPremium', 
+                          'subscriptionStatus', 
+                          'monetizationStatus', 
+                          'isBanned', 
+                          'whopUserId', 
+                          'balance', 
+                          'payoutBalance'
+                        ])
+                    ) || isAdmin();
+
+      allow delete: if isOwner(userId) || isAdmin();
       
       // 1b. User Notifications Subcollection
       match /notifications/{notificationId} {
@@ -35,7 +73,7 @@ service cloud.firestore {
       allow read: if true;
       allow create: if isAuthenticated() && request.resource.data.creatorId == request.auth.uid;
       
-      // Allow creator/admin, or authenticated users updating interaction metrics & user arrays
+      // Allow creator/admin, or authenticated users stepping interaction metrics by +1/-1
       allow update: if (isAuthenticated() && resource.data.creatorId == request.auth.uid && request.resource.data.creatorId == resource.data.creatorId) 
                     || isAdmin()
                     || (isAuthenticated() 
@@ -49,25 +87,48 @@ service cloud.firestore {
                           'likedBy',
                           'savedBy'
                         ])
+                        && isStepByOne('likesCount')
+                        && isStepByOne('savesCount')
+                        && isStepByOne('commentCount')
+                        && isStepByOne('commentsCount')
+                        && isSingleIncrement('viewsCount')
+                        && isSingleIncrement('copiesCount')
                     )
-                    // ALLOW UNAUTHENTICATED USERS TO INCREMENT VIEWS AND COPIES ONLY
+                    // ALLOW UNAUTHENTICATED USERS TO INCREMENT VIEWS AND COPIES BY EXACTLY 1
                     || (!isAuthenticated() 
                         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['viewsCount', 'copiesCount'])
+                        && isSingleIncrement('viewsCount')
+                        && isSingleIncrement('copiesCount')
                     );
       
       allow delete: if (isAuthenticated() && resource.data.creatorId == request.auth.uid) || isAdmin();
       
       // 2c. Secure Content Subcollection
       match /secure_content/{docId} {
-        // Creator and Admin can read and write
-        allow write: if (isAuthenticated() && get(/databases/$(database)/documents/posts/$(postId)).data.creatorId == request.auth.uid) || isAdmin();
+        // Creator and Admin can write
+        allow write: if (isAuthenticated() && (
+          resource == null 
+          || resource.data.get('creatorId', '') == request.auth.uid 
+          || (exists(/databases/$(database)/documents/posts/$(postId)) && get(/databases/$(database)/documents/posts/$(postId)).data.creatorId == request.auth.uid)
+        )) || isAdmin();
         
-        // Read: creator, admin, purchasers, or active subscribers of THIS creator
-        // (strict per-creator model — legacy platform-premium no longer grants vault access)
-        allow read: if (isAuthenticated() && get(/databases/$(database)/documents/posts/$(postId)).data.creatorId == request.auth.uid) 
+        // Read: creator (free in-memory check when creatorId is on doc), admin, purchaser, or subscriber
+        allow read: if (isAuthenticated() && (
+                          resource.data.get('creatorId', '') == request.auth.uid 
+                          || (exists(/databases/$(database)/documents/posts/$(postId)) && get(/databases/$(database)/documents/posts/$(postId)).data.creatorId == request.auth.uid)
+                        ))
                     || isAdmin()
                     || (isAuthenticated() && postId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('purchasedPrompts', []))
-                    || (isAuthenticated() && get(/databases/$(database)/documents/posts/$(postId)).data.creatorId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('activeSubscriptions', []));
+                    || (isAuthenticated() && (
+                          (resource.data.get('creatorId', '') != '' && resource.data.creatorId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('activeSubscriptions', []))
+                          || (exists(/databases/$(database)/documents/posts/$(postId)) && get(/databases/$(database)/documents/posts/$(postId)).data.creatorId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('activeSubscriptions', []))
+                       ));
+
+        // Allow clean deletion by creator or admin
+        allow delete: if (isAuthenticated() && (
+          resource.data.get('creatorId', '') == request.auth.uid 
+          || (exists(/databases/$(database)/documents/posts/$(postId)) && get(/databases/$(database)/documents/posts/$(postId)).data.creatorId == request.auth.uid)
+        )) || isAdmin();
       }
 
       
@@ -78,9 +139,16 @@ service cloud.firestore {
         
         allow update: if (isAuthenticated() && resource.data.userId == request.auth.uid && request.resource.data.userId == resource.data.userId)
                       || isAdmin()
-                      || (isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likesCount', 'likedBy', 'replyCount']));
+                      || (isAuthenticated() 
+                          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likesCount', 'likedBy', 'replyCount'])
+                          && isStepByOne('likesCount')
+                          && isStepByOne('replyCount')
+                      );
                       
-        allow delete: if (isAuthenticated() && resource.data.userId == request.auth.uid) || isAdmin();
+        allow delete: if (isAuthenticated() && (
+          resource.data.userId == request.auth.uid 
+          || (exists(/databases/$(database)/documents/posts/$(postId)) && get(/databases/$(database)/documents/posts/$(postId)).data.creatorId == request.auth.uid)
+        )) || isAdmin();
       }
     }
 

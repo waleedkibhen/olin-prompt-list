@@ -252,8 +252,22 @@ export default function CreatorDashboardPage() {
   const confirmDelete = async () => {
     if (!postToDelete) return;
     try {
-      await deleteDoc(doc(db, 'posts', postToDelete.id));
+      const postId = postToDelete.id;
+      // 1. Clean up secure_content subcollection if exists
+      deleteDoc(doc(db, 'posts', postId, 'secure_content', 'data')).catch(() => {});
+
+      // 2. Clean up comments subcollection
+      try {
+        const commentsSnap = await getDocs(collection(db, 'posts', postId, 'comments'));
+        commentsSnap.forEach(cDoc => {
+          deleteDoc(cDoc.ref).catch(() => {});
+        });
+      } catch {}
+
+      // 3. Delete parent post document
+      await deleteDoc(doc(db, 'posts', postId));
       setPostToDelete(null);
+      toast.success('Artwork deleted successfully');
     } catch (err: any) {
       toast.error(`Failed to delete artwork: ${err.message}`);
     }

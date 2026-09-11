@@ -362,7 +362,6 @@ export default function CreatePostPage() {
           }
       }
 
-      
       const isSecure = monetizationType !== 'free';
       const isCharge = monetizationType === 'charge';
       const postPayload = {
@@ -382,7 +381,7 @@ export default function CreatePostPage() {
         monetizationType,
         accessTier: monetizationType === 'subscribers_only' ? 'subscriber' : isCharge ? 'paid' : 'free',
         whopPlanId: whopPlanId || null,
-          price: isCharge ? parseFloat(price) || 0 : 0,
+        price: isCharge ? parseFloat(price) || 0 : 0,
         
         imageUrls: imageUrls,
         imageHash: fileHash,
@@ -406,16 +405,17 @@ export default function CreatePostPage() {
       };
 
       await setDoc(newPostRef, postPayload);
-      
+
       // Protected tiers (Paid + Subscriber Only) keep real prompts in the secure subcollection
       if (isSecure) {
         const secureRef = doc(collection(db, 'posts', newPostRef.id, 'secure_content'), 'data');
         await setDoc(secureRef, {
+          postId: newPostRef.id,
+          creatorId: user.uid,
           promptText: prompts[0],
           prompts: prompts
         });
       }
-
 
       // Notification logic
       try {
@@ -444,7 +444,6 @@ export default function CreatePostPage() {
 
       toast.success('Post successfully uploaded!');
       navigate('/?tab=newest');
-
     } catch (err: any) {
       console.error(err);
       setModerationError(err.message || 'An unexpected error occurred during creation.');
