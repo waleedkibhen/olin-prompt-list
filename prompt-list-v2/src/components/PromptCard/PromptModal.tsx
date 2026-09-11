@@ -382,6 +382,7 @@ export default function PromptModal({ post, isModalOpen, setIsModalOpen, isLiked
 
     const tracked = trackPromptCopy(post.id, isOwner, user?.uid);
     if (tracked) {
+      post.copiesCount = (post.copiesCount || 0) + 1;
       setCopiesCount(prev => prev + 1);
     }
   };
